@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npx expo export -p web",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "rewrites": [
+    { "source": "/rooms/:id", "destination": "/rooms/[id].html" },
+    { "source": "/plans/:slug", "destination": "/plans/[slug].html" },
+    { "source": "/post/:id", "destination": "/post/[id].html" }
+  ]
+}
