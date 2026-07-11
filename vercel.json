@@ -2,6 +2,8 @@
   "buildCommand": "npx expo export -p web",
   "outputDirectory": "dist",
   "installCommand": "npm install",
+  "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
     { "source": "/rooms/:id", "destination": "/rooms/[id].html" },
     { "source": "/plans/:slug", "destination": "/plans/[slug].html" },
