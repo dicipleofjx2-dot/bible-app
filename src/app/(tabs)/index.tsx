@@ -8,12 +8,12 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { getRandomVerse, getVerseOfDay, type Book, type Verse, getBooks } from '@/db/bible';
+import { getRandomPassage, getPassageOfDay, type Book, type Verse, getBooks } from '@/db/bible';
 
 export default function HomeScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
-  const [verse, setVerse] = useState<Verse | null>(null);
+  const [passage, setPassage] = useState<Verse[]>([]);
   const [book, setBook] = useState<Book | null>(null);
   const [books, setBooks] = useState<Book[]>([]);
   const [isToday, setIsToday] = useState(true);
@@ -21,24 +21,33 @@ export default function HomeScreen() {
 
   useEffect(() => {
     (async () => {
-      const [v, loadedBooks] = await Promise.all([getVerseOfDay(db, 'ko_ko'), getBooks(db)]);
+      const [p, loadedBooks] = await Promise.all([getPassageOfDay(db, 'ko_ko'), getBooks(db)]);
       setBooks(loadedBooks);
-      setVerse(v);
-      setBook(loadedBooks.find((b) => b.id === v?.book_id) ?? null);
+      setPassage(p);
+      setBook(loadedBooks.find((b) => b.id === p[0]?.book_id) ?? null);
     })();
   }, [db]);
 
   async function refreshVerse() {
     setRefreshing(true);
     try {
-      const v = await getRandomVerse(db, 'ko_ko');
-      setVerse(v);
-      setBook(books.find((b) => b.id === v?.book_id) ?? null);
+      const p = await getRandomPassage(db, 'ko_ko');
+      setPassage(p);
+      setBook(books.find((b) => b.id === p[0]?.book_id) ?? null);
       setIsToday(false);
     } finally {
       setRefreshing(false);
     }
   }
+
+  const firstVerse = passage[0];
+  const lastVerse = passage[passage.length - 1];
+  const reference =
+    firstVerse && lastVerse
+      ? firstVerse.verse === lastVerse.verse
+        ? `${book?.name_ko} ${firstVerse.chapter}:${firstVerse.verse}`
+        : `${book?.name_ko} ${firstVerse.chapter}:${firstVerse.verse}-${lastVerse.verse}`
+      : '';
 
   return (
     <ThemedView style={styles.container}>
@@ -50,7 +59,7 @@ export default function HomeScreen() {
         <ThemedView type="backgroundElement" style={styles.verseCard}>
           <View style={styles.verseCardHeader}>
             <ThemedText type="small" themeColor="textSecondary">
-              {isToday ? '오늘의 말씀' : '말씀 한 구절'}
+              {isToday ? '오늘의 말씀' : '말씀 묵상'}
             </ThemedText>
             <Pressable
               onPress={refreshVerse}
@@ -62,11 +71,20 @@ export default function HomeScreen() {
               </ThemedText>
             </Pressable>
           </View>
-          {verse && (
+          {passage.length > 0 && (
             <>
-              <ThemedText style={styles.verseText}>{verse.text}</ThemedText>
+              <View style={styles.passageText}>
+                {passage.map((v) => (
+                  <ThemedText key={v.id} style={styles.verseText}>
+                    <ThemedText type="smallBold" themeColor="textSecondary">
+                      {v.verse}{' '}
+                    </ThemedText>
+                    {v.text}
+                  </ThemedText>
+                ))}
+              </View>
               <ThemedText type="smallBold" themeColor="textSecondary">
-                {book?.name_ko} {verse.chapter}:{verse.verse}
+                {reference}
               </ThemedText>
             </>
           )}
@@ -74,10 +92,10 @@ export default function HomeScreen() {
 
         <Pressable
           onPress={() =>
-            verse &&
+            firstVerse &&
             router.push({
               pathname: '/read',
-              params: { bookId: String(verse.book_id), chapter: String(verse.chapter) },
+              params: { bookId: String(firstVerse.book_id), chapter: String(firstVerse.chapter) },
             })
           }
           style={({ pressed }) => [
@@ -130,9 +148,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  passageText: {
+    gap: Spacing.one,
+  },
   verseText: {
-    fontSize: 20,
-    lineHeight: 30,
+    fontSize: 17,
+    lineHeight: 26,
   },
   readButton: {
     paddingHorizontal: Spacing.four,

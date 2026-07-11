@@ -75,40 +75,45 @@ async function getTotalVerseCount(db: SQLiteDatabase): Promise<number> {
   return row?.count ?? 0;
 }
 
-async function getVerseAtIndex(
+/** Verses shown together as one QT-style reading unit, not a single isolated verse. */
+const PASSAGE_UNIT_SIZE = 6;
+
+async function getPassageAtIndex(
   db: SQLiteDatabase,
   index: number,
   translation: Translation
-): Promise<Verse | null> {
+): Promise<Verse[]> {
   const coords = await db.getFirstAsync<{ book_id: number; chapter: number; verse: number }>(
     `SELECT book_id, chapter, verse FROM verses WHERE translation = 'ko_ko' ORDER BY book_id, chapter, verse LIMIT 1 OFFSET ?`,
     [index]
   );
-  if (!coords) return null;
+  if (!coords) return [];
 
-  return db.getFirstAsync<Verse>(
-    `SELECT * FROM verses WHERE book_id = ? AND chapter = ? AND verse = ? AND translation = ?`,
-    [coords.book_id, coords.chapter, coords.verse, translation]
-  );
+  const chapterVerses = await getChapterVerses(db, coords.book_id, coords.chapter, translation);
+  if (chapterVerses.length === 0) return [];
+
+  const anchorPos = chapterVerses.findIndex((v) => v.verse === coords.verse);
+  const start = Math.max(0, Math.min(anchorPos, chapterVerses.length - PASSAGE_UNIT_SIZE));
+  return chapterVerses.slice(start, start + PASSAGE_UNIT_SIZE);
 }
 
-/** Deterministic "verse of the day" — same verse coordinates across translations, changes daily. */
-export async function getVerseOfDay(db: SQLiteDatabase, translation: Translation): Promise<Verse | null> {
+/** Deterministic "passage of the day" — same passage across translations, changes daily. */
+export async function getPassageOfDay(db: SQLiteDatabase, translation: Translation): Promise<Verse[]> {
   const total = await getTotalVerseCount(db);
-  if (total === 0) return null;
+  if (total === 0) return [];
 
   const dayOfYear = Math.floor(
     (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
   );
-  return getVerseAtIndex(db, dayOfYear % total, translation);
+  return getPassageAtIndex(db, dayOfYear % total, translation);
 }
 
-/** A fresh random verse, e.g. for a "다른 말씀 보기" refresh action. */
-export async function getRandomVerse(db: SQLiteDatabase, translation: Translation): Promise<Verse | null> {
+/** A fresh random passage, e.g. for a "다른 말씀 보기" refresh action. */
+export async function getRandomPassage(db: SQLiteDatabase, translation: Translation): Promise<Verse[]> {
   const total = await getTotalVerseCount(db);
-  if (total === 0) return null;
+  if (total === 0) return [];
 
-  return getVerseAtIndex(db, Math.floor(Math.random() * total), translation);
+  return getPassageAtIndex(db, Math.floor(Math.random() * total), translation);
 }
 
 export async function searchVerses(
