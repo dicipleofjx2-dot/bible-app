@@ -15,34 +15,51 @@ export type ReadingPlanDay = {
   chapter: number;
 };
 
-export async function getPlans(): Promise<ReadingPlan[]> {
+// The plan list rarely changes, so cache it in memory — repeat visits to the
+// plans screen (e.g. via the home screen's "읽기 계획 보기" link) render
+// instantly instead of waiting on a fresh network round trip every time.
+let plansCache: ReadingPlan[] | null = null;
+let plansCachePromise: Promise<ReadingPlan[]> | null = null;
+
+async function fetchPlans(): Promise<ReadingPlan[]> {
   const { data, error } = await supabase
     .from('reading_plans')
     .select('id, slug, title, description')
     .order('created_at', { ascending: true });
-  if (error) throw error;
-  return data;
+  if (error) {
+    plansCachePromise = null;
+    throw error;
+  }
+  plansCache = data ?? [];
+  return plansCache;
 }
 
-export async function getPlanBySlug(
-  slug: string
-): Promise<{ plan: ReadingPlan; days: ReadingPlanDay[] } | null> {
-  const { data: plan, error: planError } = await supabase
-    .from('reading_plans')
-    .select('id, slug, title, description')
-    .eq('slug', slug)
-    .single();
-  if (planError) throw planError;
-  if (!plan) return null;
+export async function getPlans(): Promise<ReadingPlan[]> {
+  if (plansCache) return plansCache;
+  if (!plansCachePromise) plansCachePromise = fetchPlans();
+  return plansCachePromise;
+}
 
-  const { data: days, error: daysError } = await supabase
+/** Warms the plans cache ahead of navigation, e.g. from the home screen. */
+export function prefetchPlans() {
+  getPlans().catch(() => {});
+}
+
+/** Resolves a slug to a plan via the (usually already-warm) plans cache,
+ * avoiding an extra network round trip on the common navigation path. */
+export async function findPlanBySlug(slug: string): Promise<ReadingPlan | null> {
+  const plans = await getPlans();
+  return plans.find((p) => p.slug === slug) ?? null;
+}
+
+export async function getPlanDays(planId: string): Promise<ReadingPlanDay[]> {
+  const { data, error } = await supabase
     .from('reading_plan_days')
     .select('id, plan_id, day_number, book_id, chapter')
-    .eq('plan_id', plan.id)
+    .eq('plan_id', planId)
     .order('day_number', { ascending: true });
-  if (daysError) throw daysError;
-
-  return { plan, days: days ?? [] };
+  if (error) throw error;
+  return data ?? [];
 }
 
 export async function getCompletedDays(planId: string): Promise<Set<number>> {

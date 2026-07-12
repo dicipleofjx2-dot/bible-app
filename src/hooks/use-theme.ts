@@ -3,19 +3,22 @@
  * https://docs.expo.dev/guides/color-schemes/
  */
 
-import { Colors, Gradients } from '@/constants/theme';
+import { Skins } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useSkin } from '@/lib/skin';
 
 export function useTheme() {
   const scheme = useColorScheme();
-  const theme = scheme === 'unspecified' ? 'light' : scheme;
+  const mode = scheme === 'unspecified' ? 'light' : (scheme ?? 'light');
+  const { skinId } = useSkin();
 
-  return Colors[theme];
+  return Skins[skinId].colors[mode];
 }
 
 export function useGradient() {
   const scheme = useColorScheme();
-  const theme = scheme === 'unspecified' ? 'light' : scheme;
+  const mode = scheme === 'unspecified' ? 'light' : (scheme ?? 'light');
+  const { skinId } = useSkin();
 
-  return Gradients[theme];
+  return Skins[skinId].gradient[mode];
 }

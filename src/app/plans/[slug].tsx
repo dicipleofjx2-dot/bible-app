@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -11,8 +11,9 @@ import { useAuth } from '@/lib/auth';
 import { getBooks, type Book } from '@/db/bible';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
+  findPlanBySlug,
   getCompletedDays,
-  getPlanBySlug,
+  getPlanDays,
   setDayComplete,
   setDayIncomplete,
   type ReadingPlan,
@@ -29,17 +30,24 @@ export default function PlanDetailScreen() {
   const [days, setDays] = useState<ReadingPlanDay[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
   const [completed, setCompleted] = useState<Set<number>>(new Set());
+  const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     if (!slug) return;
-    const [result, bookList] = await Promise.all([getPlanBySlug(slug), getBooks(db)]);
+    const [foundPlan, bookList] = await Promise.all([findPlanBySlug(slug), getBooks(db)]);
     setBooks(bookList);
-    if (!result) return;
-    setPlan(result.plan);
-    setDays(result.days);
-    if (session) {
-      setCompleted(await getCompletedDays(result.plan.id));
+    if (!foundPlan) {
+      setLoading(false);
+      return;
     }
+    setPlan(foundPlan);
+    const [planDays, completedSet] = await Promise.all([
+      getPlanDays(foundPlan.id),
+      session ? getCompletedDays(foundPlan.id) : Promise.resolve(new Set<number>()),
+    ]);
+    setDays(planDays);
+    setCompleted(completedSet);
+    setLoading(false);
   }, [slug, db, session]);
 
   useEffect(() => {
@@ -79,6 +87,7 @@ export default function PlanDetailScreen() {
           data={days}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
+          ListEmptyComponent={loading ? <ActivityIndicator style={styles.centerText} /> : null}
           renderItem={({ item }) => {
             const done = completed.has(item.day_number);
             return (
@@ -124,6 +133,9 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     width: '100%',
+  },
+  centerText: {
+    marginTop: Spacing.four,
   },
   header: {
     width: '100%',

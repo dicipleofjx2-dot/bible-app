@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { FlatList, Pressable, StyleSheet } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -13,13 +13,15 @@ import { getPlans, type ReadingPlan } from '@/db/plans';
 export default function PlansScreen() {
   const theme = useTheme();
   const [plans, setPlans] = useState<ReadingPlan[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
     getPlans()
       .then(setPlans)
-      .catch(() => setError(true));
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
   }, []);
 
   if (!isSupabaseConfigured) {
@@ -42,9 +44,13 @@ export default function PlansScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
-            <ThemedText themeColor="textSecondary" style={styles.centerText}>
-              {error ? '읽기 계획을 불러오지 못했습니다.' : '아직 등록된 읽기 계획이 없습니다.'}
-            </ThemedText>
+            loading ? (
+              <ActivityIndicator style={styles.centerText} />
+            ) : (
+              <ThemedText themeColor="textSecondary" style={styles.centerText}>
+                {error ? '읽기 계획을 불러오지 못했습니다.' : '아직 등록된 읽기 계획이 없습니다.'}
+              </ThemedText>
+            )
           }
           renderItem={({ item }) => (
             <Pressable

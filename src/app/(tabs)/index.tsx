@@ -19,6 +19,7 @@ import {
   type QtEntry,
   type Verse,
 } from '@/db/bible';
+import { prefetchPlans } from '@/db/plans';
 
 function todayDateString() {
   const d = new Date();
@@ -44,6 +45,7 @@ export default function HomeScreen() {
   }
 
   useEffect(() => {
+    prefetchPlans();
     (async () => {
       const today = todayDateString();
       let qt = await getQtEntryForDate(db, today);

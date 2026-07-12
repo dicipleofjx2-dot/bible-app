@@ -37,6 +37,11 @@ export default function CommunityScreen() {
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.safeAreaCentered}>
           <AuthForm />
+          <Pressable onPress={() => router.push('/profile')} style={styles.skinLinkLoggedOut}>
+            <ThemedText type="link" themeColor="textSecondary">
+              스킨 설정
+            </ThemedText>
+          </Pressable>
         </SafeAreaView>
       </ThemedView>
     );
@@ -153,6 +158,10 @@ const styles = StyleSheet.create({
   },
   centerText: {
     textAlign: 'center',
+  },
+  skinLinkLoggedOut: {
+    alignSelf: 'center',
+    marginTop: Spacing.two,
   },
   container: {
     flex: 1,

@@ -8,13 +8,14 @@ import {
   TabListProps,
 } from 'expo-router/ui';
 import { SymbolView } from 'expo-symbols';
-import { Pressable, useColorScheme, View, StyleSheet } from 'react-native';
+import { Pressable, View, StyleSheet } from 'react-native';
 
 import { ExternalLink } from './external-link';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
-import { Colors, Gradients, MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { useGradient, useTheme } from '@/hooks/use-theme';
 
 export default function AppTabs() {
   return (
@@ -44,8 +45,7 @@ export default function AppTabs() {
 }
 
 export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
-  const scheme = useColorScheme();
-  const gradient = Gradients[scheme === 'unspecified' ? 'light' : (scheme ?? 'light')];
+  const gradient = useGradient();
 
   if (isFocused) {
     return (
@@ -75,8 +75,7 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
 }
 
 export function CustomTabList(props: TabListProps) {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+  const colors = useTheme();
 
   return (
     <View {...props} style={styles.tabListContainer}>
