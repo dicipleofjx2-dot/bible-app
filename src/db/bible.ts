@@ -68,54 +68,6 @@ export async function getChapterVerses(
   );
 }
 
-async function getTotalVerseCount(db: SQLiteDatabase): Promise<number> {
-  const row = await db.getFirstAsync<{ count: number }>(
-    `SELECT COUNT(*) as count FROM verses WHERE translation = 'ko_ko'`
-  );
-  return row?.count ?? 0;
-}
-
-/** Verses shown together as one QT-style reading unit, not a single isolated verse. */
-const PASSAGE_UNIT_SIZE = 6;
-
-async function getPassageAtIndex(
-  db: SQLiteDatabase,
-  index: number,
-  translation: Translation
-): Promise<Verse[]> {
-  const coords = await db.getFirstAsync<{ book_id: number; chapter: number; verse: number }>(
-    `SELECT book_id, chapter, verse FROM verses WHERE translation = 'ko_ko' ORDER BY book_id, chapter, verse LIMIT 1 OFFSET ?`,
-    [index]
-  );
-  if (!coords) return [];
-
-  const chapterVerses = await getChapterVerses(db, coords.book_id, coords.chapter, translation);
-  if (chapterVerses.length === 0) return [];
-
-  const anchorPos = chapterVerses.findIndex((v) => v.verse === coords.verse);
-  const start = Math.max(0, Math.min(anchorPos, chapterVerses.length - PASSAGE_UNIT_SIZE));
-  return chapterVerses.slice(start, start + PASSAGE_UNIT_SIZE);
-}
-
-/** Deterministic "passage of the day" — same passage across translations, changes daily. */
-export async function getPassageOfDay(db: SQLiteDatabase, translation: Translation): Promise<Verse[]> {
-  const total = await getTotalVerseCount(db);
-  if (total === 0) return [];
-
-  const dayOfYear = Math.floor(
-    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
-  );
-  return getPassageAtIndex(db, dayOfYear % total, translation);
-}
-
-/** A fresh random passage, e.g. for a "다른 말씀 보기" refresh action. */
-export async function getRandomPassage(db: SQLiteDatabase, translation: Translation): Promise<Verse[]> {
-  const total = await getTotalVerseCount(db);
-  if (total === 0) return [];
-
-  return getPassageAtIndex(db, Math.floor(Math.random() * total), translation);
-}
-
 export type QtEntry = {
   date: string;
   bookId: number;
@@ -125,19 +77,16 @@ export type QtEntry = {
   label: string;
 };
 
-/** Today's curated QT passage, from the bundled qt_schedule table (see
- * scripts/build-bible-db.mjs). Returns null for dates outside the schedule's
- * range so callers can fall back to getPassageOfDay. */
-export async function getQtEntryForDate(db: SQLiteDatabase, date: string): Promise<QtEntry | null> {
-  const row = await db.getFirstAsync<{
-    date: string;
-    book_id: number;
-    chapter: number;
-    start_verse: number;
-    end_verse: number;
-    label: string;
-  }>(`SELECT * FROM qt_schedule WHERE date = ?`, [date]);
-  if (!row) return null;
+type QtRow = {
+  date: string;
+  book_id: number;
+  chapter: number;
+  start_verse: number;
+  end_verse: number;
+  label: string;
+};
+
+function mapQtRow(row: QtRow): QtEntry {
   return {
     date: row.date,
     bookId: row.book_id,
@@ -148,25 +97,40 @@ export async function getQtEntryForDate(db: SQLiteDatabase, date: string): Promi
   };
 }
 
-/** A random day's curated QT passage, for the "다른 말씀 보기" refresh action. */
-export async function getRandomQtEntry(db: SQLiteDatabase): Promise<QtEntry | null> {
-  const row = await db.getFirstAsync<{
-    date: string;
-    book_id: number;
-    chapter: number;
-    start_verse: number;
-    end_verse: number;
-    label: string;
-  }>(`SELECT * FROM qt_schedule ORDER BY RANDOM() LIMIT 1`);
-  if (!row) return null;
-  return {
-    date: row.date,
-    bookId: row.book_id,
-    chapter: row.chapter,
-    startVerse: row.start_verse,
-    endVerse: row.end_verse,
-    label: row.label,
-  };
+/** Today's curated QT passage, from the bundled qt_schedule table (see
+ * scripts/build-bible-db.mjs). Returns null for dates outside the schedule's
+ * range — the plan runs 2026-07-13 through 2032-06-28. */
+export async function getQtEntryForDate(db: SQLiteDatabase, date: string): Promise<QtEntry | null> {
+  const row = await db.getFirstAsync<QtRow>(`SELECT * FROM qt_schedule WHERE date = ?`, [date]);
+  return row ? mapQtRow(row) : null;
+}
+
+/** The QT day that comes after `date` in the schedule (skipping any gaps). */
+export async function getNextQtEntry(db: SQLiteDatabase, date: string): Promise<QtEntry | null> {
+  const row = await db.getFirstAsync<QtRow>(
+    `SELECT * FROM qt_schedule WHERE date > ? ORDER BY date ASC LIMIT 1`,
+    [date]
+  );
+  return row ? mapQtRow(row) : null;
+}
+
+/** The QT day that comes before `date` in the schedule (skipping any gaps). */
+export async function getPrevQtEntry(db: SQLiteDatabase, date: string): Promise<QtEntry | null> {
+  const row = await db.getFirstAsync<QtRow>(
+    `SELECT * FROM qt_schedule WHERE date < ? ORDER BY date DESC LIMIT 1`,
+    [date]
+  );
+  return row ? mapQtRow(row) : null;
+}
+
+export async function getFirstQtEntry(db: SQLiteDatabase): Promise<QtEntry | null> {
+  const row = await db.getFirstAsync<QtRow>(`SELECT * FROM qt_schedule ORDER BY date ASC LIMIT 1`);
+  return row ? mapQtRow(row) : null;
+}
+
+export async function getLastQtEntry(db: SQLiteDatabase): Promise<QtEntry | null> {
+  const row = await db.getFirstAsync<QtRow>(`SELECT * FROM qt_schedule ORDER BY date DESC LIMIT 1`);
+  return row ? mapQtRow(row) : null;
 }
 
 export async function getVersesForRange(
