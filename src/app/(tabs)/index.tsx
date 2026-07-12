@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -110,16 +110,18 @@ export default function HomeScreen() {
           </View>
           {passage.length > 0 && (
             <>
-              <View style={styles.passageText}>
-                {passage.map((v) => (
-                  <ThemedText key={v.id} style={styles.verseText}>
-                    <ThemedText type="smallBold" themeColor="textSecondary">
-                      {v.verse}{' '}
+              <ScrollView style={styles.passageScroll} showsVerticalScrollIndicator>
+                <View style={styles.passageText}>
+                  {passage.map((v) => (
+                    <ThemedText key={v.id} style={styles.verseText}>
+                      <ThemedText type="smallBold" themeColor="textSecondary">
+                        {v.verse}{' '}
+                      </ThemedText>
+                      {v.text}
                     </ThemedText>
-                    {v.text}
-                  </ThemedText>
-                ))}
-              </View>
+                  ))}
+                </View>
+              </ScrollView>
               <ThemedText type="smallBold" themeColor="textSecondary">
                 {referenceLabel}
               </ThemedText>
@@ -184,6 +186,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  passageScroll: {
+    maxHeight: 420,
   },
   passageText: {
     gap: Spacing.one,
