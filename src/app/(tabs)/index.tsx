@@ -8,32 +8,76 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { getRandomPassage, getPassageOfDay, type Book, type Verse, getBooks } from '@/db/bible';
+import {
+  getBooks,
+  getPassageOfDay,
+  getQtEntryForDate,
+  getRandomPassage,
+  getRandomQtEntry,
+  getVersesForRange,
+  type Book,
+  type Verse,
+} from '@/db/bible';
+
+function todayDateString() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 
 export default function HomeScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
   const [passage, setPassage] = useState<Verse[]>([]);
-  const [book, setBook] = useState<Book | null>(null);
   const [books, setBooks] = useState<Book[]>([]);
+  const [referenceLabel, setReferenceLabel] = useState('');
   const [isToday, setIsToday] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const [p, loadedBooks] = await Promise.all([getPassageOfDay(db, 'ko_ko'), getBooks(db)]);
+      const loadedBooks = await getBooks(db);
       setBooks(loadedBooks);
+
+      const qt = await getQtEntryForDate(db, todayDateString());
+      if (qt) {
+        const verses = await getVersesForRange(db, qt.bookId, qt.chapter, qt.startVerse, qt.endVerse, 'ko_ko');
+        setPassage(verses);
+        setReferenceLabel(qt.label);
+        return;
+      }
+
+      const p = await getPassageOfDay(db, 'ko_ko');
       setPassage(p);
-      setBook(loadedBooks.find((b) => b.id === p[0]?.book_id) ?? null);
+      setReferenceLabel(referenceFor(p, loadedBooks));
     })();
   }, [db]);
+
+  function referenceFor(verses: Verse[], bookList: Book[]) {
+    const first = verses[0];
+    const last = verses[verses.length - 1];
+    if (!first || !last) return '';
+    const b = bookList.find((x) => x.id === first.book_id);
+    return first.verse === last.verse
+      ? `${b?.name_ko} ${first.chapter}:${first.verse}`
+      : `${b?.name_ko} ${first.chapter}:${first.verse}-${last.verse}`;
+  }
 
   async function refreshVerse() {
     setRefreshing(true);
     try {
-      const p = await getRandomPassage(db, 'ko_ko');
-      setPassage(p);
-      setBook(books.find((b) => b.id === p[0]?.book_id) ?? null);
+      const qt = await getRandomQtEntry(db);
+      if (qt) {
+        const verses = await getVersesForRange(db, qt.bookId, qt.chapter, qt.startVerse, qt.endVerse, 'ko_ko');
+        setPassage(verses);
+        setReferenceLabel(qt.label);
+      } else {
+        const p = await getRandomPassage(db, 'ko_ko');
+        setPassage(p);
+        setReferenceLabel(referenceFor(p, books));
+      }
       setIsToday(false);
     } finally {
       setRefreshing(false);
@@ -41,13 +85,6 @@ export default function HomeScreen() {
   }
 
   const firstVerse = passage[0];
-  const lastVerse = passage[passage.length - 1];
-  const reference =
-    firstVerse && lastVerse
-      ? firstVerse.verse === lastVerse.verse
-        ? `${book?.name_ko} ${firstVerse.chapter}:${firstVerse.verse}`
-        : `${book?.name_ko} ${firstVerse.chapter}:${firstVerse.verse}-${lastVerse.verse}`
-      : '';
 
   return (
     <ThemedView style={styles.container}>
@@ -84,7 +121,7 @@ export default function HomeScreen() {
                 ))}
               </View>
               <ThemedText type="smallBold" themeColor="textSecondary">
-                {reference}
+                {referenceLabel}
               </ThemedText>
             </>
           )}

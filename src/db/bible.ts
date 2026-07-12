@@ -116,6 +116,73 @@ export async function getRandomPassage(db: SQLiteDatabase, translation: Translat
   return getPassageAtIndex(db, Math.floor(Math.random() * total), translation);
 }
 
+export type QtEntry = {
+  date: string;
+  bookId: number;
+  chapter: number;
+  startVerse: number;
+  endVerse: number;
+  label: string;
+};
+
+/** Today's curated QT passage, from the bundled qt_schedule table (see
+ * scripts/build-bible-db.mjs). Returns null for dates outside the schedule's
+ * range so callers can fall back to getPassageOfDay. */
+export async function getQtEntryForDate(db: SQLiteDatabase, date: string): Promise<QtEntry | null> {
+  const row = await db.getFirstAsync<{
+    date: string;
+    book_id: number;
+    chapter: number;
+    start_verse: number;
+    end_verse: number;
+    label: string;
+  }>(`SELECT * FROM qt_schedule WHERE date = ?`, [date]);
+  if (!row) return null;
+  return {
+    date: row.date,
+    bookId: row.book_id,
+    chapter: row.chapter,
+    startVerse: row.start_verse,
+    endVerse: row.end_verse,
+    label: row.label,
+  };
+}
+
+/** A random day's curated QT passage, for the "다른 말씀 보기" refresh action. */
+export async function getRandomQtEntry(db: SQLiteDatabase): Promise<QtEntry | null> {
+  const row = await db.getFirstAsync<{
+    date: string;
+    book_id: number;
+    chapter: number;
+    start_verse: number;
+    end_verse: number;
+    label: string;
+  }>(`SELECT * FROM qt_schedule ORDER BY RANDOM() LIMIT 1`);
+  if (!row) return null;
+  return {
+    date: row.date,
+    bookId: row.book_id,
+    chapter: row.chapter,
+    startVerse: row.start_verse,
+    endVerse: row.end_verse,
+    label: row.label,
+  };
+}
+
+export async function getVersesForRange(
+  db: SQLiteDatabase,
+  bookId: number,
+  chapter: number,
+  startVerse: number,
+  endVerse: number,
+  translation: Translation
+): Promise<Verse[]> {
+  return db.getAllAsync<Verse>(
+    `SELECT * FROM verses WHERE book_id = ? AND chapter = ? AND verse BETWEEN ? AND ? AND translation = ? ORDER BY verse`,
+    [bookId, chapter, startVerse, endVerse, translation]
+  );
+}
+
 export async function searchVerses(
   db: SQLiteDatabase,
   query: string,

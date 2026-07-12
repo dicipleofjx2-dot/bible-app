@@ -10,11 +10,13 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import initSqlJs from 'sql.js';
+import XLSX from 'xlsx';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SRC_DIR = path.join(__dirname, 'bible-source-data');
 const OUT_DIR = path.join(__dirname, '..', 'assets', 'bible-data');
 const OUT_FILE = path.join(OUT_DIR, 'bible.db');
+const QT_SCHEDULE_FILE = path.join(SRC_DIR, 'qt_schedule.xlsx');
 
 const TRANSLATIONS = [
   { code: 'ko_ko', file: 'ko_ko.json', lang: 'ko' },
@@ -38,6 +40,78 @@ const KOREAN_BOOK_NAMES = [
 function loadJson(file) {
   const raw = readFileSync(path.join(SRC_DIR, file), 'utf-8').replace(/^﻿/, '');
   return JSON.parse(raw);
+}
+
+// Reads scripts/bible-source-data/qt_schedule.xlsx ('전체일정' sheet: Day, 날짜,
+// 주차, 구분, 책, 장, 본문(큐티 범위), 체크) and populates a qt_schedule table
+// mapping each calendar date to a verse range, so the home screen can show
+// "today's" curated QT passage instead of a randomly picked one.
+function buildQtSchedule(db, koData) {
+  if (!existsSync(QT_SCHEDULE_FILE)) {
+    console.log('No qt_schedule.xlsx found, skipping QT schedule table.');
+    return 0;
+  }
+
+  db.run(`
+    CREATE TABLE qt_schedule (
+      date TEXT PRIMARY KEY,
+      book_id INTEGER NOT NULL REFERENCES books(id),
+      chapter INTEGER NOT NULL,
+      start_verse INTEGER NOT NULL,
+      end_verse INTEGER NOT NULL,
+      label TEXT NOT NULL
+    );
+  `);
+
+  const workbook = XLSX.readFile(QT_SCHEDULE_FILE);
+  const sheet = workbook.Sheets['전체일정'];
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' }).slice(1);
+
+  const insertQt = db.prepare(
+    `INSERT INTO qt_schedule (date, book_id, chapter, start_verse, end_verse, label) VALUES (?, ?, ?, ?, ?, ?)`
+  );
+
+  let skipped = 0;
+  for (const row of rows) {
+    const [, date, , , bookName, chapterRaw, label] = row;
+    const bookIndex = KOREAN_BOOK_NAMES.indexOf(bookName);
+    if (bookIndex === -1) {
+      throw new Error(`qt_schedule.xlsx: unknown book name "${bookName}" (date ${date})`);
+    }
+    const bookId = bookIndex + 1;
+    const chapter = Number(chapterRaw);
+    const maxVerse = koData[bookIndex].chapters[chapter - 1]?.length;
+    if (!maxVerse) {
+      // Known gap in the bundled 개역한글 source data (e.g. 욥기 42장 has 0
+      // verses there). Skip this one day rather than fail the whole build;
+      // the app falls back to a random passage for it.
+      console.warn(`Skipping qt_schedule row: ${bookName} ${chapter}장 has no verse data (date ${date})`);
+      skipped++;
+      continue;
+    }
+
+    let startVerse;
+    let endVerse;
+    let match;
+    if (/전체$/.test(label)) {
+      startVerse = 1;
+      endVerse = maxVerse;
+    } else if ((match = label.match(/(\d+)절-끝$/))) {
+      startVerse = Number(match[1]);
+      endVerse = maxVerse;
+    } else if ((match = label.match(/(\d+)-(\d+)절$/))) {
+      startVerse = Number(match[1]);
+      endVerse = Number(match[2]);
+    } else {
+      throw new Error(`qt_schedule.xlsx: unrecognized passage format "${label}" (date ${date})`);
+    }
+
+    insertQt.run([date, bookId, chapter, startVerse, endVerse, label]);
+  }
+
+  insertQt.free();
+  if (skipped > 0) console.warn(`Skipped ${skipped} qt_schedule row(s) due to missing verse data.`);
+  return rows.length - skipped;
 }
 
 async function main() {
@@ -110,6 +184,8 @@ async function main() {
   insertBook.free();
   insertVerse.free();
 
+  const qtDayCount = buildQtSchedule(db, koData);
+
   if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
   const data = db.export();
   writeFileSync(OUT_FILE, Buffer.from(data));
@@ -117,6 +193,7 @@ async function main() {
   const [{ count }] = db.exec('SELECT COUNT(*) as count FROM verses')[0].values.map(([count]) => ({ count }));
   console.log(`Built ${OUT_FILE}`);
   console.log(`Books: ${koData.length}, Verses (both translations): ${count}`);
+  console.log(`QT schedule days: ${qtDayCount}`);
 }
 
 main().catch((err) => {
