@@ -88,15 +88,19 @@ export default function HomeScreen() {
         </ThemedText>
 
         <ThemedView type="backgroundElement" style={styles.verseCard}>
-          <ThemedText type="small" themeColor="textSecondary">
-            {isToday ? '오늘의 큐티' : '말씀 묵상'}
-          </ThemedText>
-
-          {passage.length > 0 && (
-            <>
+          <View style={styles.verseCardHeader}>
+            <ThemedText type="small" themeColor="textSecondary">
+              {isToday ? '오늘의 큐티' : '말씀 묵상'}
+            </ThemedText>
+            {passage.length > 0 && (
               <ThemedText type="smallBold" themeColor="textSecondary">
                 {referenceLabel}
               </ThemedText>
+            )}
+          </View>
+
+          {passage.length > 0 && (
+            <>
               <ScrollView style={styles.passageScroll} showsVerticalScrollIndicator>
                 <View style={styles.passageText}>
                   {passage.map((v) => (
@@ -196,6 +200,12 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: Spacing.four,
     padding: Spacing.four,
+    gap: Spacing.two,
+  },
+  verseCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     gap: Spacing.two,
   },
   passageScroll: {
