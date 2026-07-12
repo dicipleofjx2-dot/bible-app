@@ -94,6 +94,9 @@ export default function HomeScreen() {
 
           {passage.length > 0 && (
             <>
+              <ThemedText type="smallBold" themeColor="textSecondary">
+                {referenceLabel}
+              </ThemedText>
               <ScrollView style={styles.passageScroll} showsVerticalScrollIndicator>
                 <View style={styles.passageText}>
                   {passage.map((v) => (
@@ -106,9 +109,6 @@ export default function HomeScreen() {
                   ))}
                 </View>
               </ScrollView>
-              <ThemedText type="smallBold" themeColor="textSecondary">
-                {referenceLabel}
-              </ThemedText>
             </>
           )}
 
