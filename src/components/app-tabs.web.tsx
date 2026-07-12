@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   Tabs,
   TabList,
@@ -13,7 +14,7 @@ import { ExternalLink } from './external-link';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
-import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import { Colors, Gradients, MaxContentWidth, Spacing } from '@/constants/theme';
 
 export default function AppTabs() {
   return (
@@ -43,12 +44,29 @@ export default function AppTabs() {
 }
 
 export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
+  const scheme = useColorScheme();
+  const gradient = Gradients[scheme === 'unspecified' ? 'light' : (scheme ?? 'light')];
+
+  if (isFocused) {
+    return (
+      <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
+        <LinearGradient
+          colors={gradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.tabButtonView}>
+          <ThemedText type="small" style={styles.tabButtonTextFocused}>
+            {children}
+          </ThemedText>
+        </LinearGradient>
+      </Pressable>
+    );
+  }
+
   return (
     <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
-      <ThemedView
-        type={isFocused ? 'backgroundSelected' : 'backgroundElement'}
-        style={styles.tabButtonView}>
-        <ThemedText type="small" themeColor={isFocused ? 'text' : 'textSecondary'}>
+      <ThemedView type="backgroundElement" style={styles.tabButtonView}>
+        <ThemedText type="small" themeColor="textSecondary">
           {children}
         </ThemedText>
       </ThemedView>
@@ -118,6 +136,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.one,
     paddingHorizontal: Spacing.three,
     borderRadius: Spacing.three,
+  },
+  tabButtonTextFocused: {
+    color: '#ffffff',
   },
   externalPressable: {
     flexDirection: 'row',

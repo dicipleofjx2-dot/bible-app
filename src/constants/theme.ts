@@ -9,22 +9,29 @@ import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#1A1523',
+    background: '#FBF8FF',
+    backgroundElement: '#F3ECFF',
+    backgroundSelected: '#FFA36C',
+    textSecondary: '#726B82',
   },
   dark: {
     text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    background: '#130F1C',
+    backgroundElement: '#231C36',
+    backgroundSelected: '#8B5CF6',
+    textSecondary: '#B4ABC9',
   },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+
+/** Accent gradient for primary CTAs and the active tab — warm coral-to-pink in
+ * light mode, cool violet in dark mode, echoing the accent color above. */
+export const Gradients = {
+  light: ['#FFA36C', '#FF6FA5'] as const,
+  dark: ['#8B5CF6', '#5B3DF5'] as const,
+};
 
 export const Fonts = Platform.select({
   ios: {

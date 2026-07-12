@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
@@ -7,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { useGradient } from '@/hooks/use-theme';
 import {
   getFirstQtEntry,
   getLastQtEntry,
@@ -29,7 +30,7 @@ function todayDateString() {
 
 export default function HomeScreen() {
   const db = useSQLiteContext();
-  const theme = useTheme();
+  const gradient = useGradient();
   const [passage, setPassage] = useState<Verse[]>([]);
   const [referenceLabel, setReferenceLabel] = useState('');
   const [currentDate, setCurrentDate] = useState<string | null>(null);
@@ -146,12 +147,16 @@ export default function HomeScreen() {
               params: { bookId: String(firstVerse.book_id), chapter: String(firstVerse.chapter) },
             })
           }
-          style={({ pressed }) => [
-            styles.readButton,
-            { backgroundColor: theme.backgroundSelected },
-            pressed && styles.pressed,
-          ]}>
-          <ThemedText type="smallBold">이 본문 읽으러 가기</ThemedText>
+          style={({ pressed }) => [pressed && styles.pressed]}>
+          <LinearGradient
+            colors={gradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.readButton}>
+            <ThemedText type="smallBold" style={styles.readButtonText}>
+              이 본문 읽으러 가기
+            </ThemedText>
+          </LinearGradient>
         </Pressable>
 
         <Pressable
@@ -228,6 +233,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.three,
     borderRadius: Spacing.five,
+    alignItems: 'center',
+  },
+  readButtonText: {
+    color: '#ffffff',
   },
   pressed: {
     opacity: 0.7,
