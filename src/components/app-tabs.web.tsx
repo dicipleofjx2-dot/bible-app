@@ -7,15 +7,13 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { SymbolView } from 'expo-symbols';
 import { Pressable, View, StyleSheet } from 'react-native';
 
-import { ExternalLink } from './external-link';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { useGradient, useTheme } from '@/hooks/use-theme';
+import { useGradient } from '@/hooks/use-theme';
 
 export default function AppTabs() {
   return (
@@ -33,6 +31,9 @@ export default function AppTabs() {
           </TabTrigger>
           <TabTrigger name="notes" href="/notes" asChild>
             <TabButton>노트</TabButton>
+          </TabTrigger>
+          <TabTrigger name="commentary" href="/commentary" asChild>
+            <TabButton>주석</TabButton>
           </TabTrigger>
           <TabTrigger name="community" href="/community" asChild>
             <TabButton>커뮤니티</TabButton>
@@ -75,8 +76,6 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
 }
 
 export function CustomTabList(props: TabListProps) {
-  const colors = useTheme();
-
   return (
     <View {...props} style={styles.tabListContainer}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
@@ -85,17 +84,6 @@ export function CustomTabList(props: TabListProps) {
         </ThemedText>
 
         {props.children}
-
-        <ExternalLink href="https://docs.expo.dev" asChild>
-          <Pressable style={styles.externalPressable}>
-            <ThemedText type="link">Docs</ThemedText>
-            <SymbolView
-              tintColor={colors.text}
-              name={{ ios: 'arrow.up.right.square', web: 'link' }}
-              size={12}
-            />
-          </Pressable>
-        </ExternalLink>
       </ThemedView>
     </View>
   );
@@ -138,12 +126,5 @@ const styles = StyleSheet.create({
   },
   tabButtonTextFocused: {
     color: '#ffffff',
-  },
-  externalPressable: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: Spacing.one,
-    marginLeft: Spacing.three,
   },
 });

@@ -2,7 +2,15 @@ import * as SQLite from 'expo-sqlite';
 
 import type { Translation } from '@/db/bible';
 
-export type HighlightColor = 'yellow' | 'green' | 'blue' | 'pink';
+export type HighlightColor =
+  | 'yellow'
+  | 'green'
+  | 'blue'
+  | 'pink'
+  | 'commentary-yellow'
+  | 'commentary-green'
+  | 'commentary-blue'
+  | 'commentary-pink';
 
 export type VerseMark = {
   id: number;
@@ -99,4 +107,14 @@ export const HIGHLIGHT_COLORS: { code: HighlightColor; hex: string }[] = [
   { code: 'green', hex: '#8CE99A' },
   { code: 'blue', hex: '#A5D8FF' },
   { code: 'pink', hex: '#FFC9DE' },
+];
+
+/** Paler variant of the same four hues, used specifically for commentary
+ * highlights so they read as visually distinct from regular verse
+ * highlights at a glance (see src/app/commentary.tsx). */
+export const COMMENTARY_HIGHLIGHT_COLORS: { code: HighlightColor; hex: string }[] = [
+  { code: 'commentary-yellow', hex: '#FFF9DB' },
+  { code: 'commentary-green', hex: '#EBFBEE' },
+  { code: 'commentary-blue', hex: '#E7F5FF' },
+  { code: 'commentary-pink', hex: '#FFF0F6' },
 ];

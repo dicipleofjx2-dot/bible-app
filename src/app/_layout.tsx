@@ -17,7 +17,7 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Suspense fallback={<ActivityIndicator style={{ flex: 1 }} />}>
           <SQLiteProvider
-            databaseName="bible-v2.db"
+            databaseName="bible-v4.db"
             assetSource={{ assetId: require('../../assets/bible-data/bible.db') }}
             useSuspense>
             <AuthProvider>

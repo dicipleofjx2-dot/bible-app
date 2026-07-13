@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -44,18 +44,25 @@ export default function HomeScreen() {
     setCurrentDate(qt.date);
   }
 
-  useEffect(() => {
-    prefetchPlans();
-    (async () => {
-      const today = todayDateString();
-      let qt = await getQtEntryForDate(db, today);
-      if (!qt) {
-        const first = await getFirstQtEntry(db);
-        qt = first && today < first.date ? first : await getLastQtEntry(db);
-      }
-      if (qt) await showQtEntry(qt);
-    })();
-  }, [db]);
+  useFocusEffect(
+    useCallback(() => {
+      prefetchPlans();
+      (async () => {
+        const today = todayDateString();
+        let qt = await getQtEntryForDate(db, today);
+        if (!qt) {
+          const first = await getFirstQtEntry(db);
+          qt = first && today < first.date ? first : await getLastQtEntry(db);
+        }
+        if (qt) await showQtEntry(qt);
+      })();
+      // Only re-run when the screen (re)gains focus — e.g. coming back from
+      // another tab — so a day boundary crossed while the app stayed open
+      // (or just revisiting later the same day) always shows the right QT
+      // entry instead of whatever was loaded at the very first mount.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [db])
+  );
 
   async function goToPrevDay() {
     if (!currentDate || navigating) return;

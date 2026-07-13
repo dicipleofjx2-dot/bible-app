@@ -21,7 +21,14 @@ import {
 } from '@/db/bible';
 import { BookChapterPicker } from '@/features/bible/BookChapterPicker';
 import { VerseActionSheet } from '@/features/notes/VerseActionSheet';
-import { deleteMark, getMarksForChapter, upsertMark, HIGHLIGHT_COLORS, type VerseMark } from '@/db/userData';
+import {
+  deleteMark,
+  getMarksForChapter,
+  upsertMark,
+  COMMENTARY_HIGHLIGHT_COLORS,
+  HIGHLIGHT_COLORS,
+  type VerseMark,
+} from '@/db/userData';
 import { getPlanDaysForChapter, setDayComplete, type PlanDayMatch } from '@/db/plans';
 import { getRoomsForPlan, postRoomActivity } from '@/db/rooms';
 
@@ -110,7 +117,7 @@ export default function ReadScreen() {
 
   const currentBook = books.find((b) => b.id === bookId);
   const highlightHex = (color: string | null) =>
-    HIGHLIGHT_COLORS.find((c) => c.code === color)?.hex ?? null;
+    [...HIGHLIGHT_COLORS, ...COMMENTARY_HIGHLIGHT_COLORS].find((c) => c.code === color)?.hex ?? null;
 
   function goToChapter(delta: number) {
     const next = chapter + delta;

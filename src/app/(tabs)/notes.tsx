@@ -9,7 +9,13 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getBooks, getVerse, type Book } from '@/db/bible';
-import { deleteMark, getAllMarks, HIGHLIGHT_COLORS, type VerseMark } from '@/db/userData';
+import {
+  deleteMark,
+  getAllMarks,
+  COMMENTARY_HIGHLIGHT_COLORS,
+  HIGHLIGHT_COLORS,
+  type VerseMark,
+} from '@/db/userData';
 
 type EnrichedMark = VerseMark & { bookName: string; verseText: string };
 
@@ -62,7 +68,9 @@ export default function NotesScreen() {
             ) : null
           }
           renderItem={({ item }) => {
-            const colorHex = HIGHLIGHT_COLORS.find((c) => c.code === item.color)?.hex;
+            const colorHex = [...HIGHLIGHT_COLORS, ...COMMENTARY_HIGHLIGHT_COLORS].find(
+              (c) => c.code === item.color
+            )?.hex;
             return (
               <Pressable
                 onPress={() =>

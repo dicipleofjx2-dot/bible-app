@@ -17,6 +17,7 @@ const SRC_DIR = path.join(__dirname, 'bible-source-data');
 const OUT_DIR = path.join(__dirname, '..', 'assets', 'bible-data');
 const OUT_FILE = path.join(OUT_DIR, 'bible.db');
 const QT_SCHEDULE_FILE = path.join(SRC_DIR, 'qt_schedule.xlsx');
+const COMMENTARY_FILE = path.join(SRC_DIR, '만나주석.cdb');
 
 const TRANSLATIONS = [
   { code: 'ko_ko', file: 'ko_ko.json', lang: 'ko' },
@@ -114,6 +115,46 @@ function buildQtSchedule(db, koData) {
   return rows.length - skipped;
 }
 
+// Reads scripts/bible-source-data/만나주석.cdb — itself a SQLite database
+// (despite the .cdb extension) with a single `Bible` table (book, chapter,
+// verse, btext) holding 만나주석 commentary HTML, keyed the same way as our
+// own book numbering (1=창세기...66=요한계시록) — and copies it into a
+// `commentary` table in the bundled bible.db.
+async function buildCommentary(SQL, db) {
+  if (!existsSync(COMMENTARY_FILE)) {
+    console.log('No 만나주석.cdb found, skipping commentary table.');
+    return 0;
+  }
+
+  db.run(`
+    CREATE TABLE commentary (
+      id INTEGER PRIMARY KEY,
+      book_id INTEGER NOT NULL REFERENCES books(id),
+      chapter INTEGER NOT NULL,
+      verse INTEGER NOT NULL,
+      source TEXT NOT NULL,
+      html TEXT NOT NULL
+    );
+    CREATE INDEX idx_commentary_lookup ON commentary(book_id, chapter, verse);
+  `);
+
+  const srcBuffer = readFileSync(COMMENTARY_FILE);
+  const srcDb = new SQL.Database(srcBuffer);
+  const rows = srcDb.exec('SELECT book, chapter, verse, btext FROM Bible');
+  const values = rows[0]?.values ?? [];
+
+  const insertCommentary = db.prepare(
+    `INSERT INTO commentary (book_id, chapter, verse, source, html) VALUES (?, ?, ?, ?, ?)`
+  );
+  for (const [book, chapter, verse, btext] of values) {
+    insertCommentary.run([book, chapter, verse, '만나주석', btext]);
+  }
+  insertCommentary.free();
+  srcDb.close();
+
+  return values.length;
+}
+
 async function main() {
   const SQL = await initSqlJs();
   const db = new SQL.Database();
@@ -185,6 +226,7 @@ async function main() {
   insertVerse.free();
 
   const qtDayCount = buildQtSchedule(db, koData);
+  const commentaryCount = await buildCommentary(SQL, db);
 
   if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
   const data = db.export();
@@ -194,6 +236,7 @@ async function main() {
   console.log(`Built ${OUT_FILE}`);
   console.log(`Books: ${koData.length}, Verses (both translations): ${count}`);
   console.log(`QT schedule days: ${qtDayCount}`);
+  console.log(`Commentary entries: ${commentaryCount}`);
 }
 
 main().catch((err) => {

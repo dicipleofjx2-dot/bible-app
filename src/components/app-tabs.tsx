@@ -30,6 +30,11 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf="highlighter" md="edit_note" />
       </NativeTabs.Trigger>
 
+      <NativeTabs.Trigger name="commentary">
+        <NativeTabs.Trigger.Label>주석</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="text.book.closed.fill" md="menu_book" />
+      </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="community">
         <NativeTabs.Trigger.Label>커뮤니티</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="person.3.fill" md="groups" />
