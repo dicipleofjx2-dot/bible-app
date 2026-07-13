@@ -11,6 +11,7 @@ import { useAuth } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { AuthForm } from '@/features/auth/AuthForm';
 import { createPost, deletePost, getPosts, type Post } from '@/db/community';
+import { getPendingRoomInvites, markRoomInviteNotified, type PendingRoomInvite } from '@/db/rooms';
 
 export default function CommunityScreen() {
   const theme = useTheme();
@@ -56,14 +57,24 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
   const [posting, setPosting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Post | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [pendingInvites, setPendingInvites] = useState<PendingRoomInvite[]>([]);
 
   const load = useCallback(() => {
     getPosts()
       .then(setPosts)
       .catch(() => setPosts([]));
-  }, []);
+    getPendingRoomInvites(userId)
+      .then(setPendingInvites)
+      .catch(() => setPendingInvites([]));
+  }, [userId]);
 
   useFocusEffect(load);
+
+  async function openInvite(invite: PendingRoomInvite) {
+    setPendingInvites((prev) => prev.filter((i) => i.roomId !== invite.roomId));
+    markRoomInviteNotified(invite.roomId, userId).catch(() => {});
+    router.push({ pathname: '/rooms/[id]', params: { id: invite.roomId } });
+  }
 
   async function submitPost() {
     if (!body.trim()) return;
@@ -107,6 +118,22 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
             </Pressable>
           </View>
         </View>
+
+        {pendingInvites.length > 0 && (
+          <View style={styles.inviteBanners}>
+            {pendingInvites.map((invite) => (
+              <Pressable
+                key={invite.roomId}
+                onPress={() => openInvite(invite)}
+                style={[styles.inviteBanner, { backgroundColor: theme.backgroundSelected }]}>
+                <ThemedText type="smallBold">
+                  🎉 &apos;{invite.roomName}&apos; 읽기방에 초대되었어요!
+                </ThemedText>
+                <ThemedText type="small">확인하러 가기 →</ThemedText>
+              </Pressable>
+            ))}
+          </View>
+        )}
 
         <View style={styles.composer}>
           <TextInput
@@ -233,6 +260,20 @@ const styles = StyleSheet.create({
   headerLinks: {
     flexDirection: 'row',
     gap: Spacing.three,
+  },
+  inviteBanners: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.three,
+    gap: Spacing.two,
+  },
+  inviteBanner: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Spacing.three,
+    borderRadius: Spacing.three,
   },
   composer: {
     width: '100%',

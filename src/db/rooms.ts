@@ -110,10 +110,22 @@ export async function getRoomByInviteCode(code: string): Promise<Room | null> {
   return data ? mapRoomRow(data) : null;
 }
 
-export async function joinRoom(roomId: string, userId: string): Promise<void> {
-  const { error } = await supabase
-    .from('room_members')
-    .upsert({ room_id: roomId, user_id: userId }, { onConflict: 'room_id,user_id', ignoreDuplicates: true });
+/** Set `notifyOnJoin` when the room owner adds someone directly (not a
+ * self-join via invite code), so getPendingRoomInvites() surfaces it to
+ * them next time they open the app. */
+export async function joinRoom(
+  roomId: string,
+  userId: string,
+  options?: { notifyOnJoin?: boolean }
+): Promise<void> {
+  const { error } = await supabase.from('room_members').upsert(
+    {
+      room_id: roomId,
+      user_id: userId,
+      notified_at: options?.notifyOnJoin ? null : new Date().toISOString(),
+    },
+    { onConflict: 'room_id,user_id', ignoreDuplicates: true }
+  );
   if (error) throw error;
 }
 
@@ -218,5 +230,37 @@ export async function getAllProfiles(): Promise<Profile[]> {
  * activity, and chat history cascade-delete with it. */
 export async function deleteRoom(roomId: string): Promise<void> {
   const { error } = await supabase.from('reading_rooms').delete().eq('id', roomId);
+  if (error) throw error;
+}
+
+export type PendingRoomInvite = {
+  roomId: string;
+  roomName: string;
+  planTitle: string;
+};
+
+/** Rooms this user was added to directly by the owner and hasn't seen yet. */
+export async function getPendingRoomInvites(userId: string): Promise<PendingRoomInvite[]> {
+  const { data, error } = await supabase
+    .from('room_members')
+    .select('room_id, reading_rooms(name, reading_plans(title))')
+    .eq('user_id', userId)
+    .is('notified_at', null);
+  if (error) throw error;
+  return (data ?? [])
+    .filter((row: any) => row.reading_rooms)
+    .map((row: any) => ({
+      roomId: row.room_id,
+      roomName: row.reading_rooms.name,
+      planTitle: row.reading_rooms.reading_plans?.title ?? '',
+    }));
+}
+
+export async function markRoomInviteNotified(roomId: string, userId: string): Promise<void> {
+  const { error } = await supabase
+    .from('room_members')
+    .update({ notified_at: new Date().toISOString() })
+    .eq('room_id', roomId)
+    .eq('user_id', userId);
   if (error) throw error;
 }

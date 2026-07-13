@@ -119,7 +119,7 @@ export default function RoomDetailScreen() {
     if (!id) return;
     setInvitingUserId(targetUserId);
     try {
-      await joinRoom(id, targetUserId);
+      await joinRoom(id, targetUserId, { notifyOnJoin: true });
       load();
     } finally {
       setInvitingUserId(null);
@@ -198,7 +198,9 @@ export default function RoomDetailScreen() {
                 <ThemedText type="small" themeColor="textSecondary">
                   초대 코드
                 </ThemedText>
-                <ThemedText type="smallBold">{room.inviteCode}</ThemedText>
+                <ThemedText type="smallBold" style={styles.inviteCode}>
+                  {room.inviteCode}
+                </ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
                   {copied ? '복사됨!' : '눌러서 복사'}
                 </ThemedText>
@@ -402,6 +404,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: Spacing.three,
     borderRadius: Spacing.three,
+  },
+  inviteCode: {
+    fontSize: 22,
+    letterSpacing: 2,
   },
   inviteButton: {
     paddingHorizontal: Spacing.three,
