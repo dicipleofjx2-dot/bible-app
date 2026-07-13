@@ -38,7 +38,7 @@ export default function HomeScreen() {
   const [navigating, setNavigating] = useState(false);
 
   async function showQtEntry(qt: QtEntry) {
-    const verses = await getVersesForRange(db, qt.bookId, qt.chapter, qt.startVerse, qt.endVerse, 'ko_ko');
+    const verses = await getVersesForRange(db, qt.bookId, qt.chapter, qt.startVerse, qt.endVerse, 'open_ko');
     setPassage(verses);
     setReferenceLabel(qt.label);
     setCurrentDate(qt.date);

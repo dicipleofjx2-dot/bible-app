@@ -45,7 +45,7 @@ export default function ReadScreen() {
   const [bookId, setBookId] = useState<number | null>(null);
   const [chapter, setChapter] = useState(1);
   const [chapterCount, setChapterCount] = useState(1);
-  const [translation, setTranslation] = useState<Translation>('ko_ko');
+  const [translation, setTranslation] = useState<Translation>('open_ko');
   const [verses, setVerses] = useState<Verse[]>([]);
   const [pickerVisible, setPickerVisible] = useState(false);
   const [fontSize, setFontSize] = useState(18);

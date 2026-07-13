@@ -14,7 +14,7 @@ export default function SearchScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
   const [query, setQuery] = useState('');
-  const [translation, setTranslation] = useState<Translation>('ko_ko');
+  const [translation, setTranslation] = useState<Translation>('open_ko');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searched, setSearched] = useState(false);
 

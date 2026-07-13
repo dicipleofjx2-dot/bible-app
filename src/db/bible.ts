@@ -1,10 +1,14 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-export type Translation = 'ko_ko' | 'en_kjv';
+export type Translation = 'ko_ko' | 'en_kjv' | 'open_ko' | 'open_en';
 
+// 개역한글 (ko_ko) is kept out of this user-facing list (superseded by 오픈성경)
+// but its rows stay in the database so existing notes/highlights that
+// reference it still resolve correctly.
 export const TRANSLATIONS: { code: Translation; label: string }[] = [
-  { code: 'ko_ko', label: '개역한글' },
+  { code: 'open_ko', label: '오픈성경' },
   { code: 'en_kjv', label: 'KJV' },
+  { code: 'open_en', label: 'Open Bible' },
 ];
 
 export type Book = {

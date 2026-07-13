@@ -5,6 +5,13 @@
 // ko_ko.json = 개역한글 (Korean Revised Version, 1961), en_kjv.json = King James Version.
 // NOTE: CC BY-NC means this bundled data is for non-commercial use only. If this
 // app is ever monetized, swap in a permissively-licensed dataset here.
+//
+// openbible_ko.json / openbible_en.json = OpenBible (오픈성경), parsed from the
+// user-supplied OpenBible.ko-KR.pdf / OpenBible.en-GB.pdf via
+// scripts/parse-openbible-pdf.mjs + scripts/patch-openbible-{ko,en}.mjs. Kept
+// as the same {abbrev, chapters:[[verse,...]]} shape as the other sources so
+// they slot into this build unchanged. ko_ko/en_kjv's book/chapter structure
+// remains the canonical reference for book order and chapter/verse counts.
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -21,6 +28,8 @@ const QT_SCHEDULE_FILE = path.join(SRC_DIR, 'qt_schedule.xlsx');
 const TRANSLATIONS = [
   { code: 'ko_ko', file: 'ko_ko.json', lang: 'ko' },
   { code: 'en_kjv', file: 'en_kjv.json', lang: 'en' },
+  { code: 'open_ko', file: 'openbible_ko.json', lang: 'ko' },
+  { code: 'open_en', file: 'openbible_en.json', lang: 'en' },
 ];
 
 // The source ko_ko.json's "name" field is left in English (only verse text is
@@ -145,6 +154,7 @@ async function main() {
 
   const koData = loadJson('ko_ko.json');
   const enData = loadJson('en_kjv.json');
+  const translationData = Object.fromEntries(TRANSLATIONS.map((t) => [t.code, loadJson(t.file)]));
 
   if (koData.length !== enData.length) {
     throw new Error('Korean and English source data have different book counts');
@@ -153,6 +163,11 @@ async function main() {
     throw new Error(
       `KOREAN_BOOK_NAMES has ${KOREAN_BOOK_NAMES.length} entries, expected ${koData.length}`
     );
+  }
+  for (const t of TRANSLATIONS) {
+    if (translationData[t.code].length !== koData.length) {
+      throw new Error(`${t.file} has ${translationData[t.code].length} books, expected ${koData.length}`);
+    }
   }
 
   const insertBook = db.prepare(
@@ -169,13 +184,11 @@ async function main() {
 
     insertBook.run([bookId, koBook.abbrev, KOREAN_BOOK_NAMES[bookIndex], enBook.name, testament, bookId]);
 
-    for (const [translationCode, book] of [
-      ['ko_ko', koBook],
-      ['en_kjv', enBook],
-    ]) {
+    for (const t of TRANSLATIONS) {
+      const book = translationData[t.code][bookIndex];
       book.chapters.forEach((chapterVerses, chapterIndex) => {
         chapterVerses.forEach((text, verseIndex) => {
-          insertVerse.run([bookId, chapterIndex + 1, verseIndex + 1, translationCode, text]);
+          insertVerse.run([bookId, chapterIndex + 1, verseIndex + 1, t.code, text]);
         });
       });
     }
