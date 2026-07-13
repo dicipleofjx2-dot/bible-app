@@ -1,7 +1,7 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -9,7 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { addComment, getComments, getPost, type Comment, type Post } from '@/db/community';
+import { addComment, deletePost, getComments, getPost, type Comment, type Post } from '@/db/community';
 
 export default function PostDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -20,6 +20,8 @@ export default function PostDetailScreen() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [body, setBody] = useState('');
   const [posting, setPosting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(() => {
     if (!id) return;
@@ -45,6 +47,18 @@ export default function PostDetailScreen() {
     }
   }
 
+  async function confirmDelete() {
+    if (!id) return;
+    setDeleting(true);
+    try {
+      await deletePost(id);
+      setConfirmingDelete(false);
+      router.back();
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
@@ -55,7 +69,16 @@ export default function PostDetailScreen() {
           ListHeaderComponent={
             post ? (
               <View style={[styles.postCard, { backgroundColor: theme.backgroundElement }]}>
-                <ThemedText type="smallBold">{post.author}</ThemedText>
+                <View style={styles.postCardHeader}>
+                  <ThemedText type="smallBold">{post.author}</ThemedText>
+                  {session?.user.id === post.user_id && (
+                    <Pressable onPress={() => setConfirmingDelete(true)} hitSlop={8}>
+                      <ThemedText type="small" style={styles.deleteText}>
+                        삭제
+                      </ThemedText>
+                    </Pressable>
+                  )}
+                </View>
                 <ThemedText style={styles.postBody}>{post.body}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
                   {new Date(post.created_at).toLocaleString('ko-KR')}
@@ -104,6 +127,36 @@ export default function PostDetailScreen() {
           </ThemedText>
         )}
       </SafeAreaView>
+
+      <Modal
+        visible={confirmingDelete}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setConfirmingDelete(false)}>
+        <View style={styles.backdrop}>
+          <ThemedView type="background" style={[styles.confirmSheet, { borderColor: theme.backgroundElement }]}>
+            <ThemedText type="subtitle">글을 삭제할까요?</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              댓글도 함께 삭제되며 되돌릴 수 없습니다.
+            </ThemedText>
+            <View style={styles.confirmActions}>
+              <Pressable onPress={() => setConfirmingDelete(false)} style={styles.confirmActionButton}>
+                <ThemedText type="link" themeColor="textSecondary">
+                  취소
+                </ThemedText>
+              </Pressable>
+              <Pressable
+                onPress={confirmDelete}
+                disabled={deleting}
+                style={[styles.confirmActionButton, styles.confirmDeleteButton, { opacity: deleting ? 0.5 : 1 }]}>
+                <ThemedText type="smallBold" style={styles.confirmDeleteText}>
+                  삭제
+                </ThemedText>
+              </Pressable>
+            </View>
+          </ThemedView>
+        </View>
+      </Modal>
     </ThemedView>
   );
 }
@@ -130,6 +183,47 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     gap: Spacing.one,
     marginBottom: Spacing.two,
+  },
+  postCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  deleteText: {
+    color: '#e03131',
+  },
+  backdrop: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  confirmSheet: {
+    width: '100%',
+    maxWidth: 420,
+    marginHorizontal: Spacing.four,
+    marginBottom: Spacing.four,
+    borderRadius: Spacing.four,
+    borderWidth: 1,
+    padding: Spacing.four,
+    gap: Spacing.two,
+    alignSelf: 'center',
+  },
+  confirmActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: Spacing.three,
+    marginTop: Spacing.two,
+  },
+  confirmActionButton: {
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one,
+    borderRadius: Spacing.three,
+  },
+  confirmDeleteButton: {
+    backgroundColor: '#e03131',
+  },
+  confirmDeleteText: {
+    color: '#fff',
   },
   postBody: {
     fontSize: 17,

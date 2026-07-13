@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { router, useFocusEffect } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -10,7 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { AuthForm } from '@/features/auth/AuthForm';
-import { createPost, getPosts, type Post } from '@/db/community';
+import { createPost, deletePost, getPosts, type Post } from '@/db/community';
 
 export default function CommunityScreen() {
   const theme = useTheme();
@@ -54,6 +54,8 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
   const [posts, setPosts] = useState<Post[]>([]);
   const [body, setBody] = useState('');
   const [posting, setPosting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Post | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(() => {
     getPosts()
@@ -72,6 +74,18 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
       load();
     } finally {
       setPosting(false);
+    }
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deletePost(deleteTarget.id);
+      setDeleteTarget(null);
+      load();
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -131,7 +145,16 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
                 { backgroundColor: theme.backgroundElement },
                 pressed && styles.pressed,
               ]}>
-              <ThemedText type="smallBold">{item.author}</ThemedText>
+              <View style={styles.postRowHeader}>
+                <ThemedText type="smallBold">{item.author}</ThemedText>
+                {item.user_id === userId && (
+                  <Pressable onPress={() => setDeleteTarget(item)} hitSlop={8}>
+                    <ThemedText type="small" style={styles.deleteText}>
+                      삭제
+                    </ThemedText>
+                  </Pressable>
+                )}
+              </View>
               <ThemedText type="small" style={styles.postBody}>
                 {item.body}
               </ThemedText>
@@ -142,6 +165,36 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
           )}
         />
       </ThemedView>
+
+      <Modal
+        visible={deleteTarget != null}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setDeleteTarget(null)}>
+        <View style={styles.backdrop}>
+          <ThemedView type="background" style={[styles.confirmSheet, { borderColor: theme.backgroundElement }]}>
+            <ThemedText type="subtitle">글을 삭제할까요?</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              댓글도 함께 삭제되며 되돌릴 수 없습니다.
+            </ThemedText>
+            <View style={styles.confirmActions}>
+              <Pressable onPress={() => setDeleteTarget(null)} style={styles.confirmActionButton}>
+                <ThemedText type="link" themeColor="textSecondary">
+                  취소
+                </ThemedText>
+              </Pressable>
+              <Pressable
+                onPress={confirmDelete}
+                disabled={deleting}
+                style={[styles.confirmActionButton, styles.confirmDeleteButton, { opacity: deleting ? 0.5 : 1 }]}>
+                <ThemedText type="smallBold" style={styles.confirmDeleteText}>
+                  삭제
+                </ThemedText>
+              </Pressable>
+            </View>
+          </ThemedView>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -214,6 +267,14 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     gap: Spacing.one,
   },
+  postRowHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  deleteText: {
+    color: '#e03131',
+  },
   postBody: {},
   emptyText: {
     textAlign: 'center',
@@ -221,5 +282,38 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.7,
+  },
+  backdrop: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  confirmSheet: {
+    width: '100%',
+    maxWidth: 420,
+    marginHorizontal: Spacing.four,
+    marginBottom: Spacing.four,
+    borderRadius: Spacing.four,
+    borderWidth: 1,
+    padding: Spacing.four,
+    gap: Spacing.two,
+    alignSelf: 'center',
+  },
+  confirmActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: Spacing.three,
+    marginTop: Spacing.two,
+  },
+  confirmActionButton: {
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one,
+    borderRadius: Spacing.three,
+  },
+  confirmDeleteButton: {
+    backgroundColor: '#e03131',
+  },
+  confirmDeleteText: {
+    color: '#fff',
   },
 });

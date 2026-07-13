@@ -50,6 +50,12 @@ export async function createPost(userId: string, body: string): Promise<void> {
   if (error) throw error;
 }
 
+/** RLS restricts this to the post's own author (see 0001_init.sql). */
+export async function deletePost(postId: string): Promise<void> {
+  const { error } = await supabase.from('posts').delete().eq('id', postId);
+  if (error) throw error;
+}
+
 export async function getComments(postId: string): Promise<Comment[]> {
   const { data, error } = await supabase
     .from('comments')
