@@ -1,4 +1,4 @@
-import type { SQLiteDatabase } from 'expo-sqlite';
+import { supabase } from '@/lib/supabase';
 
 export type CommentaryEntry = {
   id: number;
@@ -9,32 +9,7 @@ export type CommentaryEntry = {
   html: string;
 };
 
-export async function getCommentarySources(db: SQLiteDatabase): Promise<string[]> {
-  const rows = await db.getAllAsync<{ source: string }>(
-    `SELECT DISTINCT source FROM commentary ORDER BY source`
-  );
-  return rows.map((r) => r.source);
-}
-
-export async function getCommentaryForVerse(
-  db: SQLiteDatabase,
-  bookId: number,
-  chapter: number,
-  verse: number,
-  source: string
-): Promise<CommentaryEntry | null> {
-  const row = await db.getFirstAsync<{
-    id: number;
-    book_id: number;
-    chapter: number;
-    verse: number;
-    source: string;
-    html: string;
-  }>(
-    `SELECT * FROM commentary WHERE book_id = ? AND chapter = ? AND verse = ? AND source = ?`,
-    [bookId, chapter, verse, source]
-  );
-  if (!row) return null;
+function mapRow(row: any): CommentaryEntry {
   return {
     id: row.id,
     bookId: row.book_id,
@@ -45,17 +20,44 @@ export async function getCommentaryForVerse(
   };
 }
 
+export async function getCommentarySources(): Promise<string[]> {
+  const { data, error } = await supabase.from('commentary').select('source');
+  if (error) throw error;
+  return [...new Set((data ?? []).map((r: any) => r.source))].sort();
+}
+
+export async function getCommentaryForVerse(
+  bookId: number,
+  chapter: number,
+  verse: number,
+  source: string
+): Promise<CommentaryEntry | null> {
+  const { data, error } = await supabase
+    .from('commentary')
+    .select('*')
+    .eq('book_id', bookId)
+    .eq('chapter', chapter)
+    .eq('verse', verse)
+    .eq('source', source)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? mapRow(data) : null;
+}
+
 /** Every verse in this chapter that has commentary, so the UI can mark which
  * verses are annotated when browsing a chapter. */
 export async function getCommentaryVersesForChapter(
-  db: SQLiteDatabase,
   bookId: number,
   chapter: number,
   source: string
 ): Promise<number[]> {
-  const rows = await db.getAllAsync<{ verse: number }>(
-    `SELECT verse FROM commentary WHERE book_id = ? AND chapter = ? AND source = ? ORDER BY verse`,
-    [bookId, chapter, source]
-  );
-  return rows.map((r) => r.verse);
+  const { data, error } = await supabase
+    .from('commentary')
+    .select('verse')
+    .eq('book_id', bookId)
+    .eq('chapter', chapter)
+    .eq('source', source)
+    .order('verse');
+  if (error) throw error;
+  return (data ?? []).map((r: any) => r.verse);
 }

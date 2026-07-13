@@ -49,22 +49,24 @@ export default function CommentaryScreen() {
 
   useEffect(() => {
     getBooks(db).then(setBooks);
-    getCommentarySources(db).then((list) => {
-      setSources(list);
-      setSource((prev) => prev || list[0] || '');
-    });
+    getCommentarySources()
+      .then((list) => {
+        setSources(list);
+        setSource((prev) => prev || list[0] || '');
+      })
+      .catch(() => setSources([]));
   }, [db]);
 
   useEffect(() => {
     getChapterVerses(db, bookId, chapter, 'ko_ko').then(setChapterVerses);
-    if (source) getCommentaryVersesForChapter(db, bookId, chapter, source).then(setAnnotatedVerses);
+    if (source) getCommentaryVersesForChapter(bookId, chapter, source).then(setAnnotatedVerses);
   }, [db, bookId, chapter, source]);
 
   useEffect(() => {
     if (!source) return;
     setSavedColor(null);
-    getCommentaryForVerse(db, bookId, chapter, verse, source).then(setCommentary);
-  }, [db, bookId, chapter, verse, source]);
+    getCommentaryForVerse(bookId, chapter, verse, source).then(setCommentary);
+  }, [bookId, chapter, verse, source]);
 
   const book = books.find((b) => b.id === bookId);
   const currentVerseText = chapterVerses.find((v) => v.verse === verse)?.text ?? '';

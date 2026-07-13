@@ -14,6 +14,7 @@ import { ThemedView } from './themed-view';
 
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useGradient } from '@/hooks/use-theme';
+import { getHebrewDateKST } from '@/lib/hebrew-date';
 
 export default function AppTabs() {
   return (
@@ -79,8 +80,8 @@ export function CustomTabList(props: TabListProps) {
   return (
     <View {...props} style={styles.tabListContainer}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
-        <ThemedText type="smallBold" style={styles.brandText}>
-          성경앱
+        <ThemedText type="smallBold" themeColor="textSecondary" style={styles.brandText}>
+          {getHebrewDateKST()}
         </ThemedText>
 
         {props.children}
