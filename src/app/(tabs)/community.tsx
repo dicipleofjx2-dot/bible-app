@@ -185,9 +185,18 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
               <ThemedText type="small" style={styles.postBody}>
                 {item.body}
               </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {new Date(item.created_at).toLocaleString('ko-KR')}
-              </ThemedText>
+              <View style={styles.postRowFooter}>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {new Date(item.created_at).toLocaleString('ko-KR')}
+                </ThemedText>
+                {item.commentCount > 0 && (
+                  <View style={[styles.commentBadge, { backgroundColor: theme.backgroundSelected }]}>
+                    <ThemedText type="small" style={styles.commentBadgeText}>
+                      💬 답글 {item.commentCount}개
+                    </ThemedText>
+                  </View>
+                )}
+              </View>
             </Pressable>
           )}
         />
@@ -317,6 +326,19 @@ const styles = StyleSheet.create({
     color: '#e03131',
   },
   postBody: {},
+  postRowFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  commentBadge: {
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.half,
+    borderRadius: Spacing.three,
+  },
+  commentBadgeText: {
+    fontWeight: '700',
+  },
   emptyText: {
     textAlign: 'center',
     marginTop: Spacing.four,

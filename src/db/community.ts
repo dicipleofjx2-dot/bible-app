@@ -9,6 +9,7 @@ export type Post = {
   body: string;
   created_at: string;
   author: string;
+  commentCount: number;
 };
 
 export type Comment = {
@@ -23,26 +24,27 @@ export type Comment = {
 export async function getPosts(): Promise<Post[]> {
   const { data, error } = await supabase
     .from('posts')
-    .select('id, user_id, book_id, chapter, verse, body, created_at, profiles(username)')
+    .select('id, user_id, book_id, chapter, verse, body, created_at, profiles(username), comments(count)')
     .order('created_at', { ascending: false })
     .limit(50);
   if (error) throw error;
   return (data ?? []).map((row: any) => ({
     ...row,
     author: row.profiles?.username ?? '익명',
+    commentCount: row.comments?.[0]?.count ?? 0,
   }));
 }
 
 export async function getPost(postId: string): Promise<Post | null> {
   const { data, error } = await supabase
     .from('posts')
-    .select('id, user_id, book_id, chapter, verse, body, created_at, profiles(username)')
+    .select('id, user_id, book_id, chapter, verse, body, created_at, profiles(username), comments(count)')
     .eq('id', postId)
     .single();
   if (error) throw error;
   if (!data) return null;
   const row = data as any;
-  return { ...row, author: row.profiles?.username ?? '익명' };
+  return { ...row, author: row.profiles?.username ?? '익명', commentCount: row.comments?.[0]?.count ?? 0 };
 }
 
 export async function createPost(userId: string, body: string): Promise<void> {
