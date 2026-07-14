@@ -5,6 +5,8 @@ export type ReadingPlan = {
   slug: string;
   title: string;
   description: string | null;
+  start_date: string | null;
+  end_date: string | null;
 };
 
 export type ReadingPlanDay = {
@@ -15,6 +17,27 @@ export type ReadingPlanDay = {
   chapter: number;
 };
 
+export function todayDateString(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+export function addDays(dateStr: string, days: number): string {
+  const d = new Date(`${dateStr}T00:00:00`);
+  d.setDate(d.getDate() + days);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** Inclusive day count spanning start..end (e.g. same day = 1). */
+export function daysBetweenInclusive(startDateStr: string, endDateStr: string): number {
+  const start = new Date(`${startDateStr}T00:00:00`);
+  const end = new Date(`${endDateStr}T00:00:00`);
+  return Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
+}
+
 // The plan list rarely changes, so cache it in memory — repeat visits to the
 // plans screen (e.g. via the home screen's "읽기 계획 보기" link) render
 // instantly instead of waiting on a fresh network round trip every time.
@@ -24,7 +47,7 @@ let plansCachePromise: Promise<ReadingPlan[]> | null = null;
 async function fetchPlans(): Promise<ReadingPlan[]> {
   const { data, error } = await supabase
     .from('reading_plans')
-    .select('id, slug, title, description')
+    .select('id, slug, title, description, start_date, end_date')
     .order('created_at', { ascending: true });
   if (error) {
     plansCachePromise = null;
@@ -50,6 +73,11 @@ export function prefetchPlans() {
 export async function findPlanBySlug(slug: string): Promise<ReadingPlan | null> {
   const plans = await getPlans();
   return plans.find((p) => p.slug === slug) ?? null;
+}
+
+export async function findPlanById(planId: string): Promise<ReadingPlan | null> {
+  const plans = await getPlans();
+  return plans.find((p) => p.id === planId) ?? null;
 }
 
 export async function getPlanDays(planId: string): Promise<ReadingPlanDay[]> {
@@ -101,35 +129,107 @@ function slugify(title: string): string {
   return `${base || 'plan'}-${Math.random().toString(36).slice(2, 6)}`;
 }
 
+/** Spreads `chapters` as evenly as possible across exactly `totalDays` days
+ * (some days get one extra chapter rather than leaving a lopsided last day),
+ * so day `totalDays`'s calendar date always lands exactly on the plan's
+ * end_date. */
+function distributeAcrossDays<T>(items: T[], totalDays: number): T[][] {
+  const days: T[][] = [];
+  const base = Math.floor(items.length / totalDays);
+  const extra = items.length % totalDays;
+  let idx = 0;
+  for (let d = 0; d < totalDays; d++) {
+    const count = base + (d < extra ? 1 : 0);
+    days.push(items.slice(idx, idx + count));
+    idx += count;
+  }
+  return days;
+}
+
 /** Creates a user-authored reading plan: `chapters` is the full flat list of
- * book/chapter pairs in reading order, chunked into `chaptersPerDay`-sized
- * days (see the 성경통독 tab, which enumerates the chapter range and calls
- * this). */
+ * book/chapter pairs in reading order, spread evenly across the calendar
+ * days from startDate to endDate (inclusive) — see the 성경통독 tab, which
+ * enumerates the chapter range and calls this. */
 export async function createPlan(params: {
   title: string;
   createdBy: string;
   chapters: { bookId: number; chapter: number }[];
-  chaptersPerDay: number;
+  startDate: string;
+  endDate: string;
 }): Promise<ReadingPlan> {
+  const totalDays = daysBetweenInclusive(params.startDate, params.endDate);
+  if (totalDays < 1) throw new Error('종료일은 시작일보다 뒤여야 합니다.');
+  if (params.chapters.length < totalDays) {
+    throw new Error(`선택한 범위(${params.chapters.length}장)가 기간(${totalDays}일)보다 짧습니다. 범위를 늘리거나 기간을 줄여주세요.`);
+  }
+
   const { data: plan, error: planError } = await supabase
     .from('reading_plans')
-    .insert({ slug: slugify(params.title), title: params.title, created_by: params.createdBy })
-    .select('id, slug, title, description')
+    .insert({
+      slug: slugify(params.title),
+      title: params.title,
+      created_by: params.createdBy,
+      start_date: params.startDate,
+      end_date: params.endDate,
+    })
+    .select('id, slug, title, description, start_date, end_date')
     .single();
   if (planError) throw planError;
 
+  const perDay = distributeAcrossDays(params.chapters, totalDays);
   const days: { plan_id: string; day_number: number; book_id: number; chapter: number }[] = [];
-  for (let i = 0; i < params.chapters.length; i += params.chaptersPerDay) {
-    const dayNumber = Math.floor(i / params.chaptersPerDay) + 1;
-    for (const c of params.chapters.slice(i, i + params.chaptersPerDay)) {
-      days.push({ plan_id: plan.id, day_number: dayNumber, book_id: c.bookId, chapter: c.chapter });
+  perDay.forEach((chaptersForDay, i) => {
+    for (const c of chaptersForDay) {
+      days.push({ plan_id: plan.id, day_number: i + 1, book_id: c.bookId, chapter: c.chapter });
     }
-  }
+  });
   const { error: daysError } = await supabase.from('reading_plan_days').insert(days);
   if (daysError) throw daysError;
 
   plansCache = null;
   return plan;
+}
+
+export type TodaysReading = {
+  planId: string;
+  planTitle: string;
+  dayNumber: number;
+  totalDays: number;
+  entries: { bookId: number; chapters: number[] }[];
+};
+
+/** For a plan with a start_date, resolves which day_number today falls on and
+ * returns that day's chapters grouped by book — used to show "오늘의 성경통독"
+ * in 말씀묵상 for anyone who has joined a room following this plan. */
+export async function getTodaysReadingForPlan(planId: string): Promise<TodaysReading | null> {
+  const plan = await findPlanById(planId);
+  if (!plan?.start_date || !plan.end_date) return null;
+
+  const today = todayDateString();
+  if (today < plan.start_date || today > plan.end_date) return null;
+
+  const dayNumber = daysBetweenInclusive(plan.start_date, today);
+  const totalDays = daysBetweenInclusive(plan.start_date, plan.end_date);
+
+  const { data, error } = await supabase
+    .from('reading_plan_days')
+    .select('book_id, chapter')
+    .eq('plan_id', planId)
+    .eq('day_number', dayNumber)
+    .order('book_id', { ascending: true })
+    .order('chapter', { ascending: true });
+  if (error) throw error;
+  if (!data || data.length === 0) return null;
+
+  const byBook = new Map<number, number[]>();
+  for (const row of data) {
+    const list = byBook.get(row.book_id);
+    if (list) list.push(row.chapter);
+    else byBook.set(row.book_id, [row.chapter]);
+  }
+  const entries = Array.from(byBook.entries()).map(([bookId, chapters]) => ({ bookId, chapters }));
+
+  return { planId, planTitle: plan.title, dayNumber, totalDays, entries };
 }
 
 export type PlanDayMatch = { planId: string; planTitle: string; dayNumber: number };

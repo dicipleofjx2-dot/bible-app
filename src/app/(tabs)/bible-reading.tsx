@@ -13,8 +13,18 @@ import { isSupabaseConfigured } from '@/lib/supabase';
 import { AuthForm } from '@/features/auth/AuthForm';
 import { BookChapterPicker } from '@/features/bible/BookChapterPicker';
 import { getBooks, getChapterCount, type Book } from '@/db/bible';
-import { createPlan, getPlans, type ReadingPlan } from '@/db/plans';
+import { addDays, createPlan, getPlans, todayDateString, type ReadingPlan } from '@/db/plans';
 import { createRoom, getAllRooms, getMyRooms, getRoomByInviteCode, joinRoom, type Room } from '@/db/rooms';
+
+const DURATION_PRESETS = [
+  { code: '1w', label: '1주', days: 7 },
+  { code: '1m', label: '1달', days: 30 },
+  { code: '3m', label: '3달', days: 90 },
+  { code: '6m', label: '6달', days: 180 },
+  { code: '1y', label: '1년', days: 365 },
+  { code: 'custom', label: '직접 설정', days: null },
+] as const;
+type DurationCode = (typeof DURATION_PRESETS)[number]['code'];
 
 type ChapterPoint = { bookId: number; chapter: number };
 
@@ -91,8 +101,10 @@ function BibleReadingContent({ userId }: { userId: string }) {
   const [planTitle, setPlanTitle] = useState('');
   const [startPoint, setStartPoint] = useState<ChapterPoint | null>(null);
   const [endPoint, setEndPoint] = useState<ChapterPoint | null>(null);
-  const [chaptersPerDay, setChaptersPerDay] = useState('3');
   const [pickerTarget, setPickerTarget] = useState<'start' | 'end' | null>(null);
+  const [durationCode, setDurationCode] = useState<DurationCode>('1m');
+  const [startDate, setStartDate] = useState(todayDateString());
+  const [customEndDate, setCustomEndDate] = useState('');
   const [creatingPlan, setCreatingPlan] = useState(false);
   const [planError, setPlanError] = useState<string | null>(null);
 
@@ -108,9 +120,15 @@ function BibleReadingContent({ userId }: { userId: string }) {
     return books.find((b) => b.id === bookId)?.name_ko ?? '';
   }
 
+  function resolvedEndDate(): string {
+    if (durationCode === 'custom') return customEndDate;
+    const preset = DURATION_PRESETS.find((p) => p.code === durationCode);
+    return preset?.days ? addDays(startDate, preset.days - 1) : '';
+  }
+
   async function handleCreatePlan() {
-    if (!planTitle.trim() || !startPoint || !endPoint) return;
-    const perDay = Math.max(1, parseInt(chaptersPerDay, 10) || 1);
+    const endDate = resolvedEndDate();
+    if (!planTitle.trim() || !startPoint || !endPoint || !startDate || !endDate) return;
     setCreatingPlan(true);
     setPlanError(null);
     try {
@@ -120,12 +138,15 @@ function BibleReadingContent({ userId }: { userId: string }) {
         title: planTitle.trim(),
         createdBy: userId,
         chapters,
-        chaptersPerDay: perDay,
+        startDate,
+        endDate,
       });
       setPlanTitle('');
       setStartPoint(null);
       setEndPoint(null);
-      setChaptersPerDay('3');
+      setDurationCode('1m');
+      setStartDate(todayDateString());
+      setCustomEndDate('');
       loadPlans();
       router.push(`/plans/${plan.slug}`);
     } catch (e: any) {
@@ -243,17 +264,54 @@ function BibleReadingContent({ userId }: { userId: string }) {
                 </ThemedText>
               </Pressable>
             </View>
+            <ThemedText type="small" themeColor="textSecondary">
+              기간
+            </ThemedText>
+            <View style={styles.planRow}>
+              {DURATION_PRESETS.map((p) => (
+                <Pressable
+                  key={p.code}
+                  onPress={() => setDurationCode(p.code)}
+                  style={[
+                    styles.planChip,
+                    { backgroundColor: durationCode === p.code ? theme.backgroundSelected : theme.backgroundElement },
+                  ]}>
+                  <ThemedText type="small">{p.label}</ThemedText>
+                </Pressable>
+              ))}
+            </View>
             <View style={styles.dailyRow}>
               <ThemedText type="small" themeColor="textSecondary">
-                하루에 읽을 장 수
+                시작일
               </ThemedText>
               <TextInput
-                value={chaptersPerDay}
-                onChangeText={setChaptersPerDay}
-                keyboardType="number-pad"
-                style={[styles.numberInput, { color: theme.text, backgroundColor: theme.backgroundElement }]}
+                value={startDate}
+                onChangeText={setStartDate}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor={theme.textSecondary}
+                style={[styles.dateInput, { color: theme.text, backgroundColor: theme.backgroundElement }]}
               />
             </View>
+            {durationCode === 'custom' ? (
+              <View style={styles.dailyRow}>
+                <ThemedText type="small" themeColor="textSecondary">
+                  종료일
+                </ThemedText>
+                <TextInput
+                  value={customEndDate}
+                  onChangeText={setCustomEndDate}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor={theme.textSecondary}
+                  style={[styles.dateInput, { color: theme.text, backgroundColor: theme.backgroundElement }]}
+                />
+              </View>
+            ) : (
+              resolvedEndDate() && (
+                <ThemedText type="small" themeColor="textSecondary">
+                  종료일: {resolvedEndDate()}
+                </ThemedText>
+              )
+            )}
             {planError && (
               <ThemedText type="small" style={styles.errorText}>
                 {planError}
@@ -261,13 +319,14 @@ function BibleReadingContent({ userId }: { userId: string }) {
             )}
             <Pressable
               onPress={handleCreatePlan}
-              disabled={creatingPlan || !planTitle.trim() || !startPoint || !endPoint}
+              disabled={creatingPlan || !planTitle.trim() || !startPoint || !endPoint || !resolvedEndDate()}
               style={[
                 styles.actionButton,
                 styles.startButton,
                 {
                   backgroundColor: theme.backgroundSelected,
-                  opacity: creatingPlan || !planTitle.trim() || !startPoint || !endPoint ? 0.5 : 1,
+                  opacity:
+                    creatingPlan || !planTitle.trim() || !startPoint || !endPoint || !resolvedEndDate() ? 0.5 : 1,
                 },
               ]}>
               <ThemedText type="smallBold">계획 만들기</ThemedText>
@@ -529,8 +588,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  numberInput: {
-    width: 64,
+  dateInput: {
+    width: 130,
     borderRadius: Spacing.three,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,

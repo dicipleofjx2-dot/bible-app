@@ -9,17 +9,24 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useAuth } from '@/lib/auth';
 import {
+  getBooks,
   getFirstQtEntry,
   getLastQtEntry,
   getNextQtEntry,
   getPrevQtEntry,
   getQtEntryForDate,
   getVersesForRange,
+  type Book,
   type QtEntry,
   type Verse,
 } from '@/db/bible';
+import { getTodaysReadingForPlan, type TodaysReading } from '@/db/plans';
+import { getMyRooms } from '@/db/rooms';
 import { getMeditationNote, upsertMeditationNote } from '@/db/userData';
+
+type TodaysRoomReading = TodaysReading & { roomId: string; roomName: string };
 
 function todayDateString() {
   const d = new Date();
@@ -33,6 +40,7 @@ export default function MeditationScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
   const params = useLocalSearchParams<{ date?: string }>();
+  const { session } = useAuth();
 
   const [passage, setPassage] = useState<Verse[]>([]);
   const [referenceLabel, setReferenceLabel] = useState('');
@@ -40,6 +48,17 @@ export default function MeditationScreen() {
   const [navigating, setNavigating] = useState(false);
   const [note, setNote] = useState('');
   const [saved, setSaved] = useState(false);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [todaysReadings, setTodaysReadings] = useState<TodaysRoomReading[]>([]);
+
+  function bookName(bookId: number): string {
+    return books.find((b) => b.id === bookId)?.name_ko ?? '';
+  }
+
+  function formatChapters(chapters: number[]): string {
+    if (chapters.length === 1) return `${chapters[0]}장`;
+    return `${chapters[0]}~${chapters[chapters.length - 1]}장`;
+  }
 
   async function showQtEntry(qt: QtEntry) {
     const verses = await getVersesForRange(db, qt.bookId, qt.chapter, qt.startVerse, qt.endVerse, 'open_ko');
@@ -65,6 +84,26 @@ export default function MeditationScreen() {
       })();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [db, params.date])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      getBooks(db).then(setBooks);
+      if (!session) {
+        setTodaysReadings([]);
+        return;
+      }
+      (async () => {
+        const rooms = await getMyRooms(session.user.id).catch(() => []);
+        const results = await Promise.all(
+          rooms.map(async (room) => {
+            const reading = await getTodaysReadingForPlan(room.planId).catch(() => null);
+            return reading ? { ...reading, roomId: room.id, roomName: room.name } : null;
+          })
+        );
+        setTodaysReadings(results.filter((r): r is TodaysRoomReading => r !== null));
+      })();
+    }, [db, session])
   );
 
   async function goToPrevDay() {
@@ -120,6 +159,39 @@ export default function MeditationScreen() {
               말씀노트 보기
             </ThemedText>
           </Pressable>
+
+          {todaysReadings.length > 0 && (
+            <View style={styles.readingPlanSection}>
+              <ThemedText type="smallBold">오늘의 성경통독</ThemedText>
+              {todaysReadings.map((r) => (
+                <View
+                  key={r.roomId}
+                  style={[styles.readingPlanCard, { backgroundColor: theme.backgroundElement }]}>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {r.roomName} · {r.planTitle} ({r.dayNumber}/{r.totalDays}일차)
+                  </ThemedText>
+                  {r.entries.map((entry) => (
+                    <Pressable
+                      key={entry.bookId}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/read',
+                          params: { bookId: String(entry.bookId), chapter: String(entry.chapters[0]) },
+                        })
+                      }
+                      style={({ pressed }) => [styles.readingPlanRow, pressed && styles.pressed]}>
+                      <ThemedText type="smallBold">
+                        {bookName(entry.bookId)} {formatChapters(entry.chapters)}
+                      </ThemedText>
+                      <ThemedText type="small" themeColor="textSecondary">
+                        읽으러 가기 ▶
+                      </ThemedText>
+                    </Pressable>
+                  ))}
+                </View>
+              ))}
+            </View>
+          )}
 
           <ThemedView type="backgroundElement" style={styles.verseCard}>
             <View style={styles.verseCardHeader}>
@@ -220,6 +292,22 @@ const styles = StyleSheet.create({
   },
   wordNotesLink: {
     alignSelf: 'center',
+  },
+  readingPlanSection: {
+    width: '100%',
+    gap: Spacing.two,
+  },
+  readingPlanCard: {
+    width: '100%',
+    borderRadius: Spacing.three,
+    padding: Spacing.three,
+    gap: Spacing.two,
+  },
+  readingPlanRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.one,
   },
   verseCard: {
     width: '100%',
