@@ -53,7 +53,7 @@ export default function NotesScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ThemedView style={styles.container}>
         <ThemedText type="subtitle" style={styles.header}>
-          노트 & 하이라이트
+          암송구절
         </ThemedText>
 
         <FlatList

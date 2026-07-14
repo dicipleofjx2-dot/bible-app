@@ -26,7 +26,7 @@ export default function AppTabs() {
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="notes">
-        <NativeTabs.Trigger.Label>노트</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>암송구절</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="highlighter" md="edit_note" />
       </NativeTabs.Trigger>
 

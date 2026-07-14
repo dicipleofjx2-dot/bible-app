@@ -65,9 +65,14 @@ export async function getMarksForChapter(
   );
 }
 
+// Excludes commentary highlights (color starting "commentary-", see
+// COMMENTARY_HIGHLIGHT_COLORS below) — those are saved from the 주석 tab and
+// are kept out of 암송구절 intentionally, so the two stay unlinked.
 export async function getAllMarks(): Promise<VerseMark[]> {
   const db = await getUserDb();
-  return db.getAllAsync<VerseMark>(`SELECT * FROM verse_marks ORDER BY updated_at DESC`);
+  return db.getAllAsync<VerseMark>(
+    `SELECT * FROM verse_marks WHERE color IS NULL OR color NOT LIKE 'commentary-%' ORDER BY updated_at DESC`
+  );
 }
 
 export async function upsertMark(mark: {

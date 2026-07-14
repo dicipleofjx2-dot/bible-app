@@ -31,7 +31,7 @@ export default function AppTabs() {
             <TabButton>검색</TabButton>
           </TabTrigger>
           <TabTrigger name="notes" href="/notes" asChild>
-            <TabButton>노트</TabButton>
+            <TabButton>암송구절</TabButton>
           </TabTrigger>
           <TabTrigger name="commentary" href="/commentary" asChild>
             <TabButton>주석</TabButton>
