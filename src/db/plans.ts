@@ -7,6 +7,7 @@ export type ReadingPlan = {
   description: string | null;
   start_date: string | null;
   end_date: string | null;
+  created_by: string | null;
 };
 
 export type ReadingPlanDay = {
@@ -47,7 +48,7 @@ let plansCachePromise: Promise<ReadingPlan[]> | null = null;
 async function fetchPlans(): Promise<ReadingPlan[]> {
   const { data, error } = await supabase
     .from('reading_plans')
-    .select('id, slug, title, description, start_date, end_date')
+    .select('id, slug, title, description, start_date, end_date, created_by')
     .order('created_at', { ascending: true });
   if (error) {
     plansCachePromise = null;
@@ -172,7 +173,7 @@ export async function createPlan(params: {
       start_date: params.startDate,
       end_date: params.endDate,
     })
-    .select('id, slug, title, description, start_date, end_date')
+    .select('id, slug, title, description, start_date, end_date, created_by')
     .single();
   if (planError) throw planError;
 
@@ -188,6 +189,15 @@ export async function createPlan(params: {
 
   plansCache = null;
   return plan;
+}
+
+/** Deletes a plan the caller owns (enforced by RLS). Cascades in the DB take
+ * out its days, progress, and any room built on it — see the `on delete
+ * cascade` FKs on reading_plan_days/reading_plan_progress/reading_rooms. */
+export async function deletePlan(planId: string): Promise<void> {
+  const { error } = await supabase.from('reading_plans').delete().eq('id', planId);
+  if (error) throw error;
+  plansCache = null;
 }
 
 export type TodaysReading = {

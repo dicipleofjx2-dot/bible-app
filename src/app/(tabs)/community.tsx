@@ -106,11 +106,6 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
         <View style={styles.header}>
           <ThemedText type="subtitle">커뮤니티</ThemedText>
           <View style={styles.headerLinks}>
-            <Pressable onPress={() => router.push('/rooms')}>
-              <ThemedText type="link" themeColor="textSecondary">
-                읽기방
-              </ThemedText>
-            </Pressable>
             <Pressable onPress={() => router.push('/profile')}>
               <ThemedText type="link" themeColor="textSecondary">
                 프로필

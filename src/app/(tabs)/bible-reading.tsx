@@ -13,7 +13,7 @@ import { isSupabaseConfigured } from '@/lib/supabase';
 import { AuthForm } from '@/features/auth/AuthForm';
 import { BookChapterPicker } from '@/features/bible/BookChapterPicker';
 import { getBooks, getChapterCount, type Book } from '@/db/bible';
-import { addDays, createPlan, getPlans, todayDateString, type ReadingPlan } from '@/db/plans';
+import { addDays, createPlan, deletePlan, getPlans, todayDateString, type ReadingPlan } from '@/db/plans';
 import { createRoom, getAllRooms, getMyRooms, getRoomByInviteCode, joinRoom, type Room } from '@/db/rooms';
 
 const DURATION_PRESETS = [
@@ -115,6 +115,10 @@ function BibleReadingContent({ userId }: { userId: string }) {
       .catch(() => {});
   }, []);
   useFocusEffect(loadPlans);
+
+  const [deleteTarget, setDeleteTarget] = useState<ReadingPlan | null>(null);
+  const [deletingPlan, setDeletingPlan] = useState(false);
+  const [deletePlanError, setDeletePlanError] = useState<string | null>(null);
 
   function bookName(bookId: number): string {
     return books.find((b) => b.id === bookId)?.name_ko ?? '';
@@ -225,6 +229,22 @@ function BibleReadingContent({ userId }: { userId: string }) {
       setRoomError(e?.message ?? '방을 만들지 못했습니다. 다시 시도해주세요.');
     } finally {
       setCreatingRoom(false);
+    }
+  }
+
+  async function confirmDeletePlan() {
+    if (!deleteTarget) return;
+    setDeletingPlan(true);
+    setDeletePlanError(null);
+    try {
+      await deletePlan(deleteTarget.id);
+      setDeleteTarget(null);
+      loadPlans();
+      loadRooms();
+    } catch (e: any) {
+      setDeletePlanError(e?.message ?? '계획을 삭제하지 못했습니다.');
+    } finally {
+      setDeletingPlan(false);
     }
   }
 
@@ -346,14 +366,24 @@ function BibleReadingContent({ userId }: { userId: string }) {
                   onPress={() => router.push(`/plans/${p.slug}`)}
                   style={({ pressed }) => [
                     styles.row,
+                    styles.planListRow,
                     { backgroundColor: theme.backgroundElement },
                     pressed && styles.pressed,
                   ]}>
-                  <ThemedText type="smallBold">{p.title}</ThemedText>
-                  {p.description && (
-                    <ThemedText type="small" themeColor="textSecondary">
-                      {p.description}
-                    </ThemedText>
+                  <View style={styles.planListInfo}>
+                    <ThemedText type="smallBold">{p.title}</ThemedText>
+                    {p.description && (
+                      <ThemedText type="small" themeColor="textSecondary">
+                        {p.description}
+                      </ThemedText>
+                    )}
+                  </View>
+                  {p.created_by === userId && (
+                    <Pressable onPress={() => setDeleteTarget(p)} hitSlop={8}>
+                      <ThemedText type="small" style={styles.errorText}>
+                        삭제
+                      </ThemedText>
+                    </Pressable>
                   )}
                 </Pressable>
               ))
@@ -530,6 +560,41 @@ function BibleReadingContent({ userId }: { userId: string }) {
           </ThemedView>
         </View>
       </Modal>
+
+      <Modal
+        visible={deleteTarget != null}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setDeleteTarget(null)}>
+        <View style={styles.backdrop}>
+          <ThemedView type="background" style={[styles.promptSheet, { borderColor: theme.backgroundElement }]}>
+            <ThemedText type="subtitle">'{deleteTarget?.title}' 계획을 삭제할까요?</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary" style={styles.promptHint}>
+              이 계획으로 만든 성경통독방과 참여자들의 진행 기록도 함께 삭제되며 되돌릴 수 없습니다.
+            </ThemedText>
+            {deletePlanError && (
+              <ThemedText type="small" style={styles.errorText}>
+                {deletePlanError}
+              </ThemedText>
+            )}
+            <View style={styles.promptActions}>
+              <Pressable onPress={() => setDeleteTarget(null)} style={styles.actionButton}>
+                <ThemedText type="link" themeColor="textSecondary">
+                  취소
+                </ThemedText>
+              </Pressable>
+              <Pressable
+                onPress={confirmDeletePlan}
+                disabled={deletingPlan}
+                style={[styles.actionButton, styles.deleteConfirmButton, { opacity: deletingPlan ? 0.5 : 1 }]}>
+                <ThemedText type="smallBold" style={styles.deleteConfirmText}>
+                  삭제
+                </ThemedText>
+              </Pressable>
+            </View>
+          </ThemedView>
+        </View>
+      </Modal>
     </ThemedView>
   );
 }
@@ -623,6 +688,16 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     gap: Spacing.half,
   },
+  planListRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.two,
+  },
+  planListInfo: {
+    flex: 1,
+    gap: Spacing.half,
+  },
   browseRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -656,6 +731,12 @@ const styles = StyleSheet.create({
   },
   promptHint: {
     marginBottom: Spacing.one,
+  },
+  deleteConfirmButton: {
+    backgroundColor: '#e03131',
+  },
+  deleteConfirmText: {
+    color: '#fff',
   },
   promptActions: {
     flexDirection: 'row',
