@@ -1,6 +1,7 @@
 # BibleApp — Handoff / Status Reference
 
-Last updated: 2026-07-15, after commit `0af3da3` (pushed to `origin/main`, deployed to Vercel).
+Last updated: 2026-07-15, after commit (this session's home-screen redesign, not yet
+pushed — check `git log` / `git status` for the current head vs `origin/main`).
 
 This file exists so a new chat session can pick up work on this project without
 re-deriving context. Keep it updated at the end of a work session — a stale
@@ -39,7 +40,8 @@ local SQLite file shipped with the app (via `expo-sqlite`), built by
 src/
   app/                      # Expo Router screens (file-based routing)
     (tabs)/                 # Bottom-tab screens
-      index.tsx             # 홈 — daily QT passage, Hebrew calendar date
+      index.tsx             # 홈 — 4x3 emoji menu grid (app launcher), see
+                             #   "Core features" #1 below
       meditation.tsx        # 말씀묵상 — QT passage + note-taking + "오늘의 성경통독"
       read.tsx               # 읽기 — free Bible reading, verse actions
       search.tsx             # 검색 — full-text verse search
@@ -58,6 +60,10 @@ src/
     post/[id].tsx            # single community post + comments
     profile.tsx              # user profile / skin picker
     word-notes.tsx           # 말씀노트 — all-notes list (from 말씀묵상)
+    spiritual-journal.tsx    # 영성일기 — placeholder (ComingSoon)
+    priorities.tsx           # 우선순위 — placeholder (ComingSoon)
+    kingdom-finance.tsx      # 천국재정 — placeholder (ComingSoon)
+    prayer-group.tsx         # 샬롬기도단 — placeholder (ComingSoon)
   db/                       # All Supabase/SQLite data-access functions live here
     plans.ts                # reading plans (create/get/delete, today's-reading lookup)
     rooms.ts                # reading rooms (성경통독방): create/join/invite/delete
@@ -76,8 +82,19 @@ scripts/                    # build-bible-db.mjs + bible-source-data/*.json (sou
 
 ## Core features (as of last session)
 
-1. **홈** — today's QT (Quiet Time) passage resolved from a date-keyed
-   `qt_schedule` table (local SQLite), Hebrew-calendar date display.
+1. **홈** — app-launcher style menu grid (redesigned this session, replacing
+   the old QT-passage card). Header ("✝️ 주안에서" + profile icon) + a
+   4-column × 3-row grid of emoji-icon tiles (`MENU_ITEMS` in
+   `(tabs)/index.tsx`), each `router.push`ing to a route. 8 tiles map to
+   real tabs/pages (말씀묵상/말씀노트/성경읽기/성경통독/관주검색→`/search`/
+   암송구절/주석/커뮤니티); 4 are **not yet built** and route to a shared
+   `ComingSoon` placeholder screen (영성일기→`/spiritual-journal`,
+   우선순위→`/priorities`, 천국재정→`/kingdom-finance`,
+   샬롬기도단→`/prayer-group` — all registered in `src/app/_layout.tsx`'s
+   `Stack` with `headerShown:true` for the native back button). The
+   Hebrew-calendar date display and the QT card were **removed from 홈**;
+   QT passage + prev/next day nav still lives in 말씀묵상
+   (`(tabs)/meditation.tsx`), unchanged.
 2. **말씀묵상** — same QT passage with prev/next day navigation, a note
    textarea (`묵상 저장하기`), a link to all saved notes (`말씀노트 보기` —
    now sits next to the save button, same pill styling), and an
@@ -157,6 +174,15 @@ scripts/                    # build-bible-db.mjs + bible-source-data/*.json (sou
 
 ## Recent changes (most recent first)
 
+- **(this session, unpushed)** — Redesigned 홈 (`(tabs)/index.tsx`) from the
+  QT-passage card into a 4×3 emoji-icon menu grid per a user-provided
+  mockup; added 4 new placeholder routes (영성일기/우선순위/천국재정/
+  샬롬기도단) via a shared `ComingSoon` component, registered in
+  `_layout.tsx`. Also fixed `community.tsx`'s post `FlatList` — same
+  "no `style` prop, only `contentContainerStyle`, inside an
+  `alignItems:'center'` parent" bug as the word-notes fix below, confirmed
+  present and fixed the same way (this was the "suspected same-shape bug"
+  flagged as a follow-up in the previous session).
 - **`0af3da3`** — Fixed `deletePlan()`/`createPlan()` leaving a stale
   `plansCachePromise` around after invalidating `plansCache`, so a deleted
   plan only disappeared from 읽기계획 목록 after a manual refresh (now
@@ -185,11 +211,14 @@ scripts/                    # build-bible-db.mjs + bible-source-data/*.json (sou
 - **Not verified**: whether the plan-delete button actually *appears and
   works end-to-end* for an account that owns a plan (only verified the
   negative case — hidden for non-owners — since Claude can't log in).
-- **Suspected same-shape bug, not yet checked**: `community.tsx`'s post
-  `FlatList` has the exact same "no `style` prop, only
-  `contentContainerStyle`" shape that caused the word-notes width bug.
-  Never confirmed whether post cards actually exhibit it. (A background
-  task was spawned for this in the previous session — check if it ran.)
+- **Not verified in-browser**: the new 홈 menu grid and the community
+  FlatList fix (this session) — this session's browser preview couldn't
+  reach the dev server (another session already had port 8081 open, which
+  caused an `SQLiteProviderSuspense` error / blank page). Only checked via
+  `tsc --noEmit`. Confirm both visually next session.
+- 4 new placeholder pages (영성일기/우선순위/천국재정/샬롬기도단) are
+  intentionally empty — real content/features TBD whenever those are
+  scoped out.
 - Legacy reading plans with `created_by = null` (e.g. "요한복음 21일
   통독") are undeletable by anyone through the UI (RLS requires
   `auth.uid() = created_by`) — not necessarily a bug, just a known gap if

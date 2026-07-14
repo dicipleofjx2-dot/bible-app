@@ -1,172 +1,67 @@
-import { LinearGradient } from 'expo-linear-gradient';
-import { router, useFocusEffect } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
-import { useCallback, useState } from 'react';
+import { router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useGradient } from '@/hooks/use-theme';
-import {
-  getFirstQtEntry,
-  getLastQtEntry,
-  getNextQtEntry,
-  getPrevQtEntry,
-  getQtEntryForDate,
-  getVersesForRange,
-  type QtEntry,
-  type Verse,
-} from '@/db/bible';
-import { prefetchPlans } from '@/db/plans';
+import type { Href } from 'expo-router';
 
-function todayDateString() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
+type MenuItem = {
+  emoji: string;
+  label: string;
+  href: Href;
+};
+
+const MENU_ITEMS: MenuItem[] = [
+  { emoji: '📖', label: '말씀묵상', href: '/meditation' },
+  { emoji: '✍️', label: '말씀노트', href: '/word-notes' },
+  { emoji: '📚', label: '성경읽기', href: '/read' },
+  { emoji: '🗓️', label: '성경통독', href: '/bible-reading' },
+  { emoji: '🔎', label: '관주검색', href: '/search' },
+  { emoji: '💡', label: '암송구절', href: '/notes' },
+  { emoji: '📜', label: '주석', href: '/commentary' },
+  { emoji: '👥', label: '커뮤니티', href: '/community' },
+  { emoji: '❤️‍🔥', label: '영성일기', href: '/spiritual-journal' },
+  { emoji: '📊', label: '우선순위', href: '/priorities' },
+  { emoji: '🪙', label: '천국재정', href: '/kingdom-finance' },
+  { emoji: '🙏', label: '샬롬기도단', href: '/prayer-group' },
+];
 
 export default function HomeScreen() {
-  const db = useSQLiteContext();
-  const gradient = useGradient();
-  const [passage, setPassage] = useState<Verse[]>([]);
-  const [referenceLabel, setReferenceLabel] = useState('');
-  const [currentDate, setCurrentDate] = useState<string | null>(null);
-  const [navigating, setNavigating] = useState(false);
-
-  async function showQtEntry(qt: QtEntry) {
-    const verses = await getVersesForRange(db, qt.bookId, qt.chapter, qt.startVerse, qt.endVerse, 'open_ko');
-    setPassage(verses);
-    setReferenceLabel(qt.label);
-    setCurrentDate(qt.date);
-  }
-
-  useFocusEffect(
-    useCallback(() => {
-      prefetchPlans();
-      (async () => {
-        const today = todayDateString();
-        let qt = await getQtEntryForDate(db, today);
-        if (!qt) {
-          const first = await getFirstQtEntry(db);
-          qt = first && today < first.date ? first : await getLastQtEntry(db);
-        }
-        if (qt) await showQtEntry(qt);
-      })();
-      // Only re-run when the screen (re)gains focus — e.g. coming back from
-      // another tab — so a day boundary crossed while the app stayed open
-      // (or just revisiting later the same day) always shows the right QT
-      // entry instead of whatever was loaded at the very first mount.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [db])
-  );
-
-  async function goToPrevDay() {
-    if (!currentDate || navigating) return;
-    setNavigating(true);
-    try {
-      const prev = await getPrevQtEntry(db, currentDate);
-      if (prev) await showQtEntry(prev);
-    } finally {
-      setNavigating(false);
-    }
-  }
-
-  async function goToNextDay() {
-    if (!currentDate || navigating) return;
-    setNavigating(true);
-    try {
-      const next = await getNextQtEntry(db, currentDate);
-      if (next) await showQtEntry(next);
-    } finally {
-      setNavigating(false);
-    }
-  }
-
-  const isToday = currentDate === todayDateString();
-
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeAreaOuter}>
-      <ScrollView style={styles.scrollOuter} contentContainerStyle={styles.safeArea}>
-        <ThemedText type="title" style={styles.title}>
-          말씀과 함께
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.verseCard}>
-          <View style={styles.verseCardHeader}>
-            <ThemedText type="small" themeColor="textSecondary">
-              {isToday ? '오늘의 큐티' : '말씀 묵상'}
-            </ThemedText>
-            {passage.length > 0 && (
-              <ThemedText type="smallBold" themeColor="textSecondary">
-                {referenceLabel}
-              </ThemedText>
-            )}
-          </View>
-
-          {passage.length > 0 && (
-            <>
-              <ScrollView style={styles.passageScroll} showsVerticalScrollIndicator>
-                <View style={styles.passageText}>
-                  {passage.map((v) => (
-                    <ThemedText key={v.id} style={styles.verseText}>
-                      <ThemedText type="smallBold" themeColor="textSecondary">
-                        {v.verse}{' '}
-                      </ThemedText>
-                      {v.text}
-                    </ThemedText>
-                  ))}
-                </View>
-              </ScrollView>
-            </>
-          )}
-
-          <View style={styles.navRow}>
+        <ScrollView style={styles.scrollOuter} contentContainerStyle={styles.safeArea}>
+          <View style={styles.header}>
+            <View style={styles.headerTitle}>
+              <ThemedText style={styles.headerEmoji}>✝️</ThemedText>
+              <ThemedText type="title">주안에서</ThemedText>
+            </View>
             <Pressable
-              onPress={goToPrevDay}
-              disabled={navigating}
+              onPress={() => router.push('/profile')}
               hitSlop={10}
               style={({ pressed }) => [pressed && styles.pressed]}>
-              <ThemedText type="small" themeColor="textSecondary">
-                ◀ 어제 큐티
-              </ThemedText>
-            </Pressable>
-            <Pressable
-              onPress={goToNextDay}
-              disabled={navigating}
-              hitSlop={10}
-              style={({ pressed }) => [pressed && styles.pressed]}>
-              <ThemedText type="small" themeColor="textSecondary">
-                다음날 큐티 ▶
-              </ThemedText>
+              <ThemedText style={styles.headerEmoji}>👤</ThemedText>
             </Pressable>
           </View>
-        </ThemedView>
 
-        <Pressable
-          onPress={() =>
-            currentDate &&
-            router.push({
-              pathname: '/meditation',
-              params: { date: currentDate },
-            })
-          }
-          style={({ pressed }) => [pressed && styles.pressed]}>
-          <LinearGradient
-            colors={gradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.readButton}>
-            <ThemedText type="smallBold" style={styles.readButtonText}>
-              말씀묵상
-            </ThemedText>
-          </LinearGradient>
-        </Pressable>
-      </ScrollView>
+          <View style={styles.grid}>
+            {MENU_ITEMS.map((item) => (
+              <Pressable
+                key={item.label}
+                onPress={() => router.push(item.href)}
+                style={({ pressed }) => [styles.tile, pressed && styles.pressed]}>
+                <ThemedView type="backgroundElement" style={styles.tileIcon}>
+                  <ThemedText style={styles.tileEmoji}>{item.emoji}</ThemedText>
+                </ThemedView>
+                <ThemedText type="small" style={styles.tileLabel} numberOfLines={1}>
+                  {item.label}
+                </ThemedText>
+              </Pressable>
+            ))}
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -189,54 +84,49 @@ const styles = StyleSheet.create({
   safeArea: {
     flexGrow: 1,
     paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.four,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingTop: Spacing.three,
     gap: Spacing.four,
     paddingBottom: BottomTabInset + Spacing.three,
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
     width: '100%',
   },
-  title: {
-    textAlign: 'center',
-  },
-  verseCard: {
-    width: '100%',
-    borderRadius: Spacing.four,
-    padding: Spacing.four,
-    gap: Spacing.two,
-  },
-  verseCardHeader: {
+  header: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  headerTitle: {
+    flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
   },
-  passageScroll: {
-    maxHeight: 420,
+  headerEmoji: {
+    fontSize: 22,
   },
-  passageText: {
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    rowGap: Spacing.four,
+  },
+  tile: {
+    width: '25%',
+    alignItems: 'center',
     gap: Spacing.one,
   },
-  verseText: {
-    fontSize: 17,
-    lineHeight: 26,
-  },
-  navRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  tileIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: Spacing.three,
     alignItems: 'center',
-    marginTop: Spacing.one,
+    justifyContent: 'center',
   },
-  readButton: {
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.three,
-    borderRadius: Spacing.five,
-    alignItems: 'center',
+  tileEmoji: {
+    fontSize: 26,
   },
-  readButtonText: {
-    color: '#ffffff',
+  tileLabel: {
+    textAlign: 'center',
   },
   pressed: {
     opacity: 0.7,

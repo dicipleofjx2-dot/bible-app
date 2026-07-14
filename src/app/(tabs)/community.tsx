@@ -151,6 +151,7 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
         </View>
 
         <FlatList
+          style={styles.list}
           data={posts}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
@@ -298,6 +299,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     borderRadius: Spacing.three,
   },
+  list: {
+    width: '100%',
+  },
   listContent: {
     width: '100%',
     maxWidth: MaxContentWidth,
@@ -308,6 +312,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   postRow: {
+    width: '100%',
     padding: Spacing.three,
     borderRadius: Spacing.three,
     gap: Spacing.one,

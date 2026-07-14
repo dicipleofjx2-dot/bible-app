@@ -33,6 +33,22 @@ export default function RootLayout() {
                 <Stack.Screen name="profile" options={{ headerShown: true, title: '프로필' }} />
                 <Stack.Screen name="rooms" options={{ headerShown: true, title: '읽기방' }} />
                 <Stack.Screen name="rooms/[id]" options={{ headerShown: true, title: '읽기방' }} />
+                <Stack.Screen
+                  name="spiritual-journal"
+                  options={{ headerShown: true, title: '영성일기' }}
+                />
+                <Stack.Screen
+                  name="priorities"
+                  options={{ headerShown: true, title: '우선순위' }}
+                />
+                <Stack.Screen
+                  name="kingdom-finance"
+                  options={{ headerShown: true, title: '천국재정' }}
+                />
+                <Stack.Screen
+                  name="prayer-group"
+                  options={{ headerShown: true, title: '샬롬기도단' }}
+                />
               </Stack>
             </AuthProvider>
           </SQLiteProvider>
