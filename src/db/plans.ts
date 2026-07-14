@@ -90,6 +90,48 @@ export async function setDayIncomplete(planId: string, dayNumber: number) {
   if (error) throw error;
 }
 
+/** Builds a URL-safe-ish slug from a title plus a random suffix (uniqueness
+ * doesn't depend on the title, since users can freely reuse titles). */
+function slugify(title: string): string {
+  const base = title
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return `${base || 'plan'}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
+/** Creates a user-authored reading plan: `chapters` is the full flat list of
+ * book/chapter pairs in reading order, chunked into `chaptersPerDay`-sized
+ * days (see the 성경통독 tab, which enumerates the chapter range and calls
+ * this). */
+export async function createPlan(params: {
+  title: string;
+  createdBy: string;
+  chapters: { bookId: number; chapter: number }[];
+  chaptersPerDay: number;
+}): Promise<ReadingPlan> {
+  const { data: plan, error: planError } = await supabase
+    .from('reading_plans')
+    .insert({ slug: slugify(params.title), title: params.title, created_by: params.createdBy })
+    .select('id, slug, title, description')
+    .single();
+  if (planError) throw planError;
+
+  const days: { plan_id: string; day_number: number; book_id: number; chapter: number }[] = [];
+  for (let i = 0; i < params.chapters.length; i += params.chaptersPerDay) {
+    const dayNumber = Math.floor(i / params.chaptersPerDay) + 1;
+    for (const c of params.chapters.slice(i, i + params.chaptersPerDay)) {
+      days.push({ plan_id: plan.id, day_number: dayNumber, book_id: c.bookId, chapter: c.chapter });
+    }
+  }
+  const { error: daysError } = await supabase.from('reading_plan_days').insert(days);
+  if (daysError) throw daysError;
+
+  plansCache = null;
+  return plan;
+}
+
 export type PlanDayMatch = { planId: string; planTitle: string; dayNumber: number };
 
 /** Finds every reading-plan day that points at this exact book+chapter, across all plans. */

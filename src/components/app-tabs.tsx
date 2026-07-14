@@ -15,6 +15,11 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf="house.fill" md="home" />
       </NativeTabs.Trigger>
 
+      <NativeTabs.Trigger name="meditation">
+        <NativeTabs.Trigger.Label>말씀묵상</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="heart.text.square.fill" md="self_improvement" />
+      </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="read">
         <NativeTabs.Trigger.Label>읽기</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="book.fill" md="menu_book" />
@@ -33,6 +38,11 @@ export default function AppTabs() {
       <NativeTabs.Trigger name="commentary">
         <NativeTabs.Trigger.Label>주석</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="text.book.closed.fill" md="menu_book" />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="bible-reading">
+        <NativeTabs.Trigger.Label>성경통독</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="calendar" md="event_available" />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="community">

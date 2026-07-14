@@ -14,7 +14,7 @@ import { ThemedView } from './themed-view';
 
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useGradient } from '@/hooks/use-theme';
-import { getHebrewDateKST } from '@/lib/hebrew-date';
+import { getTodayLabelKST } from '@/lib/hebrew-date';
 
 export default function AppTabs() {
   return (
@@ -23,6 +23,9 @@ export default function AppTabs() {
         <CustomTabList>
           <TabTrigger name="home" href="/" asChild>
             <TabButton>홈</TabButton>
+          </TabTrigger>
+          <TabTrigger name="meditation" href="/meditation" asChild>
+            <TabButton>말씀묵상</TabButton>
           </TabTrigger>
           <TabTrigger name="read" href="/read" asChild>
             <TabButton>읽기</TabButton>
@@ -35,6 +38,9 @@ export default function AppTabs() {
           </TabTrigger>
           <TabTrigger name="commentary" href="/commentary" asChild>
             <TabButton>주석</TabButton>
+          </TabTrigger>
+          <TabTrigger name="bible-reading" href="/bible-reading" asChild>
+            <TabButton>성경통독</TabButton>
           </TabTrigger>
           <TabTrigger name="community" href="/community" asChild>
             <TabButton>커뮤니티</TabButton>
@@ -81,7 +87,7 @@ export function CustomTabList(props: TabListProps) {
     <View {...props} style={styles.tabListContainer}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
         <ThemedText type="smallBold" themeColor="textSecondary" style={styles.brandText}>
-          {getHebrewDateKST()}
+          {getTodayLabelKST()}
         </ThemedText>
 
         {props.children}

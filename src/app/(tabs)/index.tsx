@@ -86,7 +86,6 @@ export default function HomeScreen() {
     }
   }
 
-  const firstVerse = passage[0];
   const isToday = currentDate === todayDateString();
 
   return (
@@ -150,10 +149,10 @@ export default function HomeScreen() {
 
         <Pressable
           onPress={() =>
-            firstVerse &&
+            currentDate &&
             router.push({
-              pathname: '/read',
-              params: { bookId: String(firstVerse.book_id), chapter: String(firstVerse.chapter) },
+              pathname: '/meditation',
+              params: { date: currentDate },
             })
           }
           style={({ pressed }) => [pressed && styles.pressed]}>
@@ -163,17 +162,9 @@ export default function HomeScreen() {
             end={{ x: 1, y: 0 }}
             style={styles.readButton}>
             <ThemedText type="smallBold" style={styles.readButtonText}>
-              이 본문 읽으러 가기
+              말씀묵상
             </ThemedText>
           </LinearGradient>
-        </Pressable>
-
-        <Pressable
-          onPress={() => router.push('/plans')}
-          style={({ pressed }) => [pressed && styles.pressed]}>
-          <ThemedText type="link" themeColor="textSecondary">
-            읽기 계획 보기
-          </ThemedText>
         </Pressable>
       </ScrollView>
       </SafeAreaView>

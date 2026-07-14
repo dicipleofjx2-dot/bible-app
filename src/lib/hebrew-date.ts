@@ -33,3 +33,18 @@ export function getHebrewDateKST(date: Date = new Date()): string {
 
   return `${year}년 ${HEBREW_MONTH_KO[month] ?? month} ${day}일`;
 }
+
+/** Today's Gregorian date in Korea Standard Time, e.g. "2026년 7월 14일". */
+export function getKoreanDateKST(date: Date = new Date()): string {
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'Asia/Seoul',
+  }).format(date);
+}
+
+/** Today's date for display: Korean calendar first, Hebrew calendar in parentheses. */
+export function getTodayLabelKST(date: Date = new Date()): string {
+  return `${getKoreanDateKST(date)} (${getHebrewDateKST(date)})`;
+}
