@@ -34,6 +34,7 @@ export default function WordNotesScreen() {
         </ThemedText>
 
         <FlatList
+          style={styles.list}
           data={notes}
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={styles.listContent}
@@ -97,6 +98,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingTop: Spacing.two,
   },
+  list: {
+    width: '100%',
+  },
   listContent: {
     width: '100%',
     maxWidth: MaxContentWidth,
@@ -107,6 +111,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   noteRow: {
+    width: '100%',
     padding: Spacing.three,
     borderRadius: Spacing.three,
     gap: Spacing.one,

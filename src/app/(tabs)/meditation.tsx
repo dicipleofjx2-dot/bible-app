@@ -152,14 +152,6 @@ export default function MeditationScreen() {
             말씀묵상
           </ThemedText>
 
-          <Pressable
-            onPress={() => router.push('/word-notes')}
-            style={({ pressed }) => [styles.wordNotesLink, pressed && styles.pressed]}>
-            <ThemedText type="link" themeColor="textSecondary">
-              말씀노트 보기
-            </ThemedText>
-          </Pressable>
-
           {todaysReadings.length > 0 && (
             <View style={styles.readingPlanSection}>
               <ThemedText type="smallBold">오늘의 성경통독</ThemedText>
@@ -253,15 +245,26 @@ export default function MeditationScreen() {
               multiline
               style={[styles.noteInput, { color: theme.text, backgroundColor: theme.backgroundElement }]}
             />
-            <Pressable
-              onPress={saveNote}
-              style={({ pressed }) => [
-                styles.saveButton,
-                { backgroundColor: theme.backgroundSelected },
-                pressed && styles.pressed,
-              ]}>
-              <ThemedText type="smallBold">{saved ? '저장됨' : '묵상 저장하기'}</ThemedText>
-            </Pressable>
+            <View style={styles.noteActions}>
+              <Pressable
+                onPress={() => router.push('/word-notes')}
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  { backgroundColor: theme.backgroundElement },
+                  pressed && styles.pressed,
+                ]}>
+                <ThemedText type="smallBold">말씀노트 보기</ThemedText>
+              </Pressable>
+              <Pressable
+                onPress={saveNote}
+                style={({ pressed }) => [
+                  styles.actionButton,
+                  { backgroundColor: theme.backgroundSelected },
+                  pressed && styles.pressed,
+                ]}>
+                <ThemedText type="smallBold">{saved ? '저장됨' : '묵상 저장하기'}</ThemedText>
+              </Pressable>
+            </View>
           </View>
         </ScrollView>
       </ThemedView>
@@ -289,9 +292,6 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
-  },
-  wordNotesLink: {
-    alignSelf: 'center',
   },
   readingPlanSection: {
     width: '100%',
@@ -344,7 +344,11 @@ const styles = StyleSheet.create({
     padding: Spacing.three,
     textAlignVertical: 'top',
   },
-  saveButton: {
+  noteActions: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  actionButton: {
     alignSelf: 'flex-start',
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.two,

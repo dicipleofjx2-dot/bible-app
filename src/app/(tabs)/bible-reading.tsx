@@ -238,6 +238,7 @@ function BibleReadingContent({ userId }: { userId: string }) {
     setDeletePlanError(null);
     try {
       await deletePlan(deleteTarget.id);
+      setPlans((prev) => prev.filter((p) => p.id !== deleteTarget.id));
       setDeleteTarget(null);
       loadPlans();
       loadRooms();

@@ -64,6 +64,11 @@ export async function getPlans(): Promise<ReadingPlan[]> {
   return plansCachePromise;
 }
 
+function invalidatePlansCache() {
+  plansCache = null;
+  plansCachePromise = null;
+}
+
 /** Warms the plans cache ahead of navigation, e.g. from the home screen. */
 export function prefetchPlans() {
   getPlans().catch(() => {});
@@ -187,7 +192,7 @@ export async function createPlan(params: {
   const { error: daysError } = await supabase.from('reading_plan_days').insert(days);
   if (daysError) throw daysError;
 
-  plansCache = null;
+  invalidatePlansCache();
   return plan;
 }
 
@@ -197,7 +202,7 @@ export async function createPlan(params: {
 export async function deletePlan(planId: string): Promise<void> {
   const { error } = await supabase.from('reading_plans').delete().eq('id', planId);
   if (error) throw error;
-  plansCache = null;
+  invalidatePlansCache();
 }
 
 export type TodaysReading = {
