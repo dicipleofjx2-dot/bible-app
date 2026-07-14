@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -19,7 +19,7 @@ import {
   type QtEntry,
   type Verse,
 } from '@/db/bible';
-import { getMarksForChapter, upsertMark } from '@/db/userData';
+import { getMeditationNote, upsertMeditationNote } from '@/db/userData';
 
 function todayDateString() {
   const d = new Date();
@@ -47,14 +47,8 @@ export default function MeditationScreen() {
     setReferenceLabel(qt.label);
     setCurrentDate(qt.date);
 
-    const first = verses[0];
-    if (first) {
-      const marks = await getMarksForChapter(first.book_id, first.chapter, 'open_ko');
-      const existing = marks.find((m) => m.verse === first.verse);
-      setNote(existing?.note ?? '');
-    } else {
-      setNote('');
-    }
+    const existing = await getMeditationNote(qt.date);
+    setNote(existing?.note ?? '');
     setSaved(false);
   }
 
@@ -97,14 +91,16 @@ export default function MeditationScreen() {
 
   async function saveNote() {
     const first = passage[0];
-    if (!first) return;
-    await upsertMark({
+    const last = passage[passage.length - 1];
+    if (!first || !last || !currentDate) return;
+    await upsertMeditationNote({
+      date: currentDate,
       bookId: first.book_id,
       chapter: first.chapter,
-      verse: first.verse,
-      translation: 'open_ko',
-      color: null,
-      note: note.trim() || null,
+      startVerse: first.verse,
+      endVerse: last.verse,
+      label: referenceLabel,
+      note,
     });
     setSaved(true);
   }
@@ -116,6 +112,14 @@ export default function MeditationScreen() {
           <ThemedText type="title" style={styles.title}>
             말씀묵상
           </ThemedText>
+
+          <Pressable
+            onPress={() => router.push('/word-notes')}
+            style={({ pressed }) => [styles.wordNotesLink, pressed && styles.pressed]}>
+            <ThemedText type="link" themeColor="textSecondary">
+              말씀노트 보기
+            </ThemedText>
+          </Pressable>
 
           <ThemedView type="backgroundElement" style={styles.verseCard}>
             <View style={styles.verseCardHeader}>
@@ -213,6 +217,9 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
+  },
+  wordNotesLink: {
+    alignSelf: 'center',
   },
   verseCard: {
     width: '100%',

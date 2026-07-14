@@ -46,6 +46,17 @@ function getUserDb() {
           updated_at INTEGER NOT NULL,
           UNIQUE(book_id, chapter, verse, translation)
         );
+        CREATE TABLE IF NOT EXISTS meditation_notes (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          date TEXT NOT NULL UNIQUE,
+          book_id INTEGER NOT NULL,
+          chapter INTEGER NOT NULL,
+          start_verse INTEGER NOT NULL,
+          end_verse INTEGER NOT NULL,
+          label TEXT NOT NULL,
+          note TEXT NOT NULL,
+          updated_at INTEGER NOT NULL
+        );
       `);
       return db;
     });
@@ -105,6 +116,71 @@ export async function upsertMark(mark: {
 export async function deleteMark(id: number): Promise<void> {
   const db = await getUserDb();
   await db.runAsync(`DELETE FROM verse_marks WHERE id = ?`, [id]);
+}
+
+// ── 말씀노트 (meditation notes) ────────────────────────────────────────────
+// Kept in their own table, deliberately separate from verse_marks/암송구절 —
+// see src/app/(tabs)/meditation.tsx, which writes here instead of upsertMark.
+export type MeditationNote = {
+  id: number;
+  date: string;
+  book_id: number;
+  chapter: number;
+  start_verse: number;
+  end_verse: number;
+  label: string;
+  note: string;
+  updated_at: number;
+};
+
+export async function getMeditationNote(date: string): Promise<MeditationNote | null> {
+  const db = await getUserDb();
+  return db.getFirstAsync<MeditationNote>(`SELECT * FROM meditation_notes WHERE date = ?`, [date]);
+}
+
+export async function getAllMeditationNotes(): Promise<MeditationNote[]> {
+  const db = await getUserDb();
+  return db.getAllAsync<MeditationNote>(`SELECT * FROM meditation_notes ORDER BY date DESC`);
+}
+
+export async function upsertMeditationNote(entry: {
+  date: string;
+  bookId: number;
+  chapter: number;
+  startVerse: number;
+  endVerse: number;
+  label: string;
+  note: string;
+}): Promise<void> {
+  const db = await getUserDb();
+  if (!entry.note.trim()) {
+    await db.runAsync(`DELETE FROM meditation_notes WHERE date = ?`, [entry.date]);
+    return;
+  }
+  await db.runAsync(
+    `
+    INSERT INTO meditation_notes (date, book_id, chapter, start_verse, end_verse, label, note, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(date)
+    DO UPDATE SET book_id = excluded.book_id, chapter = excluded.chapter, start_verse = excluded.start_verse,
+      end_verse = excluded.end_verse, label = excluded.label, note = excluded.note, updated_at = excluded.updated_at
+    `,
+    [
+      entry.date,
+      entry.bookId,
+      entry.chapter,
+      entry.startVerse,
+      entry.endVerse,
+      entry.label,
+      entry.note.trim(),
+      Date.now(),
+    ]
+  );
+}
+
+export async function deleteMeditationNote(id: number): Promise<void> {
+  const db = await getUserDb();
+  await db.runAsync(`DELETE FROM meditation_notes WHERE id = ?`, [id]);
 }
 
 export const HIGHLIGHT_COLORS: { code: HighlightColor; hex: string }[] = [
