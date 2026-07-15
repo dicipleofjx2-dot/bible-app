@@ -33,6 +33,7 @@ export default function RootLayout() {
                 <Stack.Screen name="profile" options={{ headerShown: true, title: '프로필' }} />
                 <Stack.Screen name="rooms" options={{ headerShown: true, title: '읽기방' }} />
                 <Stack.Screen name="rooms/[id]" options={{ headerShown: true, title: '읽기방' }} />
+                <Stack.Screen name="calendar" options={{ headerShown: true, title: '달력' }} />
                 <Stack.Screen
                   name="spiritual-journal"
                   options={{ headerShown: true, title: '영성일기' }}

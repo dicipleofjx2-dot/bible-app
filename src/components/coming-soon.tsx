@@ -9,9 +9,11 @@ type ComingSoonProps = {
   emoji: string;
   title: string;
   description?: string;
+  /** ISO date (YYYY-MM-DD), e.g. passed in from the 달력 screen's linked-date actions. */
+  date?: string;
 };
 
-export function ComingSoon({ emoji, title, description }: ComingSoonProps) {
+export function ComingSoon({ emoji, title, description, date }: ComingSoonProps) {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
@@ -21,6 +23,11 @@ export function ComingSoon({ emoji, title, description }: ComingSoonProps) {
           <ThemedText type="small" themeColor="textSecondary" style={styles.description}>
             {description ?? '이 기능은 아직 준비 중입니다. 곧 만나보실 수 있어요!'}
           </ThemedText>
+          {date && (
+            <ThemedText type="small" themeColor="textSecondary">
+              {date} 항목이 준비되는 대로 여기에서 볼 수 있어요.
+            </ThemedText>
+          )}
         </View>
       </SafeAreaView>
     </ThemedView>

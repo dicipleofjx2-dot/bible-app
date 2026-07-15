@@ -1,4 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import {
   Tabs,
   TabList,
@@ -86,9 +87,14 @@ export function CustomTabList(props: TabListProps) {
   return (
     <View {...props} style={styles.tabListContainer}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
-        <ThemedText type="smallBold" themeColor="textSecondary" style={styles.brandText}>
-          {getTodayLabelKST()}
-        </ThemedText>
+        <Pressable
+          onPress={() => router.push('/calendar')}
+          hitSlop={8}
+          style={({ pressed }) => [styles.calendarButton, pressed && styles.pressed]}>
+          <ThemedText type="smallBold" themeColor="textSecondary">
+            📅 {getTodayLabelKST()}
+          </ThemedText>
+        </Pressable>
 
         {props.children}
       </ThemedView>
@@ -120,7 +126,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     maxWidth: MaxContentWidth,
   },
-  brandText: {
+  calendarButton: {
     marginRight: 'auto',
   },
   pressed: {

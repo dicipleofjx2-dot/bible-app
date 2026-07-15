@@ -1,5 +1,8 @@
+import { useLocalSearchParams } from 'expo-router';
+
 import { ComingSoon } from '@/components/coming-soon';
 
 export default function SpiritualJournalScreen() {
-  return <ComingSoon emoji="❤️‍🔥" title="영성일기" />;
+  const { date } = useLocalSearchParams<{ date?: string }>();
+  return <ComingSoon emoji="❤️‍🔥" title="영성일기" date={date} />;
 }

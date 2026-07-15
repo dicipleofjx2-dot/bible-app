@@ -18,8 +18,7 @@ const HEBREW_MONTH_KO: Record<string, string> = {
   Elul: '엘룰월',
 };
 
-/** Today's date on the Hebrew calendar, computed in Korea Standard Time. */
-export function getHebrewDateKST(date: Date = new Date()): string {
+function getHebrewParts(date: Date) {
   const parts = new Intl.DateTimeFormat('en-u-ca-hebrew', {
     year: 'numeric',
     month: 'long',
@@ -31,7 +30,19 @@ export function getHebrewDateKST(date: Date = new Date()): string {
   const month = parts.find((p) => p.type === 'month')?.value ?? '';
   const year = parts.find((p) => p.type === 'year')?.value ?? '';
 
-  return `${year}년 ${HEBREW_MONTH_KO[month] ?? month} ${day}일`;
+  return { day, month: HEBREW_MONTH_KO[month] ?? month, year };
+}
+
+/** Today's date on the Hebrew calendar, computed in Korea Standard Time. */
+export function getHebrewDateKST(date: Date = new Date()): string {
+  const { day, month, year } = getHebrewParts(date);
+  return `${year}년 ${month} ${day}일`;
+}
+
+/** Compact "월 일" form for calendar day cells, e.g. "니산월 12". */
+export function getHebrewDayLabelKST(date: Date = new Date()): string {
+  const { day, month } = getHebrewParts(date);
+  return `${month.replace('월', '')} ${day}`;
 }
 
 /** Today's Gregorian date in Korea Standard Time, e.g. "2026년 7월 14일". */

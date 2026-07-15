@@ -1,7 +1,8 @@
 # BibleApp — Handoff / Status Reference
 
-Last updated: 2026-07-15, after commit (this session's home-screen redesign, not yet
-pushed — check `git log` / `git status` for the current head vs `origin/main`).
+Last updated: 2026-07-15. `3b8d2d9` (home-screen redesign + community fix) is
+pushed and deployed. This session's calendar feature (below) is **not yet
+committed** — check `git log` / `git status` for the current head.
 
 This file exists so a new chat session can pick up work on this project without
 re-deriving context. Keep it updated at the end of a work session — a stale
@@ -60,10 +61,14 @@ src/
     post/[id].tsx            # single community post + comments
     profile.tsx              # user profile / skin picker
     word-notes.tsx           # 말씀노트 — all-notes list (from 말씀묵상)
-    spiritual-journal.tsx    # 영성일기 — placeholder (ComingSoon)
-    priorities.tsx           # 우선순위 — placeholder (ComingSoon)
-    kingdom-finance.tsx      # 천국재정 — placeholder (ComingSoon)
-    prayer-group.tsx         # 샬롬기도단 — placeholder (ComingSoon)
+    spiritual-journal.tsx    # 영성일기 — placeholder (ComingSoon), reads ?date=
+    priorities.tsx           # 우선순위 — placeholder (ComingSoon), reads ?date=
+    kingdom-finance.tsx      # 천국재정 — placeholder (ComingSoon), reads ?date=
+    prayer-group.tsx         # 샬롬기도단 — placeholder (ComingSoon), NOT
+                             #   calendar-linked (by design, see 달력 below)
+    calendar.tsx             # 달력 — month grid, KR holidays + Hebrew date per
+                             #   day, tap a day → jump to 영성일기/우선순위/
+                             #   천국재정 for that date (see "Core features")
   db/                       # All Supabase/SQLite data-access functions live here
     plans.ts                # reading plans (create/get/delete, today's-reading lookup)
     rooms.ts                # reading rooms (성경통독방): create/join/invite/delete
@@ -74,6 +79,10 @@ src/
     userData.ts             # meditation notes, verse highlights (local + Supabase mix — check per-function)
   features/                # Larger reusable UI pieces (AuthForm, BookChapterPicker, VerseActionSheet)
   lib/                      # supabase client, auth context, hebrew-date calc, skin/theme context
+    hebrew-date.ts          # getHebrewDateKST/getKoreanDateKST (full date strings)
+                             #   + getHebrewDayLabelKST (compact "월 일" for calendar cells)
+    korea-holidays.ts       # hardcoded KOREA_HOLIDAYS map (2025–2027), getHoliday(dateString)
+                             #   — needs a manual top-up for years beyond 2027
   components/               # ThemedText/ThemedView/UI primitives
   constants/theme.ts        # Spacing scale, MaxContentWidth (800), colors
 supabase/migrations/        # 0001–0014, applied in order manually via Supabase SQL Editor
@@ -95,15 +104,28 @@ scripts/                    # build-bible-db.mjs + bible-source-data/*.json (sou
    Hebrew-calendar date display and the QT card were **removed from 홈**;
    QT passage + prev/next day nav still lives in 말씀묵상
    (`(tabs)/meditation.tsx`), unchanged.
-2. **말씀묵상** — same QT passage with prev/next day navigation, a note
+2. **달력 (`calendar.tsx`, new this session)** — reached via a 📅 button at
+   the far left of the **web top toolbar** (`CustomTabList` in
+   `components/app-tabs.web.tsx`, wraps the existing today's-date label,
+   which already showed `getTodayLabelKST()`). Month grid (prev/next nav,
+   tap the month label to jump to today), each day cell shows the Gregorian
+   day number, a compact Hebrew date (`getHebrewDayLabelKST`), and a 대한민국
+   공휴일 label if one exists (`lib/korea-holidays.ts`, hardcoded
+   2025–2027 — **will need a manual update for 2028+**). Tapping a day
+   opens an action-sheet modal with buttons for 영성일기/우선순위/천국재정
+   that `router.push` to that screen with `?date=YYYY-MM-DD` (샬롬기도단 is
+   intentionally **not** linked — not requested). This calendar entry point
+   only exists on the **web toolbar**; the native (`NativeTabs`) tab bar
+   has no equivalent header row, so it's not reachable there yet.
+3. **말씀묵상** — same QT passage with prev/next day navigation, a note
    textarea (`묵상 저장하기`), a link to all saved notes (`말씀노트 보기` —
    now sits next to the save button, same pill styling), and an
    **"오늘의 성경통독"** section: for every 성경통독방 (reading room) the
    user has joined, shows today's date-mapped reading chunk grouped by book.
-3. **읽기 / 검색 / 암송구절 / 주석** — free reading, FTS5 search, verse
+4. **읽기 / 검색 / 암송구절 / 주석** — free reading, FTS5 search, verse
    highlighting, commentary (만나주석/매튜헨리) — largely stable, not touched
    in the recent sessions covered by this doc.
-4. **성경통독 tab** —
+5. **성경통독 tab** —
    - Create a reading plan: pick a book/chapter range, a duration (1주 /
      1달 / 3달 / 6달 / 1년 / 직접 설정) or custom start+end date. Chapters
      are spread evenly across the days (`distributeAcrossDays`, remainder
@@ -113,21 +135,21 @@ scripts/                    # build-bible-db.mjs + bible-source-data/*.json (sou
      DB cascade wipes the plan's days/progress/any room built on it).
    - 성경통독방 (rooms): create a room tied to a plan + invite code, browse
      all rooms, join via invite code, see "내 성경통독방".
-5. **plans/[slug] (계획 상세)** — shows every day's chapters as a
+6. **plans/[slug] (계획 상세)** — shows every day's chapters as a
    **responsive tile grid** (not one row per chapter) — `numColumns`
    computed from viewport width vs `MaxContentWidth` (~9–10 columns at
    800px). Uses a hardcoded Korean book-abbreviation table (`KOREAN_BOOK_ABBREV`)
    instead of the DB's English `books.abbrev` column. Tap a tile → go read
    that chapter; small corner checkbox → toggle that day complete.
-6. **rooms/[id]** — room chat, member activity feed, invite by profile
+7. **rooms/[id]** — room chat, member activity feed, invite by profile
    search, room delete (owner only, cascades via `plan_id`... actually via
    `reading_rooms.id` cascade to members/activity/messages).
-7. **커뮤니티** — post feed with comments, delete-your-own-post. The
+8. **커뮤니티** — post feed with comments, delete-your-own-post. The
    "읽기방" header link (→ `/rooms`) was **removed** — room management now
    lives only in 성경통독 tab. The pending-invite banner ("~님이 읽기방에
    초대되었어요") was deliberately **kept** since it's a direct
    per-invite notification, not a room-browsing entry point.
-8. **말씀노트 (word-notes.tsx)** — flat list of all saved meditation notes
+9. **말씀노트 (word-notes.tsx)** — flat list of all saved meditation notes
    across all dates, tap to jump back to that day in 말씀묵상, delete
    per-note. Cards now correctly fill the column width regardless of note
    length (see bug fix below).
@@ -174,7 +196,17 @@ scripts/                    # build-bible-db.mjs + bible-source-data/*.json (sou
 
 ## Recent changes (most recent first)
 
-- **(this session, unpushed)** — Redesigned 홈 (`(tabs)/index.tsx`) from the
+- **(this session, uncommitted)** — Added a 달력 screen (`calendar.tsx`):
+  month grid with 대한민국 공휴일 (`lib/korea-holidays.ts`, hardcoded
+  2025–2027) and a compact Hebrew date per day (`getHebrewDayLabelKST`,
+  new helper in `lib/hebrew-date.ts`). Reached via a new 📅 button
+  wrapping the existing date label at the far left of the web toolbar
+  (`components/app-tabs.web.tsx`). Tapping a day opens an action sheet
+  linking to 영성일기/우선순위/천국재정 with `?date=` (added
+  `useLocalSearchParams` + a `date` prop on `ComingSoon` to show it).
+  Verified end-to-end in-browser this time (see commit below for the
+  previous session's items that couldn't be checked live).
+- **`3b8d2d9`** — Redesigned 홈 (`(tabs)/index.tsx`) from the
   QT-passage card into a 4×3 emoji-icon menu grid per a user-provided
   mockup; added 4 new placeholder routes (영성일기/우선순위/천국재정/
   샬롬기도단) via a shared `ComingSoon` component, registered in
@@ -211,14 +243,21 @@ scripts/                    # build-bible-db.mjs + bible-source-data/*.json (sou
 - **Not verified**: whether the plan-delete button actually *appears and
   works end-to-end* for an account that owns a plan (only verified the
   negative case — hidden for non-owners — since Claude can't log in).
-- **Not verified in-browser**: the new 홈 menu grid and the community
-  FlatList fix (this session) — this session's browser preview couldn't
-  reach the dev server (another session already had port 8081 open, which
-  caused an `SQLiteProviderSuspense` error / blank page). Only checked via
-  `tsc --noEmit`. Confirm both visually next session.
-- 4 new placeholder pages (영성일기/우선순위/천국재정/샬롬기도단) are
+- 4 placeholder pages (영성일기/우선순위/천국재정/샬롬기도단) are
   intentionally empty — real content/features TBD whenever those are
-  scoped out.
+  scoped out. Once 영성일기/우선순위/천국재정 get real data models, make
+  sure they actually *use* the `date` param the calendar already passes
+  them (currently `ComingSoon` just echoes it back as text).
+- `lib/korea-holidays.ts` only has data through 2027 — extend
+  `KOREA_HOLIDAYS` before the calendar is used for 2028 dates (mostly
+  matters for 설날/추석/부처님오신날, which shift every year; fixed-date
+  holidays are easy to guess but don't skip verifying substitute-holiday
+  rules).
+- 달력's 📅 entry point only exists on the **web toolbar**
+  (`app-tabs.web.tsx`); there's no equivalent on the native `NativeTabs`
+  bar (`app-tabs.tsx`) since that one has no header row to put a button
+  in — native would need its own design (e.g. a header-right button) if
+  ever wanted.
 - Legacy reading plans with `created_by = null` (e.g. "요한복음 21일
   통독") are undeletable by anyone through the UI (RLS requires
   `auth.uid() = created_by`) — not necessarily a bug, just a known gap if
