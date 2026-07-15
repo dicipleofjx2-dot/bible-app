@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import {
   Tabs,
   TabList,
@@ -28,8 +28,14 @@ export default function AppTabs() {
           <TabTrigger name="meditation" href="/meditation" asChild>
             <TabButton>말씀묵상</TabButton>
           </TabTrigger>
+          <TabTrigger name="word-notes" href="/word-notes" asChild>
+            <TabButton>말씀노트</TabButton>
+          </TabTrigger>
           <TabTrigger name="read" href="/read" asChild>
             <TabButton>읽기</TabButton>
+          </TabTrigger>
+          <TabTrigger name="bible-reading" href="/bible-reading" asChild>
+            <TabButton>성경통독</TabButton>
           </TabTrigger>
           <TabTrigger name="search" href="/search" asChild>
             <TabButton>검색</TabButton>
@@ -39,9 +45,6 @@ export default function AppTabs() {
           </TabTrigger>
           <TabTrigger name="commentary" href="/commentary" asChild>
             <TabButton>주석</TabButton>
-          </TabTrigger>
-          <TabTrigger name="bible-reading" href="/bible-reading" asChild>
-            <TabButton>성경통독</TabButton>
           </TabTrigger>
           <TabTrigger name="community" href="/community" asChild>
             <TabButton>커뮤니티</TabButton>
@@ -84,8 +87,12 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
 }
 
 export function CustomTabList(props: TabListProps) {
+  // 홈 화면은 자체 타이틀/달력 위젯을 가지므로 이 상단 툴바 전체를 숨긴다.
+  // TabTrigger들은 라우트 등록을 위해 언마운트하지 않고 display:none으로만 숨김.
+  const isHome = usePathname() === '/';
+
   return (
-    <View {...props} style={styles.tabListContainer}>
+    <View {...props} style={[styles.tabListContainer, isHome && styles.hidden]}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
         <Pressable
           onPress={() => router.push('/calendar')}
@@ -115,6 +122,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
+  },
+  hidden: {
+    display: 'none',
   },
   innerContainer: {
     paddingVertical: Spacing.two,

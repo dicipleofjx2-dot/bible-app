@@ -57,6 +57,17 @@ function getUserDb() {
           note TEXT NOT NULL,
           updated_at INTEGER NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS commentary_text_highlights (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          book_id INTEGER NOT NULL,
+          chapter INTEGER NOT NULL,
+          verse INTEGER NOT NULL,
+          source TEXT NOT NULL,
+          start_offset INTEGER NOT NULL,
+          end_offset INTEGER NOT NULL,
+          color TEXT NOT NULL,
+          updated_at INTEGER NOT NULL
+        );
       `);
       return db;
     });
@@ -199,3 +210,67 @@ export const COMMENTARY_HIGHLIGHT_COLORS: { code: HighlightColor; hex: string }[
   { code: 'commentary-blue', hex: '#E7F5FF' },
   { code: 'commentary-pink', hex: '#FFF0F6' },
 ];
+
+// ── 주석 텍스트 블록 하이라이트 ─────────────────────────────────────────────
+// Separate from verse_marks/COMMENTARY_HIGHLIGHT_COLORS above (which mark an
+// entire verse+commentary as one unit) — this stores arbitrary user-selected
+// text ranges *within* one commentary entry's plain text, keyed by character
+// offset. See src/app/(tabs)/commentary.tsx for the selection UI.
+export type CommentaryTextHighlight = {
+  id: number;
+  book_id: number;
+  chapter: number;
+  verse: number;
+  source: string;
+  start_offset: number;
+  end_offset: number;
+  color: HighlightColor;
+  updated_at: number;
+};
+
+export async function getCommentaryTextHighlights(
+  bookId: number,
+  chapter: number,
+  verse: number,
+  source: string
+): Promise<CommentaryTextHighlight[]> {
+  const db = await getUserDb();
+  return db.getAllAsync<CommentaryTextHighlight>(
+    `SELECT * FROM commentary_text_highlights
+     WHERE book_id = ? AND chapter = ? AND verse = ? AND source = ?
+     ORDER BY start_offset ASC`,
+    [bookId, chapter, verse, source]
+  );
+}
+
+export async function addCommentaryTextHighlight(entry: {
+  bookId: number;
+  chapter: number;
+  verse: number;
+  source: string;
+  start: number;
+  end: number;
+  color: HighlightColor;
+}): Promise<void> {
+  const db = await getUserDb();
+  await db.runAsync(
+    `INSERT INTO commentary_text_highlights
+       (book_id, chapter, verse, source, start_offset, end_offset, color, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [entry.bookId, entry.chapter, entry.verse, entry.source, entry.start, entry.end, entry.color, Date.now()]
+  );
+}
+
+export async function updateCommentaryTextHighlightColor(id: number, color: HighlightColor): Promise<void> {
+  const db = await getUserDb();
+  await db.runAsync(`UPDATE commentary_text_highlights SET color = ?, updated_at = ? WHERE id = ?`, [
+    color,
+    Date.now(),
+    id,
+  ]);
+}
+
+export async function deleteCommentaryTextHighlight(id: number): Promise<void> {
+  const db = await getUserDb();
+  await db.runAsync(`DELETE FROM commentary_text_highlights WHERE id = ?`, [id]);
+}

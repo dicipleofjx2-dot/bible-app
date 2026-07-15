@@ -1,3 +1,4 @@
+import { forwardRef, useMemo } from 'react';
 import { Text, type StyleProp, type TextStyle } from 'react-native';
 
 import { useTheme } from '@/hooks/use-theme';
@@ -7,6 +8,9 @@ import { useTheme } from '@/hooks/use-theme';
 // arbitrary markup — so a small regex tokenizer is enough, and far lighter
 // than pulling in a full HTML parser/WebView for one limited tag subset.
 type StyleFrame = { bold?: boolean; italic?: boolean; color?: string };
+type Segment = { text: string; style: StyleFrame };
+
+export type CommentaryHighlightRange = { start: number; end: number; color: string };
 
 function decodeEntities(text: string): string {
   return text
@@ -18,16 +22,15 @@ function decodeEntities(text: string): string {
     .replace(/&#39;/g, "'");
 }
 
-function renderCommentaryHtml(html: string, baseColor: string) {
+function tokenizeCommentaryHtml(html: string): Segment[] {
   const tokens = html.split(/(<br\s*\/?>|<\/?b>|<\/?i>|<font[^>]*>|<\/font>)/gi);
   const stack: StyleFrame[] = [{}];
-  const nodes: React.ReactNode[] = [];
-  let key = 0;
+  const segments: Segment[] = [];
 
   for (const token of tokens) {
     if (!token) continue;
     if (/^<br\s*\/?>$/i.test(token)) {
-      nodes.push('\n');
+      segments.push({ text: '\n', style: stack[stack.length - 1] });
     } else if (/^<b>$/i.test(token)) {
       stack.push({ ...stack[stack.length - 1], bold: true });
     } else if (/^<\/b>$/i.test(token)) {
@@ -42,24 +45,81 @@ function renderCommentaryHtml(html: string, baseColor: string) {
     } else if (/^<\/font>$/i.test(token)) {
       if (stack.length > 1) stack.pop();
     } else {
-      const frame = stack[stack.length - 1];
+      segments.push({ text: decodeEntities(token), style: stack[stack.length - 1] });
+    }
+  }
+  return segments;
+}
+
+/** Plain rendered text for a commentary HTML body — the coordinate space
+ * that highlight start/end offsets are measured in. Must stay derived from
+ * the same tokenizer used for rendering so offsets always line up. */
+export function commentaryPlainText(html: string): string {
+  return tokenizeCommentaryHtml(html)
+    .map((s) => s.text)
+    .join('');
+}
+
+function renderSegments(
+  segments: Segment[],
+  highlights: CommentaryHighlightRange[],
+  baseColor: string
+): React.ReactNode[] {
+  const nodes: React.ReactNode[] = [];
+  const sorted = [...highlights].sort((a, b) => a.start - b.start);
+  let offset = 0;
+  let key = 0;
+
+  for (const seg of segments) {
+    const segStart = offset;
+    const segEnd = offset + seg.text.length;
+    const breakpoints = new Set<number>([segStart, segEnd]);
+    for (const h of sorted) {
+      if (h.start > segStart && h.start < segEnd) breakpoints.add(h.start);
+      if (h.end > segStart && h.end < segEnd) breakpoints.add(h.end);
+    }
+    const points = Array.from(breakpoints).sort((a, b) => a - b);
+
+    for (let i = 0; i < points.length - 1; i++) {
+      const sliceStart = points[i];
+      const sliceEnd = points[i + 1];
+      if (sliceStart === sliceEnd) continue;
+      const sliceText = seg.text.slice(sliceStart - segStart, sliceEnd - segStart);
+      const hit = sorted.find((h) => sliceStart >= h.start && sliceStart < h.end);
       nodes.push(
         <Text
           key={key++}
           style={{
-            fontWeight: frame.bold ? '700' : '400',
-            fontStyle: frame.italic ? 'italic' : 'normal',
-            color: frame.color ?? baseColor,
+            fontWeight: seg.style.bold ? '700' : '400',
+            fontStyle: seg.style.italic ? 'italic' : 'normal',
+            color: seg.style.color ?? baseColor,
+            backgroundColor: hit?.color,
           }}>
-          {decodeEntities(token)}
+          {sliceText}
         </Text>
       );
     }
+    offset = segEnd;
   }
   return nodes;
 }
 
-export function CommentaryText({ html, style }: { html: string; style?: StyleProp<TextStyle> }) {
+type CommentaryTextProps = {
+  html: string;
+  highlights?: CommentaryHighlightRange[];
+  style?: StyleProp<TextStyle>;
+};
+
+export const CommentaryText = forwardRef<Text, CommentaryTextProps>(function CommentaryText(
+  { html, highlights = [], style },
+  ref
+) {
   const theme = useTheme();
-  return <Text style={[{ color: theme.text, fontSize: 15, lineHeight: 24 }, style]}>{renderCommentaryHtml(html, theme.text)}</Text>;
-}
+  const segments = useMemo(() => tokenizeCommentaryHtml(html), [html]);
+
+  return (
+    <Text ref={ref} selectable style={[{ color: theme.text, fontSize: 15, lineHeight: 24 }, style]}>
+      {renderSegments(segments, highlights, theme.text)}
+    </Text>
+  );
+});

@@ -1,9 +1,9 @@
 import { useSQLiteContext } from 'expo-sqlite';
-import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { CommentaryText } from '@/components/commentary-text';
+import { CommentaryText, commentaryPlainText } from '@/components/commentary-text';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
@@ -16,7 +16,16 @@ import {
   type CommentaryEntry,
 } from '@/db/commentary';
 import { BookChapterPicker } from '@/features/bible/BookChapterPicker';
-import { COMMENTARY_HIGHLIGHT_COLORS, upsertMark, type HighlightColor } from '@/db/userData';
+import {
+  addCommentaryTextHighlight,
+  COMMENTARY_HIGHLIGHT_COLORS,
+  deleteCommentaryTextHighlight,
+  getCommentaryTextHighlights,
+  updateCommentaryTextHighlightColor,
+  upsertMark,
+  type CommentaryTextHighlight,
+  type HighlightColor,
+} from '@/db/userData';
 
 function stripHtml(html: string): string {
   return html
@@ -46,6 +55,9 @@ export default function CommentaryScreen() {
   const [commentary, setCommentary] = useState<CommentaryEntry | null>(null);
   const [pickerVisible, setPickerVisible] = useState(false);
   const [savedColor, setSavedColor] = useState<HighlightColor | null>(null);
+  const [textHighlights, setTextHighlights] = useState<CommentaryTextHighlight[]>([]);
+  const [pendingSelection, setPendingSelection] = useState<{ start: number; end: number } | null>(null);
+  const commentaryTextRef = useRef<Text>(null);
 
   useEffect(() => {
     getBooks(db).then(setBooks);
@@ -68,8 +80,73 @@ export default function CommentaryScreen() {
     getCommentaryForVerse(bookId, chapter, verse, source).then(setCommentary);
   }, [bookId, chapter, verse, source]);
 
+  function reloadTextHighlights() {
+    if (!source) return;
+    getCommentaryTextHighlights(bookId, chapter, verse, source).then(setTextHighlights);
+  }
+
+  useEffect(() => {
+    setPendingSelection(null);
+    reloadTextHighlights();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookId, chapter, verse, source]);
+
+  // 주석 텍스트를 블록 지정하면(웹 전용 — RN 기본 Text는 선택 범위를 알려주는
+  // API가 없어 브라우저의 Selection/Range API에 기대야 함) 지정된 구간의
+  // plain-text 오프셋을 계산해 하이라이트 색상 선택 바를 띄운다.
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !commentary) return;
+
+    function handleSelectionEnd() {
+      const containerEl = commentaryTextRef.current as unknown as HTMLElement | null;
+      const selection = typeof window !== 'undefined' ? window.getSelection() : null;
+      if (!containerEl || !selection || selection.rangeCount === 0 || selection.isCollapsed) {
+        return;
+      }
+      const range = selection.getRangeAt(0);
+      if (!containerEl.contains(range.commonAncestorContainer)) return;
+
+      const preRange = document.createRange();
+      preRange.selectNodeContents(containerEl);
+      preRange.setEnd(range.startContainer, range.startOffset);
+      const start = preRange.toString().length;
+      const end = start + range.toString().length;
+      if (end <= start) return;
+
+      setPendingSelection({ start, end });
+    }
+
+    document.addEventListener('mouseup', handleSelectionEnd);
+    document.addEventListener('touchend', handleSelectionEnd);
+    return () => {
+      document.removeEventListener('mouseup', handleSelectionEnd);
+      document.removeEventListener('touchend', handleSelectionEnd);
+    };
+  }, [commentary]);
+
   const book = books.find((b) => b.id === bookId);
   const currentVerseText = chapterVerses.find((v) => v.verse === verse)?.text ?? '';
+  const plainCommentaryText = commentary ? commentaryPlainText(commentary.html) : '';
+
+  async function applyTextHighlight(color: HighlightColor) {
+    if (!pendingSelection || !source) return;
+    const { start, end } = pendingSelection;
+    const existing = textHighlights.find((h) => h.start_offset === start && h.end_offset === end);
+
+    if (existing && existing.color === color) {
+      await deleteCommentaryTextHighlight(existing.id);
+    } else if (existing) {
+      await updateCommentaryTextHighlightColor(existing.id, color);
+    } else {
+      await addCommentaryTextHighlight({ bookId, chapter, verse, source, start, end, color });
+    }
+
+    reloadTextHighlights();
+    setPendingSelection(null);
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.getSelection()?.removeAllRanges();
+    }
+  }
 
   async function saveHighlight(color: HighlightColor) {
     const nextColor = savedColor === color ? null : color;
@@ -154,13 +231,43 @@ export default function CommentaryScreen() {
           ) : null}
 
           {commentary ? (
-            <CommentaryText html={commentary.html} />
+            <CommentaryText
+              ref={commentaryTextRef}
+              html={commentary.html}
+              highlights={textHighlights.map((h) => ({
+                start: h.start_offset,
+                end: h.end_offset,
+                color: COMMENTARY_HIGHLIGHT_COLORS.find((c) => c.code === h.color)?.hex ?? 'transparent',
+              }))}
+            />
           ) : (
             <ThemedText themeColor="textSecondary" style={styles.emptyText}>
               이 구절에 대한 주석이 없습니다.
             </ThemedText>
           )}
         </ScrollView>
+
+        {pendingSelection && (
+          <View style={[styles.selectionBar, { backgroundColor: theme.backgroundElement }]}>
+            <ThemedText type="small" numberOfLines={1} style={styles.selectionPreview}>
+              “{plainCommentaryText.slice(pendingSelection.start, pendingSelection.end)}”
+            </ThemedText>
+            <View style={styles.colorRow}>
+              {COMMENTARY_HIGHLIGHT_COLORS.map((c) => (
+                <Pressable
+                  key={c.code}
+                  onPress={() => applyTextHighlight(c.code)}
+                  style={[styles.colorSwatch, { backgroundColor: c.hex, borderColor: theme.text }]}
+                />
+              ))}
+              <Pressable onPress={() => setPendingSelection(null)} hitSlop={8}>
+                <ThemedText type="small" themeColor="textSecondary">
+                  취소
+                </ThemedText>
+              </Pressable>
+            </View>
+          </View>
+        )}
 
         <View style={styles.highlightBar}>
           <ThemedText type="small" themeColor="textSecondary">
@@ -272,8 +379,20 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.two,
     gap: Spacing.two,
   },
+  selectionBar: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    marginHorizontal: Spacing.three,
+    padding: Spacing.three,
+    borderRadius: Spacing.three,
+    gap: Spacing.two,
+  },
+  selectionPreview: {
+    fontStyle: 'italic',
+  },
   colorRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.two,
   },
   colorSwatch: {
