@@ -50,6 +50,10 @@ export default function RootLayout() {
                   name="prayer-group"
                   options={{ headerShown: true, title: '샬롬기도단' }}
                 />
+                <Stack.Screen
+                  name="privacy-policy"
+                  options={{ headerShown: true, title: '개인정보처리방침' }}
+                />
               </Stack>
             </AuthProvider>
           </SQLiteProvider>

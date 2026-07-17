@@ -2,13 +2,21 @@
   "expo": {
     "name": "BibleApp",
     "slug": "BibleApp",
+    "owner": "dicipleofjx2",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "bibleapp",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#1E3350",
+    "ios": {
+      "bundleIdentifier": "com.dicipleofjx2.bibleapp",
+      "buildNumber": "1",
+      "supportsTablet": true
+    },
     "android": {
+      "package": "com.dicipleofjx2.bibleapp",
+      "versionCode": 2,
       "adaptiveIcon": {
         "backgroundColor": "#1E3350",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -36,6 +44,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3894a5ec-b573-429b-a871-3c96e7a89a0b"
+      }
     }
   }
 }
