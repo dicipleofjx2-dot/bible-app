@@ -8,7 +8,7 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { Pressable, View, StyleSheet } from 'react-native';
+import { Pressable, View, ScrollView, StyleSheet } from 'react-native';
 
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
@@ -103,7 +103,13 @@ export function CustomTabList(props: TabListProps) {
           </ThemedText>
         </Pressable>
 
-        {props.children}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.tabScroll}
+          contentContainerStyle={styles.tabScrollContent}>
+          {props.children}
+        </ScrollView>
       </ThemedView>
     </View>
   );
@@ -133,11 +139,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexGrow: 1,
+    // RN's default flexShrink is 0 (unlike web CSS's 1) — without this,
+    // this row refused to shrink below its content width on narrow
+    // viewports and just overflowed tabListContainer's centered layout
+    // (spilling off both edges) instead of ever handing overflow to the
+    // ScrollView below, so the horizontal scroll never actually engaged.
+    flexShrink: 1,
     gap: Spacing.two,
     maxWidth: MaxContentWidth,
   },
   calendarButton: {
-    marginRight: 'auto',
+    flexShrink: 0,
+  },
+  tabScroll: {
+    // minWidth 0 lets this shrink below its content width on web flexbox,
+    // otherwise the row overflows the pill instead of scrolling.
+    flexGrow: 1,
+    flexShrink: 1,
+    minWidth: 0,
+  },
+  tabScrollContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
   },
   pressed: {
     opacity: 0.7,
