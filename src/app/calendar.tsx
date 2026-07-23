@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -68,13 +67,6 @@ export default function CalendarScreen() {
   function goToToday() {
     setViewYear(today.getFullYear());
     setViewMonth(today.getMonth());
-  }
-
-  function openLinkedScreen(pathname: '/spiritual-journal' | '/priorities' | '/kingdom-finance') {
-    if (!selected) return;
-    const date = selected.dateString;
-    setSelected(null);
-    router.push({ pathname, params: { date } });
   }
 
   const selectedHoliday = selected ? getHoliday(selected.dateString) : undefined;
@@ -170,36 +162,6 @@ export default function CalendarScreen() {
                   </ThemedText>
                 )}
 
-                <View style={styles.sheetActions}>
-                  <Pressable
-                    onPress={() => openLinkedScreen('/spiritual-journal')}
-                    style={({ pressed }) => [
-                      styles.sheetAction,
-                      { backgroundColor: theme.backgroundElement },
-                      pressed && styles.pressed,
-                    ]}>
-                    <ThemedText type="small">❤️‍🔥 영성일기</ThemedText>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => openLinkedScreen('/priorities')}
-                    style={({ pressed }) => [
-                      styles.sheetAction,
-                      { backgroundColor: theme.backgroundElement },
-                      pressed && styles.pressed,
-                    ]}>
-                    <ThemedText type="small">📊 우선순위</ThemedText>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => openLinkedScreen('/kingdom-finance')}
-                    style={({ pressed }) => [
-                      styles.sheetAction,
-                      { backgroundColor: theme.backgroundElement },
-                      pressed && styles.pressed,
-                    ]}>
-                    <ThemedText type="small">🪙 천국재정</ThemedText>
-                  </Pressable>
-                </View>
-
                 <Pressable onPress={() => setSelected(null)} style={styles.closeButton}>
                   <ThemedText type="link" themeColor="textSecondary">
                     닫기
@@ -276,20 +238,8 @@ const styles = StyleSheet.create({
     padding: Spacing.four,
     gap: Spacing.two,
   },
-  sheetActions: {
-    gap: Spacing.two,
-    marginTop: Spacing.two,
-  },
-  sheetAction: {
-    paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.three,
-    borderRadius: Spacing.three,
-  },
   closeButton: {
     alignSelf: 'center',
     marginTop: Spacing.one,
-  },
-  pressed: {
-    opacity: 0.7,
   },
 });

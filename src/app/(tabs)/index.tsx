@@ -26,9 +26,9 @@ const MENU_ITEMS: MenuItem[] = [
   { emoji: '💡', label: '암송구절', href: '/notes' },
   { emoji: '📜', label: '주석', href: '/commentary' },
   { emoji: '👥', label: '커뮤니티', href: '/community', requiresAuth: true },
-  { emoji: '❤️‍🔥', label: '영성일기', href: '/calendar' },
-  { emoji: '📊', label: '우선순위', href: '/calendar' },
-  { emoji: '🪙', label: '천국재정', href: '/calendar' },
+  { emoji: '❤️‍🔥', label: '영성일기', href: '/spiritual-journal' },
+  { emoji: '📊', label: '우선순위', href: '/priorities' },
+  { emoji: '🪙', label: '천국재정', href: '/kingdom-finance' },
   { emoji: '🙏', label: '샬롬기도단', href: '/prayer-group', requiresAuth: true },
 ];
 
