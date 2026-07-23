@@ -77,7 +77,13 @@ export default function CommentaryScreen() {
   useEffect(() => {
     if (!source) return;
     setSavedColor(null);
-    getCommentaryForVerse(bookId, chapter, verse, source).then(setCommentary);
+    let cancelled = false;
+    getCommentaryForVerse(bookId, chapter, verse, source).then((entry) => {
+      if (!cancelled) setCommentary(entry);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [bookId, chapter, verse, source]);
 
   function reloadTextHighlights() {
