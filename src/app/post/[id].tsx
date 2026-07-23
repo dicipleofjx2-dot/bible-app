@@ -9,7 +9,17 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { addComment, deletePost, getComments, getPost, type Comment, type Post } from '@/db/community';
+import {
+  addComment,
+  deleteComment,
+  deletePost,
+  getComments,
+  getPost,
+  setCommentHidden,
+  type Comment,
+  type Post,
+} from '@/db/community';
+import { getIsAdmin } from '@/db/profile';
 
 export default function PostDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -18,6 +28,7 @@ export default function PostDetailScreen() {
 
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [body, setBody] = useState('');
   const [posting, setPosting] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -31,9 +42,24 @@ export default function PostDetailScreen() {
     getComments(id)
       .then(setComments)
       .catch(() => setComments([]));
-  }, [id]);
+    if (session) {
+      getIsAdmin(session.user.id)
+        .then(setIsAdmin)
+        .catch(() => setIsAdmin(false));
+    }
+  }, [id, session]);
 
   useFocusEffect(load);
+
+  async function toggleCommentHidden(comment: Comment) {
+    await setCommentHidden(comment.id, !comment.hidden);
+    load();
+  }
+
+  async function removeComment(commentId: string) {
+    await deleteComment(commentId);
+    load();
+  }
 
   async function submitComment() {
     if (!id || !session || !body.trim()) return;
@@ -91,15 +117,42 @@ export default function PostDetailScreen() {
               아직 댓글이 없습니다.
             </ThemedText>
           }
-          renderItem={({ item }) => (
-            <View style={styles.commentRow}>
-              <ThemedText type="smallBold">{item.author}</ThemedText>
-              <ThemedText type="small">{item.body}</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {new Date(item.created_at).toLocaleString('ko-KR')}
-              </ThemedText>
-            </View>
-          )}
+          renderItem={({ item }) => {
+            const canModerate =
+              !!session && (item.user_id === session.user.id || session.user.id === post?.user_id || isAdmin);
+            return (
+              <View style={[styles.commentRow, item.hidden && styles.commentRowHidden]}>
+                <View style={styles.commentRowHeader}>
+                  <View style={styles.commentRowHeaderLeft}>
+                    <ThemedText type="smallBold">{item.author}</ThemedText>
+                    {item.hidden && (
+                      <ThemedText type="small" themeColor="textSecondary" style={styles.hiddenBadge}>
+                        숨김
+                      </ThemedText>
+                    )}
+                  </View>
+                  {canModerate && (
+                    <View style={styles.commentActions}>
+                      <Pressable onPress={() => toggleCommentHidden(item)} hitSlop={8}>
+                        <ThemedText type="small" themeColor="textSecondary">
+                          {item.hidden ? '숨김 해제' : '숨기기'}
+                        </ThemedText>
+                      </Pressable>
+                      <Pressable onPress={() => removeComment(item.id)} hitSlop={8}>
+                        <ThemedText type="small" style={styles.deleteText}>
+                          삭제
+                        </ThemedText>
+                      </Pressable>
+                    </View>
+                  )}
+                </View>
+                <ThemedText type="small">{item.body}</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {new Date(item.created_at).toLocaleString('ko-KR')}
+                </ThemedText>
+              </View>
+            );
+          }}
         />
 
         {session ? (
@@ -233,6 +286,26 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.one,
     gap: Spacing.half,
+  },
+  commentRowHidden: {
+    opacity: 0.55,
+  },
+  commentRowHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  commentRowHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  hiddenBadge: {
+    fontStyle: 'italic',
+  },
+  commentActions: {
+    flexDirection: 'row',
+    gap: Spacing.three,
   },
   emptyText: {
     textAlign: 'center',

@@ -17,6 +17,7 @@ export type Comment = {
   post_id: string;
   user_id: string;
   body: string;
+  hidden: boolean;
   created_at: string;
   author: string;
 };
@@ -61,7 +62,7 @@ export async function deletePost(postId: string): Promise<void> {
 export async function getComments(postId: string): Promise<Comment[]> {
   const { data, error } = await supabase
     .from('comments')
-    .select('id, post_id, user_id, body, created_at, profiles(username)')
+    .select('id, post_id, user_id, body, hidden, created_at, profiles(username)')
     .eq('post_id', postId)
     .order('created_at', { ascending: true });
   if (error) throw error;
@@ -73,5 +74,19 @@ export async function getComments(postId: string): Promise<Comment[]> {
 
 export async function addComment(postId: string, userId: string, body: string): Promise<void> {
   const { error } = await supabase.from('comments').insert({ post_id: postId, user_id: userId, body });
+  if (error) throw error;
+}
+
+/** RLS restricts this to the comment's own author, the post's author, or an
+ * admin (see 0018_comment_hide_and_moderation.sql). */
+export async function setCommentHidden(commentId: string, hidden: boolean): Promise<void> {
+  const { error } = await supabase.from('comments').update({ hidden }).eq('id', commentId);
+  if (error) throw error;
+}
+
+/** RLS restricts this to the comment's own author, the post's author, or an
+ * admin (see 0018_comment_hide_and_moderation.sql). */
+export async function deleteComment(commentId: string): Promise<void> {
+  const { error } = await supabase.from('comments').delete().eq('id', commentId);
   if (error) throw error;
 }
