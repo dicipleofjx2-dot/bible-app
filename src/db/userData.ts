@@ -245,7 +245,7 @@ export const COMMENTARY_HIGHLIGHT_COLORS: { code: HighlightColor; hex: string }[
 // Separate from verse_marks/COMMENTARY_HIGHLIGHT_COLORS above (which mark an
 // entire verse+commentary as one unit) — this stores arbitrary user-selected
 // text ranges *within* one commentary entry's plain text, keyed by character
-// offset. See src/app/(tabs)/commentary.tsx for the selection UI.
+// offset. See src/app/commentary.tsx for the selection UI.
 export type CommentaryTextHighlight = {
   id: number;
   book_id: number;

@@ -37,14 +37,8 @@ export default function AppTabs() {
           <TabTrigger name="bible-reading" href="/bible-reading" asChild>
             <TabButton>성경통독</TabButton>
           </TabTrigger>
-          <TabTrigger name="search" href="/search" asChild>
-            <TabButton>검색</TabButton>
-          </TabTrigger>
           <TabTrigger name="notes" href="/notes" asChild>
             <TabButton>암송구절</TabButton>
-          </TabTrigger>
-          <TabTrigger name="commentary" href="/commentary" asChild>
-            <TabButton>주석</TabButton>
           </TabTrigger>
           <TabTrigger name="community" href="/community" asChild>
             <TabButton>커뮤니티</TabButton>

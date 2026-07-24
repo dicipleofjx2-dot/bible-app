@@ -31,7 +31,7 @@ export default function SearchScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <ThemedView style={styles.container}>
         <View style={styles.header}>
           <TextInput

@@ -35,6 +35,16 @@ export default function RootLayout() {
                 <Stack.Screen name="rooms/[id]" options={{ headerShown: true, title: '읽기방' }} />
                 <Stack.Screen name="calendar" options={{ headerShown: true, title: '달력' }} />
                 <Stack.Screen
+                  name="bible-study"
+                  options={{ headerShown: true, title: '성경연구' }}
+                />
+                <Stack.Screen name="search" options={{ headerShown: true, title: '성경검색' }} />
+                <Stack.Screen name="commentary" options={{ headerShown: true, title: '주석' }} />
+                <Stack.Screen
+                  name="bible-maps"
+                  options={{ headerShown: true, title: '성경지도' }}
+                />
+                <Stack.Screen
                   name="spiritual-journal"
                   options={{ headerShown: true, title: '영성일기' }}
                 />

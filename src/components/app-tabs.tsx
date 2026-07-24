@@ -35,19 +35,9 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf="calendar" md="event_available" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="search">
-        <NativeTabs.Trigger.Label>검색</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="magnifyingglass" md="search" />
-      </NativeTabs.Trigger>
-
       <NativeTabs.Trigger name="notes">
         <NativeTabs.Trigger.Label>암송구절</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="highlighter" md="edit_note" />
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="commentary">
-        <NativeTabs.Trigger.Label>주석</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="text.book.closed.fill" md="menu_book" />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="community">

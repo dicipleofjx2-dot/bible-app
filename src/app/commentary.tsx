@@ -174,7 +174,7 @@ export default function CommentaryScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <ThemedView style={styles.container}>
         <View style={styles.header}>
           <ThemedText type="subtitle">주석</ThemedText>
