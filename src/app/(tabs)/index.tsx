@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { getTodayLabelKST } from '@/lib/hebrew-date';
+import { useAuth } from '@/lib/auth';
 import type { Href } from 'expo-router';
 
 type MenuItem = {
@@ -25,13 +26,15 @@ const MENU_ITEMS: MenuItem[] = [
   { emoji: '💡', label: '암송구절', href: '/notes' },
   { emoji: '🧭', label: '성경연구', href: '/bible-study' },
   { emoji: '👥', label: '커뮤니티', href: '/community', requiresAuth: true },
-  { emoji: '❤️‍🔥', label: '영성일기', href: '/spiritual-journal' },
+  { emoji: '❤️‍🔥', label: '순종일기', href: '/spiritual-journal' },
   { emoji: '📊', label: '우선순위', href: '/priorities' },
   { emoji: '🪙', label: '천국재정', href: '/kingdom-finance' },
   { emoji: '🙏', label: '샬롬기도단', href: '/prayer-group', requiresAuth: true },
+  { emoji: '👤', label: '마이페이지', href: '/profile' },
 ];
 
 export default function HomeScreen() {
+  const { session } = useAuth();
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeAreaOuter}>
@@ -54,7 +57,9 @@ export default function HomeScreen() {
             {MENU_ITEMS.map((item) => (
               <Pressable
                 key={item.label}
-                onPress={() => router.push(item.href)}
+                onPress={() =>
+                  router.push(item.requiresAuth && !session ? '/profile' : item.href)
+                }
                 style={({ pressed }) => [styles.tile, pressed && styles.pressed]}>
                 <ThemedView
                   type="backgroundElement"

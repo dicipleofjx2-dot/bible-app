@@ -107,7 +107,7 @@ export default function SpiritualJournalScreen() {
 
           <View style={styles.editorSection}>
             <View style={styles.editorHeader}>
-              <ThemedText type="smallBold">❤️‍🔥 영성일기</ThemedText>
+              <ThemedText type="smallBold">❤️‍🔥 순종일기</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
                 {date}
               </ThemedText>

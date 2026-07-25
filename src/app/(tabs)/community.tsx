@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { router, useFocusEffect } from 'expo-router';
+import { Redirect, router, useFocusEffect } from 'expo-router';
 import { FlatList, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,7 +9,6 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
-import { AuthForm } from '@/features/auth/AuthForm';
 import { createPost, deletePost, getPosts, type Post } from '@/db/community';
 import { getPendingRoomInvites, markRoomInviteNotified, type PendingRoomInvite } from '@/db/rooms';
 
@@ -34,18 +33,7 @@ export default function CommunityScreen() {
   if (loading) return null;
 
   if (!session) {
-    return (
-      <ThemedView style={styles.container}>
-        <SafeAreaView style={styles.safeAreaCentered}>
-          <AuthForm />
-          <Pressable onPress={() => router.push('/profile')} style={styles.skinLinkLoggedOut}>
-            <ThemedText type="link" themeColor="textSecondary">
-              스킨 설정
-            </ThemedText>
-          </Pressable>
-        </SafeAreaView>
-      </ThemedView>
-    );
+    return <Redirect href="/profile" />;
   }
 
   return <Feed userId={session.user.id} theme={theme} />;
@@ -108,7 +96,7 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
           <View style={styles.headerLinks}>
             <Pressable onPress={() => router.push('/profile')}>
               <ThemedText type="link" themeColor="textSecondary">
-                프로필
+                마이페이지
               </ThemedText>
             </Pressable>
           </View>
@@ -243,10 +231,6 @@ const styles = StyleSheet.create({
   },
   centerText: {
     textAlign: 'center',
-  },
-  skinLinkLoggedOut: {
-    alignSelf: 'center',
-    marginTop: Spacing.two,
   },
   container: {
     flex: 1,

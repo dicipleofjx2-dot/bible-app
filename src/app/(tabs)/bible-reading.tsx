@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { Redirect, router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -10,7 +10,6 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
-import { AuthForm } from '@/features/auth/AuthForm';
 import { BookChapterPicker } from '@/features/bible/BookChapterPicker';
 import { getBooks, getChapterCount, type Book } from '@/db/bible';
 import { addDays, createPlan, deletePlan, getPlans, todayDateString, type ReadingPlan } from '@/db/plans';
@@ -77,13 +76,7 @@ export default function BibleReadingScreen() {
   if (loading) return null;
 
   if (!session) {
-    return (
-      <ThemedView style={styles.container}>
-        <SafeAreaView style={styles.safeAreaCentered}>
-          <AuthForm />
-        </SafeAreaView>
-      </ThemedView>
-    );
+    return <Redirect href="/profile" />;
   }
 
   return <BibleReadingContent userId={session.user.id} />;

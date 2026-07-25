@@ -11,6 +11,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { useSkin } from '@/lib/skin';
 import { getProfile, updateUsername } from '@/db/profile';
+import { AuthForm } from '@/features/auth/AuthForm';
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -121,11 +122,7 @@ export default function ProfileScreen() {
           </>
         )}
 
-        {!session && (
-          <ThemedText type="small" themeColor="textSecondary">
-            계정 정보를 보려면 커뮤니티 탭에서 로그인해주세요.
-          </ThemedText>
-        )}
+        {!session && <AuthForm />}
       </SafeAreaView>
     </ThemedView>
   );

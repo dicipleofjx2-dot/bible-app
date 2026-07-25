@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { Redirect, useFocusEffect } from 'expo-router';
 import { FlatList, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,7 +9,6 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
-import { AuthForm } from '@/features/auth/AuthForm';
 import {
   addPrayerComment,
   createPrayerRequest,
@@ -44,19 +43,7 @@ export default function PrayerGroupScreen() {
   if (loading) return null;
 
   if (!session) {
-    return (
-      <ThemedView style={styles.container}>
-        <SafeAreaView style={styles.safeAreaCentered}>
-          <ThemedText type="subtitle" style={styles.centerText}>
-            🙏 샬롬기도단
-          </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary" style={styles.centerText}>
-            중보기도제목을 나누려면 로그인해주세요.
-          </ThemedText>
-          <AuthForm />
-        </SafeAreaView>
-      </ThemedView>
-    );
+    return <Redirect href="/profile" />;
   }
 
   return <Feed userId={session.user.id} theme={theme} />;

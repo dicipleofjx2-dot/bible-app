@@ -45,7 +45,7 @@ export default function PrivacyPolicyScreen() {
               • 닉네임/사용자명, 작성한 게시글·댓글·기도제목 등 커뮤니티 활동 내용
             </ThemedText>
             <ThemedText style={styles.paragraph}>
-              말씀묵상 노트, 암송구절, 영성일기, 우선순위, 천국재정 등은{' '}
+              말씀묵상 노트, 암송구절, 순종일기, 우선순위, 천국재정 등은{' '}
               <ThemedText type="smallBold">기기 내부에만 저장</ThemedText>되며, 외부 서버로
               전송되거나 수집되지 않습니다. 이 데이터는 앱을 삭제하거나 기기를 변경하면 함께
               사라지며 다른 기기와 동기화되지 않습니다.
