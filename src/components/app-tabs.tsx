@@ -20,11 +20,6 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf="heart.text.square.fill" md="self_improvement" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="word-notes">
-        <NativeTabs.Trigger.Label>말씀노트</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="square.and.pencil" md="edit_note" />
-      </NativeTabs.Trigger>
-
       <NativeTabs.Trigger name="read">
         <NativeTabs.Trigger.Label>읽기</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="book.fill" md="menu_book" />
