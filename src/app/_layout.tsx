@@ -2,7 +2,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider } from 'expo-sqlite';
 import { Suspense, useState } from 'react';
-import { ActivityIndicator, useColorScheme } from 'react-native';
+import { ActivityIndicator, Text, useColorScheme } from 'react-native';
 
 import { IntroScreen } from '@/components/intro-screen';
 import { AuthProvider } from '@/lib/auth';
@@ -29,6 +29,10 @@ export default function RootLayout() {
             assetSource={BIBLE_DB_ASSET_SOURCE}
             useSuspense>
             <AuthProvider>
+              <Text
+                style={{ position: 'absolute', top: 0, left: 0, zIndex: 99999, backgroundColor: 'yellow', color: 'black', padding: 4 }}>
+                DEBUG showIntro={String(showIntro)}
+              </Text>
               {showIntro && <IntroScreen onDismiss={() => setShowIntro(false)} />}
               <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(tabs)" />
