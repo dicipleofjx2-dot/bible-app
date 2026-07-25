@@ -1,27 +1,35 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider } from 'expo-sqlite';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { ActivityIndicator, useColorScheme } from 'react-native';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { IntroScreen } from '@/components/intro-screen';
 import { AuthProvider } from '@/lib/auth';
 import { SkinProvider } from '@/lib/skin';
 
 SplashScreen.preventAutoHideAsync();
 
+// Hoisted to a stable module-level reference — passing a fresh object
+// literal here on every RootLayout render (e.g. from the showIntro state
+// toggle below) made SQLiteProvider see a "changed" assetSource prop and
+// re-run its suspending init on every re-render, which briefly remounted
+// everything below it (including IntroScreen, undoing a dismiss).
+const BIBLE_DB_ASSET_SOURCE = { assetId: require('../../assets/bible-data/bible.db') };
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [showIntro, setShowIntro] = useState(true);
   return (
     <SkinProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Suspense fallback={<ActivityIndicator style={{ flex: 1 }} />}>
           <SQLiteProvider
             databaseName="bible-v5.db"
-            assetSource={{ assetId: require('../../assets/bible-data/bible.db') }}
+            assetSource={BIBLE_DB_ASSET_SOURCE}
             useSuspense>
             <AuthProvider>
-              <AnimatedSplashOverlay />
+              {showIntro && <IntroScreen onDismiss={() => setShowIntro(false)} />}
               <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="plans" options={{ headerShown: true, title: '읽기 계획' }} />
