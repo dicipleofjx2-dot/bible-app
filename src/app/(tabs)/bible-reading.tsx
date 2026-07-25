@@ -14,6 +14,7 @@ import { AuthForm } from '@/features/auth/AuthForm';
 import { BookChapterPicker } from '@/features/bible/BookChapterPicker';
 import { getBooks, getChapterCount, type Book } from '@/db/bible';
 import { addDays, createPlan, deletePlan, getPlans, todayDateString, type ReadingPlan } from '@/db/plans';
+import { getIsAdmin } from '@/db/profile';
 import { createRoom, getAllRooms, getMyRooms, getRoomByInviteCode, joinRoom, type Room } from '@/db/rooms';
 
 const DURATION_PRESETS = [
@@ -96,6 +97,11 @@ function BibleReadingContent({ userId }: { userId: string }) {
   useEffect(() => {
     getBooks(db).then(setBooks);
   }, [db]);
+
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    getIsAdmin(userId).then(setIsAdmin);
+  }, [userId]);
 
   // ── plan creation ──────────────────────────────────────────────────────
   const [planTitle, setPlanTitle] = useState('');
@@ -479,6 +485,10 @@ function BibleReadingContent({ userId }: { userId: string }) {
             ) : (
               allRooms.map((item) => {
                 const alreadyMember = rooms.some((r) => r.id === item.id);
+                // Admins can open any room directly (e.g. to delete it) without
+                // needing its invite code to join first — everyone else still
+                // has to join to enter.
+                const canEnterDirectly = alreadyMember || isAdmin;
                 return (
                   <View key={item.id} style={[styles.browseRow, { backgroundColor: theme.backgroundElement }]}>
                     <View style={styles.browseRoomInfo}>
@@ -489,12 +499,12 @@ function BibleReadingContent({ userId }: { userId: string }) {
                     </View>
                     <Pressable
                       onPress={() =>
-                        alreadyMember
+                        canEnterDirectly
                           ? router.push({ pathname: '/rooms/[id]', params: { id: item.id } })
                           : openJoinPrompt(item)
                       }
                       style={[styles.actionButton, { backgroundColor: theme.backgroundSelected }]}>
-                      <ThemedText type="smallBold">{alreadyMember ? '입장' : '참여'}</ThemedText>
+                      <ThemedText type="smallBold">{canEnterDirectly ? '입장' : '참여'}</ThemedText>
                     </Pressable>
                   </View>
                 );
