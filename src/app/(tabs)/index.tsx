@@ -18,7 +18,7 @@ type MenuItem = {
 const AUTH_REQUIRED_COLOR = '#f59f00';
 
 const MENU_ITEMS: MenuItem[] = [
-  { emoji: '📖', label: '말씀묵상', href: '/meditation' },
+  { emoji: '📖', label: '매일Q.T', href: '/meditation' },
   { emoji: '✍️', label: '말씀노트', href: '/word-notes' },
   { emoji: '📚', label: '성경읽기', href: '/read' },
   { emoji: '🗓️', label: '성경통독', href: '/bible-reading', requiresAuth: true },
