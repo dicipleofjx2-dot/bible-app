@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
@@ -25,6 +26,8 @@ export function AuthForm() {
       setError(result.error);
     } else if (mode === 'signUp') {
       setSignedUpMessage(true);
+    } else {
+      router.replace('/');
     }
   }
 
