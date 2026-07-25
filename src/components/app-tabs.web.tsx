@@ -92,7 +92,11 @@ export function CustomTabList(props: TabListProps) {
           onPress={() => router.push('/calendar')}
           hitSlop={8}
           style={({ pressed }) => [styles.calendarButton, pressed && styles.pressed]}>
-          <ThemedText type="smallBold" themeColor="textSecondary">
+          <ThemedText
+            type="smallBold"
+            themeColor="textSecondary"
+            numberOfLines={1}
+            ellipsizeMode="tail">
             📅 {getTodayLabelKST()}
           </ThemedText>
         </Pressable>
@@ -143,7 +147,12 @@ const styles = StyleSheet.create({
     maxWidth: MaxContentWidth,
   },
   calendarButton: {
-    flexShrink: 0,
+    // Capped + shrinkable (not flexShrink:0) so a long date string (KST +
+    // Hebrew date) can never eat the whole row on a narrow viewport or with
+    // larger system font scaling — it truncates instead of starving the
+    // tab ScrollView down to zero width and making every tab disappear.
+    flexShrink: 1,
+    maxWidth: '40%',
   },
   tabScroll: {
     // minWidth 0 lets this shrink below its content width on web flexbox,
