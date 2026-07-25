@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { FlatList, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,6 +12,7 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getBooks, type Book } from '@/db/bible';
+import { getIsAdmin } from '@/db/profile';
 import {
   deleteRoom,
   getAllProfiles,
@@ -55,6 +56,7 @@ export default function RoomDetailScreen() {
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -87,6 +89,10 @@ export default function RoomDetailScreen() {
       if (session) load();
     }, [load, session])
   );
+
+  useEffect(() => {
+    if (session) getIsAdmin(session.user.id).then(setIsAdmin);
+  }, [session]);
 
   async function copyInviteCode() {
     if (!room) return;
@@ -212,7 +218,7 @@ export default function RoomDetailScreen() {
                   <ThemedText type="smallBold">초대하기</ThemedText>
                 </Pressable>
               )}
-              {isOwner && (
+              {(isOwner || isAdmin) && (
                 <Pressable
                   onPress={() => {
                     setDeleteError(null);
