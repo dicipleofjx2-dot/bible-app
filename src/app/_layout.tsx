@@ -1,25 +1,30 @@
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider } from 'expo-sqlite';
-import { Suspense, useState } from 'react';
-import { ActivityIndicator, Text, useColorScheme } from 'react-native';
+import { Suspense, useEffect } from 'react';
+import { ActivityIndicator, useColorScheme } from 'react-native';
 
-import { IntroScreen } from '@/components/intro-screen';
 import { AuthProvider } from '@/lib/auth';
 import { SkinProvider } from '@/lib/skin';
 
 SplashScreen.preventAutoHideAsync();
 
-// Hoisted to a stable module-level reference — passing a fresh object
-// literal here on every RootLayout render (e.g. from the showIntro state
-// toggle below) made SQLiteProvider see a "changed" assetSource prop and
-// re-run its suspending init on every re-render, which briefly remounted
-// everything below it (including IntroScreen, undoing a dismiss).
+// Hoisted to a stable module-level reference so it's never a fresh object on
+// re-render (SQLiteProvider treats a changed assetSource as a reason to
+// re-run its suspending init).
 const BIBLE_DB_ASSET_SOURCE = { assetId: require('../../assets/bible-data/bible.db') };
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [showIntro, setShowIntro] = useState(true);
+
+  // Every launch lands on /intro first, regardless of which route was
+  // actually requested — "시작하기" leaves via router.replace('/'), the
+  // same plain in-app navigation every other link in this app already
+  // uses, rather than a locally-toggled overlay.
+  useEffect(() => {
+    router.replace('/intro');
+  }, []);
+
   return (
     <SkinProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -29,13 +34,9 @@ export default function RootLayout() {
             assetSource={BIBLE_DB_ASSET_SOURCE}
             useSuspense>
             <AuthProvider>
-              <Text
-                style={{ position: 'absolute', top: 0, left: 0, zIndex: 99999, backgroundColor: 'yellow', color: 'black', padding: 4 }}>
-                DEBUG showIntro={String(showIntro)}
-              </Text>
-              {showIntro && <IntroScreen onDismiss={() => setShowIntro(false)} />}
               <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="intro" options={{ headerShown: false, gestureEnabled: false }} />
                 <Stack.Screen name="plans" options={{ headerShown: true, title: '읽기 계획' }} />
                 <Stack.Screen
                   name="plans/[slug]"
