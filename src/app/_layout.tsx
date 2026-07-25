@@ -1,7 +1,7 @@
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router } from 'expo-router';
+import { DarkTheme, DefaultTheme, Redirect, Stack, ThemeProvider, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider } from 'expo-sqlite';
-import { Suspense, useEffect } from 'react';
+import { Suspense, useRef } from 'react';
 import { ActivityIndicator, useColorScheme } from 'react-native';
 
 import { AuthProvider } from '@/lib/auth';
@@ -16,14 +16,23 @@ const BIBLE_DB_ASSET_SOURCE = { assetId: require('../../assets/bible-data/bible.
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const pathname = usePathname();
 
   // Every launch lands on /intro first, regardless of which route was
   // actually requested — "시작하기" leaves via router.replace('/'), the
   // same plain in-app navigation every other link in this app already
-  // uses, rather than a locally-toggled overlay.
-  useEffect(() => {
-    router.replace('/intro');
-  }, []);
+  // uses. Declarative <Redirect> rather than an imperative router.replace()
+  // call in a useEffect — the imperative version broke the static web
+  // export's prerender pass entirely (blank page, no console error since
+  // nothing caught it). alreadyRedirected is a ref, not state, so deciding
+  // to redirect doesn't itself trigger a re-render; it just has to survive
+  // for RootLayout's one mount per app session so later in-app navigation
+  // away from /intro never redirects back to it.
+  const alreadyRedirected = useRef(false);
+  const shouldShowIntro = pathname !== '/intro' && !alreadyRedirected.current;
+  if (shouldShowIntro) {
+    alreadyRedirected.current = true;
+  }
 
   return (
     <SkinProvider>
@@ -34,6 +43,7 @@ export default function RootLayout() {
             assetSource={BIBLE_DB_ASSET_SOURCE}
             useSuspense>
             <AuthProvider>
+              {shouldShowIntro && <Redirect href="/intro" />}
               <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="intro" options={{ headerShown: false, gestureEnabled: false }} />
