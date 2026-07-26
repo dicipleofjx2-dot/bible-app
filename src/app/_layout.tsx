@@ -87,6 +87,7 @@ export default function RootLayout() {
                   name="privacy-policy"
                   options={{ headerShown: true, title: '개인정보처리방침' }}
                 />
+                <Stack.Screen name="verse-card" options={{ headerShown: true, title: '말씀카드' }} />
               </Stack>
             </AuthProvider>
           </SQLiteProvider>

@@ -31,6 +31,7 @@ const MENU_ITEMS: MenuItem[] = [
   { emoji: '🪙', label: '천국재정', href: '/kingdom-finance' },
   { emoji: '🙏', label: '샬롬기도단', href: '/prayer-group', requiresAuth: true },
   { emoji: '👤', label: '마이페이지', href: '/profile' },
+  { emoji: '💌', label: '말씀카드', href: '/verse-card', requiresAuth: true },
 ];
 
 export default function HomeScreen() {
