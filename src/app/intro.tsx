@@ -34,8 +34,8 @@ export default function IntroScreen() {
           <Text style={styles.startButtonText}>시작하기 →</Text>
         </Pressable>
         <Text style={styles.captionText}>
-          모라비안 선교사 죠셉 스미스가 제네덴달에서 선교하던 때에 마을 사람들에게 성경말씀에
-          순종하도록 가르쳤던 배나무(Pear Tree)입니다.
+          모라비안 선교사 죠셉스미스가 제네덴달에서 선교하던 때에 마을 사람들에게 성경말씀에
+          순종하도록 가르친 장소였던 배나무(PeerTree)입니다.
         </Text>
       </View>
     </View>
