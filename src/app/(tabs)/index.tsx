@@ -20,10 +20,10 @@ const AUTH_REQUIRED_COLOR = '#f59f00';
 
 const MENU_ITEMS: MenuItem[] = [
   { emoji: '📖', label: '매일Q.T', href: '/meditation' },
-  { emoji: '✍️', label: '말씀노트', href: '/word-notes' },
+  { emoji: '✍️', label: 'Q.T묵상', href: '/word-notes' },
   { emoji: '📚', label: '성경읽기', href: '/read' },
   { emoji: '🗓️', label: '성경통독', href: '/bible-reading', requiresAuth: true },
-  { emoji: '💡', label: '암송구절', href: '/notes' },
+  { emoji: '💡', label: '구절묵상', href: '/notes' },
   { emoji: '🧭', label: '성경연구', href: '/bible-study' },
   { emoji: '👥', label: '커뮤니티', href: '/community', requiresAuth: true },
   { emoji: '❤️‍🔥', label: '순종일기', href: '/spiritual-journal' },
