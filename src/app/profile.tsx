@@ -114,12 +114,6 @@ export default function ProfileScreen() {
               </Pressable>
             </View>
 
-            <Pressable
-              onPress={() => router.push('/verse-card')}
-              style={[styles.verseCardButton, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="smallBold">💌 말씀카드 만들기</ThemedText>
-            </Pressable>
-
             <Pressable onPress={handleSignOut} style={styles.signOutButton}>
               <ThemedText type="link" style={styles.signOutText}>
                 로그아웃
@@ -182,12 +176,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   saveButton: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.three,
-  },
-  verseCardButton: {
     alignSelf: 'flex-start',
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.two,
