@@ -23,6 +23,7 @@ const MENU_ITEMS: MenuItem[] = [
   { emoji: '✍️', label: 'Q.T묵상', href: '/word-notes' },
   { emoji: '📚', label: '성경읽기', href: '/read' },
   { emoji: '🗓️', label: '성경통독', href: '/bible-reading', requiresAuth: true },
+  { emoji: '📆', label: '성경통독도우미', href: '/reading-helper', requiresAuth: true },
   { emoji: '💡', label: '구절묵상', href: '/notes' },
   { emoji: '🧭', label: '성경연구', href: '/bible-study' },
   { emoji: '👥', label: '커뮤니티', href: '/community', requiresAuth: true },
