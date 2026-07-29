@@ -10,7 +10,7 @@ import { MaxContentWidth, Skins, Spacing, type SkinId } from '@/constants/theme'
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { useSkin } from '@/lib/skin';
-import { getProfile, updateUsername } from '@/db/profile';
+import { getIsAdmin, getProfile, updateUsername } from '@/db/profile';
 import { AuthForm } from '@/features/auth/AuthForm';
 
 export default function ProfileScreen() {
@@ -20,12 +20,16 @@ export default function ProfileScreen() {
   const [username, setUsername] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!session) return;
     getProfile(session.user.id).then((profile) => {
       if (profile?.username) setUsername(profile.username);
     });
+    getIsAdmin(session.user.id)
+      .then(setIsAdmin)
+      .catch(() => setIsAdmin(false));
   }, [session]);
 
   async function save() {
@@ -114,6 +118,14 @@ export default function ProfileScreen() {
               </Pressable>
             </View>
 
+            {isAdmin && (
+              <Pressable
+                onPress={() => router.push('/library/admin')}
+                style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
+                <ThemedText type="smallBold">📚 데이빗북스 관리</ThemedText>
+              </Pressable>
+            )}
+
             <Pressable onPress={handleSignOut} style={styles.signOutButton}>
               <ThemedText type="link" style={styles.signOutText}>
                 로그아웃
@@ -180,6 +192,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.two,
     borderRadius: Spacing.three,
+  },
+  adminLinkButton: {
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.three,
+    borderRadius: Spacing.three,
+    alignItems: 'center',
   },
   signOutButton: {
     marginTop: Spacing.four,

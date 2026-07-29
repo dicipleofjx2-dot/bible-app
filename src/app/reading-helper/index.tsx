@@ -204,6 +204,11 @@ export default function ReadingHelperHomeScreen() {
                 🗂 전체 아카이브
               </ThemedText>
             </Pressable>
+            <Pressable onPress={() => router.push('/reading-helper/word-card')} style={({ pressed }) => [pressed && styles.pressed]}>
+              <ThemedText type="small" themeColor="textSecondary">
+                💌 말씀카드 만들기
+              </ThemedText>
+            </Pressable>
           </View>
         </ScrollView>
       </SafeAreaView>

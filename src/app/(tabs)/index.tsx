@@ -31,6 +31,7 @@ const MENU_ITEMS: MenuItem[] = [
   { emoji: '📊', label: '우선순위', href: '/priorities' },
   { emoji: '🪙', label: '천국재정', href: '/kingdom-finance' },
   { emoji: '🙏', label: '샬롬기도단', href: '/prayer-group', requiresAuth: true },
+  { emoji: '📕', label: '데이빗북스', href: '/library' },
   { emoji: '👤', label: '마이페이지', href: '/profile' },
 ];
 
