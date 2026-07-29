@@ -114,7 +114,7 @@ export default function MeditationScreen() {
       <ThemedView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <ThemedText type="title" style={styles.title}>
-            말씀묵상
+            오늘의 말씀
           </ThemedText>
 
           <ThemedView type="backgroundElement" style={styles.verseCard}>

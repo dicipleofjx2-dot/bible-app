@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useAuth } from '@/lib/auth';
 import type { Href } from 'expo-router';
 
 type WordItem = {
@@ -12,7 +13,10 @@ type WordItem = {
   label: string;
   description: string;
   href: Href;
+  requiresAuth?: boolean;
 };
+
+const AUTH_REQUIRED_COLOR = '#f59f00';
 
 const WORD_ITEMS: WordItem[] = [
   { emoji: '📖', label: '매일Q.T', description: '오늘의 QT 본문과 묵상 노트', href: '/meditation' },
@@ -20,9 +24,11 @@ const WORD_ITEMS: WordItem[] = [
   { emoji: '✍️', label: 'Q.T묵상', description: '지금까지 쓴 QT 묵상 노트 모아보기', href: '/word-notes' },
   { emoji: '💡', label: '구절묵상', description: '하이라이트·암송 구절 모아보기', href: '/notes' },
   { emoji: '🧭', label: '성경연구', description: '성경검색·주석·성경지도', href: '/bible-study' },
+  { emoji: '📆', label: '성경통독도우미', description: '365일 통독 + 퀴즈 + 암송', href: '/reading-helper', requiresAuth: true },
 ];
 
 export default function WordHubScreen() {
+  const { session } = useAuth();
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
@@ -33,9 +39,11 @@ export default function WordHubScreen() {
           {WORD_ITEMS.map((item) => (
             <Pressable
               key={item.label}
-              onPress={() => router.push(item.href)}
+              onPress={() => router.push(item.requiresAuth && !session ? '/profile' : item.href)}
               style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-              <ThemedView type="backgroundElement" style={styles.rowInner}>
+              <ThemedView
+                type="backgroundElement"
+                style={[styles.rowInner, item.requiresAuth && styles.rowInnerAuthRequired]}>
                 <ThemedText style={styles.emoji}>{item.emoji}</ThemedText>
                 <View style={styles.rowText}>
                   <ThemedText type="smallBold">{item.label}</ThemedText>
@@ -83,6 +91,10 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     padding: Spacing.four,
     borderRadius: Spacing.four,
+  },
+  rowInnerAuthRequired: {
+    borderWidth: 2,
+    borderColor: AUTH_REQUIRED_COLOR,
   },
   emoji: {
     fontSize: 32,

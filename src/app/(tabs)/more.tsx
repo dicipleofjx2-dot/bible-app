@@ -20,8 +20,6 @@ const AUTH_REQUIRED_COLOR = '#f59f00';
 
 const MORE_ITEMS: MoreItem[] = [
   { emoji: '👥', label: '커뮤니티', description: '성도들과 나누는 소식과 글', href: '/community', requiresAuth: true },
-  { emoji: '📕', label: '데이빗북스', description: '전자책 서재', href: '/library' },
-  { emoji: '📆', label: '성경통독도우미', description: '365일 통독 + 퀴즈 + 암송', href: '/reading-helper', requiresAuth: true },
   { emoji: '💌', label: '목자의 편지', description: '담임목사님의 편지', href: '/shepherd-letters' },
   { emoji: '📢', label: '알림마당', description: '교회 소식 게시판', href: '/notice-board' },
   { emoji: '💝', label: '후원', description: '정기후원·쿠팡파트너스·후원계좌', href: '/support' },

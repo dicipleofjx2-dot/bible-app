@@ -87,7 +87,7 @@ export default function RootLayout() {
                     name="privacy-policy"
                     options={{ headerShown: true, title: '개인정보처리방침' }}
                   />
-                  <Stack.Screen name="meditation" options={{ headerShown: true, title: '말씀묵상' }} />
+                  <Stack.Screen name="meditation" options={{ headerShown: true, title: '오늘의 말씀' }} />
                   <Stack.Screen name="word-notes" options={{ headerShown: true, title: 'Q.T묵상' }} />
                   <Stack.Screen name="notes" options={{ headerShown: true, title: '구절묵상' }} />
                   <Stack.Screen name="community" options={{ headerShown: true, title: '커뮤니티' }} />

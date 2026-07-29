@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -9,7 +9,6 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { isSupabaseConfigured } from '@/lib/supabase';
 import {
   getBooks,
   getChapterCount,
@@ -29,7 +28,6 @@ import {
   HIGHLIGHT_COLORS,
   type VerseMark,
 } from '@/db/userData';
-import { getPlanDaysForChapter, setDayComplete, type PlanDayMatch } from '@/db/plans';
 import { pingCheckin } from '@/db/r2m';
 import { markReadToday } from '@/lib/readingActivity';
 
@@ -52,7 +50,6 @@ export default function ReadScreen() {
   const [fontSize, setFontSize] = useState(18);
   const [marks, setMarks] = useState<VerseMark[]>([]);
   const [activeVerse, setActiveVerse] = useState<Verse | null>(null);
-  const [planMatches, setPlanMatches] = useState<PlanDayMatch[]>([]);
 
   async function refreshMarks() {
     if (bookId == null) return;
@@ -90,25 +87,6 @@ export default function ReadScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [db, bookId, chapter, translation]);
 
-  // If this chapter is a day in a reading plan, mark that day complete —
-  // reading the chapter is what should count as "done", not a separate tap.
-  useEffect(() => {
-    if (bookId == null || !isSupabaseConfigured) {
-      setPlanMatches([]);
-      return;
-    }
-    getPlanDaysForChapter(bookId, chapter)
-      .then((matches) => {
-        setPlanMatches(matches);
-        if (session) {
-          for (const m of matches) {
-            setDayComplete(m.planId, m.dayNumber, session.user.id).catch(() => {});
-          }
-        }
-      })
-      .catch(() => setPlanMatches([]));
-  }, [bookId, chapter, session]);
-
   // R2M "성경읽기" 오늘의 훈련 항목 — 챕터를 열면 자동으로 완료 처리 (별도 체크박스 없음).
   useEffect(() => {
     if (bookId == null) return;
@@ -143,11 +121,6 @@ export default function ReadScreen() {
           </Pressable>
 
           <View style={styles.toolbarRight}>
-            <Pressable
-              onPress={() => router.push('/plans')}
-              style={[styles.planButton, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="small">📅 읽기계획</ThemedText>
-            </Pressable>
             {TRANSLATIONS.map((t) => (
               <Pressable
                 key={t.code}
@@ -174,18 +147,6 @@ export default function ReadScreen() {
             </Pressable>
           </View>
         </View>
-
-        {planMatches.length > 0 && (
-          <View style={styles.planBanner}>
-            {planMatches.map((m) => (
-              <ThemedText key={m.planId} type="small" themeColor="textSecondary">
-                {session
-                  ? `✓ '${m.planTitle}' ${m.dayNumber}일차 완료로 표시됨`
-                  : `'${m.planTitle}' ${m.dayNumber}일차예요 · 로그인하면 진행 상황이 저장돼요`}
-              </ThemedText>
-            ))}
-          </View>
-        )}
 
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -317,17 +278,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     borderRadius: Spacing.three,
-  },
-  planButton: {
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.three,
-  },
-  planBanner: {
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.two,
   },
   translationChip: {
     paddingHorizontal: Spacing.two,

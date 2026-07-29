@@ -23,6 +23,7 @@ const GROWTH_ITEMS: GrowthItem[] = [
   { emoji: '📊', label: '우선순위', description: '오늘 우선해야 할 일 정리', href: '/priorities' },
   { emoji: '🪙', label: '천국재정', description: '재정을 하나님 나라 관점으로', href: '/kingdom-finance' },
   { emoji: '🙏', label: '샬롬기도단', description: '함께 기도제목을 나누는 공간', href: '/prayer-group', requiresAuth: true },
+  { emoji: '📕', label: '데이빗북스', description: '전자책 서재', href: '/library' },
 ];
 
 export default function GrowthHubScreen() {
