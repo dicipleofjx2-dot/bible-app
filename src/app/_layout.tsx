@@ -56,8 +56,6 @@ export default function RootLayout() {
                   />
                   <Stack.Screen name="post/[id]" options={{ headerShown: true, title: '게시글' }} />
                   <Stack.Screen name="profile" options={{ headerShown: true, title: '마이페이지' }} />
-                  <Stack.Screen name="rooms" options={{ headerShown: true, title: '읽기방' }} />
-                  <Stack.Screen name="rooms/[id]" options={{ headerShown: true, title: '읽기방' }} />
                   <Stack.Screen name="calendar" options={{ headerShown: true, title: '달력' }} />
                   <Stack.Screen
                     name="bible-study"
@@ -88,6 +86,61 @@ export default function RootLayout() {
                   <Stack.Screen
                     name="privacy-policy"
                     options={{ headerShown: true, title: '개인정보처리방침' }}
+                  />
+                  <Stack.Screen name="meditation" options={{ headerShown: true, title: '말씀묵상' }} />
+                  <Stack.Screen name="word-notes" options={{ headerShown: true, title: 'Q.T묵상' }} />
+                  <Stack.Screen name="notes" options={{ headerShown: true, title: '구절묵상' }} />
+                  <Stack.Screen name="community" options={{ headerShown: true, title: '커뮤니티' }} />
+                  <Stack.Screen name="read" options={{ headerShown: true, title: '성경읽기' }} />
+                  <Stack.Screen
+                    name="shepherd-letters"
+                    options={{ headerShown: true, title: '목자의 편지' }}
+                  />
+                  <Stack.Screen
+                    name="shepherd-letters/[id]"
+                    options={{ headerShown: true, title: '목자의 편지' }}
+                  />
+                  <Stack.Screen
+                    name="shepherd-letters/admin"
+                    options={{ headerShown: true, title: '목자의 편지 관리' }}
+                  />
+                  <Stack.Screen name="notice-board" options={{ headerShown: true, title: '알림마당' }} />
+                  <Stack.Screen
+                    name="notice-board/[id]"
+                    options={{ headerShown: true, title: '알림마당' }}
+                  />
+                  <Stack.Screen
+                    name="notice-board/admin"
+                    options={{ headerShown: true, title: '알림마당 관리' }}
+                  />
+                  <Stack.Screen name="support" options={{ headerShown: true, title: '후원' }} />
+                  <Stack.Screen
+                    name="support/admin"
+                    options={{ headerShown: true, title: '후원정보 관리' }}
+                  />
+                  <Stack.Screen
+                    name="r2m/courses"
+                    options={{ headerShown: true, title: '훈련과정' }}
+                  />
+                  <Stack.Screen
+                    name="r2m/courses/[id]"
+                    options={{ headerShown: true, title: '훈련과정' }}
+                  />
+                  <Stack.Screen
+                    name="r2m/courses/admin"
+                    options={{ headerShown: true, title: 'R2M 훈련과정 관리' }}
+                  />
+                  <Stack.Screen
+                    name="r2m/gratitude"
+                    options={{ headerShown: true, title: '감사노트' }}
+                  />
+                  <Stack.Screen
+                    name="r2m/progress"
+                    options={{ headerShown: true, title: '성장기록' }}
+                  />
+                  <Stack.Screen
+                    name="r2m/leaders"
+                    options={{ headerShown: true, title: '리더관리' }}
                   />
                 </Stack>
               </AuthProvider>

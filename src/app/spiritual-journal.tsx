@@ -8,6 +8,8 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useAuth } from '@/lib/auth';
+import { pingCheckin } from '@/db/r2m';
 import {
   deleteDiaryEntry,
   getAllDiaryEntries,
@@ -61,6 +63,7 @@ function ColorDots({
 
 export default function SpiritualJournalScreen() {
   const theme = useTheme();
+  const { session } = useAuth();
   const params = useLocalSearchParams<{ date?: string }>();
   const [date, setDate] = useState(params.date ?? todayDateString());
 
@@ -86,6 +89,10 @@ export default function SpiritualJournalScreen() {
     await upsertDiaryEntry({ date, content, color });
     setSaved(true);
     getAllDiaryEntries().then(setHistory);
+    // R2M "순종" 오늘의 훈련 항목 — 오늘 날짜의 순종노트를 저장했을 때만 완료로 표시.
+    if (session && date === todayDateString() && content.trim()) {
+      pingCheckin(session.user.id, date, { obedience: true }).catch(() => {});
+    }
   }
 
   async function removeEntry(id: number) {

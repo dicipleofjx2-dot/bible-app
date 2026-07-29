@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -6,16 +5,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { MaxContentWidth, Skins, Spacing, type SkinId } from '@/constants/theme';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { useSkin } from '@/lib/skin';
 import { getIsAdmin, getProfile, updateUsername } from '@/db/profile';
 import { AuthForm } from '@/features/auth/AuthForm';
 
 export default function ProfileScreen() {
   const theme = useTheme();
-  const { skinId, setSkinId } = useSkin();
   const { session, signOut } = useAuth();
   const [username, setUsername] = useState('');
   const [saving, setSaving] = useState(false);
@@ -51,39 +48,6 @@ export default function ProfileScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
-        <View style={styles.section}>
-          <ThemedText type="small" themeColor="textSecondary">
-            스킨
-          </ThemedText>
-          <View style={styles.skinRow}>
-            {(Object.keys(Skins) as SkinId[]).map((id) => {
-              const skin = Skins[id];
-              const selected = id === skinId;
-              return (
-                <Pressable key={id} onPress={() => setSkinId(id)} style={styles.skinItem}>
-                  <LinearGradient
-                    colors={skin.gradient.light}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={[
-                      styles.skinSwatch,
-                      selected && [styles.skinSwatchSelected, { borderColor: theme.text }],
-                    ]}>
-                    {selected && (
-                      <ThemedText type="smallBold" style={styles.skinCheck}>
-                        ✓
-                      </ThemedText>
-                    )}
-                  </LinearGradient>
-                  <ThemedText type="small" themeColor={selected ? 'text' : 'textSecondary'}>
-                    {skin.label}
-                  </ThemedText>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-
         {session && (
           <>
             <View style={styles.section}>
@@ -119,11 +83,33 @@ export default function ProfileScreen() {
             </View>
 
             {isAdmin && (
-              <Pressable
-                onPress={() => router.push('/library/admin')}
-                style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
-                <ThemedText type="smallBold">📚 데이빗북스 관리</ThemedText>
-              </Pressable>
+              <View style={styles.adminLinkGroup}>
+                <Pressable
+                  onPress={() => router.push('/library/admin')}
+                  style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
+                  <ThemedText type="smallBold">📚 데이빗북스 관리</ThemedText>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push('/shepherd-letters/admin')}
+                  style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
+                  <ThemedText type="smallBold">✏️ 목자의 편지 관리</ThemedText>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push('/notice-board/admin')}
+                  style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
+                  <ThemedText type="smallBold">📢 알림마당 관리</ThemedText>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push('/support/admin')}
+                  style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
+                  <ThemedText type="smallBold">💝 후원정보 관리</ThemedText>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push('/r2m/courses/admin')}
+                  style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
+                  <ThemedText type="smallBold">🎯 R2M 훈련과정 관리</ThemedText>
+                </Pressable>
+              </View>
             )}
 
             <Pressable onPress={handleSignOut} style={styles.signOutButton}>
@@ -156,31 +142,6 @@ const styles = StyleSheet.create({
   section: {
     gap: Spacing.two,
   },
-  skinRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.three,
-  },
-  skinItem: {
-    alignItems: 'center',
-    gap: Spacing.one,
-    width: 84,
-  },
-  skinSwatch: {
-    width: 56,
-    height: 56,
-    borderRadius: Spacing.five,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  skinSwatchSelected: {
-    borderWidth: 3,
-  },
-  skinCheck: {
-    color: '#ffffff',
-  },
   input: {
     borderRadius: Spacing.three,
     paddingHorizontal: Spacing.three,
@@ -192,6 +153,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.two,
     borderRadius: Spacing.three,
+  },
+  adminLinkGroup: {
+    gap: Spacing.two,
   },
   adminLinkButton: {
     paddingHorizontal: Spacing.four,

@@ -98,6 +98,14 @@ function getUserDb() {
           memo TEXT,
           updated_at INTEGER NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS gratitude_entries (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          date TEXT NOT NULL UNIQUE,
+          item1 TEXT NOT NULL DEFAULT '',
+          item2 TEXT NOT NULL DEFAULT '',
+          item3 TEXT NOT NULL DEFAULT '',
+          updated_at INTEGER NOT NULL
+        );
       `);
       return db;
     });
@@ -161,7 +169,7 @@ export async function deleteMark(id: number): Promise<void> {
 
 // ── 말씀노트 (meditation notes) ────────────────────────────────────────────
 // Kept in their own table, deliberately separate from verse_marks/암송구절 —
-// see src/app/(tabs)/meditation.tsx, which writes here instead of upsertMark.
+// see src/app/meditation.tsx, which writes here instead of upsertMark.
 export type MeditationNote = {
   id: number;
   date: string;
@@ -456,4 +464,51 @@ export async function addFinanceEntry(entry: {
 export async function deleteFinanceEntry(id: number): Promise<void> {
   const db = await getUserDb();
   await db.runAsync(`DELETE FROM finance_entries WHERE id = ?`, [id]);
+}
+
+// ── 감사노트 (R2M 오늘의 훈련 — 감사) ────────────────────────────────────────
+export type GratitudeEntry = {
+  id: number;
+  date: string;
+  item1: string;
+  item2: string;
+  item3: string;
+  updated_at: number;
+};
+
+export async function getGratitudeEntry(date: string): Promise<GratitudeEntry | null> {
+  const db = await getUserDb();
+  return db.getFirstAsync<GratitudeEntry>(`SELECT * FROM gratitude_entries WHERE date = ?`, [date]);
+}
+
+export async function getAllGratitudeEntries(): Promise<GratitudeEntry[]> {
+  const db = await getUserDb();
+  return db.getAllAsync<GratitudeEntry>(`SELECT * FROM gratitude_entries ORDER BY date DESC`);
+}
+
+export async function upsertGratitudeEntry(entry: {
+  date: string;
+  item1: string;
+  item2: string;
+  item3: string;
+}): Promise<void> {
+  const db = await getUserDb();
+  const items = [entry.item1.trim(), entry.item2.trim(), entry.item3.trim()];
+  if (items.every((i) => !i)) {
+    await db.runAsync(`DELETE FROM gratitude_entries WHERE date = ?`, [entry.date]);
+    return;
+  }
+  await db.runAsync(
+    `
+    INSERT INTO gratitude_entries (date, item1, item2, item3, updated_at)
+    VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(date) DO UPDATE SET item1 = excluded.item1, item2 = excluded.item2, item3 = excluded.item3, updated_at = excluded.updated_at
+    `,
+    [entry.date, items[0], items[1], items[2], Date.now()]
+  );
+}
+
+export async function deleteGratitudeEntry(id: number): Promise<void> {
+  const db = await getUserDb();
+  await db.runAsync(`DELETE FROM gratitude_entries WHERE id = ?`, [id]);
 }

@@ -21,6 +21,7 @@ import {
   type PrayerComment,
   type PrayerRequest,
 } from '@/db/prayer';
+import { hasPrayerLogToday, logPrayer } from '@/db/r2m';
 
 export default function PrayerGroupScreen() {
   const theme = useTheme();
@@ -60,6 +61,8 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
   const [deleting, setDeleting] = useState(false);
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [commentPosting, setCommentPosting] = useState<Record<string, boolean>>({});
+  const [prayedToday, setPrayedToday] = useState(false);
+  const [logging, setLogging] = useState(false);
 
   const load = useCallback(async () => {
     let list: PrayerRequest[];
@@ -73,6 +76,9 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
     getIsAdmin(userId)
       .then(setIsAdmin)
       .catch(() => setIsAdmin(false));
+    hasPrayerLogToday(userId)
+      .then(setPrayedToday)
+      .catch(() => setPrayedToday(false));
     const entries = await Promise.all(
       list.map(async (r) => [r.id, await getPrayerComments(r.id).catch(() => [])] as const)
     );
@@ -84,6 +90,14 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
       load();
     }, [load])
   );
+
+  // R2M "기도" 오늘의 훈련 항목 — 내용 없이 타임스탬프만 남기는 가벼운 기도 기록.
+  async function handleLogPrayer() {
+    setLogging(true);
+    const result = await logPrayer(userId);
+    setLogging(false);
+    if (!result.error) setPrayedToday(true);
+  }
 
   async function submitRequest() {
     if (!body.trim()) return;
@@ -147,7 +161,20 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <ThemedView style={styles.container}>
         <View style={styles.topSection}>
-          <ThemedText type="subtitle">🙏 샬롬기도단</ThemedText>
+          <View style={styles.headerRow}>
+            <ThemedText type="subtitle">🙏 샬롬기도단</ThemedText>
+            <Pressable
+              disabled={prayedToday || logging}
+              onPress={handleLogPrayer}
+              style={[
+                styles.prayedButton,
+                { backgroundColor: prayedToday ? theme.backgroundElement : theme.accent, opacity: logging ? 0.5 : 1 },
+              ]}>
+              <ThemedText type="small" style={prayedToday ? undefined : styles.prayedButtonText}>
+                {prayedToday ? '오늘 기도했어요 ✓' : '🙏 기도했어요'}
+              </ThemedText>
+            </Pressable>
+          </View>
 
           {errorMessage && (
             <View style={styles.errorBanner}>
@@ -336,6 +363,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingTop: Spacing.two,
     gap: Spacing.three,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  prayedButton: {
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one,
+    borderRadius: Spacing.three,
+  },
+  prayedButtonText: {
+    color: '#ffffff',
   },
   errorBanner: {
     backgroundColor: '#ffe3e3',

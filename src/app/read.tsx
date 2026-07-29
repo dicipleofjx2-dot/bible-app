@@ -30,7 +30,8 @@ import {
   type VerseMark,
 } from '@/db/userData';
 import { getPlanDaysForChapter, setDayComplete, type PlanDayMatch } from '@/db/plans';
-import { getRoomsForPlan, postRoomActivity } from '@/db/rooms';
+import { pingCheckin } from '@/db/r2m';
+import { markReadToday } from '@/lib/readingActivity';
 
 const MIN_FONT_SIZE = 14;
 const MAX_FONT_SIZE = 28;
@@ -101,18 +102,22 @@ export default function ReadScreen() {
         setPlanMatches(matches);
         if (session) {
           for (const m of matches) {
-            setDayComplete(m.planId, m.dayNumber, session.user.id)
-              .then(() => getRoomsForPlan(session.user.id, m.planId))
-              .then((rooms) => {
-                for (const room of rooms) {
-                  postRoomActivity(room.id, session.user.id, m.dayNumber, bookId, chapter).catch(() => {});
-                }
-              })
-              .catch(() => {});
+            setDayComplete(m.planId, m.dayNumber, session.user.id).catch(() => {});
           }
         }
       })
       .catch(() => setPlanMatches([]));
+  }, [bookId, chapter, session]);
+
+  // R2M "성경읽기" 오늘의 훈련 항목 — 챕터를 열면 자동으로 완료 처리 (별도 체크박스 없음).
+  useEffect(() => {
+    if (bookId == null) return;
+    markReadToday();
+    if (session) {
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      pingCheckin(session.user.id, dateStr, { reading: true }).catch(() => {});
+    }
   }, [bookId, chapter, session]);
 
   const currentBook = books.find((b) => b.id === bookId);
@@ -267,6 +272,12 @@ export default function ReadScreen() {
           });
           await refreshMarks();
           setActiveVerse(null);
+          // R2M "묵상" 오늘의 훈련 항목 — 구절 하이라이트/노트를 남기면 완료로 표시.
+          if (session) {
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            pingCheckin(session.user.id, dateStr, { meditation: true }).catch(() => {});
+          }
         }}
         onDelete={async () => {
           const existing = marks.find((m) => m.verse === activeVerse?.verse);

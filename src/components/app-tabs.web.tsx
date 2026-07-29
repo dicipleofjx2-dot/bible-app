@@ -8,41 +8,35 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
+import { BookOpen, House, MoreHorizontal, Sprout, Target, type LucideIcon } from 'lucide-react-native';
 import { Pressable, View, ScrollView, StyleSheet } from 'react-native';
 
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { useGradient } from '@/hooks/use-theme';
+import { useGradient, useTheme } from '@/hooks/use-theme';
 import { getTodayLabelKST } from '@/lib/hebrew-date';
+import type { Href } from 'expo-router';
+
+const TAB_ITEMS: { name: string; href: Href; label: string; Icon: LucideIcon }[] = [
+  { name: 'home', href: '/', label: '홈', Icon: House },
+  { name: 'word', href: '/word', label: '말씀', Icon: BookOpen },
+  { name: 'bible-reading', href: '/bible-reading', label: 'R2M', Icon: Target },
+  { name: 'growth', href: '/growth', label: '성장', Icon: Sprout },
+  { name: 'more', href: '/more', label: '더보기', Icon: MoreHorizontal },
+];
 
 export default function AppTabs() {
   return (
     <Tabs style={styles.tabs}>
       <TabList asChild>
         <CustomTabList>
-          <TabTrigger name="home" href="/" asChild>
-            <TabButton>홈</TabButton>
-          </TabTrigger>
-          <TabTrigger name="meditation" href="/meditation" asChild>
-            <TabButton>말씀묵상</TabButton>
-          </TabTrigger>
-          <TabTrigger name="word-notes" href="/word-notes" asChild>
-            <TabButton>말씀노트</TabButton>
-          </TabTrigger>
-          <TabTrigger name="read" href="/read" asChild>
-            <TabButton>읽기</TabButton>
-          </TabTrigger>
-          <TabTrigger name="bible-reading" href="/bible-reading" asChild>
-            <TabButton>성경통독</TabButton>
-          </TabTrigger>
-          <TabTrigger name="notes" href="/notes" asChild>
-            <TabButton>암송구절</TabButton>
-          </TabTrigger>
-          <TabTrigger name="community" href="/community" asChild>
-            <TabButton>커뮤니티</TabButton>
-          </TabTrigger>
+          {TAB_ITEMS.map((item) => (
+            <TabTrigger key={item.name} name={item.name} href={item.href} asChild>
+              <TabButton icon={item.Icon}>{item.label}</TabButton>
+            </TabTrigger>
+          ))}
         </CustomTabList>
       </TabList>
       <TabSlot style={styles.tabSlot} />
@@ -50,8 +44,11 @@ export default function AppTabs() {
   );
 }
 
-export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
+type TabButtonProps = TabTriggerSlotProps & { icon: LucideIcon };
+
+export function TabButton({ children, icon: Icon, isFocused, ...props }: TabButtonProps) {
   const gradient = useGradient();
+  const theme = useTheme();
 
   if (isFocused) {
     return (
@@ -61,6 +58,7 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.tabButtonView}>
+          <Icon size={18} color="#ffffff" strokeWidth={1.75} />
           <ThemedText type="small" style={styles.tabButtonTextFocused}>
             {children}
           </ThemedText>
@@ -72,6 +70,7 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
   return (
     <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
       <ThemedView type="backgroundElement" style={styles.tabButtonView}>
+        <Icon size={18} color={theme.textSecondary} strokeWidth={1.75} />
         <ThemedText type="small" themeColor="textSecondary">
           {children}
         </ThemedText>
@@ -81,7 +80,7 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
 }
 
 export function CustomTabList(props: TabListProps) {
-  // 홈 화면은 자체 타이틀/달력 위젯을 가지므로 이 상단 툴바 전체를 숨긴다.
+  // 홈 화면은 자체 타이틀/히어로 카드를 가지므로 이 상단 툴바 전체를 숨긴다.
   // TabTrigger들은 라우트 등록을 위해 언마운트하지 않고 display:none으로만 숨김.
   const isHome = usePathname() === '/';
 
@@ -170,6 +169,9 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   tabButtonView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one,
     paddingVertical: Spacing.one,
     paddingHorizontal: Spacing.three,
     borderRadius: Spacing.three,
