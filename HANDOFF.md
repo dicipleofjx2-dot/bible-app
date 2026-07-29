@@ -1,6 +1,6 @@
 # BibleApp — Handoff / Status Reference
 
-Last updated: 2026-07-25. Everything through `1b8505e` is **committed and
+Last updated: 2026-07-29. Everything through `1c91ae0` is **committed and
 pushed to origin/main**; Vercel auto-deploys on push, so the web app is
 live and current. Native (Android APK via EAS) is a separate story — see
 "⚠️ EAS build quota" below before offering to build one.
@@ -36,7 +36,195 @@ use `<Redirect>` instead**, and after any change to `_layout.tsx`
 specifically, load the site fresh (not just click-test) to make sure it
 still boots at all before considering the change done.
 
-## This session (2026-07-25) — summary
+## This session (2026-07-29) — summary
+New feature area: a native "데이빗북스" e-book library bolted onto
+BibleApp (reusing its existing Supabase project rather than a separate
+one — see the "why" below), plus reviving the 말씀카드 editor that got
+dropped when bible-quiz-app was merged into 성경통독도우미. Committed
+and pushed as `1c91ae0`.
+
+**Why 데이빗북스 lives here instead of its own app**: it started as a
+separate project (`personal-library-app`, React+Vite web app) with its
+own plan to get a Supabase project. That project creation hit Supabase's
+free-tier limit (2 projects per **account**, not per organization — new
+orgs don't help). Rather than pay for Pro or free up a slot, the user
+decided to fold the whole feature into 데이빗바이블 and reuse its
+already-connected Supabase project (`bhqbrkeoiyhnmdgvofvy.supabase.co`).
+`personal-library-app` is now abandoned.
+
+1. **`books`/`purchases`/`subscriptions` tables** —
+   `supabase/migrations/0021_personal_library.sql`. Deliberately does
+   **not** add a new `profiles` column for admin status; reuses the
+   `profiles.is_admin` boolean that already existed (0019). RLS lets a
+   user insert/update only their own `pending` purchase — never `paid`
+   directly (that's meant for a real payment-verification server, not
+   built yet — no PortOne account/keys). A commented-out "DEV ONLY"
+   policy exists in the migration for locally testing the purchase flow
+   before real payment is wired up.
+2. **Screens**: home tile "📕 데이빗북스" → `src/app/library.tsx` (grid,
+   locked/unlocked badges) → `src/app/library/[id].tsx` (detail, buy/
+   subscribe buttons, table of contents) → `src/app/library/[id]/read.tsx`
+   (reader — paragraph text with font-size control for text-based books,
+   or a file viewer for uploaded EPUB/PDF books; free-tier books and the
+   first ~15 paragraphs of paid books are always readable, the rest is
+   gated by `hasBookAccess()` in `src/db/library.ts`).
+3. **Admin CMS** (`src/app/library/admin.tsx`, linked from 마이페이지 as
+   "📚 데이빗북스 관리" when `profiles.is_admin`): register a book via
+   form or bulk JSON paste, upload a cover image (`expo-image-picker` →
+   `book-covers` Storage bucket, `0023_book_covers_bucket.sql`), or
+   upload the actual book file (`expo-document-picker` → `book-files`
+   bucket, `0024_book_files_bucket.sql`, format auto-detected from the
+   file extension).
+4. **PDF viewing bug (black screen) — root-caused and fixed twice**.
+   First attempt: the reader's `flex: 1` chain collapsed to 0 height on
+   web (confirmed via `getBoundingClientRect()` showing a literal 0×0
+   iframe) — Native's Yoga layout always resolves `flex: 1` to a real
+   size regardless of ambiguous ancestors, but web's CSS flexbox doesn't
+   guarantee that, so a real user still saw a black screen after that fix
+   (verified `Content-Type`/CORS on the Supabase Storage response were
+   fine — not a server issue). **Root cause was actually that neither
+   `<iframe src="...pdf">` (web) nor `react-native-webview` (native)
+   reliably renders PDFs — Android WebView in particular often has no
+   built-in PDF renderer at all.** Fixed by wrapping the file URL with
+   Google's viewer (`https://docs.google.com/gview?embedded=true&url=...`,
+   `src/components/pdfViewerUrl.ts`) so the PDF renders as a normal
+   webpage instead of relying on a local PDF plugin — confirmed by the
+   user directly ("아주 훌륭하게 읽힌다"). EPUB files don't have an in-app
+   renderer yet — they open via `Linking.openURL` instead.
+5. **말씀카드 revived** — the style editor (drag position, font size,
+   text color, bold/italic, gradient templates) that existed in the now-
+   retired `bible-quiz-app` repo (`app/word-card.tsx`, commit `4595098`)
+   never made it into 성경통독도우미 during the merge. Ported into
+   `src/app/reading-helper/word-card.tsx`, entry point added to
+   `reading-helper/index.tsx` ("💌 말씀카드 만들기"). Adaptations from the
+   original: the old AsyncStorage-based "quiz score ≥ 90 + daily card
+   limit" gating has no equivalent in 성경통독도우미's Supabase-backed
+   progress tracking, so that gate was dropped (available to anyone who's
+   started the reading plan); theme API calls swapped for
+   `useTheme()`/`ThemedText`/`ThemedView`. Three follow-up improvements
+   in the same session: (a) dragging was jerky because every pixel of
+   movement called `setState` and re-rendered the whole screen — switched
+   to `Animated.ValueXY` + imperative `pan.setValue()`, no per-frame
+   re-render; (b) a custom photo (via `expo-image-picker`) can now be used
+   as the card background instead of only the 4 gradient templates; (c) an
+   optional "새부대교회 데이빗바이블" watermark toggle, bottom-center,
+   semi-transparent pill background so it stays legible over any
+   background.
+6. **New dependencies**: `expo-image-picker`, `expo-document-picker`,
+   `react-native-webview`, `react-native-view-shot`, `expo-sharing` (the
+   last one auto-added its config plugin to `app.json`).
+
+Scope intentionally left out (told to the user explicitly, not a
+surprise): real payment (no PortOne account yet — purchases stay
+`pending` until a verification server exists), and DOM-Selection-based
+highlight/notes/memo features from the original `personal-library-app`
+web prototype — React Native has no Selection/Range API, so that needs a
+different interaction model (e.g. long-press) if it's wanted, not a
+straight port.
+
+## This session (2026-07-26) — summary
+Follow-on session, mostly UI/feature work with no architectural surprises.
+Home tile relabeling twice (매일Q.T was already done before this session;
+this session did 말씀노트→Q.T묵상, 암송구절→구절묵상), admin powers for
+성경통독방 (enter + delete any room), a new 마이페이지 (My Page) with
+login/signup + auth-gating for 3 screens, a 순종일기 rename (was 영성일기),
+a full 말씀카드 (verse card) feature with Supabase-hosted random background
+images and web-only KakaoTalk sharing, and an intro-screen caption crediting
+the background photo.
+
+1. **Admin room powers**: `profiles.is_admin` admins can now (a) **delete**
+   any 성경통독방 via a new RLS policy
+   (`supabase/migrations/0019_admin_can_delete_rooms.sql`) + a UI condition
+   change in `rooms/[id].tsx` (`{(isOwner || isAdmin) && (...)}`), and (b)
+   **enter** any room directly from the room-browse list in
+   `bible-reading.tsx` without needing a join code (`canEnterDirectly =
+   alreadyMember || isAdmin`).
+2. **마이페이지 (`profile.tsx`)** — new 홈 grid tile (👤, last slot of row 3),
+   houses login/signup (`<AuthForm />` when logged out) and, when logged
+   in, email display + editable nickname + a **"💌 말씀카드 만들기"** entry
+   point (added mid-session, see #4) + sign-out.
+3. **Hard auth-gate for 성경통독/커뮤니티/샬롬기도단**: previously these
+   screens rendered an inline `<AuthForm />` when logged out; now they
+   `return <Redirect href="/profile" />` instead — you can't enter them at
+   all while logged out, only reach the login form via 마이페이지. Same
+   pattern applied in all three files, `AuthForm` import removed from each.
+   The 홈 grid tile press handler also short-circuits early:
+   `router.push(item.requiresAuth && !session ? '/profile' : item.href)`.
+4. **말씀카드 (verse card) feature** — build a shareable "verse card" image
+   from either a saved 암송구절 or freely-typed text, over a random
+   background photo, share to KakaoTalk (web only).
+   - `src/db/verseCards.ts`: `getRandomCardBackgroundUrl()` lists the
+     Supabase Storage bucket `verse-card-backgrounds` and returns a random
+     file's public URL. Bucket created via
+     `supabase/migrations/0020_verse_card_backgrounds_bucket.sql` (public
+     bucket + a `select` policy on `storage.objects`); 20 compressed photos
+     uploaded by the user from `C:\Users\dicip\Documents\이미지폴더`
+     (originals) via `C:\Users\dicip\Documents\말씀카드-업로드용\card-01.jpg`
+     … `card-20.jpg` (~5.1MB total, compressed with PowerShell +
+     `System.Drawing`). **Deliberately not bundled into the app** — the
+     user rejected that approach specifically because of app-size growth;
+     always re-lists the bucket rather than assuming a fixed file count, so
+     new photos can be added/removed from the Supabase dashboard with no
+     app update.
+   - `src/lib/kakaoShare.ts`: web-only Kakao JS SDK loader +
+     `shareVerseCard()`. `isKakaoShareAvailable = Platform.OS === 'web' &&
+     !!process.env.EXPO_PUBLIC_KAKAO_JS_KEY`. **Native KakaoTalk share is
+     NOT implemented** — would need the native Kakao SDK, a key hash
+     registration, and a rebuild; native users just see it disabled with an
+     explanatory string.
+   - `src/app/verse-card.tsx`: mode toggle 'saved' (pick from your own
+     저장된 암송구절, enriched with book name + verse text the same way
+     `notes.tsx` does) vs 'custom' (free-text reference + body); live card
+     preview (background image + dark scrim + overlaid text, 4:5 aspect,
+     max width 360); "🔄 이미지 변경" re-rolls the background; share button
+     disabled with explanatory copy when Kakao isn't available.
+   - **Entry point moved mid-session**: originally added as its own 홈 grid
+     tile (💌, requiresAuth); the user asked for it to live **inside
+     마이페이지 instead** — the 홈 tile was removed, and a "💌 말씀카드
+     만들기" `Pressable` was added to `profile.tsx`'s logged-in section
+     (same `{session && (...)}` block as email/nickname/sign-out). The
+     route (`/verse-card`) and its own `!session` guard in the screen
+     itself are unchanged — still reachable by direct URL, still redirects
+     to a "로그인해주세요" message if hit while logged out.
+   - **Kakao Developer app**: a new app named "데이빗바이블" was created at
+     developers.kakao.com (app ID `1524349`). Its **JavaScript key**
+     (`앱 설정 → 플랫폼 키 → JavaScript 키`) is what `EXPO_PUBLIC_KAKAO_JS_KEY`
+     needs — currently set in **both** the local `.env` (gitignored, not in
+     git) **and** Vercel's Production environment variables (Project →
+     Settings → Environments → Production → Environment Variables — this
+     is where Vercel's redesigned console keeps them now, NOT a separate
+     top-level "Environment Variables" nav item). 앱 대표 도메인 and the
+     Web platform's 사이트 도메인 were both set to
+     `https://dicipleofjx-bible.vercel.app`. **Adding/changing a Vercel env
+     var does not retroactively apply to already-built deployments** — you
+     must explicitly re-trigger a **Production** deploy afterward (the
+     Deployments list has separate Production vs Preview entries per
+     commit; redeploying from the "..." menu on the wrong one silently
+     produces a Preview build on a `*.vercel.app` preview subdomain, not
+     the real production domain — this tripped us up once this session,
+     caught by checking the "Environment" field on the deployment detail
+     page).
+5. **순종일기 rename** (was 영성일기) — label change only, no route/table
+   rename: `spiritual-journal.tsx` header text + `privacy-policy.tsx` prose
+   mention. The route file and `diary_entries` table are still named/spelled
+   the old way; only user-facing text changed.
+6. **Home tile relabeling**: 말씀노트→**Q.T묵상**, 암송구절→**구절묵상**
+   (매일Q.T was already renamed in a slightly earlier commit this session,
+   from 말씀묵상). Labels only — hrefs (`/word-notes`, `/notes`) and screen
+   internals untouched. Worth noting there are now two "Q.T"-labeled tiles
+   (매일Q.T → `/meditation`, Q.T묵상 → `/word-notes`) since that's what was
+   asked for — flag to the user if this reads as confusing in practice.
+7. **Intro caption**: `intro.tsx` now shows a small caption below the
+   "시작하기" button crediting the background photo — "모라비안 선교사
+   죠셉스미스가 제네덴달에서 선교하던 때에 마을 사람들에게 성경말씀에
+   순종하도록 가르친 장소였던 배나무(PeerTree)입니다." White
+   85%-opacity text with a dark text-shadow for legibility over the photo;
+   the button + caption were regrouped into one `bottomGroup` wrapper
+   `View` (positioned `top: height * 0.58`) instead of the button having
+   its own separate absolute position, so the caption sits directly below
+   it with a small `marginTop` gap.
+
+## Previous session (2026-07-25) — summary
 Long session covering: a new 성경연구 hub + 성경지도 (OpenBible.info
 integration), a full app rebrand (name/icon/splash from a user-supplied
 photo), a brand-new full-screen intro/welcome screen, a real native
@@ -110,6 +298,10 @@ local SQLite file shipped with the app (via `expo-sqlite`), built by
 - Supabase JS client (`src/lib/supabase.ts`), env vars
   `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY` in `.env`
   (also configured in EAS's "preview" environment for cloud builds)
+- `EXPO_PUBLIC_KAKAO_JS_KEY` (this session) — web-only KakaoTalk share for
+  말씀카드. In local `.env` (gitignored — never committed) **and** Vercel's
+  Production environment variables (see summary #4 above for exactly where
+  Vercel hides that page now, and the Production-vs-Preview redeploy gotcha).
 - Local Bible text/commentary/QT data via `expo-sqlite` (bundled `.db` file,
   see `src/db/bible.ts`, `src/db/commentary.ts`)
 - **IMPORTANT project-specific instruction (see `AGENTS.md`/`CLAUDE.md`):
@@ -128,7 +320,19 @@ src/
                              #   user-supplied garden-bench photo, baked-in
                              #   title/subtitle/church name) + a live
                              #   "시작하기 →" button (NOT a tap-zone over
-                             #   baked pixels) that does router.replace('/').
+                             #   baked pixels) that does router.replace('/'),
+                             #   plus (added this session) a small caption
+                             #   below the button crediting the photo —
+                             #   both live inside one `bottomGroup` wrapper
+                             #   View, see this session's summary above.
+    verse-card.tsx            # 말씀카드 — build+share a verse card image
+                             #   (saved 암송구절 or custom text, over a
+                             #   random Supabase-hosted background,
+                             #   KakaoTalk share on web). Reached from
+                             #   마이페이지's "💌 말씀카드 만들기", NOT its own
+                             #   홈 grid tile (moved this session). Own
+                             #   `!session` guard even though its only
+                             #   linked entry point already requires login.
     bible-study.tsx           # 성경연구 hub — 3-row list linking to
                              #   /search, /commentary, /bible-maps.
                              #   Reached from 홈's 🧭 tile.
@@ -143,7 +347,12 @@ src/
                              #   header + back button), reached only via
                              #   /bible-study, no longer separate tabs.
     (tabs)/                 # Bottom-tab screens
-      index.tsx             # 홈 — 4x3(ish) emoji menu grid (app launcher)
+      index.tsx             # 홈 — 4x3 emoji menu grid (app launcher), 12
+                             #   tiles ending in 👤마이페이지. Tile press:
+                             #   `router.push(item.requiresAuth && !session
+                             #   ? '/profile' : item.href)`. 💌말씀카드 is
+                             #   NOT a tile here (moved into 마이페이지 this
+                             #   session, see summary #4).
       meditation.tsx        # 말씀묵상 — QT passage + note-taking + "오늘의 성경통독"
       word-notes.tsx        # 말씀노트 — all-notes list. Real tab on web;
                              #   dropped from the NATIVE tab bar this
@@ -158,22 +367,37 @@ src/
                              #   (검색/주석 removed this session — see summary)
     plans/[slug].tsx        # single reading-plan detail (chapter grid, progress)
     plans.tsx               # read-only plans list
-    rooms.tsx / rooms/[id].tsx  # reading rooms (성경통독방)
+    rooms.tsx / rooms/[id].tsx  # reading rooms (성경통독방) — admins can now
+                             #   delete any room and enter any room directly
+                             #   (this session, see summary #1)
     post/[id].tsx            # single community post + comments
-    profile.tsx              # user profile / skin picker
+    profile.tsx              # 마이페이지 — skin picker (always visible) +,
+                             #   when logged in, email/nickname editor,
+                             #   "💌 말씀카드 만들기" link, sign-out; when
+                             #   logged out, `<AuthForm />` inline (this is
+                             #   the ONLY screen that still shows the inline
+                             #   login form — 성경통독/커뮤니티/샬롬기도단
+                             #   hard-redirect here instead, see summary #3)
     spiritual-journal.tsx / priorities.tsx / kingdom-finance.tsx
-                             # 영성일기/우선순위/천국재정 — local-SQLite-only,
-                             #   each has its own embedded InlineCalendar
-    prayer-group.tsx         # 샬롬기도단 — login-gated prayer-request feed
+                             # 순종일기(was 영성일기, renamed this session)/
+                             #   우선순위/천국재정 — local-SQLite-only, each
+                             #   has its own embedded InlineCalendar
+    prayer-group.tsx         # 샬롬기도단 — hard-gated (Redirect to /profile
+                             #   if logged out, this session — see summary #3)
     calendar.tsx             # 달력 — standalone info-only month-grid screen
   db/                       # All Supabase/SQLite data-access functions live here
     plans.ts / rooms.ts / community.ts / prayer.ts / bible.ts /
-    commentary.ts / profile.ts / userData.ts
+    commentary.ts / profile.ts / userData.ts /
+    verseCards.ts             # getRandomCardBackgroundUrl() — lists the
+                             #   verse-card-backgrounds Storage bucket and
+                             #   returns one random file's public URL (this
+                             #   session, see summary #4)
   features/                # Larger reusable UI pieces (AuthForm, BookChapterPicker, VerseActionSheet)
-    auth/AuthForm.tsx        # Now redirects to '/' on successful sign-in
-                             #   (this session — was previously left
-                             #   wherever the form was rendered from).
+    auth/AuthForm.tsx        # Redirects to '/' on successful sign-in
   lib/                      # supabase client, auth context, hebrew-date calc, skin/theme context
+    kakaoShare.ts             # Web-only Kakao JS SDK loader + shareVerseCard()
+                             #   (this session, see summary #4 for the full
+                             #   Kakao Developer app / env var setup)
   components/               # ThemedText/ThemedView/UI primitives
     inline-calendar.tsx      # `InlineCalendar` — reusable embedded month-grid
                              #   date picker, used by 영성일기/우선순위/천국재정
@@ -208,7 +432,10 @@ assets/
                              #   alpha-silhouette — a reasonable-effort
                              #   approximation, not spec-correct for
                              #   Android 13+ themed icons.
-supabase/migrations/        # 0001–0018, applied in order manually via Supabase SQL Editor
+supabase/migrations/        # 0001–0020, applied in order manually via Supabase SQL Editor
+                             #   (0019 = admin room-delete policy, 0020 =
+                             #   verse-card-backgrounds Storage bucket, both
+                             #   this session, both confirmed run)
 scripts/                    # build-bible-db.mjs + bible-source-data/*.json (source texts)
                              #   NOTE: ESV.bdb/NLT.bdb/개역개정.bdb/바른성경.bdb
                              #   are untracked on purpose (commercially-
@@ -244,9 +471,20 @@ screens for current behavior rather than trusting a re-paraphrase here.
     of linking to a 404. No in-app map rendering, no new native
     dependencies (deliberately avoided given the app already had one
     unresolved native-crash investigation in flight this session).
-17. **시작 화면 (`intro.tsx`)** — see the session summary and ⚠️ note above
-    for the full architecture + the failed attempts that preceded it.
-18. **데이빗바이블 rebrand** — see session summary above.
+17. **시작 화면 (`intro.tsx`)** — see the 2026-07-25 session summary and ⚠️
+    note above for the full architecture + the failed attempts that
+    preceded it; the photo-credit caption below the button was added
+    2026-07-26, see that session's summary #7.
+18. **데이빗바이블 rebrand** — see 2026-07-25 session summary above.
+19. **관리자 방 관리** — admins (`profiles.is_admin`) can delete any
+    성경통독방 and enter any room directly without a join code. See
+    2026-07-26 summary #1.
+20. **마이페이지 (`profile.tsx`)** + **hard auth-gate** for 성경통독/
+    커뮤니티/샬롬기도단 — see 2026-07-26 summary #2/#3.
+21. **말씀카드 (`verse-card.tsx`)** — build+share a verse card, reached from
+    마이페이지. See 2026-07-26 summary #4 for the full Supabase Storage +
+    Kakao Developer app setup.
+22. **순종일기 rename** (was 영성일기) — label only. See 2026-07-26 summary #5.
 
 ## Established workflow patterns (important — follow these)
 
@@ -393,3 +631,20 @@ tool, switch to one of the methods below instead of continuing to guess:**
   longer-standing known gaps (2028+ Korean holidays not in
   `korea-holidays.ts`, no admin granted yet in `profiles.is_admin`, etc.)
   — not touched this session, still accurate.
+- **말씀카드's native KakaoTalk share is not implemented** — web only
+  (`isKakaoShareAvailable` hard-checks `Platform.OS === 'web'`). If the user
+  wants sharing from the native app, that needs the native Kakao SDK, a key
+  hash registered with the Kakao app, and a rebuild — a separate task, not
+  a quick follow-up.
+- The Kakao Web platform's **사이트 도메인 registration page location wasn't
+  found this session** — we set 앱 대표 도메인 (일반 tab) and grabbed the
+  JavaScript key from 플랫폼 키, but never located a dedicated "Web 플랫폼
+  등록 / 사이트 도메인" field the way older Kakao docs describe (the 일반
+  page went straight from 앱 기본 정보 to 비즈니스 정보, no 플랫폼 section
+  in between). Sharing worked without it in this session's testing scope,
+  but if KakaoTalk share ever throws a domain-mismatch error in production,
+  that's the first thing to hunt down in Kakao's current (redesigned)
+  console.
+- Two home-grid tiles now both reference "Q.T" (매일Q.T → `/meditation`,
+  Q.T묵상 → `/word-notes`) per explicit user request this session — flag if
+  this causes real user confusion, but don't rename without asking first.
