@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router, usePathname } from 'expo-router';
+import { router } from 'expo-router';
 import {
   Tabs,
   TabList,
@@ -80,12 +80,8 @@ export function TabButton({ children, icon: Icon, isFocused, ...props }: TabButt
 }
 
 export function CustomTabList(props: TabListProps) {
-  // 홈 화면은 자체 타이틀/히어로 카드를 가지므로 이 상단 툴바 전체를 숨긴다.
-  // TabTrigger들은 라우트 등록을 위해 언마운트하지 않고 display:none으로만 숨김.
-  const isHome = usePathname() === '/';
-
   return (
-    <View {...props} style={[styles.tabListContainer, isHome && styles.hidden]}>
+    <View {...props} style={styles.tabListContainer}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
         <Pressable
           onPress={() => router.push('/calendar')}
@@ -125,9 +121,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-  },
-  hidden: {
-    display: 'none',
   },
   innerContainer: {
     paddingVertical: Spacing.two,

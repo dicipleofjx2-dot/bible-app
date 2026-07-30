@@ -113,6 +113,16 @@ function todayDateString(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+// 오늘 자정(로컬 타임존)을 UTC ISO 문자열로 반환한다. `${todayDateString()}T00:00:00.000Z`처럼
+// 로컬 날짜 숫자에 그대로 Z를 붙이면 KST(UTC+9) 등에서 자정~오전 9시 사이에 남긴 기록이
+// "어제"로 판정되는 버그가 생긴다 — Date 생성자로 실제 로컬 자정을 만들고 나서 변환해야 한다.
+function startOfTodayISO(): string {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).toISOString();
+}
+
+const READING_QUIZ_PASS_SCORE = 70;
+
 // 등록일 + 총 주차로 현재 주차를 파생한다 — 별도 컬럼 없음.
 function computeCurrentWeek(startedAt: string, totalWeeks: number): number {
   const days = Math.floor((Date.now() - new Date(startedAt).getTime()) / 86400000);
@@ -232,7 +242,7 @@ export async function getMyActiveEnrollment(userId: string): Promise<ActiveEnrol
 export async function pingCheckin(
   userId: string,
   date: string,
-  patch: Partial<Pick<DailyChecklist, 'qt' | 'reading' | 'meditation' | 'obedience' | 'gratitude'>>,
+  patch: Partial<Pick<DailyChecklist, 'qt' | 'meditation' | 'obedience' | 'gratitude'>>,
 ): Promise<void> {
   await supabase
     .from('r2m_daily_checkins')
@@ -245,38 +255,39 @@ export async function logPrayer(userId: string): Promise<{ error?: string }> {
 }
 
 export async function hasPrayerLogToday(userId: string): Promise<boolean> {
-  const start = `${todayDateString()}T00:00:00.000Z`;
   const { count, error } = await supabase
     .from('prayer_logs')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', userId)
-    .gte('created_at', start);
+    .gte('created_at', startOfTodayISO());
   if (error) return false;
   return (count ?? 0) > 0;
 }
 
 export async function getTodayChecklist(userId: string): Promise<DailyChecklist> {
   const date = todayDateString();
-  const [checkinResult, prayerLogged, memoResult] = await Promise.all([
+  const [checkinResult, prayerLogged, readingHelperResult] = await Promise.all([
     supabase.from('r2m_daily_checkins').select('*').eq('user_id', userId).eq('date', date).maybeSingle(),
     hasPrayerLogToday(userId),
     supabase
       .from('reading_helper_day_records')
-      .select('memorization_success')
+      .select('quiz_score, memorization_success')
       .eq('user_id', userId)
       .eq('date', date)
       .maybeSingle(),
   ]);
 
   const checkin = checkinResult.data as any;
+  const readingHelper = readingHelperResult.data as any;
   return {
     qt: !!checkin?.qt,
-    reading: !!checkin?.reading,
+    // 성경읽기 완료는 자유 읽기 여부가 아니라 성경통독도우미 퀴즈 점수로 판정한다.
+    reading: (readingHelper?.quiz_score ?? 0) >= READING_QUIZ_PASS_SCORE,
     meditation: !!checkin?.meditation,
     obedience: !!checkin?.obedience,
     gratitude: !!checkin?.gratitude,
     prayer: prayerLogged,
-    memorization: !!(memoResult.data as any)?.memorization_success,
+    memorization: !!readingHelper?.memorization_success,
   };
 }
 
@@ -295,7 +306,11 @@ export async function getProgressCounts(userId: string): Promise<ProgressCounts>
     getAllMarks(),
     getAllDiaryEntries(),
     getAllGratitudeEntries(),
-    supabase.from('r2m_daily_checkins').select('date', { count: 'exact', head: true }).eq('user_id', userId).eq('reading', true),
+    supabase
+      .from('reading_helper_day_records')
+      .select('date', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .gte('quiz_score', READING_QUIZ_PASS_SCORE),
     supabase.from('prayer_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId),
     supabase
       .from('reading_helper_day_records')
@@ -331,18 +346,23 @@ export async function getEnrolledUsersStatus(): Promise<EnrolledUserStatus[]> {
 
   const userIds = [...new Set(rows.map((r: any) => r.user_id))];
   const date = todayDateString();
-  const [checkinsResult, prayerResult, memoResult] = await Promise.all([
+  const [checkinsResult, prayerResult, readingHelperResult] = await Promise.all([
     supabase.from('r2m_daily_checkins').select('*').in('user_id', userIds).eq('date', date),
-    supabase.from('prayer_logs').select('user_id').in('user_id', userIds).gte('created_at', `${date}T00:00:00.000Z`),
-    supabase.from('reading_helper_day_records').select('user_id, memorization_success').in('user_id', userIds).eq('date', date),
+    supabase.from('prayer_logs').select('user_id').in('user_id', userIds).gte('created_at', startOfTodayISO()),
+    supabase
+      .from('reading_helper_day_records')
+      .select('user_id, quiz_score, memorization_success')
+      .in('user_id', userIds)
+      .eq('date', date),
   ]);
 
   const checkinByUser = new Map<string, any>((checkinsResult.data ?? []).map((r: any) => [r.user_id, r]));
   const prayedUsers = new Set((prayerResult.data ?? []).map((r: any) => r.user_id));
-  const memoByUser = new Map<string, boolean>((memoResult.data ?? []).map((r: any) => [r.user_id, !!r.memorization_success]));
+  const readingHelperByUser = new Map<string, any>((readingHelperResult.data ?? []).map((r: any) => [r.user_id, r]));
 
   return rows.map((row: any) => {
     const checkin = checkinByUser.get(row.user_id);
+    const readingHelper = readingHelperByUser.get(row.user_id);
     return {
       userId: row.user_id,
       username: row.profiles?.username ?? '익명',
@@ -350,12 +370,12 @@ export async function getEnrolledUsersStatus(): Promise<EnrolledUserStatus[]> {
       startedAt: row.started_at,
       today: {
         qt: !!checkin?.qt,
-        reading: !!checkin?.reading,
+        reading: (readingHelper?.quiz_score ?? 0) >= READING_QUIZ_PASS_SCORE,
         meditation: !!checkin?.meditation,
         obedience: !!checkin?.obedience,
         gratitude: !!checkin?.gratitude,
         prayer: prayedUsers.has(row.user_id),
-        memorization: memoByUser.get(row.user_id) ?? false,
+        memorization: !!readingHelper?.memorization_success,
       },
       lastActivityAt: checkin?.updated_at ?? null,
     };

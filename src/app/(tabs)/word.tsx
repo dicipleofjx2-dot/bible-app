@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Pressable, View, StyleSheet } from 'react-native';
+import { Pressable, ScrollView, View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -32,7 +32,7 @@ export default function WordHubScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
-        <View style={styles.list}>
+        <ScrollView contentContainerStyle={styles.list}>
           <ThemedText type="title" style={styles.title}>
             말씀
           </ThemedText>
@@ -54,7 +54,7 @@ export default function WordHubScreen() {
               </ThemedView>
             </Pressable>
           ))}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );

@@ -29,7 +29,6 @@ import {
   type VerseMark,
 } from '@/db/userData';
 import { pingCheckin } from '@/db/r2m';
-import { markReadToday } from '@/lib/readingActivity';
 
 const MIN_FONT_SIZE = 14;
 const MAX_FONT_SIZE = 28;
@@ -86,17 +85,6 @@ export default function ReadScreen() {
     refreshMarks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [db, bookId, chapter, translation]);
-
-  // R2M "성경읽기" 오늘의 훈련 항목 — 챕터를 열면 자동으로 완료 처리 (별도 체크박스 없음).
-  useEffect(() => {
-    if (bookId == null) return;
-    markReadToday();
-    if (session) {
-      const today = new Date();
-      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-      pingCheckin(session.user.id, dateStr, { reading: true }).catch(() => {});
-    }
-  }, [bookId, chapter, session]);
 
   const currentBook = books.find((b) => b.id === bookId);
   const highlightHex = (color: string | null) =>
