@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>데이빗바이블쿠팡</title>
+  <meta name="theme-color" content="#ff3d54" />
+  <link rel="manifest" href="/coupang/manifest.json" />
+  <link rel="apple-touch-icon" href="/coupang/icon.png" />
+  <link rel="icon" href="/coupang/icon.png" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #faf6ef;
+      font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      color: #16233d;
+    }
+    .wrap {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 32px 24px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    img.icon {
+      width: 160px;
+      height: 160px;
+      border-radius: 32px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    p.status {
+      font-size: 14px;
+      color: #6b6558;
+      line-height: 1.6;
+      max-width: 320px;
+    }
+    a.button {
+      display: inline-block;
+      background: #ff3d54;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <img class="icon" src="/coupang/icon.png" alt="데이빗바이블쿠팡" />
+    <p class="status" id="status">쿠팡으로 이동하는 중이에요...</p>
+    <a class="button" id="fallback-link" href="#" style="display:none">쿠팡으로 바로가기</a>
+    <p class="status">
+      이 페이지를 처음 여셨다면, 브라우저 메뉴에서 "홈 화면에 추가"를 눌러보세요.
+      데이빗바이블쿠팡 아이콘이 홈 화면에 생기고, 다음부터는 아이콘만 눌러도 바로
+      쿠팡으로 연결됩니다.
+    </p>
+  </div>
+  <script>
+    (function () {
+      var SUPABASE_URL = 'https://bhqbrkeoiyhnmdgvofvy.supabase.co';
+      var SUPABASE_ANON_KEY = 'sb_publishable_Bp3WdeLGODDJVCiJ_tzREw_sWJsKH9H';
+
+      fetch(SUPABASE_URL + '/rest/v1/support_settings?select=coupang_url&id=eq.default', {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: 'Bearer ' + SUPABASE_ANON_KEY,
+        },
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (rows) {
+          var url = rows && rows[0] && rows[0].coupang_url;
+          var status = document.getElementById('status');
+          var link = document.getElementById('fallback-link');
+          if (url) {
+            link.href = url;
+            link.style.display = 'inline-block';
+            window.location.replace(url);
+          } else {
+            status.textContent = '아직 쿠팡파트너스 링크가 준비되지 않았어요.';
+          }
+        })
+        .catch(function () {
+          document.getElementById('status').textContent = '링크를 불러오지 못했어요. 잠시 후 다시 시도해주세요.';
+        });
+    })();
+  </script>
+</body>
+</html>

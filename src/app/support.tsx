@@ -1,10 +1,8 @@
 import * as Clipboard from 'expo-clipboard';
 import { router, useFocusEffect } from 'expo-router';
-import * as Sharing from 'expo-sharing';
-import { useRef, useCallback, useState } from 'react';
-import { Alert, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Image, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ViewShot, { type ViewShotRef } from 'react-native-view-shot';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -15,6 +13,17 @@ import { getMyAccess, toggleSubscription, type AccessState } from '@/db/library'
 import { getSupportSettings, type SupportSettings } from '@/db/support';
 
 const EMPTY_SETTINGS: SupportSettings = { coupangUrl: '', bankName: '', bankAccount: '', bankHolder: '' };
+
+// 앱에서 홈 화면에 아이콘을 직접 깔아줄 방법은 없다(iOS는 원천 차단, Android도
+// OS 확인 팝업이 필요) — 대신 이 배너를 아이콘/매니페스트로 등록해둔 전용
+// 페이지(public/coupang/)를 열어, 사용자가 브라우저의 "홈 화면에 추가"를 한 번
+// 누르면 그 아이콘 그대로 홈 화면에 생기고 탭하면 쿠팡으로 바로 연결된다.
+function getCoupangShortcutUrl(): string {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    return `${window.location.origin}/coupang/`;
+  }
+  return 'https://dicipleofjx-bible.vercel.app/coupang/';
+}
 
 function AccountRow({ label, value }: { label: string; value: string }) {
   const theme = useTheme();
@@ -48,8 +57,6 @@ export default function SupportScreen() {
   const [access, setAccess] = useState<AccessState>({ purchasedBookIds: [], hasActiveSubscription: false });
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [savingImage, setSavingImage] = useState(false);
-  const coupangViewShotRef = useRef<ViewShotRef>(null);
 
   const load = useCallback(() => {
     getSupportSettings()
@@ -82,48 +89,6 @@ export default function SupportScreen() {
 
   const hasCoupangUrl = settings.coupangUrl.trim().length > 0;
   const hasBankInfo = settings.bankName.trim() || settings.bankAccount.trim();
-
-  // 배너를 이미지로 캡처해 기기에 저장/공유한다 — reading-helper/word-card.tsx의
-  // 웹(Web Share API 또는 다운로드 링크)/네이티브(expo-sharing) 분기와 동일한 패턴.
-  async function handleSaveCoupangImage() {
-    if (!coupangViewShotRef.current?.capture) return;
-    setSavingImage(true);
-    try {
-      if (Platform.OS === 'web') {
-        const dataUri = await coupangViewShotRef.current.capture();
-        const blob = await (await fetch(dataUri)).blob();
-        const file = new File([blob], '데이빗바이블쿠팡.png', { type: 'image/png' });
-        const nav = navigator as Navigator & {
-          canShare?: (data: { files: File[] }) => boolean;
-          share?: (data: { files: File[]; title?: string }) => Promise<void>;
-        };
-        if (nav.canShare?.({ files: [file] }) && nav.share) {
-          await nav.share({ files: [file], title: '데이빗바이블쿠팡' });
-        } else {
-          const link = document.createElement('a');
-          link.href = dataUri;
-          link.download = '데이빗바이블쿠팡.png';
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          Alert.alert('이미지 저장 완료', '쿠팡파트너스 배너 이미지가 다운로드되었어요.');
-        }
-        return;
-      }
-
-      const uri = await coupangViewShotRef.current.capture();
-      const available = await Sharing.isAvailableAsync();
-      if (!available) {
-        Alert.alert('저장 불가', '이 기기에서는 이미지 저장/공유 기능을 사용할 수 없습니다.');
-        return;
-      }
-      await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: '데이빗바이블쿠팡 배너 저장' });
-    } catch {
-      Alert.alert('저장 실패', '잠시 후 다시 시도해주세요.');
-    } finally {
-      setSavingImage(false);
-    }
-  }
 
   return (
     <ThemedView style={styles.container}>
@@ -161,31 +126,32 @@ export default function SupportScreen() {
             <ThemedText type="smallBold">🛒 쿠팡파트너스로 응원하기</ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
               이 배너를 탭하면 쿠팡으로 이동하고, 거기서 구매하시면 데이빗바이블이 쿠팡 파트너스
-              활동의 일환으로 일정액의 수수료를 제공받습니다. 이미지를 저장해서 따로 공유하실 수도
-              있어요.
+              활동의 일환으로 일정액의 수수료를 제공받습니다.
             </ThemedText>
 
-            <ViewShot ref={coupangViewShotRef} options={{ format: 'png', quality: 1 }}>
-              <Pressable
-                disabled={!hasCoupangUrl}
-                onPress={() => Linking.openURL(settings.coupangUrl)}
-                style={({ pressed }) => [styles.coupangBanner, pressed && styles.pressed]}>
-                <View style={styles.coupangBannerImageWrap}>
-                  <Image
-                    source={require('@/assets/images/coupang-support-banner.png')}
-                    style={styles.coupangBannerImage}
-                    resizeMode="cover"
-                  />
-                </View>
-              </Pressable>
-            </ViewShot>
+            <Pressable
+              disabled={!hasCoupangUrl}
+              onPress={() => Linking.openURL(settings.coupangUrl)}
+              style={({ pressed }) => [styles.coupangBanner, pressed && styles.pressed]}>
+              <View style={styles.coupangBannerImageWrap}>
+                <Image
+                  source={require('@/assets/images/coupang-support-banner.png')}
+                  style={styles.coupangBannerImage}
+                  resizeMode="cover"
+                />
+              </View>
+            </Pressable>
 
             <Pressable
-              disabled={savingImage}
-              onPress={handleSaveCoupangImage}
-              style={[styles.secondaryButton, { borderColor: theme.backgroundSelected, opacity: savingImage ? 0.5 : 1 }]}>
-              <ThemedText type="smallBold">{savingImage ? '저장 중...' : '📥 이미지 저장'}</ThemedText>
+              onPress={() => Linking.openURL(getCoupangShortcutUrl())}
+              style={[styles.secondaryButton, { borderColor: theme.backgroundSelected }]}>
+              <ThemedText type="smallBold">🏠 홈 화면에 추가하기</ThemedText>
             </Pressable>
+            <ThemedText type="small" themeColor="textSecondary">
+              전용 페이지가 새로 열리면, 브라우저 메뉴에서 "홈 화면에 추가"를 눌러보세요. 이
+              배너 아이콘이 그대로 홈 화면에 생기고, 다음부터는 아이콘만 눌러도 바로 쿠팡으로
+              연결됩니다.
+            </ThemedText>
 
             {!hasCoupangUrl && (
               <ThemedText type="small" themeColor="textSecondary">
