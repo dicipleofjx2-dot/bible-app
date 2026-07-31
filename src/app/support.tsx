@@ -1,10 +1,8 @@
 import * as Clipboard from 'expo-clipboard';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
 import * as Sharing from 'expo-sharing';
-import { ShoppingBag } from 'lucide-react-native';
 import { useRef, useCallback, useState } from 'react';
-import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ViewShot, { type ViewShotRef } from 'react-native-view-shot';
 
@@ -171,20 +169,14 @@ export default function SupportScreen() {
               <Pressable
                 disabled={!hasCoupangUrl}
                 onPress={() => Linking.openURL(settings.coupangUrl)}
-                style={({ pressed }) => [pressed && styles.pressed]}>
-                <LinearGradient
-                  colors={['#ff3d54', '#ff8a1e']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.coupangBanner}>
-                  <ShoppingBag size={40} color="#ffffff" strokeWidth={1.75} />
-                  <ThemedText type="subtitle" style={styles.coupangBannerTitle}>
-                    데이빗바이블쿠팡
-                  </ThemedText>
-                  <ThemedText type="small" style={styles.coupangBannerSubtitle}>
-                    탭하면 쿠팡으로 이동해요
-                  </ThemedText>
-                </LinearGradient>
+                style={({ pressed }) => [styles.coupangBanner, pressed && styles.pressed]}>
+                <View style={styles.coupangBannerImageWrap}>
+                  <Image
+                    source={require('@/assets/images/coupang-support-banner.png')}
+                    style={styles.coupangBannerImage}
+                    resizeMode="cover"
+                  />
+                </View>
               </Pressable>
             </ViewShot>
 
@@ -264,16 +256,19 @@ const styles = StyleSheet.create({
     marginTop: Spacing.one,
   },
   coupangBanner: {
+    width: '100%',
+    maxWidth: 280,
+    alignSelf: 'center',
+  },
+  coupangBannerImageWrap: {
+    width: '100%',
+    aspectRatio: 1,
     borderRadius: Spacing.four,
-    paddingVertical: Spacing.five,
-    alignItems: 'center',
-    gap: Spacing.one,
+    overflow: 'hidden',
   },
-  coupangBannerTitle: {
-    color: '#ffffff',
-  },
-  coupangBannerSubtitle: {
-    color: 'rgba(255,255,255,0.85)',
+  coupangBannerImage: {
+    width: '100%',
+    height: '100%',
   },
   pressed: {
     opacity: 0.8,
