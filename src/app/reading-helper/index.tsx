@@ -9,7 +9,7 @@ import { DayLesson } from '@/components/reading-helper/DayLesson';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getDayRecord, getStartDate, setReadingComplete } from '@/lib/readingHelper/db';
+import { getBestQuizScore, getDayRecord, getStartDate, setReadingComplete, WORD_CARD_MIN_QUIZ_SCORE } from '@/lib/readingHelper/db';
 import {
   currentDayNumber,
   buildFullPlan,
@@ -37,6 +37,7 @@ export default function ReadingHelperHomeScreen() {
   const [contentLoading, setContentLoading] = useState(true);
   const [contentError, setContentError] = useState(false);
   const [readingComplete, setReadingCompleteState] = useState(false);
+  const [bestQuizScore, setBestQuizScore] = useState(0);
 
   // Guards against a slow, now-stale load() call (e.g. from focus) clobbering
   // state from a newer one (e.g. the 4am auto-refresh firing moments later).
@@ -53,10 +54,14 @@ export default function ReadingHelperHomeScreen() {
     const dayNumber = currentDayNumber(startDate);
     const algoPlan = buildFullPlan(startDate);
     const algoDay = algoPlan[dayNumber - 1] ?? algoPlan[algoPlan.length - 1] ?? null;
-    const record = await getDayRecord(userId, todayDateString());
+    const [record, bestScore] = await Promise.all([
+      getDayRecord(userId, todayDateString()),
+      getBestQuizScore(userId).catch(() => 0),
+    ]);
     if (loadIdRef.current !== loadId) return;
     setDay(algoDay);
     setReadingCompleteState(record?.reading_complete ?? false);
+    setBestQuizScore(bestScore);
     setChecking(false);
 
     if (!algoDay) {
@@ -204,9 +209,18 @@ export default function ReadingHelperHomeScreen() {
                 🗂 전체 아카이브
               </ThemedText>
             </Pressable>
-            <Pressable onPress={() => router.push('/reading-helper/word-card')} style={({ pressed }) => [pressed && styles.pressed]}>
+            <Pressable
+              onPress={() =>
+                bestQuizScore >= WORD_CARD_MIN_QUIZ_SCORE
+                  ? router.push('/reading-helper/word-card')
+                  : Alert.alert(
+                      '말씀카드',
+                      `성경퀴즈에서 ${WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 말씀카드를 만들 수 있어요. (현재 최고 점수: ${bestQuizScore}점)`,
+                    )
+              }
+              style={({ pressed }) => [pressed && styles.pressed]}>
               <ThemedText type="small" themeColor="textSecondary">
-                💌 말씀카드 만들기
+                💌 말씀카드 만들기{bestQuizScore < WORD_CARD_MIN_QUIZ_SCORE ? ' 🔒' : ''}
               </ThemedText>
             </Pressable>
           </View>

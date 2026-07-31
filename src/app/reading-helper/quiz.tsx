@@ -36,6 +36,7 @@ export default function ReadingHelperQuizScreen() {
   const [shortAnswer, setShortAnswer] = useState('');
   const [correctCount, setCorrectCount] = useState(0);
   const [score, setScore] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<(number | string)[]>([]);
 
   useFocusEffect(
     useCallback(() => {
@@ -86,30 +87,34 @@ export default function ReadingHelperQuizScreen() {
   const question = content.questions[index];
   const answered = question.type === 'choice' ? selectedChoice !== null : shortAnswer.trim().length > 0;
 
-  async function finish(finalCorrectCount: number) {
+  async function finish(finalCorrectCount: number, finalAnswers: (number | string)[]) {
     const finalScore = Math.round((finalCorrectCount / total) * 100);
     if (!isReview && userId) {
       await setQuizScore(userId, todayDateString(), finalScore);
     }
+    setAnswers(finalAnswers);
     setScore(finalScore);
   }
 
   function next() {
     if (!answered || !content) return;
     const q = content.questions[index];
+    const currentAnswer: number | string = q.type === 'choice' ? (selectedChoice as number) : shortAnswer;
     const isCorrect =
       q.type === 'choice'
         ? selectedChoice === q.correctIndex
         : q.acceptedAnswers.some((a) => normalizeAnswer(a) === normalizeAnswer(shortAnswer));
     const nextCorrectCount = correctCount + (isCorrect ? 1 : 0);
+    const nextAnswers = [...answers, currentAnswer];
     setCorrectCount(nextCorrectCount);
+    setAnswers(nextAnswers);
 
     if (index + 1 < total) {
       setIndex(index + 1);
       setSelectedChoice(null);
       setShortAnswer('');
     } else {
-      finish(nextCorrectCount);
+      finish(nextCorrectCount, nextAnswers);
     }
   }
 
@@ -140,7 +145,7 @@ export default function ReadingHelperQuizScreen() {
             onPress={() =>
               router.push({
                 pathname: '/reading-helper/quiz-answers',
-                params: { date: reviewDate ?? todayDateString() },
+                params: { date: reviewDate ?? todayDateString(), answers: JSON.stringify(answers) },
               })
             }
             style={({ pressed }) => [pressed && styles.pressed]}>

@@ -1,8 +1,12 @@
 import * as Clipboard from 'expo-clipboard';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import * as Sharing from 'expo-sharing';
+import { ShoppingBag } from 'lucide-react-native';
+import { useRef, useCallback, useState } from 'react';
+import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ViewShot, { type ViewShotRef } from 'react-native-view-shot';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -46,6 +50,8 @@ export default function SupportScreen() {
   const [access, setAccess] = useState<AccessState>({ purchasedBookIds: [], hasActiveSubscription: false });
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [savingImage, setSavingImage] = useState(false);
+  const coupangViewShotRef = useRef<ViewShotRef>(null);
 
   const load = useCallback(() => {
     getSupportSettings()
@@ -78,6 +84,48 @@ export default function SupportScreen() {
 
   const hasCoupangUrl = settings.coupangUrl.trim().length > 0;
   const hasBankInfo = settings.bankName.trim() || settings.bankAccount.trim();
+
+  // 배너를 이미지로 캡처해 기기에 저장/공유한다 — reading-helper/word-card.tsx의
+  // 웹(Web Share API 또는 다운로드 링크)/네이티브(expo-sharing) 분기와 동일한 패턴.
+  async function handleSaveCoupangImage() {
+    if (!coupangViewShotRef.current?.capture) return;
+    setSavingImage(true);
+    try {
+      if (Platform.OS === 'web') {
+        const dataUri = await coupangViewShotRef.current.capture();
+        const blob = await (await fetch(dataUri)).blob();
+        const file = new File([blob], '데이빗바이블쿠팡.png', { type: 'image/png' });
+        const nav = navigator as Navigator & {
+          canShare?: (data: { files: File[] }) => boolean;
+          share?: (data: { files: File[]; title?: string }) => Promise<void>;
+        };
+        if (nav.canShare?.({ files: [file] }) && nav.share) {
+          await nav.share({ files: [file], title: '데이빗바이블쿠팡' });
+        } else {
+          const link = document.createElement('a');
+          link.href = dataUri;
+          link.download = '데이빗바이블쿠팡.png';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          Alert.alert('이미지 저장 완료', '쿠팡파트너스 배너 이미지가 다운로드되었어요.');
+        }
+        return;
+      }
+
+      const uri = await coupangViewShotRef.current.capture();
+      const available = await Sharing.isAvailableAsync();
+      if (!available) {
+        Alert.alert('저장 불가', '이 기기에서는 이미지 저장/공유 기능을 사용할 수 없습니다.');
+        return;
+      }
+      await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: '데이빗바이블쿠팡 배너 저장' });
+    } catch {
+      Alert.alert('저장 실패', '잠시 후 다시 시도해주세요.');
+    } finally {
+      setSavingImage(false);
+    }
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -114,15 +162,45 @@ export default function SupportScreen() {
           <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
             <ThemedText type="smallBold">🛒 쿠팡파트너스로 응원하기</ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              이 링크를 통해 쿠팡에서 구매하시면, 데이빗바이블은 쿠팡 파트너스 활동의 일환으로 일정액의
-              수수료를 제공받습니다.
+              이 배너를 탭하면 쿠팡으로 이동하고, 거기서 구매하시면 데이빗바이블이 쿠팡 파트너스
+              활동의 일환으로 일정액의 수수료를 제공받습니다. 이미지를 저장해서 따로 공유하실 수도
+              있어요.
             </ThemedText>
+
+            <ViewShot ref={coupangViewShotRef} options={{ format: 'png', quality: 1 }}>
+              <Pressable
+                disabled={!hasCoupangUrl}
+                onPress={() => Linking.openURL(settings.coupangUrl)}
+                style={({ pressed }) => [pressed && styles.pressed]}>
+                <LinearGradient
+                  colors={['#ff3d54', '#ff8a1e']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.coupangBanner}>
+                  <ShoppingBag size={40} color="#ffffff" strokeWidth={1.75} />
+                  <ThemedText type="subtitle" style={styles.coupangBannerTitle}>
+                    데이빗바이블쿠팡
+                  </ThemedText>
+                  <ThemedText type="small" style={styles.coupangBannerSubtitle}>
+                    탭하면 쿠팡으로 이동해요
+                  </ThemedText>
+                </LinearGradient>
+              </Pressable>
+            </ViewShot>
+
             <Pressable
-              disabled={!hasCoupangUrl}
-              onPress={() => Linking.openURL(settings.coupangUrl)}
-              style={[styles.secondaryButton, { borderColor: theme.backgroundSelected, opacity: hasCoupangUrl ? 1 : 0.4 }]}>
-              <ThemedText type="smallBold">{hasCoupangUrl ? '쿠팡에서 응원하기' : '링크 준비 중'}</ThemedText>
+              disabled={savingImage}
+              onPress={handleSaveCoupangImage}
+              style={[styles.secondaryButton, { borderColor: theme.backgroundSelected, opacity: savingImage ? 0.5 : 1 }]}>
+              <ThemedText type="smallBold">{savingImage ? '저장 중...' : '📥 이미지 저장'}</ThemedText>
             </Pressable>
+
+            {!hasCoupangUrl && (
+              <ThemedText type="small" themeColor="textSecondary">
+                링크가 아직 설정되지 않아 배너를 탭해도 이동하지 않아요. 관리자가 링크를 등록하면
+                바로 연결됩니다.
+              </ThemedText>
+            )}
           </View>
 
           <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
@@ -184,6 +262,21 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     borderWidth: 1,
     marginTop: Spacing.one,
+  },
+  coupangBanner: {
+    borderRadius: Spacing.four,
+    paddingVertical: Spacing.five,
+    alignItems: 'center',
+    gap: Spacing.one,
+  },
+  coupangBannerTitle: {
+    color: '#ffffff',
+  },
+  coupangBannerSubtitle: {
+    color: 'rgba(255,255,255,0.85)',
+  },
+  pressed: {
+    opacity: 0.8,
   },
   errorText: {
     color: '#e03131',

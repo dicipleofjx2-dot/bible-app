@@ -1,6 +1,8 @@
+import * as FileSystem from 'expo-file-system/legacy';
+import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Image, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { InlineCalendar } from '@/components/inline-calendar';
@@ -56,6 +58,9 @@ export default function KingdomFinanceScreen() {
   const [category, setCategory] = useState('');
   const [amount, setAmount] = useState('');
   const [memo, setMemo] = useState('');
+  const [receiptUri, setReceiptUri] = useState<string | null>(null);
+  const [attachingReceipt, setAttachingReceipt] = useState(false);
+  const [previewUri, setPreviewUri] = useState<string | null>(null);
 
   const load = useCallback(() => {
     getFinanceEntries(date).then(setDayEntries);
@@ -76,13 +81,47 @@ export default function KingdomFinanceScreen() {
 
   const markedDates = useMemo(() => new Set(allEntries.map((e) => e.date)), [allEntries]);
 
+  // 앨범/카메라에서 고른 영수증 사진을 영구 저장소로 복사한다 — expo-image-picker가
+  // 돌려주는 URI는 캐시 디렉토리를 가리킬 수 있어 나중에 OS가 캐시를 비우면
+  // 사라질 수 있다. 웹은 documentDirectory가 없으므로(null) 원본 URI(보통
+  // data:/blob: URI라 그 자체로 영속적)를 그대로 쓴다.
+  async function persistReceiptUri(sourceUri: string): Promise<string> {
+    if (Platform.OS === 'web' || !FileSystem.documentDirectory) return sourceUri;
+    const dir = `${FileSystem.documentDirectory}receipts/`;
+    await FileSystem.makeDirectoryAsync(dir, { intermediates: true }).catch(() => {});
+    const dest = `${dir}${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+    await FileSystem.copyAsync({ from: sourceUri, to: dest });
+    return dest;
+  }
+
+  async function pickReceipt(fromCamera: boolean) {
+    const permission = fromCamera
+      ? await ImagePicker.requestCameraPermissionsAsync()
+      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) return;
+
+    const result = fromCamera
+      ? await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.7 })
+      : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.7 });
+    if (result.canceled || !result.assets[0]) return;
+
+    setAttachingReceipt(true);
+    try {
+      const persisted = await persistReceiptUri(result.assets[0].uri);
+      setReceiptUri(persisted);
+    } finally {
+      setAttachingReceipt(false);
+    }
+  }
+
   async function addEntry() {
     const parsed = Number(amount.replace(/[^0-9]/g, ''));
     if (!category.trim() || !parsed) return;
-    await addFinanceEntry({ date, type, category, amount: parsed, memo });
+    await addFinanceEntry({ date, type, category, amount: parsed, memo, receiptUri });
     setCategory('');
     setAmount('');
     setMemo('');
+    setReceiptUri(null);
     load();
   }
 
@@ -196,6 +235,34 @@ export default function KingdomFinanceScreen() {
               placeholderTextColor={theme.textSecondary}
               style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
             />
+
+            <View style={styles.receiptRow}>
+              {receiptUri ? (
+                <Pressable onPress={() => setPreviewUri(receiptUri)}>
+                  <Image source={{ uri: receiptUri }} style={styles.receiptThumb} resizeMode="cover" />
+                </Pressable>
+              ) : null}
+              <Pressable
+                disabled={attachingReceipt}
+                onPress={() => pickReceipt(true)}
+                style={[styles.receiptButton, { backgroundColor: theme.backgroundElement, opacity: attachingReceipt ? 0.5 : 1 }]}>
+                <ThemedText type="small">📷 촬영</ThemedText>
+              </Pressable>
+              <Pressable
+                disabled={attachingReceipt}
+                onPress={() => pickReceipt(false)}
+                style={[styles.receiptButton, { backgroundColor: theme.backgroundElement, opacity: attachingReceipt ? 0.5 : 1 }]}>
+                <ThemedText type="small">🖼 앨범에서 선택</ThemedText>
+              </Pressable>
+              {receiptUri ? (
+                <Pressable onPress={() => setReceiptUri(null)} hitSlop={8}>
+                  <ThemedText type="small" style={styles.deleteText}>
+                    제거
+                  </ThemedText>
+                </Pressable>
+              ) : null}
+            </View>
+
             <Pressable
               onPress={addEntry}
               style={({ pressed }) => [
@@ -216,6 +283,11 @@ export default function KingdomFinanceScreen() {
             ) : (
               dayEntries.map((entry) => (
                 <View key={entry.id} style={[styles.entryRow, { backgroundColor: theme.backgroundElement }]}>
+                  {entry.receipt_uri ? (
+                    <Pressable onPress={() => setPreviewUri(entry.receipt_uri)}>
+                      <Image source={{ uri: entry.receipt_uri }} style={styles.entryThumb} resizeMode="cover" />
+                    </Pressable>
+                  ) : null}
                   <View style={styles.entryBody}>
                     <ThemedText type="small">{entry.category}</ThemedText>
                     {entry.memo ? (
@@ -241,6 +313,12 @@ export default function KingdomFinanceScreen() {
           </View>
         </ScrollView>
       </ThemedView>
+
+      <Modal visible={previewUri != null} animationType="fade" transparent onRequestClose={() => setPreviewUri(null)}>
+        <Pressable style={styles.previewBackdrop} onPress={() => setPreviewUri(null)}>
+          {previewUri ? <Image source={{ uri: previewUri }} style={styles.previewImage} resizeMode="contain" /> : null}
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -350,10 +428,41 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: Spacing.half,
   },
+  entryThumb: {
+    width: 40,
+    height: 40,
+    borderRadius: Spacing.two,
+  },
   deleteText: {
     color: '#e03131',
   },
   pressed: {
     opacity: 0.7,
+  },
+  receiptRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  receiptButton: {
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+    borderRadius: Spacing.three,
+  },
+  receiptThumb: {
+    width: 48,
+    height: 48,
+    borderRadius: Spacing.two,
+  },
+  previewBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewImage: {
+    width: '90%',
+    height: '80%',
   },
 });

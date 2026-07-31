@@ -82,3 +82,20 @@ export async function getAllRecordDates(userId: string): Promise<Set<string>> {
   if (error) throw error;
   return new Set((data ?? []).map((r) => r.date as string));
 }
+
+/** 말씀카드 잠금 해제 기준 — 어느 날짜든 하루라도 이 점수 이상을 맞으면 된다. */
+export const WORD_CARD_MIN_QUIZ_SCORE = 80;
+
+/** 지금까지 본 퀴즈 중 최고 점수. 하나도 안 봤으면 0. */
+export async function getBestQuizScore(userId: string): Promise<number> {
+  const { data, error } = await supabase
+    .from('reading_helper_day_records')
+    .select('quiz_score')
+    .eq('user_id', userId)
+    .not('quiz_score', 'is', null)
+    .order('quiz_score', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data?.quiz_score ?? 0;
+}

@@ -107,6 +107,10 @@ function getUserDb() {
           updated_at INTEGER NOT NULL
         );
       `);
+      // finance_entries는 이미 배포된 테이블이라 CREATE TABLE IF NOT EXISTS로는
+      // 새 컬럼이 추가되지 않는다 — 기존 설치에도 안전하게 컬럼을 얹기 위한
+      // 최소 마이그레이션. 이미 컬럼이 있으면 ALTER가 에러를 던지므로 무시.
+      await db.execAsync(`ALTER TABLE finance_entries ADD COLUMN receipt_uri TEXT;`).catch(() => {});
       return db;
     });
   }
@@ -431,6 +435,7 @@ export type FinanceEntry = {
   category: string;
   amount: number;
   memo: string | null;
+  receipt_uri: string | null;
   updated_at: number;
 };
 
@@ -453,11 +458,20 @@ export async function addFinanceEntry(entry: {
   category: string;
   amount: number;
   memo: string;
+  receiptUri?: string | null;
 }): Promise<void> {
   const db = await getUserDb();
   await db.runAsync(
-    `INSERT INTO finance_entries (date, type, category, amount, memo, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
-    [entry.date, entry.type, entry.category.trim(), entry.amount, entry.memo.trim() || null, Date.now()]
+    `INSERT INTO finance_entries (date, type, category, amount, memo, receipt_uri, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
+      entry.date,
+      entry.type,
+      entry.category.trim(),
+      entry.amount,
+      entry.memo.trim() || null,
+      entry.receiptUri ?? null,
+      Date.now(),
+    ]
   );
 }
 

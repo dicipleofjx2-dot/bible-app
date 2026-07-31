@@ -25,7 +25,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getStartDate } from '@/lib/readingHelper/db';
+import { getBestQuizScore, getStartDate, WORD_CARD_MIN_QUIZ_SCORE } from '@/lib/readingHelper/db';
 import { currentDayNumber, todayDateString } from '@/lib/readingHelper/readingPlan';
 import { getDayContent } from '@/lib/readingHelper/dayContent';
 import { WORD_CARD_TEMPLATES, type WordCardTemplate } from '@/lib/readingHelper/wordCardTemplates';
@@ -48,10 +48,11 @@ function clamp(value: number, min: number, max: number) {
 }
 
 // bible-quiz-app(성경통독도우미의 전신, 이제 폐기)에 있던 말씀카드 편집기를
-// 데이빗바이블로 이식한 버전. 원본은 AsyncStorage 기반 "오늘 퀴즈 90점 이상+
-// 하루 제작 횟수 제한" 게이팅이 있었는데, 성경통독도우미는 진행 기록을
-// Supabase로 완전히 새로 설계해서 그 카운터가 없다 — 별도 테이블을 새로
-// 만드는 대신 게이팅 자체를 뺐다(로그인 + 통독 시작만 하면 언제든 제작 가능).
+// 데이빗바이블로 이식한 버전. 원본은 AsyncStorage 기반 "오늘 퀴즈 90점 이상 +
+// 하루 제작 횟수 제한" 게이팅이 있었는데, 이식 당시엔 Supabase 진행 기록에
+// 그런 카운터가 없어 게이팅을 뺐었다. 이후 다시 "퀴즈 최고점수
+// WORD_CARD_MIN_QUIZ_SCORE(80점) 이상" 조건으로 재도입 — 날짜별 제작 횟수
+// 제한은 여전히 없음.
 export default function WordCardScreen() {
   const theme = useTheme();
   const { session, loading: authLoading } = useAuth();
@@ -60,6 +61,7 @@ export default function WordCardScreen() {
   const [checking, setChecking] = useState(true);
   const [defaultVerse, setDefaultVerse] = useState('');
   const [defaultReference, setDefaultReference] = useState('');
+  const [bestQuizScore, setBestQuizScore] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -72,7 +74,12 @@ export default function WordCardScreen() {
           router.replace('/reading-helper/onboarding');
           return;
         }
-        const dayNumber = currentDayNumber(startDate);
+        const [dayNumber, score] = await Promise.all([
+          Promise.resolve(currentDayNumber(startDate)),
+          getBestQuizScore(userId).catch(() => 0),
+        ]);
+        if (cancelled) return;
+        setBestQuizScore(score);
         const content = await getDayContent(dayNumber);
         if (cancelled) return;
         if (content) {
@@ -92,6 +99,26 @@ export default function WordCardScreen() {
       <ThemedView style={styles.centeredScreen}>
         <SafeAreaView style={styles.centered}>
           <ActivityIndicator />
+        </SafeAreaView>
+      </ThemedView>
+    );
+  }
+
+  if (bestQuizScore < WORD_CARD_MIN_QUIZ_SCORE) {
+    return (
+      <ThemedView style={styles.centeredScreen}>
+        <SafeAreaView style={styles.centered}>
+          <ThemedText type="smallBold" style={styles.lockedText}>
+            🔒 성경퀴즈에서 {WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 말씀카드를 만들 수 있어요.
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary" style={styles.lockedText}>
+            현재 최고 점수: {bestQuizScore}점
+          </ThemedText>
+          <Pressable
+            onPress={() => router.replace('/reading-helper')}
+            style={[styles.lockedButton, { backgroundColor: theme.backgroundSelected }]}>
+            <ThemedText type="smallBold">성경퀴즈 풀러가기</ThemedText>
+          </Pressable>
         </SafeAreaView>
       </ThemedView>
     );
@@ -479,7 +506,9 @@ function WordCardEditor({
 
 const styles = StyleSheet.create({
   centeredScreen: { flex: 1 },
-  centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.two, paddingHorizontal: Spacing.four },
+  lockedText: { textAlign: 'center' },
+  lockedButton: { marginTop: Spacing.two, paddingHorizontal: Spacing.five, paddingVertical: Spacing.three, borderRadius: Spacing.four },
   container: { flex: 1, alignItems: 'center', width: '100%' },
   safeArea: { flex: 1, width: '100%' },
   scrollContent: {
