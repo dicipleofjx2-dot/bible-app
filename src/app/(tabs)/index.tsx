@@ -10,6 +10,7 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getFirstQtEntry, getQtEntryForDate, getVersesForRange } from '@/db/bible';
+import { getPosts, type Post } from '@/db/community';
 import { getMyActiveEnrollment, getTodayChecklistCount, type ActiveEnrollment } from '@/db/r2m';
 import { getMeditationNote } from '@/db/userData';
 import { getLatestLetter, type ShepherdLetter } from '@/db/shepherdLetters';
@@ -42,6 +43,7 @@ export default function HomeScreen() {
   const [checklistCount, setChecklistCount] = useState(0);
   const [letter, setLetter] = useState<ShepherdLetter | null>(null);
   const [letterUnseen, setLetterUnseen] = useState(false);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useFocusEffect(
     useCallback(() => {
@@ -76,6 +78,14 @@ export default function HomeScreen() {
           setLetterUnseen(await hasUnseenLetter(l?.createdAt ?? null));
         })
         .catch(() => setLetter(null));
+    }, []),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      getPosts()
+        .then((all) => setPosts(all.slice(0, 3)))
+        .catch(() => setPosts([]));
     }, []),
   );
 
@@ -204,15 +214,33 @@ export default function HomeScreen() {
             </ThemedText>
           </Pressable>
 
-          {/* 6. 커뮤니티 */}
-          <Pressable
-            onPress={() => router.push(session ? '/community' : '/profile')}
-            style={({ pressed }) => [styles.card, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
-            <ThemedText type="small" themeColor="textSecondary">
-              커뮤니티
-            </ThemedText>
-            <ThemedText type="smallBold">성도들과 나누는 소식과 글</ThemedText>
-          </Pressable>
+          {/* 6. 커뮤니티 — 최근 글 최대 3개를 게시판처럼 미리보기 */}
+          <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
+            <Pressable
+              onPress={() => router.push(session ? '/community' : '/profile')}
+              style={({ pressed }) => [styles.communityHeader, pressed && styles.pressed]}>
+              <ThemedText type="small" themeColor="textSecondary">
+                커뮤니티
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                더보기 ›
+              </ThemedText>
+            </Pressable>
+            {posts.length === 0 ? (
+              <ThemedText type="smallBold">성도들과 나누는 소식과 글</ThemedText>
+            ) : (
+              posts.map((post) => (
+                <Pressable
+                  key={post.id}
+                  onPress={() => router.push({ pathname: '/post/[id]', params: { id: post.id } })}
+                  style={({ pressed }) => [pressed && styles.pressed]}>
+                  <ThemedText type="small" numberOfLines={1}>
+                    <ThemedText type="smallBold">{post.author}</ThemedText> {post.body}
+                  </ThemedText>
+                </Pressable>
+              ))
+            )}
+          </View>
 
           {/* 7. 추천 콘텐츠 */}
           <View style={styles.recommendedRow}>
@@ -331,6 +359,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
+  },
+  communityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   newPill: {
     paddingHorizontal: Spacing.two,
