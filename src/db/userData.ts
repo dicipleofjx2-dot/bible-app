@@ -111,6 +111,9 @@ function getUserDb() {
       // 새 컬럼이 추가되지 않는다 — 기존 설치에도 안전하게 컬럼을 얹기 위한
       // 최소 마이그레이션. 이미 컬럼이 있으면 ALTER가 에러를 던지므로 무시.
       await db.execAsync(`ALTER TABLE finance_entries ADD COLUMN receipt_uri TEXT;`).catch(() => {});
+      // meditation_notes도 동일한 이유로 두 컬럼을 추가 마이그레이션한다.
+      await db.execAsync(`ALTER TABLE meditation_notes ADD COLUMN qt_answers TEXT;`).catch(() => {});
+      await db.execAsync(`ALTER TABLE meditation_notes ADD COLUMN application_note TEXT;`).catch(() => {});
       return db;
     });
   }
@@ -174,6 +177,12 @@ export async function deleteMark(id: number): Promise<void> {
 // ── 말씀노트 (meditation notes) ────────────────────────────────────────────
 // Kept in their own table, deliberately separate from verse_marks/암송구절 —
 // see src/app/meditation.tsx, which writes here instead of upsertMark.
+export type QtAnswers = {
+  observation: string[];
+  interpretation: string[];
+  application: string[];
+};
+
 export type MeditationNote = {
   id: number;
   date: string;
@@ -183,6 +192,8 @@ export type MeditationNote = {
   end_verse: number;
   label: string;
   note: string;
+  qt_answers: string | null;
+  application_note: string | null;
   updated_at: number;
 };
 
@@ -204,19 +215,24 @@ export async function upsertMeditationNote(entry: {
   endVerse: number;
   label: string;
   note: string;
+  qtAnswers?: QtAnswers;
+  applicationNote?: string;
 }): Promise<void> {
   const db = await getUserDb();
-  if (!entry.note.trim()) {
+  const applicationNote = (entry.applicationNote ?? '').trim();
+  const hasQtAnswers = (entry.qtAnswers ? Object.values(entry.qtAnswers).flat() : []).some((a) => a.trim());
+  if (!entry.note.trim() && !applicationNote && !hasQtAnswers) {
     await db.runAsync(`DELETE FROM meditation_notes WHERE date = ?`, [entry.date]);
     return;
   }
   await db.runAsync(
     `
-    INSERT INTO meditation_notes (date, book_id, chapter, start_verse, end_verse, label, note, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO meditation_notes (date, book_id, chapter, start_verse, end_verse, label, note, qt_answers, application_note, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(date)
     DO UPDATE SET book_id = excluded.book_id, chapter = excluded.chapter, start_verse = excluded.start_verse,
-      end_verse = excluded.end_verse, label = excluded.label, note = excluded.note, updated_at = excluded.updated_at
+      end_verse = excluded.end_verse, label = excluded.label, note = excluded.note,
+      qt_answers = excluded.qt_answers, application_note = excluded.application_note, updated_at = excluded.updated_at
     `,
     [
       entry.date,
@@ -226,6 +242,8 @@ export async function upsertMeditationNote(entry: {
       entry.endVerse,
       entry.label,
       entry.note.trim(),
+      JSON.stringify(entry.qtAnswers ?? { observation: [], interpretation: [], application: [] }),
+      applicationNote,
       Date.now(),
     ]
   );
