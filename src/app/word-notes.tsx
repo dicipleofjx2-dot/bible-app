@@ -8,6 +8,25 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { deleteMeditationNote, getAllMeditationNotes, type MeditationNote } from '@/db/userData';
+import { parseQtAnswers } from '@/constants/qt-questions';
+
+// 미리보기는 note 하나만 보면 다른 걸 채워도 빈 것처럼 보였다 —
+// 묵상 정리 → 적용 정리 → 관찰/해석/적용 답변 순으로 채워진 것을 찾아 보여준다.
+function previewText(item: MeditationNote): string {
+  if (item.note.trim()) return item.note.trim();
+  if (item.application_note?.trim()) return item.application_note.trim();
+  const answers = parseQtAnswers(item.qt_answers);
+  for (const group of Object.values(answers)) {
+    const first = group.find((a) => a.trim());
+    if (first) return first.trim();
+  }
+  return '';
+}
+
+function answeredCount(item: MeditationNote): number {
+  const answers = parseQtAnswers(item.qt_answers);
+  return Object.values(answers).flat().filter((a) => a.trim()).length;
+}
 
 export default function WordNotesScreen() {
   const theme = useTheme();
@@ -47,7 +66,7 @@ export default function WordNotesScreen() {
           }
           renderItem={({ item }) => (
             <Pressable
-              onPress={() => router.push({ pathname: '/meditation', params: { date: item.date } })}
+              onPress={() => router.push({ pathname: '/word-notes/[id]', params: { id: String(item.id) } })}
               style={({ pressed }) => [
                 styles.noteRow,
                 { backgroundColor: theme.backgroundElement },
@@ -72,8 +91,13 @@ export default function WordNotesScreen() {
                   </ThemedText>
                 </Pressable>
               </View>
+              {answeredCount(item) > 0 && (
+                <ThemedText type="small" themeColor="textSecondary">
+                  큐티 답변 {answeredCount(item)}/6
+                </ThemedText>
+              )}
               <ThemedText type="small" numberOfLines={3} style={styles.noteText}>
-                {item.note}
+                {previewText(item)}
               </ThemedText>
             </Pressable>
           )}

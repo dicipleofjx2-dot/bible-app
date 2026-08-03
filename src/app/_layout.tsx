@@ -89,6 +89,10 @@ export default function RootLayout() {
                   />
                   <Stack.Screen name="meditation" options={{ headerShown: true, title: '오늘의 말씀' }} />
                   <Stack.Screen name="word-notes" options={{ headerShown: true, title: 'Q.T묵상' }} />
+                  <Stack.Screen
+                    name="word-notes/[id]"
+                    options={{ headerShown: true, title: '묵상 노트' }}
+                  />
                   <Stack.Screen name="notes" options={{ headerShown: true, title: '구절묵상' }} />
                   <Stack.Screen name="community" options={{ headerShown: true, title: '커뮤니티' }} />
                   <Stack.Screen name="read" options={{ headerShown: true, title: '성경읽기' }} />

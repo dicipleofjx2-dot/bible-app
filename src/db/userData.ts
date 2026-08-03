@@ -202,6 +202,11 @@ export async function getMeditationNote(date: string): Promise<MeditationNote | 
   return db.getFirstAsync<MeditationNote>(`SELECT * FROM meditation_notes WHERE date = ?`, [date]);
 }
 
+export async function getMeditationNoteById(id: number): Promise<MeditationNote | null> {
+  const db = await getUserDb();
+  return db.getFirstAsync<MeditationNote>(`SELECT * FROM meditation_notes WHERE id = ?`, [id]);
+}
+
 export async function getAllMeditationNotes(): Promise<MeditationNote[]> {
   const db = await getUserDb();
   return db.getAllAsync<MeditationNote>(`SELECT * FROM meditation_notes ORDER BY date DESC`);
