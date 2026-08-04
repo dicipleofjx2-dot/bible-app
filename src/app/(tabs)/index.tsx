@@ -1,7 +1,7 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -25,9 +25,14 @@ function todayDateString() {
 
 type JourneyStep = { label: string; href: Href; done?: boolean };
 
-const RECOMMENDED: { emoji: string; label: string; href: Href; requiresAuth?: boolean }[] = [
+// 새부대교회 스마트주보는 별도 Next.js 앱(dg-smart-bulletin)으로 배포되어 있어
+// 내부 라우트가 아니라 외부 링크로 연다.
+const SMART_BULLETIN_URL = 'https://dg-smart-bulletin.vercel.app/church/saebudae-church';
+
+const RECOMMENDED: { emoji: string; label: string; href: Href; requiresAuth?: boolean; external?: boolean }[] = [
   { emoji: '📕', label: '데이빗북스', href: '/library' },
   { emoji: '📆', label: '성경통독도우미', href: '/reading-helper', requiresAuth: true },
+  { emoji: '📰', label: '새부대스마트주보', href: SMART_BULLETIN_URL as Href, external: true },
 ];
 
 export default function HomeScreen() {
@@ -247,7 +252,13 @@ export default function HomeScreen() {
             {RECOMMENDED.map((item) => (
               <Pressable
                 key={item.label}
-                onPress={() => router.push(item.requiresAuth && !session ? '/profile' : item.href)}
+                onPress={() => {
+                  if (item.external) {
+                    Linking.openURL(SMART_BULLETIN_URL);
+                    return;
+                  }
+                  router.push(item.requiresAuth && !session ? '/profile' : item.href);
+                }}
                 style={({ pressed }) => [styles.recommendedItem, pressed && styles.pressed]}>
                 <ThemedText type="small">{item.emoji} {item.label}</ThemedText>
               </Pressable>
