@@ -19,18 +19,20 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const pathname = usePathname();
 
-  // Every launch lands on /intro first, regardless of which route was
-  // actually requested — "시작하기" leaves via router.replace('/'), the
-  // same plain in-app navigation every other link in this app already
-  // uses. Declarative <Redirect> rather than an imperative router.replace()
-  // call in a useEffect — the imperative version broke the static web
-  // export's prerender pass entirely (blank page, no console error since
-  // nothing caught it). alreadyRedirected is a ref, not state, so deciding
-  // to redirect doesn't itself trigger a re-render; it just has to survive
-  // for RootLayout's one mount per app session so later in-app navigation
-  // away from /intro never redirects back to it.
+  // 앱을 그냥 열었을 때(경로가 '/')만 /intro를 거친다. "시작하기"는
+  // router.replace('/')로 빠져나가는데, 이 앱의 다른 링크와 똑같은 평범한
+  // 화면 이동이다. 명령형 router.replace()를 useEffect에서 부르면 정적 웹
+  // 내보내기의 프리렌더 단계가 통째로 깨져서(빈 화면, 아무도 안 잡아서 콘솔
+  // 에러도 없음) 선언형 <Redirect>를 쓴다. alreadyRedirected는 state가 아니라
+  // ref라서 리다이렉트 판단 자체가 리렌더를 부르지 않고, RootLayout이 한 번
+  // 마운트된 동안만 살아 있으면 되므로 /intro를 떠난 뒤 다시 끌려오지 않는다.
+  //
+  // 경로를 '/'로 좁힌 이유: 새부대교회 홈페이지가 /library, /meditation 같은
+  // 개별 기능으로 바로 링크를 건다. 예전처럼 모든 경로를 intro로 보내면 그
+  // 링크들이 전부 인트로 화면에서 끊긴다(시작하기는 '/'로만 가므로 원래
+  // 가려던 화면으로 돌아갈 방법이 없다).
   const alreadyRedirected = useRef(false);
-  const shouldShowIntro = pathname !== '/intro' && !alreadyRedirected.current;
+  const shouldShowIntro = pathname === '/' && !alreadyRedirected.current;
   if (shouldShowIntro) {
     alreadyRedirected.current = true;
   }
