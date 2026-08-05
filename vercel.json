@@ -5,13 +5,13 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/library/:id/read", "destination": "/library/[id]/read.html" },
-    { "source": "/library/:id", "destination": "/library/[id].html" },
-    { "source": "/notice-board/:id", "destination": "/notice-board/[id].html" },
-    { "source": "/plans/:slug", "destination": "/plans/[slug].html" },
-    { "source": "/post/:id", "destination": "/post/[id].html" },
-    { "source": "/r2m/courses/:id", "destination": "/r2m/courses/[id].html" },
-    { "source": "/shepherd-letters/:id", "destination": "/shepherd-letters/[id].html" },
-    { "source": "/word-notes/:id", "destination": "/word-notes/[id].html" }
+    { "source": "/library/:id/read", "destination": "/library/[id]/read" },
+    { "source": "/library/:id", "destination": "/library/[id]" },
+    { "source": "/notice-board/:id", "destination": "/notice-board/[id]" },
+    { "source": "/plans/:slug", "destination": "/plans/[slug]" },
+    { "source": "/post/:id", "destination": "/post/[id]" },
+    { "source": "/r2m/courses/:id", "destination": "/r2m/courses/[id]" },
+    { "source": "/shepherd-letters/:id", "destination": "/shepherd-letters/[id]" },
+    { "source": "/word-notes/:id", "destination": "/word-notes/[id]" }
   ]
 }
