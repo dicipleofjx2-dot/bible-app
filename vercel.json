@@ -5,8 +5,13 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/rooms/:id", "destination": "/rooms/[id].html" },
+    { "source": "/library/:id/read", "destination": "/library/[id]/read.html" },
+    { "source": "/library/:id", "destination": "/library/[id].html" },
+    { "source": "/notice-board/:id", "destination": "/notice-board/[id].html" },
     { "source": "/plans/:slug", "destination": "/plans/[slug].html" },
-    { "source": "/post/:id", "destination": "/post/[id].html" }
+    { "source": "/post/:id", "destination": "/post/[id].html" },
+    { "source": "/r2m/courses/:id", "destination": "/r2m/courses/[id].html" },
+    { "source": "/shepherd-letters/:id", "destination": "/shepherd-letters/[id].html" },
+    { "source": "/word-notes/:id", "destination": "/word-notes/[id].html" }
   ]
 }
