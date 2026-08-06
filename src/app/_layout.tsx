@@ -1,3 +1,4 @@
+import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Redirect, Stack, ThemeProvider, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider } from 'expo-sqlite';
@@ -7,6 +8,7 @@ import { ActivityIndicator, useColorScheme } from 'react-native';
 import { AuthProvider } from '@/lib/auth';
 import { SkinProvider } from '@/lib/skin';
 import { SQLiteRecoveryBoundary } from '@/components/SQLiteRecoveryBoundary';
+import { FONT_ASSETS } from '@/constants/typography';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,6 +20,12 @@ const BIBLE_DB_ASSET_SOURCE = { assetId: require('../../assets/bible-data/bible.
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const pathname = usePathname();
+
+  // 폰트는 불러오되 화면을 막지 않는다. 정적 웹 내보내기는 Node에서 프리렌더를
+  // 도는데, 거기서는 폰트가 절대 로드되지 않으므로 로딩 중에 null을 돌려주면
+  // 모든 페이지가 빈 HTML로 나온다. 준비되기 전 잠깐 기본 서체로 보이는 편이
+  // 낫다.
+  useFonts(FONT_ASSETS);
 
   // 앱을 그냥 열었을 때(경로가 '/')만 /intro를 거친다. "시작하기"는
   // router.replace('/')로 빠져나가는데, 이 앱의 다른 링크와 똑같은 평범한

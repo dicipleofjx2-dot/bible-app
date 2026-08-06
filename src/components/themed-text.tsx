@@ -1,6 +1,7 @@
-import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
+import { StyleSheet, Text, type TextProps } from 'react-native';
 
 import { Fonts, ThemeColor } from '@/constants/theme';
+import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
@@ -30,44 +31,48 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
   );
 }
 
+// 커스텀 TTF는 fontWeight를 무시한다 — 굵기는 패밀리 이름으로 고른다.
+// fontWeight를 같이 주면 안드로이드가 가짜 굵게를 덧입혀 획이 뭉개지므로 뺐다.
+// 줄간격은 한글 기준으로 넉넉히 잡았다(같은 크기라도 라틴 문자보다 빽빽해 보인다).
 const styles = StyleSheet.create({
   small: {
+    fontFamily: FontFamily.regular,
     fontSize: 14,
-    lineHeight: 20,
-    fontWeight: 500,
+    lineHeight: 21,
   },
   smallBold: {
+    fontFamily: FontFamily.bold,
     fontSize: 14,
-    lineHeight: 20,
-    fontWeight: 700,
+    lineHeight: 21,
   },
   default: {
+    fontFamily: FontFamily.regular,
     fontSize: 16,
-    lineHeight: 24,
-    fontWeight: 500,
+    lineHeight: 26,
   },
   title: {
-    fontSize: 48,
-    fontWeight: 600,
-    lineHeight: 52,
+    fontFamily: FontFamily.display,
+    fontSize: 34,
+    lineHeight: 44,
   },
   subtitle: {
-    fontSize: 32,
-    lineHeight: 44,
-    fontWeight: 600,
+    fontFamily: FontFamily.display,
+    fontSize: 24,
+    lineHeight: 34,
   },
   link: {
+    fontFamily: FontFamily.regular,
     lineHeight: 30,
     fontSize: 14,
   },
   linkPrimary: {
+    fontFamily: FontFamily.bold,
     lineHeight: 30,
     fontSize: 14,
     color: '#3c87f7',
   },
   code: {
     fontFamily: Fonts.mono,
-    fontWeight: Platform.select({ android: 700 }) ?? 500,
     fontSize: 12,
   },
 });
