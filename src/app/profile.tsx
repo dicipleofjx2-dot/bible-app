@@ -85,6 +85,11 @@ export default function ProfileScreen() {
             {isAdmin && (
               <View style={styles.adminLinkGroup}>
                 <Pressable
+                  onPress={() => router.push('/payments/admin')}
+                  style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
+                  <ThemedText type="smallBold">💰 입금확인</ThemedText>
+                </Pressable>
+                <Pressable
                   onPress={() => router.push('/library/admin')}
                   style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
                   <ThemedText type="smallBold">📚 데이빗북스 관리</ThemedText>

@@ -24,6 +24,12 @@ export type Book = {
 
 export type BookWithContent = Book & { paragraphs: string[] };
 
+// 잠긴 책에서 무료로 보여주는 앞부분 분량. 스크롤형 리더라 "페이지" 개념이 없어서
+// 문단 수로 근사한다 — 3~4페이지 분량이 되도록 넉넉하게 잡음(문단당 몇 줄인지에
+// 따라 실제 화면 수는 다를 수 있음). 리더(read.tsx)와 상세 화면([id].tsx)의
+// 안내 문구가 서로 어긋나지 않도록 여기 한 곳에서 관리한다.
+export const PREVIEW_PARAGRAPH_LIMIT = 15;
+
 export type AccessState = {
   purchasedBookIds: string[];
   hasActiveSubscription: boolean;
@@ -95,55 +101,31 @@ export function hasBookAccess(book: Book, access: AccessState): boolean {
   }
 }
 
+// 열람 권한은 승인이 끝난 것만 인정한다 — 구매는 status='paid', 구독은
+// status='active'이면서 이용기간(current_period_end)이 남아 있어야 한다.
+// 대기중(pending) 신청은 여기 포함되지 않으므로, 입금 신청만 해두고 실제로
+// 입금하지 않은 사람에게 콘텐츠가 열리지 않는다.
+//
+// 실제 결제/승인은 src/db/payments.ts에 있다. 이 파일에는 "권한을 읽는" 함수만
+// 두고, "권한을 여는" 함수는 두지 않는다 — 0021 시절 클라이언트가 스스로
+// 구독을 활성화할 수 있었던 구멍(0033_manual_payment_approval.sql에서 수정)이
+// 여기 있던 toggleSubscription()이었다.
 export async function getMyAccess(userId: string): Promise<AccessState> {
   const [{ data: purchases }, { data: subscriptions }] = await Promise.all([
     supabase.from('purchases').select('book_id').eq('user_id', userId).eq('status', 'paid'),
-    supabase.from('subscriptions').select('id').eq('user_id', userId).eq('status', 'active').limit(1),
+    supabase
+      .from('subscriptions')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      // 0033 이전에 승인된 행에는 만료일이 없을 수 있어 null도 유효로 본다.
+      .or(`current_period_end.is.null,current_period_end.gt.${new Date().toISOString()}`)
+      .limit(1),
   ]);
   return {
     purchasedBookIds: (purchases ?? []).map((row: any) => row.book_id as string),
     hasActiveSubscription: (subscriptions ?? []).length > 0,
   };
-}
-
-// 포트원(실결제) 연동 전 개발용 구매 승인. pending 행을 만든 뒤 바로 paid로
-// 갱신을 시도하는데, RLS가 기본적으로 클라이언트의 paid 갱신을 막아두므로
-// (0021_personal_library.sql) 정상적으로는 여기서 실패한다 — 테스트해보려면
-// 그 마이그레이션의 "DEV ONLY" 정책을 켜야 한다.
-export async function purchaseBookDevApprove(userId: string, book: Book): Promise<{ error?: string }> {
-  const { error: upsertError } = await supabase
-    .from('purchases')
-    .upsert(
-      { user_id: userId, book_id: book.id, amount: book.price, status: 'pending' },
-      { onConflict: 'user_id,book_id' },
-    );
-  if (upsertError) return { error: upsertError.message };
-
-  const { error: approveError } = await supabase
-    .from('purchases')
-    .update({ status: 'paid' })
-    .eq('user_id', userId)
-    .eq('book_id', book.id);
-  if (approveError) {
-    return {
-      error:
-        '구매 승인에 실패했습니다. 아직 실결제(포트원) 연동 전이라, 테스트하려면 supabase/migrations/0021_personal_library.sql의 DEV ONLY 정책을 켜야 합니다.',
-    };
-  }
-  return {};
-}
-
-export async function toggleSubscription(userId: string, currentlyActive: boolean): Promise<{ error?: string }> {
-  if (currentlyActive) {
-    const { error } = await supabase
-      .from('subscriptions')
-      .update({ status: 'canceled', canceled_at: new Date().toISOString() })
-      .eq('user_id', userId)
-      .eq('status', 'active');
-    return { error: error?.message };
-  }
-  const { error } = await supabase.from('subscriptions').insert({ user_id: userId, status: 'active' });
-  return { error: error?.message };
 }
 
 // ============================================================

@@ -1,8 +1,10 @@
 # BibleApp — Handoff / Status Reference
 
-Last updated: 2026-07-29. Everything through `1c91ae0` is **committed and
+Last updated: 2026-08-06. Everything through `fe9990a` is **committed and
 pushed to origin/main**; Vercel auto-deploys on push, so the web app is
-live and current. Native (Android APK via EAS) is a separate story — see
+live and current. The 2026-08-06 결제 work below sits on the branch
+`claude/earn-10m-won-7qd8s9` and is **not on main yet** — merging it is
+what puts it live. Native (Android APK via EAS) is a separate story — see
 "⚠️ EAS build quota" below before offering to build one.
 
 ## ⚠️ EAS build quota exhausted — no more Android builds until 2026-08-01
@@ -35,6 +37,65 @@ plain `useEffect` in a layout that's part of the static-export tree —
 use `<Redirect>` instead**, and after any change to `_layout.tsx`
 specifically, load the site fresh (not just click-test) to make sure it
 still boots at all before considering the change done.
+
+## ⚠️ 유료 콘텐츠는 관리자 승인으로만 열린다 — 클라이언트가 못 연다
+2026-08-06 이전까지 `subscriptions`에는 `manage own subscription`이라는
+`for all` 정책이 걸려 있어서, 클라이언트가 `status:'active'` 행을 자기
+`user_id`로 직접 insert 할 수 있었다. 앱의 "정기후원 시작하기" 버튼
+(`toggleSubscription()`)이 정확히 그 동작을 했다 — **결제가 전혀 일어나지
+않는데 월 5,000원짜리 구독전용 콘텐츠가 열렸다.** 수익이 0원이었을 뿐 아니라,
+후원하려던 사용자는 돈이 빠져나가지 않았다는 사실을 몰랐다.
+`0033_manual_payment_approval.sql`에서 그 정책을 제거하고, 사용자에게는
+`pending` 신청만 허용한다. **앞으로 결제 관련 코드를 만질 때의 규칙: 권한을
+여는 상태 변경(`purchases.paid`, `subscriptions.active`)은 RLS에서 관리자
+(`profiles.is_admin`)에게만 열려 있어야 하고, `src/db/library.ts`에는 권한을
+"읽는" 함수만 둔다** — 권한을 "여는" 함수는 `src/db/payments.ts`에 모아뒀다.
+
+## This session (2026-08-06) — summary
+결제를 실제로 붙였다. 목표는 "한 달에 1,000만원"이었고, 그 숫자에 대한 정직한
+계산은 `docs/수익화.md`에 따로 적어뒀다(요약: 정기후원만으로 채우려면 2,000명이
+필요하고 첫 달에 그 규모는 나오지 않는다 — 객단가와 결제 이탈이 실제 레버다).
+
+**결제 수단으로 계좌이체 + 관리자 수동확인을 골랐다.** 포트원/토스는 사업자등록과
+PG 심사에 1~2주가 걸려서 한 달 기한에 맞지 않는다. 계좌정보는 이미
+`support_settings`(0028)에 있어서 코드만 붙이면 당장 돈을 받을 수 있다. PG 심사가
+끝나면 `src/db/payments.ts`의 신청 함수만 갈아끼우면 된다.
+
+1. **`0033_manual_payment_approval.sql`** — 위 ⚠️의 구멍을 막는 것이 핵심.
+   추가로 `purchases`/`subscriptions`에 입금 대조용 컬럼(`depositor_name`,
+   `approved_at`, `approved_by`)을 넣고, 구독에 `pending` 상태와 "한 사람당
+   대기중/활성 구독 하나" 부분 유니크 인덱스를 걸었다. 구매에는 `rejected`
+   상태를 추가했다(입금이 안 된 신청을 `refunded`로 적으면 실제 환불과 구분이
+   안 된다). **이미 공짜로 켜져 있던 `active` 구독은 전부 `pending`으로
+   되돌린다** — 결제를 거친 건이 하나도 없으므로 그대로 두면 유료 콘텐츠가 계속
+   무료로 열린다. 관리자 목록에 `(결제 연동 전 체험용)`이라는 입금자명으로
+   남으니 확인 후 승인하거나 거절하면 된다.
+2. **`src/db/payments.ts`** (신규) — 사용자용(`requestBookPurchase`,
+   `requestSubscription`, `cancelMySubscription`, `getMyPaymentStatus`)과
+   관리자용(`getPendingPayments`, `approvePayment`, `rejectPayment`,
+   `getApprovedTotals`)을 한 파일에 모았다. 받아야 할 금액은 **반드시
+   `books.price`에서 읽는다** — `purchases.amount`는 사용자가 자기 pending 행을
+   수정할 수 있어(RLS) 신뢰할 수 없다.
+3. **`src/app/checkout.tsx`** (신규) — 계좌번호 복사 + 입금자명 입력 + 신청 접수.
+   책 구매(`?kind=book&bookId=...`)와 정기후원(`?kind=subscription`) 양쪽이 같은
+   화면을 쓴다. 로그인이 없으면 `<Redirect href="/profile" />`(정적 export
+   트리라 imperative 라우팅 금지 — 맨 위 ⚠️ 참고).
+4. **`src/app/payments/admin.tsx`** (신규) — 대기 목록 + 승인/거절 + 이번 달·전체
+   승인 누계. 마이페이지에 "💰 입금확인"으로 연결. 승인은 `.eq('status','pending')`
+   조건부라 관리자가 동시에 눌러도 두 번 승인되지 않는다.
+5. **구독은 자동결제가 아니라 한 달짜리 수동 갱신이다** — `approvePayment()`가
+   `current_period_end`를 한 달 뒤로 잡고, `getMyAccess()`가 만료를 확인한다.
+   **만료 임박 안내가 없어서 그대로 이탈한다 — 현재 가장 큰 누수 지점**
+   (`docs/수익화.md` 참고).
+6. **UX**: 잠긴 책 상세 화면에 "전체 N개 문단 중 앞 15개 무료, 나머지 M개는
+   구매하시면 열립니다"를 표시한다. `PREVIEW_PARAGRAPH_LIMIT`은 read.tsx에서
+   `src/db/library.ts`로 옮겨 두 화면이 같은 값을 쓴다. 입금확인 대기 중에는
+   버튼이 "⏳ 입금확인 중"으로 바뀐다.
+7. **검증**: `tsc --noEmit` 통과(남은 `@/global.css` 오류는 `.expo/types` 미생성
+   때문으로 이 작업과 무관), `expo export --platform web` 성공 — 새 라우트
+   `/checkout`, `/payments/admin`이 기존 라우트와 동일한 셸로 프리렌더된다.
+   **실제 결제 흐름은 로그인이 필요해 사람이 직접 확인해야 한다** (아래
+   "Established workflow patterns" 참고).
 
 ## This session (2026-07-29) — summary
 New feature area: a native "데이빗북스" e-book library bolted onto
@@ -502,6 +563,11 @@ screens for current behavior rather than trusting a re-paraphrase here.
   `curl -s "$EXPO_PUBLIC_SUPABASE_URL/rest/v1/<table>?select=<col>&limit=1" -H "apikey: $EXPO_PUBLIC_SUPABASE_ANON_KEY" -H "Authorization: Bearer $EXPO_PUBLIC_SUPABASE_ANON_KEY"`.
   As of this session, migrations 0001–0018 have all been run and confirmed;
   `supabase/migrations/` matches the live DB.
+  **`0033_manual_payment_approval.sql`은 아직 실행되지 않았다** — 이걸 돌리기
+  전까지는 결제 화면이 동작하지 않고(구독 `pending` 상태가 없어 신청이 실패한다),
+  무엇보다 **공짜 구독 구멍이 그대로 열려 있다.** 실행 후 아래로 확인할 수 있다:
+  `curl -s "$EXPO_PUBLIC_SUPABASE_URL/rest/v1/purchases?select=depositor_name&limit=1" -H "apikey: $EXPO_PUBLIC_SUPABASE_ANON_KEY" -H "Authorization: Bearer $EXPO_PUBLIC_SUPABASE_ANON_KEY"`
+  — 컬럼이 없으면 `42703` 에러가, 실행됐으면 빈 배열 `[]`이 돌아온다.
 - Claude normally cannot log in to the app (password entry is off-limits),
   so anything gated behind auth needs the user to manually verify most
   sessions.
@@ -631,6 +697,13 @@ tool, switch to one of the methods below instead of continuing to guess:**
   longer-standing known gaps (2028+ Korean holidays not in
   `korea-holidays.ts`, no admin granted yet in `profiles.is_admin`, etc.)
   — not touched this session, still accurate.
+- **결제 관련 (2026-08-06):** 구독 만료 임박 안내가 없어 수동 갱신이 그대로
+  이탈한다(가장 큰 누수). 관리자 화면에 환불 버튼이 없어 `purchases.status`를
+  `refunded`로 바꾸려면 SQL을 직접 써야 한다. 입금 대조가 사람 눈이라 건수가
+  늘면 오픈뱅킹 API 자동 대사가 필요하다. 그리고 **국내에서 유료 콘텐츠를
+  판매하면 통신판매업 신고와 환불 규정 고지가 따라온다 — 코드가 아니라 사업자
+  쪽 확인 사항이라 실제로 돈을 받기 전에 짚어야 한다.** 자세한 계산과 우선순위는
+  `docs/수익화.md`.
 - **말씀카드's native KakaoTalk share is not implemented** — web only
   (`isKakaoShareAvailable` hard-checks `Platform.OS === 'web'`). If the user
   wants sharing from the native app, that needs the native Kakao SDK, a key
