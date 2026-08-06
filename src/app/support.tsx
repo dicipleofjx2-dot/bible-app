@@ -9,8 +9,16 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getMyAccess, toggleSubscription, type AccessState } from '@/db/library';
+import { getMyAccess, type AccessState } from '@/db/library';
 import { getSupportSettings, type SupportSettings } from '@/db/support';
+import {
+  cancelMySubscription,
+  getMyPaymentStatus,
+  SUBSCRIPTION_PRICE,
+  type MyPaymentStatus,
+} from '@/db/payments';
+
+const NO_PAYMENTS: MyPaymentStatus = { pendingBookIds: [], hasPendingSubscription: false };
 
 const EMPTY_SETTINGS: SupportSettings = { coupangUrl: '', bankName: '', bankAccount: '', bankHolder: '' };
 
@@ -58,6 +66,7 @@ export default function SupportScreen() {
   const { session } = useAuth();
   const [settings, setSettings] = useState<SupportSettings>(EMPTY_SETTINGS);
   const [access, setAccess] = useState<AccessState>({ purchasedBookIds: [], hasActiveSubscription: false });
+  const [payments, setPayments] = useState<MyPaymentStatus>(NO_PAYMENTS);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,21 +76,31 @@ export default function SupportScreen() {
       .catch(() => setSettings(EMPTY_SETTINGS));
     if (session) {
       getMyAccess(session.user.id).then(setAccess).catch(() => {});
+      getMyPaymentStatus(session.user.id).then(setPayments).catch(() => setPayments(NO_PAYMENTS));
     } else {
       setAccess({ purchasedBookIds: [], hasActiveSubscription: false });
+      setPayments(NO_PAYMENTS);
     }
   }, [session]);
 
   useFocusEffect(load);
 
-  async function handleToggleSubscription() {
+  // 후원 시작은 입금 안내 화면(checkout)을 거친다 — 계좌번호를 보여주고
+  // 입금자명을 받아야 관리자가 통장에서 대조할 수 있다.
+  function handleStartSubscription() {
     if (!session) {
       router.push('/profile');
       return;
     }
+    router.push({ pathname: '/checkout', params: { kind: 'subscription' } });
+  }
+
+  // 해지(그리고 신청 철회)는 사용자가 직접 할 수 있는 유일한 상태 변경이다.
+  async function handleCancelSubscription() {
+    if (!session) return;
     setError(null);
     setPending(true);
-    const result = await toggleSubscription(session.user.id, access.hasActiveSubscription);
+    const result = await cancelMySubscription(session.user.id);
     setPending(false);
     if (result.error) {
       setError(result.error);
@@ -105,24 +124,51 @@ export default function SupportScreen() {
           </ThemedText>
 
           <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
-            <ThemedText type="smallBold">💝 정기후원 (월 5,000원)</ThemedText>
+            <ThemedText type="smallBold">
+              💝 정기후원 (월 {SUBSCRIPTION_PRICE.toLocaleString()}원)
+            </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              정기후원을 시작하면 데이빗북스 구독전용 콘텐츠도 함께 이용하실 수 있어요. 정식 결제
-              연동(카드 자동결제) 준비 중이라, 지금은 체험용으로 구독 상태만 활성화됩니다.
+              정기후원을 시작하면 데이빗북스 구독전용 콘텐츠도 함께 이용하실 수 있어요. 아래
+              후원계좌로 입금해주시면 관리자가 확인 후 한 달간 열어드립니다. 카드 자동결제가
+              아니라서 다음 달에 다시 입금해주셔야 이어집니다.
             </ThemedText>
             {error && (
               <ThemedText type="small" style={styles.errorText}>
                 {error}
               </ThemedText>
             )}
-            <Pressable
-              disabled={pending}
-              onPress={handleToggleSubscription}
-              style={[styles.primaryButton, { backgroundColor: theme.backgroundSelected, opacity: pending ? 0.5 : 1 }]}>
-              <ThemedText type="smallBold">
-                {pending ? '처리 중...' : access.hasActiveSubscription ? '구독 해지하기' : '정기후원 시작하기'}
-              </ThemedText>
-            </Pressable>
+
+            {access.hasActiveSubscription ? (
+              <>
+                <ThemedText type="small" themeColor="textSecondary">
+                  후원해주셔서 감사합니다. 구독전용 콘텐츠가 열려 있어요.
+                </ThemedText>
+                <Pressable
+                  disabled={pending}
+                  onPress={handleCancelSubscription}
+                  style={[styles.primaryButton, { backgroundColor: theme.backgroundSelected, opacity: pending ? 0.5 : 1 }]}>
+                  <ThemedText type="smallBold">{pending ? '처리 중...' : '후원 해지하기'}</ThemedText>
+                </Pressable>
+              </>
+            ) : payments.hasPendingSubscription ? (
+              <>
+                <ThemedText type="small" themeColor="textSecondary">
+                  ⏳ 입금확인을 기다리는 중이에요. 관리자가 통장에서 확인하면 바로 열립니다.
+                </ThemedText>
+                <Pressable
+                  disabled={pending}
+                  onPress={handleCancelSubscription}
+                  style={[styles.primaryButton, { backgroundColor: theme.backgroundElement, opacity: pending ? 0.5 : 1 }]}>
+                  <ThemedText type="smallBold">{pending ? '처리 중...' : '신청 취소'}</ThemedText>
+                </Pressable>
+              </>
+            ) : (
+              <Pressable
+                onPress={handleStartSubscription}
+                style={[styles.primaryButton, { backgroundColor: theme.backgroundSelected }]}>
+                <ThemedText type="smallBold">정기후원 시작하기</ThemedText>
+              </Pressable>
+            )}
           </View>
 
           <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>

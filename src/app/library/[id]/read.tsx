@@ -10,15 +10,19 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getBookWithContent, getMyAccess, hasBookAccess, type AccessState, type BookWithContent } from '@/db/library';
+import {
+  getBookWithContent,
+  getMyAccess,
+  hasBookAccess,
+  PREVIEW_PARAGRAPH_LIMIT,
+  type AccessState,
+  type BookWithContent,
+} from '@/db/library';
 
 const FONT_SIZE_KEY = 'bibleapp.library.fontSize';
 const FONT_SIZE_MIN = 14;
 const FONT_SIZE_MAX = 28;
 const FONT_SIZE_STEP = 2;
-// 스크롤형 리더라 "페이지" 개념이 없어서 문단 수로 근사한다 — 3~4페이지
-// 분량이 되도록 넉넉하게 잡음(문단당 몇 줄인지에 따라 실제 화면 수는 다를 수 있음).
-const PREVIEW_PARAGRAPH_LIMIT = 15;
 
 // 웹앱(personal-library-app) 쪽의 텍스트 드래그 하이라이트/메모/성경구절 팝업은
 // React DOM의 Selection/Range API를 쓰는데, React Native에는 그 API 자체가
