@@ -4,80 +4,130 @@ import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { announcePresence, hasOtherTab, onOtherTabClosed } from '@/lib/tabPresence';
 
 type Props = { children: ReactNode };
-type State = { error: Error | null };
+type State = { error: Error | null; otherTabOpen: boolean };
 
 const OPFS_LOCK_MESSAGE_FRAGMENT = 'Access Handle';
 
 /**
- * expo-sqlite's web (OPFS) backend leaks a Worker on every Fast Refresh that
- * touches its module graph in dev mode: `SQLiteProviderSuspense`'s
- * `databaseInstance` cache (expo-sqlite/src/hooks.tsx) and `SQLiteModule`'s
- * `worker` singleton (expo-sqlite/web/SQLiteModule.ts) are both plain
- * module-level `let` variables with no HMR-teardown hook. A hot-reloaded
- * module gets a fresh `worker`/`databaseInstance`, but the *previous* Worker
- * — and the OPFS sync access handles it opened and never released — keeps
- * running in the background forever, permanently locking `bible-v5.db`'s
- * pooled files for every future open attempt (`NoModificationAllowedError:
- * ...createSyncAccessHandle...Access Handles cannot be created if there is
- * another open Access Handle`) until the browser tab is fully closed. Only
- * hits web dev mode (Fast Refresh) — production web builds and every native
- * platform never re-trigger this module graph after the first load, so
- * there's no leaked Worker to collide with.
+ * 웹에서 이 앱은 브라우저 저장소(OPFS)를 한 탭만 잡을 수 있다. 잠금을 못 얻으면
+ * DB 열기가 `NoModificationAllowedError: ...Access Handles cannot be created if
+ * there is another open Access Handle`로 실패한다. 원인은 두 가지다.
  *
- * The app has no way to reach across into that orphaned Worker to close it,
- * so "try again" can't work — the only fix is to clear the OPFS storage
- * (freeing the files even though the stale Worker still thinks it owns
- * them, since the *files themselves* aren't what's locked, the live
- * `FileSystemSyncAccessHandle` objects are) and do a real full reload,
- * which finally does tear down every Worker this tab ever spawned.
+ *  1. **다른 탭에서 앱이 이미 열려 있다** — 운영에서 실제로 가장 흔하다.
+ *     홈페이지(newwineskin.co.kr)에서 데이빗바이블 링크를 누를 때, 앱을 띄운
+ *     탭이 이미 있으면 매번 여기로 떨어진다. 답은 그 탭을 닫는 것이고,
+ *     저장소를 지우는 건 멀쩡한 데이터를 날리는 잘못된 처방이다.
+ *  2. **개발 중 Fast Refresh가 Worker를 흘린 경우** — expo-sqlite 웹 백엔드의
+ *     `databaseInstance`/`worker`가 모듈 수준 변수라 HMR 시 정리되지 않는다.
+ *     버려진 Worker가 열어 둔 sync access handle을 계속 쥐고 있어서, 이때는
+ *     탭을 완전히 닫기 전까지 손쓸 방법이 없고 저장소 정리가 유일한 길이다.
+ *
+ * 예전에는 둘을 구분하지 않고 늘 "개발 모드 문제니 저장소를 정리하라"고 안내했다.
+ * 운영에서 이 화면을 본 사용자에게는 사실도 아니고 해로운 안내였다. 이제
+ * 다른 탭이 살아 있는지 물어보고 맞는 쪽을 안내한다. 그 탭이 닫히면 알아서
+ * 다시 시도한다.
  */
 export class SQLiteRecoveryBoundary extends Component<Props, State> {
-  state: State = { error: null };
+  state: State = { error: null, otherTabOpen: false };
+  private stopListening: (() => void) | null = null;
 
   static getDerivedStateFromError(error: Error): State {
-    return { error };
+    return { error, otherTabOpen: false };
   }
 
-  async recover() {
+  componentDidMount() {
+    announcePresence();
+  }
+
+  async componentDidCatch(error: Error) {
+    if (!this.isOpfsLock(error)) return;
+
+    if (await hasOtherTab()) {
+      this.setState({ otherTabOpen: true });
+      // 그 탭이 닫히면 잠금이 풀린다 — 사용자가 아무것도 안 눌러도 되게 한다.
+      this.stopListening = onOtherTabClosed(() => this.reload());
+    }
+  }
+
+  componentWillUnmount() {
+    this.stopListening?.();
+  }
+
+  private isOpfsLock(error: Error) {
+    return Platform.OS === 'web' && !!error.message?.includes(OPFS_LOCK_MESSAGE_FRAGMENT);
+  }
+
+  private reload() {
+    if (typeof window !== 'undefined') window.location.reload();
+  }
+
+  /** 저장소를 비우고 새로고침. 다른 탭 문제일 때는 쓰면 안 된다. */
+  async clearAndReload() {
     if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.storage?.getDirectory) {
       try {
         const root = await navigator.storage.getDirectory();
         await root.removeEntry('expo-sqlite', { recursive: true });
       } catch {
-        // Best-effort: if some other context still holds a handle this
-        // fails the same way the original open did, but it's harmless to
-        // try, and it succeeds once the orphaned Worker is actually gone.
+        // 다른 컨텍스트가 아직 핸들을 쥐고 있으면 여기서도 같은 이유로 실패한다.
+        // 시도 자체는 해롭지 않고, 그 Worker가 사라지면 성공한다.
       }
     }
-    if (typeof window !== 'undefined') {
-      window.location.reload();
-    }
+    this.reload();
   }
 
   render() {
-    const { error } = this.state;
+    const { error, otherTabOpen } = this.state;
     if (!error) return this.props.children;
 
-    const isKnownOpfsLock = Platform.OS === 'web' && error.message?.includes(OPFS_LOCK_MESSAGE_FRAGMENT);
+    const opfsLock = this.isOpfsLock(error);
+
+    if (otherTabOpen) {
+      return (
+        <ThemedView style={styles.container}>
+          <View style={styles.card}>
+            <ThemedText type="smallBold" style={styles.title}>
+              다른 탭에서 이미 열려 있어요
+            </ThemedText>
+            <ThemedText type="small" themeColor="textSecondary" style={styles.body}>
+              데이빗바이블은 한 번에 한 탭에서만 쓸 수 있습니다. 먼저 열어 둔 탭을 닫으면 여기서 바로
+              이어집니다.
+            </ThemedText>
+            <Pressable onPress={() => this.reload()} style={styles.button}>
+              <ThemedText type="smallBold" style={styles.buttonText}>
+                다시 시도
+              </ThemedText>
+            </Pressable>
+          </View>
+        </ThemedView>
+      );
+    }
 
     return (
       <ThemedView style={styles.container}>
         <View style={styles.card}>
           <ThemedText type="smallBold" style={styles.title}>
-            {isKnownOpfsLock ? '일시적인 저장소 오류가 발생했습니다' : '문제가 발생했습니다'}
+            {opfsLock ? '저장소를 열지 못했습니다' : '문제가 발생했습니다'}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary" style={styles.body}>
-            {isKnownOpfsLock
-              ? '개발 모드에서 가끔 발생하는 문제예요. 아래 버튼을 누르면 저장소를 정리하고 새로고침합니다.'
+            {opfsLock
+              ? '다른 창이나 탭에서 데이빗바이블을 열어 두었다면 먼저 닫아 주세요. 그래도 안 되면 저장소를 정리하고 다시 받습니다.'
               : '아래 버튼을 눌러 새로고침해주세요.'}
           </ThemedText>
-          <Pressable onPress={() => this.recover()} style={styles.button}>
+          <Pressable onPress={() => this.reload()} style={styles.button}>
             <ThemedText type="smallBold" style={styles.buttonText}>
-              {isKnownOpfsLock ? '정리하고 새로고침' : '새로고침'}
+              다시 시도
             </ThemedText>
           </Pressable>
+          {opfsLock ? (
+            <Pressable onPress={() => this.clearAndReload()} style={styles.secondary}>
+              <ThemedText type="small" themeColor="textSecondary">
+                저장소 정리하고 새로고침
+              </ThemedText>
+            </Pressable>
+          ) : null}
         </View>
       </ThemedView>
     );
@@ -94,7 +144,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.five,
     paddingVertical: Spacing.three,
     borderRadius: Spacing.three,
-    backgroundColor: '#3c87f7',
+    backgroundColor: '#1F6FA8',
   },
   buttonText: { color: '#fff' },
+  secondary: { paddingVertical: Spacing.two },
 });
