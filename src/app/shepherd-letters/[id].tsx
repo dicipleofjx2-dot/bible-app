@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 import { getLetterById, type ShepherdLetterWithParagraphs } from '@/db/shepherdLetters';
 
@@ -104,7 +105,10 @@ const styles = StyleSheet.create({
     marginTop: Spacing.two,
   },
   paragraph: {
-    lineHeight: 26,
+    // 목자편지는 길게 읽는 글이라 명조로.
+    fontFamily: FontFamily.serif,
+    fontSize: 17,
+    lineHeight: 31,
   },
   gallery: {
     marginTop: Spacing.three,

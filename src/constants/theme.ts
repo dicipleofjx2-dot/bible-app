@@ -32,30 +32,35 @@ type Skin = {
 
 export const DEFAULT_SKIN: SkinId = 'david';
 
-/** David Bible's single calm/premium theme — Deep Navy + Warm Ivory + Gold
- * accent + Sage Green support, light and dark. Replaced the old 4-skin
- * picker (coral/mint/sunset/ocean) for a consistent brand identity. */
+/** 데이빗바이블의 단일 테마 — Deep Navy 글자 + 옅은 바다빛 바탕 + Gold 강조.
+ *
+ * 원래 바탕은 따뜻한 아이보리(#FAF6EF)였는데, 2026-08 여름에 시원하게 읽히도록
+ * 옅은 바다빛으로 바꿨다. 글자의 짙은 남색과 금색 강조는 그대로 둬서 브랜드가
+ * 흐트러지지 않는다 — 모래와 바다처럼 맞물린다. 새부대교회 홈페이지도 같은
+ * 색으로 맞춰 두어서 앱과 홈페이지가 한 브랜드로 읽힌다.
+ * (예전 4가지 스킨 선택기는 브랜드 일관성을 위해 없앴다.) */
 export const Skins: Record<SkinId, Skin> = {
   david: {
     label: 'David Bible',
     colors: {
       light: {
         text: '#16233D',
-        background: '#FAF6EF',
-        backgroundElement: '#F1EADC',
+        background: '#F1F8FA',
+        backgroundElement: '#DFEDF2',
         backgroundSelected: '#C9A24B',
-        textSecondary: '#6B6558',
+        textSecondary: '#5C6B78',
         accent: '#C9A24B',
-        support: '#8FA98C',
+        support: '#4FA3A8',
       },
       dark: {
-        text: '#F5EFE3',
-        background: '#0B1424',
-        backgroundElement: '#16213A',
+        // 어두운 모드도 남색에서 살짝 청록 쪽으로 옮겨 깊은 바다처럼.
+        text: '#EDF3F5',
+        background: '#08192A',
+        backgroundElement: '#12283C',
         backgroundSelected: '#D4AF6A',
-        textSecondary: '#A9AFC0',
+        textSecondary: '#9AAFBC',
         accent: '#D4AF6A',
-        support: '#9FBF9C',
+        support: '#6FBFC4',
       },
     },
     gradient: {

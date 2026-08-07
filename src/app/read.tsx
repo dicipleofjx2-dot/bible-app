@@ -294,8 +294,10 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   verseText: {
-    // 성경 본문은 오래 읽는 글이라 본문용 서체를 명시한다.
-    fontFamily: FontFamily.regular,
+    // 성경 본문은 명조로. 가로획이 가늘고 세로획이 굵어 줄을 따라가기 쉽고,
+    // 성경은 원래 명조로 조판해 온 글이라 눈에 익다.
+    // 크기·줄간격은 사용자가 조절하므로 여기서는 서체만 정한다.
+    fontFamily: FontFamily.serif,
   },
   verseRow: {
     borderRadius: Spacing.two,
