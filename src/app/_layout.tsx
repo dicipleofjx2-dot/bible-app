@@ -8,6 +8,7 @@ import { ActivityIndicator, useColorScheme } from 'react-native';
 import { AuthProvider } from '@/lib/auth';
 import { SkinProvider } from '@/lib/skin';
 import { SQLiteRecoveryBoundary } from '@/components/SQLiteRecoveryBoundary';
+import { AppDbLock } from '@/components/AppDbLock';
 import { FONT_ASSETS } from '@/constants/typography';
 
 SplashScreen.preventAutoHideAsync();
@@ -55,6 +56,7 @@ export default function RootLayout() {
               assetSource={BIBLE_DB_ASSET_SOURCE}
               useSuspense>
               <AuthProvider>
+                <AppDbLock />
                 {shouldShowIntro && <Redirect href="/intro" />}
                 <Stack screenOptions={{ headerShown: false }}>
                   <Stack.Screen name="(tabs)" />

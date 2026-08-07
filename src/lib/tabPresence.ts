@@ -4,74 +4,70 @@
  *
  * 그 상황인지 아닌지를 알아야 사용자에게 맞는 말을 해줄 수 있다 — 다른 탭이
  * 있으면 "그 탭을 닫으세요"가 답이고, 없으면 저장소가 실제로 망가진 것이라
- * 정리가 답이다. 둘을 구분하지 못해 늘 "저장소를 정리하라"고 안내하고 있었고,
- * 그건 멀쩡한 데이터를 지우라는 잘못된 처방이었다.
+ * 정리가 답이다.
  *
- * BroadcastChannel로 같은 출처의 다른 탭에 신호를 보내 살아 있는지 물어본다.
- * 네이티브(iOS·안드로이드)에는 BroadcastChannel이 없고 탭 개념도 없으므로
- * 전부 "다른 탭 없음"으로 동작한다.
+ * 처음에는 BroadcastChannel로 "거기 누구 있냐"고 물어봤는데, 배경으로 내려간
+ * 탭은 메시지 처리를 미뤄서 답이 제때 오지 않았다. 링크를 눌러 새 탭이 앞으로
+ * 나오는 상황이 딱 그 경우라, 정작 필요한 순간에 못 알아챘다.
+ *
+ * 그래서 Web Locks로 바꿨다. 메시지를 주고받을 필요 없이 잠금이 잡혀 있는지
+ * 물어보기만 하면 되고, 탭이 닫히면 브라우저가 알아서 풀어 준다. 기다리는 쪽은
+ * 같은 잠금을 요청해 두면 풀리는 순간 깨어난다 — 폴링도 필요 없다.
+ *
+ * 잠금은 **DB를 실제로 연 탭만** 잡는다(AppDbLock 참고). 에러로 떨어진 탭까지
+ * 잡으면 서로 자기가 주인인 줄 알게 된다.
  */
-const CHANNEL_NAME = 'davidbible-tabs';
-const PING = 'ping';
-const PONG = 'pong';
-const BYE = 'bye';
+const LOCK_NAME = 'davidbible-db';
 
-type Channel = { postMessage(m: string): void; close(): void; onmessage: ((e: { data: string }) => void) | null };
+type LockManager = {
+  request(name: string, options: { mode?: string; signal?: AbortSignal }, cb: () => Promise<void>): Promise<void>;
+  query(): Promise<{ held: { name?: string }[] }>;
+};
 
-function openChannel(): Channel | null {
-  if (typeof BroadcastChannel === 'undefined') return null;
-  try {
-    return new BroadcastChannel(CHANNEL_NAME) as unknown as Channel;
-  } catch {
-    return null;
-  }
+function locks(): LockManager | null {
+  if (typeof navigator === 'undefined') return null;
+  return (navigator as unknown as { locks?: LockManager }).locks ?? null;
 }
 
-let selfChannel: Channel | null = null;
-
-/** 앱이 뜨면 한 번 호출한다. 다른 탭이 물어오면 "나 여기 있다"고 답한다. */
-export function announcePresence() {
-  if (selfChannel) return;
-  selfChannel = openChannel();
-  if (!selfChannel) return;
-
-  selfChannel.onmessage = (event) => {
-    if (event.data === PING) selfChannel?.postMessage(PONG);
-  };
-
-  if (typeof window !== 'undefined') {
-    // 탭이 닫히면 알려 준다 — 기다리던 탭이 곧바로 다시 시도할 수 있게.
-    window.addEventListener('pagehide', () => selfChannel?.postMessage(BYE));
-  }
-}
-
-/** 같은 앱을 띄운 다른 탭이 살아 있는지. 답이 없으면 없는 것으로 본다. */
-export function hasOtherTab(timeoutMs = 400): Promise<boolean> {
-  const channel = openChannel();
-  if (!channel) return Promise.resolve(false);
-
-  return new Promise((resolve) => {
-    let done = false;
-    const finish = (value: boolean) => {
-      if (done) return;
-      done = true;
-      channel.close();
-      resolve(value);
-    };
-    channel.onmessage = (event) => {
-      if (event.data === PONG) finish(true);
-    };
-    channel.postMessage(PING);
-    setTimeout(() => finish(false), timeoutMs);
+/**
+ * DB를 연 탭이 부르는 함수. 탭이 살아 있는 동안 잠금을 쥐고 있다가, 탭이 닫히면
+ * 브라우저가 자동으로 놓는다. 그래서 일부러 끝나지 않는 약속을 돌려준다.
+ */
+export function holdDbLock() {
+  const manager = locks();
+  if (!manager) return;
+  manager.request(LOCK_NAME, { mode: 'exclusive' }, () => new Promise<void>(() => {})).catch(() => {
+    // 이미 다른 탭이 쥐고 있으면 그냥 기다리는 상태가 된다 — 문제될 게 없다.
   });
 }
 
-/** 다른 탭이 닫히면 알려 준다. 정리 함수를 돌려준다. */
-export function onOtherTabClosed(callback: () => void): () => void {
-  const channel = openChannel();
-  if (!channel) return () => {};
-  channel.onmessage = (event) => {
-    if (event.data === BYE) callback();
-  };
-  return () => channel.close();
+/** 같은 앱을 띄운 다른 탭이 DB를 쥐고 있는지. */
+export async function hasOtherTab(): Promise<boolean> {
+  const manager = locks();
+  if (!manager) return false;
+  try {
+    const state = await manager.query();
+    return state.held.some((lock) => lock.name === LOCK_NAME);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 다른 탭이 잠금을 놓으면(=탭이 닫히면) 알려 준다.
+ * 같은 잠금을 요청해 줄을 서 두면 차례가 오는 순간 콜백이 불린다.
+ * 정리 함수를 돌려주므로 화면이 사라질 때 요청을 취소할 수 있다.
+ */
+export function onDbLockReleased(callback: () => void): () => void {
+  const manager = locks();
+  if (!manager) return () => {};
+  const controller = new AbortController();
+  manager
+    .request(LOCK_NAME, { mode: 'exclusive', signal: controller.signal }, async () => {
+      callback();
+    })
+    .catch(() => {
+      // 취소(abort)되면 여기로 온다 — 무시한다.
+    });
+  return () => controller.abort();
 }
