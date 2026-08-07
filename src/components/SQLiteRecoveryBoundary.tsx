@@ -47,13 +47,30 @@ export class SQLiteRecoveryBoundary extends Component<Props, State> {
 
     if (await hasOtherTab()) {
       this.setState({ otherTabOpen: true });
-      // 그 탭이 닫히면 잠금이 풀린다 — 사용자가 아무것도 안 눌러도 되게 한다.
-      this.stopListening = onOtherTabClosed(() => this.reload());
+      this.watchForRelease();
     }
   }
 
   componentWillUnmount() {
     this.stopListening?.();
+    if (this.pollTimer) clearInterval(this.pollTimer);
+  }
+
+  private pollTimer: ReturnType<typeof setInterval> | null = null;
+
+  /**
+   * 다른 탭이 사라지면 사용자가 아무것도 안 눌러도 이어지게 한다.
+   *
+   * 닫히는 탭이 pagehide에서 알려 주는 길(onOtherTabClosed)은 빠르지만 믿을 게
+   * 못 된다 — 브라우저가 언로드 중에 BroadcastChannel을 먼저 끊어버리면 메시지가
+   * 전달되지 않는다(실제로 그래서 자동 복구가 안 됐다). 그래서 주기적으로 직접
+   * 물어보는 쪽을 주된 방법으로 두고, pagehide 신호는 빠른 길로만 쓴다.
+   */
+  private watchForRelease() {
+    this.stopListening = onOtherTabClosed(() => this.reload());
+    this.pollTimer = setInterval(async () => {
+      if (!(await hasOtherTab())) this.reload();
+    }, 2000);
   }
 
   private isOpfsLock(error: Error) {
