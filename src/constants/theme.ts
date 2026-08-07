@@ -14,7 +14,13 @@ export type ThemeColor =
   | 'backgroundSelected'
   | 'textSecondary'
   | 'accent'
-  | 'support';
+  | 'support'
+  // 2026-08 푸른 계통 개편에서 더한 것들.
+  // 예전에는 바탕과 카드의 명도 차이만으로 층을 나눠서 화면이 평평해 보였다.
+  | 'border' // 카드 테두리 — 1px 선 하나로 경계가 또렷해진다
+  | 'accentSoft' // 배지·연한 강조 바탕
+  | 'done' // 완료·달성 표시. 푸른 화면에서 성취만 따뜻한 색으로 눈에 걸리게
+  | 'readingBackground'; // 성경·전자책처럼 오래 보는 화면. 채도를 한 단계 낮춘다
 
 export type SkinId = 'david';
 
@@ -44,28 +50,38 @@ export const Skins: Record<SkinId, Skin> = {
     label: 'David Bible',
     colors: {
       light: {
-        text: '#16233D',
-        background: '#F1F8FA',
-        backgroundElement: '#DFEDF2',
-        backgroundSelected: '#C9A24B',
-        textSecondary: '#5C6B78',
-        accent: '#C9A24B',
-        support: '#4FA3A8',
+        // 아침 바다. 바탕을 한 겹 낮추고 카드(backgroundElement)를 흰색으로 띄워
+        // 카드가 위에 있는 것으로 읽히게 했다.
+        text: '#0F2433',
+        background: '#E9F1F7',
+        backgroundElement: '#FFFFFF',
+        backgroundSelected: '#1F6FA8',
+        textSecondary: '#5C7A8E',
+        accent: '#1F6FA8',
+        support: '#2E93A0',
+        border: '#DCE8F1',
+        accentSoft: '#E4F0F8',
+        done: '#F4C25A',
+        readingBackground: '#EDF3F7',
       },
       dark: {
-        // 어두운 모드도 남색에서 살짝 청록 쪽으로 옮겨 깊은 바다처럼.
-        text: '#EDF3F5',
-        background: '#08192A',
-        backgroundElement: '#12283C',
-        backgroundSelected: '#D4AF6A',
-        textSecondary: '#9AAFBC',
-        accent: '#D4AF6A',
-        support: '#6FBFC4',
+        // 깊은 바다. 밝은 모드와 같은 계열로 맞춰 한 가족으로 읽히게 했다.
+        text: '#E6F0F6',
+        background: '#08202D',
+        backgroundElement: '#0F2C3C',
+        backgroundSelected: '#5AB0DC',
+        textSecondary: '#8CA9BA',
+        accent: '#5AB0DC',
+        support: '#5FC2CC',
+        border: '#17394C',
+        accentSoft: '#153B50',
+        done: '#F4C25A',
+        readingBackground: '#071C27',
       },
     },
     gradient: {
-      light: ['#C9A24B', '#E8C77E'],
-      dark: ['#D4AF6A', '#F0D9A0'],
+      light: ['#1F6FA8', '#2E8FBF'],
+      dark: ['#12496E', '#1B6C96'],
     },
   },
 };

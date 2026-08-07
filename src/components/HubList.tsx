@@ -71,8 +71,8 @@ export function HubList({
                       key={item.label}
                       onPress={() => router.push(locked ? '/profile' : item.href)}
                       style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-                      <ThemedView type="backgroundElement" style={styles.rowInner}>
-                        <View style={[styles.badge, { backgroundColor: theme.background }]}>
+                      <ThemedView type="backgroundElement" style={[styles.rowInner, { borderColor: theme.border }]}>
+                        <View style={[styles.badge, { backgroundColor: theme.accentSoft }]}>
                           <ThemedText style={styles.emoji}>{item.emoji}</ThemedText>
                         </View>
 
@@ -145,6 +145,14 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.three,
     paddingHorizontal: Spacing.three,
     borderRadius: 18,
+    // 바탕과 카드가 명도 차이만으로 구분되던 것을 테두리와 아주 옅은 그림자로
+    // 층을 나눠 카드가 위에 떠 보이게 한다.
+    borderWidth: 1,
+    shadowColor: '#0F2433',
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 1,
   },
   badge: {
     width: 46,

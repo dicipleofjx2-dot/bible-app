@@ -55,7 +55,7 @@ export default function BookReaderScreen() {
 
   if (!book) {
     return (
-      <ThemedView style={styles.container}>
+      <ThemedView style={[styles.container, { backgroundColor: theme.readingBackground }]}>
         <SafeAreaView style={styles.safeAreaCentered}>
           <ThemedText themeColor="textSecondary">불러오는 중...</ThemedText>
         </SafeAreaView>

@@ -99,7 +99,7 @@ export default function ReadScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <ThemedView style={styles.container}>
+      <ThemedView style={[styles.container, { backgroundColor: theme.readingBackground }]}>
         <View style={styles.toolbar}>
           <Pressable
             onPress={() => setPickerVisible(true)}

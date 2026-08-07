@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
@@ -7,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { useGradient, useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getFirstQtEntry, getQtEntryForDate, getVersesForRange } from '@/db/bible';
 import { getPosts, type Post } from '@/db/community';
@@ -38,6 +39,7 @@ const RECOMMENDED: { emoji: string; label: string; href: Href; requiresAuth?: bo
 export default function HomeScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
+  const gradient = useGradient();
   const { session } = useAuth();
 
   const [verseRef, setVerseRef] = useState('');
@@ -121,14 +123,15 @@ export default function HomeScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeAreaOuter}>
         <ScrollView style={styles.scrollOuter} contentContainerStyle={styles.safeArea}>
-          {/* 1. 오늘의 말씀 — 화면의 유일한 Primary 버튼("QT 시작")을 담는 히어로 카드 */}
-          <ThemedView type="backgroundElement" style={styles.heroCard}>
-            <ThemedText type="small" themeColor="textSecondary">
+          {/* 1. 오늘의 말씀 — 화면에서 가장 중요한 자리라 유일하게 그라데이션을 줘서
+              다른 카드와 무게를 다르게 했다. Primary 버튼("QT 시작")도 여기 하나뿐이다. */}
+          <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.heroCard}>
+            <ThemedText type="small" style={styles.heroLabel}>
               오늘의 말씀
             </ThemedText>
             {verseRef ? (
               <>
-                <ThemedText type="smallBold" themeColor="accent">
+                <ThemedText type="smallBold" style={styles.heroRef}>
                   {verseRef}
                 </ThemedText>
                 <ThemedText style={styles.heroExcerpt} numberOfLines={4}>
@@ -136,16 +139,16 @@ export default function HomeScreen() {
                 </ThemedText>
               </>
             ) : (
-              <ThemedText themeColor="textSecondary">오늘의 QT 본문을 준비하고 있어요.</ThemedText>
+              <ThemedText style={styles.heroLabel}>오늘의 QT 본문을 준비하고 있어요.</ThemedText>
             )}
             <Pressable
               onPress={() => router.push('/meditation')}
-              style={({ pressed }) => [styles.primaryButton, { backgroundColor: theme.accent }, pressed && styles.pressed]}>
-              <ThemedText type="smallBold" style={styles.primaryButtonText}>
+              style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+              <ThemedText type="smallBold" style={[styles.primaryButtonText, { color: theme.accent }]}>
                 QT 시작하기
               </ThemedText>
             </Pressable>
-          </ThemedView>
+          </LinearGradient>
 
           {/* 2. 오늘의 영적 여정 */}
           <View style={styles.journeyRow}>
@@ -155,7 +158,7 @@ export default function HomeScreen() {
                   <View
                     style={[
                       styles.journeyDot,
-                      { backgroundColor: step.done ? theme.accent : theme.backgroundElement },
+                      { backgroundColor: step.done ? theme.done : theme.backgroundElement, borderColor: theme.border, borderWidth: 1 },
                     ]}>
                     <ThemedText type="small" themeColor={step.done ? undefined : 'textSecondary'} style={step.done ? styles.journeyDotDoneText : undefined}>
                       {step.done ? '✓' : i + 1}
@@ -173,7 +176,7 @@ export default function HomeScreen() {
           {/* 3. 알림마당 — 제목만 노출되는 한 줄 스트립 */}
           <Pressable
             onPress={() => router.push('/notice-board')}
-            style={({ pressed }) => [styles.noticeStrip, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
+            style={({ pressed }) => [styles.noticeStrip, { backgroundColor: theme.backgroundElement, borderColor: theme.border }, pressed && styles.pressed]}>
             <ThemedText type="small" numberOfLines={1} style={styles.noticeStripText}>
               📢 {notice ? notice.title : '등록된 소식이 없어요'}
             </ThemedText>
@@ -185,7 +188,7 @@ export default function HomeScreen() {
           {/* 4. R2M */}
           <Pressable
             onPress={() => router.push('/bible-reading')}
-            style={({ pressed }) => [styles.card, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
+            style={({ pressed }) => [styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.border }, pressed && styles.pressed]}>
             <ThemedText type="small" themeColor="textSecondary">
               R2M
             </ThemedText>
@@ -201,7 +204,7 @@ export default function HomeScreen() {
           {/* 5. 목자의 편지 */}
           <Pressable
             onPress={() => router.push('/shepherd-letters')}
-            style={({ pressed }) => [styles.card, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
+            style={({ pressed }) => [styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.border }, pressed && styles.pressed]}>
             <View style={styles.letterHeader}>
               <ThemedText type="small" themeColor="textSecondary">
                 목자의 편지
@@ -220,7 +223,7 @@ export default function HomeScreen() {
           </Pressable>
 
           {/* 6. 커뮤니티 — 최근 글 최대 3개를 게시판처럼 미리보기 */}
-          <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
+          <View style={[styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
             <Pressable
               onPress={() => router.push(session ? '/community' : '/profile')}
               style={({ pressed }) => [styles.communityHeader, pressed && styles.pressed]}>
@@ -277,6 +280,15 @@ export default function HomeScreen() {
   );
 }
 
+// 카드가 바탕 위에 떠 보이도록 하는 공통 그림자. 강하지 않게 — 층만 만든다.
+const cardShadow = {
+  shadowColor: '#0F2433',
+  shadowOpacity: 0.05,
+  shadowRadius: 6,
+  shadowOffset: { width: 0, height: 1 },
+  elevation: 1,
+} as const;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -305,9 +317,21 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.four,
     padding: Spacing.four,
     gap: Spacing.two,
+    shadowColor: '#0F2433',
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 4,
+  },
+  heroLabel: {
+    color: '#D7EAF7',
+  },
+  heroRef: {
+    color: '#FFFFFF',
   },
   heroExcerpt: {
-    lineHeight: 24,
+    lineHeight: 26,
+    color: '#F2F9FD',
   },
   primaryButton: {
     alignSelf: 'flex-start',
@@ -315,9 +339,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     borderRadius: Spacing.five,
     marginTop: Spacing.one,
+    backgroundColor: '#FFFFFF',
   },
   primaryButtonText: {
-    color: '#ffffff',
   },
   journeyRow: {
     flexDirection: 'row',
@@ -357,6 +381,8 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     borderRadius: Spacing.three,
     gap: Spacing.two,
+    borderWidth: 1,
+    ...cardShadow,
   },
   noticeStripText: {
     flex: 1,
@@ -365,6 +391,8 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.four,
     padding: Spacing.three,
     gap: Spacing.one,
+    borderWidth: 1,
+    ...cardShadow,
   },
   letterHeader: {
     flexDirection: 'row',
