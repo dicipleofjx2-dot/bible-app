@@ -156,7 +156,12 @@ export default function ReadScreen() {
                         style={[{ fontSize: fontSize * 0.6 }, bg ? styles.verseNumOnHighlight : null]}>
                         {v.verse}{' '}
                       </ThemedText>
-                      <ThemedText style={bg ? styles.textOnHighlight : undefined}>{v.text}</ThemedText>
+                      {/* 안쪽 Text에도 서체를 다시 준다 — React Native는 중첩된
+                          Text가 자기 fontFamily를 가지면 바깥 것을 물려받지 않아,
+                          여기에 안 주면 기본 서체가 명조를 덮어쓴다. */}
+                      <ThemedText style={[styles.verseText, bg ? styles.textOnHighlight : null]}>
+                        {v.text}
+                      </ThemedText>
                     </ThemedText>
                   </Pressable>
                   <View style={styles.verseActions}>
