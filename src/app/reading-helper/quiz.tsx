@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getStartDate, setQuizScore } from '@/lib/readingHelper/db';
@@ -266,7 +267,7 @@ const styles = StyleSheet.create({
   primaryButton: { borderRadius: Spacing.four, paddingVertical: Spacing.four, alignItems: 'center' },
   primaryButtonText: { color: '#fff' },
   pressed: { opacity: 0.85 },
-  scoreText: { fontSize: 48, fontWeight: '800' },
+  scoreText: { fontSize: 48, fontFamily: FontFamily.extraBold },
   congratsCard: { borderRadius: Spacing.four, padding: Spacing.five, alignItems: 'center', gap: Spacing.four, width: '100%' },
   congratsText: { textAlign: 'center', lineHeight: 21 },
 });

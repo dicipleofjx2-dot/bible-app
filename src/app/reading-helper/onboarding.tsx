@@ -1,3 +1,4 @@
+import { FontFamily } from '@/constants/typography';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
@@ -149,7 +150,7 @@ const styles = StyleSheet.create({
   content: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },
   centered: { alignItems: 'center', gap: 16 },
   centeredWide: { alignItems: 'center', gap: 20 },
-  title: { fontSize: 22, fontWeight: '700', textAlign: 'center', lineHeight: 30 },
+  title: { fontFamily: FontFamily.display, fontSize: 22, textAlign: 'center', lineHeight: 32 },
   subtitle: { fontSize: 14, textAlign: 'center', lineHeight: 21 },
 
   glowOuter: { width: 176, height: 176, borderRadius: 88, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
@@ -161,18 +162,18 @@ const styles = StyleSheet.create({
   cardIconCircle: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
   cardIconEmoji: { fontSize: 24 },
   cardTextCol: { flex: 1, gap: 2 },
-  cardTitle: { fontSize: 15, fontWeight: '700' },
+  cardTitle: { fontFamily: FontFamily.bold, fontSize: 15 },
   cardDescription: { fontSize: 12.5, lineHeight: 17 },
 
   startBadge: { width: 168, height: 168, borderRadius: 84, alignItems: 'center', justifyContent: 'center', gap: 4 },
   startBadgeCross: { fontSize: 22, marginBottom: 2 },
-  startBadgeText: { fontSize: 16, fontWeight: '700', textAlign: 'center', lineHeight: 21 },
-  startBadgeSub: { fontSize: 12, fontWeight: '600' },
+  startBadgeText: { fontFamily: FontFamily.bold, fontSize: 16, textAlign: 'center', lineHeight: 22 },
+  startBadgeSub: { fontFamily: FontFamily.regular, fontSize: 12 },
 
   footer: { paddingHorizontal: 24, paddingBottom: 24, gap: 20 },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 8 },
   dot: { width: 8, height: 8, borderRadius: 4 },
   primaryButton: { paddingVertical: 16, borderRadius: 14, alignItems: 'center' },
-  primaryButtonText: { fontSize: 16, fontWeight: '700' },
+  primaryButtonText: { fontFamily: FontFamily.bold, fontSize: 16 },
   pressed: { opacity: 0.85 },
 });

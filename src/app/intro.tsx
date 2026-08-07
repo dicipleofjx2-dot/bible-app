@@ -5,6 +5,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Spacing } from '@/constants/theme';
+import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 
 // A real Stack screen (not an overlay toggled by local state) — every
@@ -82,17 +83,20 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   title: {
+    // 앱의 첫 화면 — 제목용 서체를 쓴다.
+    fontFamily: FontFamily.display,
     fontSize: 34,
-    fontWeight: '700',
     letterSpacing: 0.5,
   },
   subtitle: {
+    fontFamily: FontFamily.regular,
     fontSize: 13,
+    lineHeight: 20,
     marginTop: Spacing.two,
   },
   churchName: {
+    fontFamily: FontFamily.displayMedium,
     fontSize: 17,
-    fontWeight: '700',
   },
   photoCard: {
     width: '100%',
@@ -120,8 +124,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   startButtonText: {
+    fontFamily: FontFamily.bold,
     fontSize: 17,
-    fontWeight: '600',
     color: '#ffffff',
   },
   pressed: {

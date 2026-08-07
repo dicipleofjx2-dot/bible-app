@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import {
@@ -293,7 +294,8 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   verseText: {
-    fontWeight: '400',
+    // 성경 본문은 오래 읽는 글이라 본문용 서체를 명시한다.
+    fontFamily: FontFamily.regular,
   },
   verseRow: {
     borderRadius: Spacing.two,
