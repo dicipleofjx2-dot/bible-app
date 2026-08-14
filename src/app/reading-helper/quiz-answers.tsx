@@ -10,7 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getStartDate } from '@/lib/readingHelper/db';
 import { currentDayNumber, dayNumberForDate } from '@/lib/readingHelper/readingPlan';
-import { getDayContent } from '@/lib/readingHelper/dayContent';
+import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 import type { DayQuizContent, QuizQuestion } from '@/lib/readingHelper/quizTypes';
 
 function normalizeAnswer(s: string): string {
@@ -65,7 +65,7 @@ export default function ReadingHelperQuizAnswersScreen() {
           return;
         }
         const dayNumber = reviewDate ? dayNumberForDate(startDate, reviewDate) : currentDayNumber(startDate);
-        const dayContent = await getDayContent(dayNumber);
+        const dayContent = await getDayContentForDay(startDate, dayNumber);
         if (!cancelled) {
           setContent(dayContent);
           setLoading(false);

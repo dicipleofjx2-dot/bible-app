@@ -10,8 +10,8 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getDayRecord, getStartDate, type DayRecord } from '@/lib/readingHelper/db';
 import { buildFullPlan, daysBetweenInclusive, formatChapterRange, type PlanDay } from '@/lib/readingHelper/readingPlan';
-import { mergeWithBlogChapters } from '@/lib/readingHelper/blogContent';
-import { getDayContent } from '@/lib/readingHelper/dayContent';
+
+import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 
 export default function ReadingHelperDayDetailScreen() {
   const theme = useTheme();
@@ -37,11 +37,11 @@ export default function ReadingHelperDayDetailScreen() {
         const dayNumber = daysBetweenInclusive(startDate, date);
 
         const [plan, dayRecord] = await Promise.all([
-          mergeWithBlogChapters(buildFullPlan(startDate)),
+          Promise.resolve(buildFullPlan(startDate)),
           getDayRecord(userId, date),
         ]);
         const dayEntry = dayNumber >= 1 ? (plan[dayNumber - 1] ?? null) : null;
-        const content = dayEntry ? await getDayContent(dayEntry.dayNumber) : null;
+        const content = dayEntry ? await getDayContentForDay(startDate, dayEntry.dayNumber) : null;
         if (cancelled) return;
         setDay(dayEntry);
         setRecord(dayRecord);

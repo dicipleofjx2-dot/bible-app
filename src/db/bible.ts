@@ -1,15 +1,21 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-export type Translation = 'ko_ko' | 'en_kjv' | 'open_ko' | 'open_en';
+export type Translation = 'krv' | 'ko_ko' | 'en_kjv' | 'open_ko' | 'open_en';
 
-// 개역한글 (ko_ko) is kept out of this user-facing list (superseded by 오픈성경)
+// 개역한글 (ko_ko) is kept out of this user-facing list (superseded by 개역개정)
 // but its rows stay in the database so existing notes/highlights that
 // reference it still resolve correctly.
+//
+// 개역개정(krv)이 교회에서 실제로 쓰는 번역이라 맨 앞에 두고 기본값으로 쓴다.
 export const TRANSLATIONS: { code: Translation; label: string }[] = [
+  { code: 'krv', label: '개역개정' },
   { code: 'open_ko', label: '오픈성경' },
   { code: 'en_kjv', label: 'KJV' },
   { code: 'open_en', label: 'Open Bible' },
 ];
+
+/** 화면에서 따로 고르지 않았을 때 쓰는 번역 */
+export const DEFAULT_TRANSLATION: Translation = 'krv';
 
 export type Book = {
   id: number;

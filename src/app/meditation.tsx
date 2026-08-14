@@ -20,6 +20,7 @@ import {
   getVersesForRange,
   type QtEntry,
   type Verse,
+  DEFAULT_TRANSLATION,
 } from '@/db/bible';
 import { getMeditationNote, upsertMeditationNote, type QtAnswers } from '@/db/userData';
 import { getIsAdmin } from '@/db/profile';
@@ -55,7 +56,7 @@ export default function MeditationScreen() {
   const [publicQt, setPublicQt] = useState<ShepherdQt | null>(null);
 
   async function showQtEntry(qt: QtEntry) {
-    const verses = await getVersesForRange(db, qt.bookId, qt.chapter, qt.startVerse, qt.endVerse, 'open_ko');
+    const verses = await getVersesForRange(db, qt.bookId, qt.chapter, qt.startVerse, qt.endVerse, DEFAULT_TRANSLATION);
     setPassage(verses);
     setReferenceLabel(qt.label);
     setCurrentDate(qt.date);

@@ -9,9 +9,9 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getStartDate, setMemorizationResult } from '@/lib/readingHelper/db';
+import { getStartDate, MEMORIZATION_POINTS, setMemorizationResult } from '@/lib/readingHelper/db';
 import { currentDayNumber, dayNumberForDate, todayDateString } from '@/lib/readingHelper/readingPlan';
-import { getDayContent } from '@/lib/readingHelper/dayContent';
+import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
 
 const MAX_ATTEMPTS = 10;
@@ -53,7 +53,7 @@ export default function ReadingHelperMemorizeScreen() {
           return;
         }
         const dayNumber = reviewDate ? dayNumberForDate(startDate, reviewDate) : currentDayNumber(startDate);
-        const dayContent = await getDayContent(dayNumber);
+        const dayContent = await getDayContentForDay(startDate, dayNumber);
         if (!cancelled) {
           setContent(dayContent);
           setLoading(false);
@@ -196,7 +196,9 @@ function PuzzleGame({
 
           {status === 'success' && (
             <View style={[styles.resultCard, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="smallBold">{isReview ? '🎉 암송 성공!' : '🎉 암송 성공! (+10p)'}</ThemedText>
+              <ThemedText type="smallBold">
+                {isReview ? '🎉 암송 성공!' : `🎉 암송 성공! 포인트 +${MEMORIZATION_POINTS}점`}
+              </ThemedText>
               {isReview && (
                 <ThemedText type="small" themeColor="textSecondary" style={styles.answerReveal}>
                   복습 결과는 기록에 저장되지 않아요.

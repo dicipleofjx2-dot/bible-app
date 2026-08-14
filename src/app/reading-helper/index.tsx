@@ -10,7 +10,19 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getBestQuizScore, getDayRecord, getStartDate, setReadingComplete, WORD_CARD_MIN_QUIZ_SCORE } from '@/lib/readingHelper/db';
+import {
+  getBestQuizScore,
+  getDayRecord,
+  getPointsSummary,
+  getStartDate,
+  MEMORIZATION_POINTS,
+  quizPoints,
+  resetProgress,
+  setReadingComplete,
+  WORD_CARD_MIN_QUIZ_SCORE,
+  type PointsSummary,
+} from '@/lib/readingHelper/db';
+import { confirmDestructive } from '@/lib/readingHelper/confirm';
 import {
   currentDayNumber,
   buildFullPlan,
@@ -21,8 +33,8 @@ import {
   type PlanDay,
   type PlanChapterEntry,
 } from '@/lib/readingHelper/readingPlan';
-import { getBlogPlanDays, mergeWithBlogChapters, type BlogPost } from '@/lib/readingHelper/blogContent';
-import { getDayContent } from '@/lib/readingHelper/dayContent';
+
+import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
 
 export default function ReadingHelperHomeScreen() {
@@ -33,12 +45,15 @@ export default function ReadingHelperHomeScreen() {
   const [checking, setChecking] = useState(true);
   const [day, setDay] = useState<PlanDay | null>(null);
   const [chapters, setChapters] = useState<PlanChapterEntry[]>([]);
-  const [post, setPost] = useState<BlogPost | null>(null);
+
   const [dayContent, setDayContent] = useState<DayQuizContent | null>(null);
   const [contentLoading, setContentLoading] = useState(true);
   const [contentError, setContentError] = useState(false);
   const [readingComplete, setReadingCompleteState] = useState(false);
   const [bestQuizScore, setBestQuizScore] = useState(0);
+  const [points, setPoints] = useState<PointsSummary | null>(null);
+  const [todayPoints, setTodayPoints] = useState(0);
+  const [resetting, setResetting] = useState(false);
 
   // Guards against a slow, now-stale load() call (e.g. from focus) clobbering
   // state from a newer one (e.g. the 4am auto-refresh firing moments later).
@@ -55,41 +70,36 @@ export default function ReadingHelperHomeScreen() {
     const dayNumber = currentDayNumber(startDate);
     const algoPlan = buildFullPlan(startDate);
     const algoDay = algoPlan[dayNumber - 1] ?? algoPlan[algoPlan.length - 1] ?? null;
-    const [record, bestScore] = await Promise.all([
+    const [record, bestScore, pointsSummary] = await Promise.all([
       getDayRecord(userId, todayDateString()),
       getBestQuizScore(userId).catch(() => 0),
+      getPointsSummary(userId).catch(() => null),
     ]);
     if (loadIdRef.current !== loadId) return;
     setDay(algoDay);
     setReadingCompleteState(record?.reading_complete ?? false);
     setBestQuizScore(bestScore);
+    setPoints(pointsSummary);
+    setTodayPoints(
+      quizPoints(record?.quiz_score) + (record?.memorization_success ? MEMORIZATION_POINTS : 0)
+    );
     setChecking(false);
 
     if (!algoDay) {
       setContentLoading(false);
       return;
     }
+    setChapters(algoDay.chapters);
     setContentLoading(true);
     setContentError(false);
     try {
-      // The blog *is* the reading plan's real source of truth — each post is
-      // one day's assignment in publish order, which doesn't line up with
-      // the calendar-only 3/5-chapter formula. Prefer it whenever the blog
-      // has published that far; otherwise this day's official reading just
-      // isn't out yet, so show that plainly instead of guessing via the
-      // formula.
-      const [blogDays, content] = await Promise.all([getBlogPlanDays(), getDayContent(dayNumber)]);
-      const blogDay = blogDays[dayNumber - 1] ?? null;
-      if (loadIdRef.current === loadId) {
-        setChapters(blogDay ? blogDay.chapters : algoDay.chapters);
-        setPost(blogDay ? blogDay.post : null);
-        setDayContent(content);
-      }
+      // 읽을 범위는 계획 공식(평일 3장·주일 5장)이 곧 기준이고, 해설·퀴즈·암송구절만
+      // 우리가 보관한 콘텐츠에서 가져온다. 예전에는 블로그 발행 순서가 기준이었는데,
+      // 발행이 멈추면 범위조차 안 보이던 문제가 있었다.
+      const content = await getDayContentForDay(startDate, dayNumber);
+      if (loadIdRef.current === loadId) setDayContent(content);
     } catch {
-      if (loadIdRef.current === loadId) {
-        setChapters(algoDay.chapters);
-        setContentError(true);
-      }
+      if (loadIdRef.current === loadId) setContentError(true);
     } finally {
       if (loadIdRef.current === loadId) setContentLoading(false);
     }
@@ -130,6 +140,29 @@ export default function ReadingHelperHomeScreen() {
   const progress = day.dayNumber / PLAN_TOTAL_DAYS;
   const hasQuizContent = dayContent !== null;
 
+  // 되돌릴 수 없다. 무엇이 사라지는지 확인 문구에 그대로 적는다 —
+  // 특히 포인트는 기록에서 계산되므로 함께 0이 된다.
+  async function handleReset() {
+    if (!userId || resetting) return;
+    const ok = await confirmDestructive(
+      '처음부터 다시 시작할까요?',
+      `Day 1부터 다시 시작합니다.\n지금까지의 통독 기록·퀴즈 점수·암송 기록이 모두 지워지고, 쌓인 포인트 ${points?.total ?? 0}점도 0점이 됩니다.\n이 작업은 되돌릴 수 없습니다.`,
+      '다시 시작'
+    );
+    if (!ok) return;
+
+    setResetting(true);
+    try {
+      await resetProgress(userId);
+      // 시작일까지 지웠으므로 홈이 온보딩으로 보내 새 시작일을 잡는다.
+      router.replace('/reading-helper/onboarding');
+    } catch {
+      Alert.alert('처음부터 다시 시작', '초기화하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      setResetting(false);
+    }
+  }
+
   async function toggleReadingComplete() {
     if (!userId) return;
     const next = !readingComplete;
@@ -161,6 +194,25 @@ export default function ReadingHelperHomeScreen() {
             </View>
           </View>
 
+          {chapters.length > 0 && (
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: '/read',
+                  params: { bookId: String(chapters[0].bookId), chapter: String(chapters[0].chapter) },
+                })
+              }
+              style={({ pressed }) => [
+                styles.primaryButton,
+                { backgroundColor: theme.backgroundSelected },
+                pressed && styles.pressed,
+              ]}>
+              <ThemedText type="smallBold" style={styles.primaryButtonText}>
+                📖 오늘 본문 읽기 (개역개정)
+              </ThemedText>
+            </Pressable>
+          )}
+
           <Pressable
             onPress={toggleReadingComplete}
             style={({ pressed }) => [styles.completeRow, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
@@ -175,7 +227,37 @@ export default function ReadingHelperHomeScreen() {
             <ThemedText type="smallBold">오늘 통독 완료</ThemedText>
           </Pressable>
 
-          <DayLesson post={post} dayContent={dayContent} loading={contentLoading} error={contentError} />
+          <View style={[styles.pointsCard, { backgroundColor: theme.backgroundElement }]}>
+            <View style={styles.pointsTopRow}>
+              <ThemedText type="smallBold">내 포인트</ThemedText>
+              <View style={styles.pointsValueRow}>
+                {todayPoints > 0 && (
+                  <ThemedText type="small" style={{ color: theme.backgroundSelected }}>
+                    오늘 +{todayPoints}
+                  </ThemedText>
+                )}
+                <ThemedText style={[styles.pointsTotal, { color: theme.backgroundSelected }]}>
+                  {points ? points.total : 0}점
+                </ThemedText>
+              </View>
+            </View>
+            {points && points.total > 0 && (
+              <ThemedText type="small" themeColor="textSecondary">
+                성경퀴즈 {points.quiz}점 ({points.quizCount}회) · 암송 {points.memorization}점 (
+                {points.memorizationCount}회)
+              </ThemedText>
+            )}
+            {/* 규칙을 화면에 그대로 적어 둔다 — 몇 점을 받으면 뭐가 열리는지
+                모르면 포인트가 쌓여도 동기가 되지 않는다. */}
+            <ThemedText type="small" themeColor="textSecondary">
+              성경퀴즈 80점대 10점 · 90점대 20점 · 100점 30점, 암송 성공 {MEMORIZATION_POINTS}점
+            </ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              성경퀴즈에서 {WORD_CARD_MIN_QUIZ_SCORE}점 이상을 한 번이라도 맞으면 말씀카드를 만들 수 있어요.
+            </ThemedText>
+          </View>
+
+          <DayLesson dayContent={dayContent} loading={contentLoading} error={contentError} />
 
           <Pressable
             onPress={() =>
@@ -225,6 +307,15 @@ export default function ReadingHelperHomeScreen() {
               </ThemedText>
             </Pressable>
           </View>
+
+          <Pressable
+            onPress={handleReset}
+            disabled={resetting}
+            style={({ pressed }) => [styles.resetRow, pressed && styles.pressed, resetting && styles.pressed]}>
+            <ThemedText type="small" themeColor="textSecondary">
+              {resetting ? '초기화하는 중…' : '🔄 처음부터 다시 시작'}
+            </ThemedText>
+          </Pressable>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -265,5 +356,15 @@ const styles = StyleSheet.create({
   primaryButtonText: { color: '#fff' },
   secondaryButton: { borderRadius: Spacing.four, paddingVertical: Spacing.four, alignItems: 'center' },
   linkRow: { flexDirection: 'row', justifyContent: 'center', gap: Spacing.five, paddingTop: Spacing.one },
+  pointsCard: {
+    borderRadius: Spacing.four,
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.four,
+    gap: Spacing.one,
+  },
+  pointsTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  pointsValueRow: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.two },
+  pointsTotal: { fontSize: 22, fontFamily: FontFamily.bold },
+  resetRow: { alignSelf: 'center', paddingTop: Spacing.two, paddingBottom: Spacing.one },
   pressed: { opacity: 0.85 },
 });

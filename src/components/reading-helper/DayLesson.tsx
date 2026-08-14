@@ -4,11 +4,9 @@ import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
-import type { BlogPost } from '@/lib/readingHelper/blogContent';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
 
 type Props = {
-  post: BlogPost | null;
   dayContent: DayQuizContent | null;
   loading: boolean;
   error: boolean;
@@ -18,7 +16,7 @@ type Props = {
  * between the daily-learning screen (today) and the archive's day-content
  * review screen (any past date), since both show the exact same content,
  * just for a different day. */
-export function DayLesson({ post, dayContent, loading, error }: Props) {
+export function DayLesson({ dayContent, loading, error }: Props) {
   const theme = useTheme();
 
   return (
@@ -36,7 +34,6 @@ export function DayLesson({ post, dayContent, loading, error }: Props) {
           </ThemedText>
         ) : dayContent ? (
           <View style={styles.spacing}>
-            {post && <ThemedText type="smallBold">{post.title}</ThemedText>}
             <ThemedText style={styles.body}>{dayContent.narrative}</ThemedText>
           </View>
         ) : (

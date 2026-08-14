@@ -18,6 +18,7 @@ import {
   type Book,
   type Translation,
   type Verse,
+  DEFAULT_TRANSLATION,
 } from '@/db/bible';
 import { BookChapterPicker } from '@/features/bible/BookChapterPicker';
 import { VerseActionSheet } from '@/features/notes/VerseActionSheet';
@@ -44,7 +45,7 @@ export default function ReadScreen() {
   const [bookId, setBookId] = useState<number | null>(null);
   const [chapter, setChapter] = useState(1);
   const [chapterCount, setChapterCount] = useState(1);
-  const [translation, setTranslation] = useState<Translation>('open_ko');
+  const [translation, setTranslation] = useState<Translation>(DEFAULT_TRANSLATION);
   const [verses, setVerses] = useState<Verse[]>([]);
   const [pickerVisible, setPickerVisible] = useState(false);
   const [fontSize, setFontSize] = useState(18);

@@ -10,7 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getAllRecordDates, getStartDate } from '@/lib/readingHelper/db';
 import { buildFullPlan, formatChapterRange, todayDateString, type PlanDay } from '@/lib/readingHelper/readingPlan';
-import { mergeWithBlogChapters } from '@/lib/readingHelper/blogContent';
+
 
 export default function ReadingHelperArchiveScreen() {
   const theme = useTheme();
@@ -33,7 +33,8 @@ export default function ReadingHelperArchiveScreen() {
         }
         const today = todayDateString();
         const algoPlan = buildFullPlan(startDate).filter((d) => d.date <= today);
-        const [dates, plan] = await Promise.all([getAllRecordDates(userId), mergeWithBlogChapters(algoPlan)]);
+        const dates = await getAllRecordDates(userId);
+        const plan = algoPlan;
         if (cancelled) return;
         setPastDays(plan.reverse());
         setRecordDates(dates);

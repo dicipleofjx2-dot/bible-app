@@ -10,7 +10,7 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useGradient, useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getFirstQtEntry, getQtEntryForDate, getVersesForRange } from '@/db/bible';
+import { getFirstQtEntry, getQtEntryForDate, getVersesForRange, DEFAULT_TRANSLATION } from '@/db/bible';
 import { getPosts, type Post } from '@/db/community';
 import { getMyActiveEnrollment, getTodayChecklistCount, type ActiveEnrollment } from '@/db/r2m';
 import { getMeditationNote } from '@/db/userData';
@@ -59,7 +59,7 @@ export default function HomeScreen() {
         let qt = await getQtEntryForDate(db, today);
         if (!qt) qt = await getFirstQtEntry(db);
         if (qt) {
-          const verses = await getVersesForRange(db, qt.bookId, qt.chapter, qt.startVerse, qt.endVerse, 'open_ko');
+          const verses = await getVersesForRange(db, qt.bookId, qt.chapter, qt.startVerse, qt.endVerse, DEFAULT_TRANSLATION);
           setVerseRef(qt.label);
           setVerseExcerpt(verses.map((v) => v.text).join(' '));
         }

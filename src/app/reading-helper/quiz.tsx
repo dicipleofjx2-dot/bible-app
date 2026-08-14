@@ -9,12 +9,10 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getStartDate, setQuizScore } from '@/lib/readingHelper/db';
+import { getStartDate, quizPoints, setQuizScore, WORD_CARD_MIN_QUIZ_SCORE } from '@/lib/readingHelper/db';
 import { currentDayNumber, dayNumberForDate, todayDateString } from '@/lib/readingHelper/readingPlan';
-import { getDayContent } from '@/lib/readingHelper/dayContent';
+import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
-
-const PASS_SCORE = 90;
 
 function normalizeAnswer(s: string): string {
   return s.replace(/\s+/g, '').toLowerCase();
@@ -50,7 +48,7 @@ export default function ReadingHelperQuizScreen() {
           return;
         }
         const dayNumber = reviewDate ? dayNumberForDate(startDate, reviewDate) : currentDayNumber(startDate);
-        const dayContent = await getDayContent(dayNumber);
+        const dayContent = await getDayContentForDay(startDate, dayNumber);
         if (!cancelled) {
           setContent(dayContent);
           setLoading(false);
@@ -119,6 +117,8 @@ export default function ReadingHelperQuizScreen() {
     }
   }
 
+  const earnedPoints = isReview ? 0 : quizPoints(score);
+
   if (score !== null) {
     return (
       <ThemedView style={styles.centeredScreen}>
@@ -132,13 +132,21 @@ export default function ReadingHelperQuizScreen() {
             <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
               복습 결과는 기록에 저장되지 않아요.
             </ThemedText>
-          ) : score >= PASS_SCORE ? (
+          ) : earnedPoints > 0 ? (
             <View style={[styles.congratsCard, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText style={styles.congratsText}>🎉 축하합니다! {PASS_SCORE}점 이상을 받았어요.</ThemedText>
+              <ThemedText style={styles.congratsText}>🎉 포인트 +{earnedPoints}점을 받았어요!</ThemedText>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
+                {score >= 100
+                  ? '만점이에요. 오늘도 수고하셨습니다.'
+                  : `${score >= 90 ? '100점을 맞으면 30점' : '90점대는 20점, 100점은 30점'}까지 받을 수 있어요.`}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
+                💌 이제 말씀카드를 만들 수 있어요.
+              </ThemedText>
             </View>
           ) : (
             <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-              {PASS_SCORE}점 이상에 도전해보세요!
+              {WORD_CARD_MIN_QUIZ_SCORE}점 이상이면 포인트가 쌓이고 말씀카드도 열려요. 다시 도전해보세요!
             </ThemedText>
           )}
 

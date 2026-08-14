@@ -8,13 +8,13 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { searchVerses, TRANSLATIONS, type SearchResult, type Translation } from '@/db/bible';
+import { searchVerses, TRANSLATIONS, type SearchResult, type Translation, DEFAULT_TRANSLATION } from '@/db/bible';
 
 export default function SearchScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
   const [query, setQuery] = useState('');
-  const [translation, setTranslation] = useState<Translation>('open_ko');
+  const [translation, setTranslation] = useState<Translation>(DEFAULT_TRANSLATION);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searched, setSearched] = useState(false);
 

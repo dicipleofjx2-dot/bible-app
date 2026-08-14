@@ -23,9 +23,9 @@ export type MemorizationVerse = {
   words: string[]; // text split into the pieces the puzzle shuffles/reassembles
 };
 
-/** One day's worth of quiz + memorization content, parsed live from the
- * matching blog post (see lib/blogQuizParser.ts) — the blog is the single
- * source of truth, not hand-authored data. */
+/** 하루치 해설·퀴즈·암송구절. 앱이 직접 보관하는 `reading_helper_day_content`에서
+ * 읽어온다(예전에는 매일 발행되는 블로그 글을 파싱해 썼다 — 그 발행이 멈추면
+ * 앱도 함께 멈춰서 자체 보관으로 옮겼다). */
 export type DayQuizContent = {
   dayNumber: number;
   narrative: string;

@@ -11,8 +11,8 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getStartDate } from '@/lib/readingHelper/db';
 import { buildFullPlan, dayNumberForDate, formatChapterRange, type PlanDay } from '@/lib/readingHelper/readingPlan';
-import { getBlogPlanDays, mergeWithBlogChapters, type BlogPost } from '@/lib/readingHelper/blogContent';
-import { getDayContent } from '@/lib/readingHelper/dayContent';
+
+import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
 
 /** Reopens a past archive day at its "처음부분" — the same narrative +
@@ -27,7 +27,6 @@ export default function ReadingHelperDayContentScreen() {
 
   const [loading, setLoading] = useState(true);
   const [day, setDay] = useState<PlanDay | null>(null);
-  const [post, setPost] = useState<BlogPost | null>(null);
   const [dayContent, setDayContent] = useState<DayQuizContent | null>(null);
   const [contentError, setContentError] = useState(false);
 
@@ -45,14 +44,10 @@ export default function ReadingHelperDayContentScreen() {
         setContentError(false);
         const dayNumber = dayNumberForDate(startDate, date);
         try {
-          const [plan, blogDays, content] = await Promise.all([
-            mergeWithBlogChapters(buildFullPlan(startDate)),
-            getBlogPlanDays(),
-            getDayContent(dayNumber),
-          ]);
+          const plan = buildFullPlan(startDate);
+          const content = await getDayContentForDay(startDate, dayNumber);
           if (cancelled) return;
           setDay(plan[dayNumber - 1] ?? null);
-          setPost(blogDays[dayNumber - 1]?.post ?? null);
           setDayContent(content);
         } catch {
           if (!cancelled) setContentError(true);
@@ -86,7 +81,7 @@ export default function ReadingHelperDayContentScreen() {
           {loading ? (
             <ActivityIndicator style={styles.loadingSpacing} />
           ) : (
-            <DayLesson post={post} dayContent={dayContent} loading={false} error={contentError} />
+            <DayLesson dayContent={dayContent} loading={false} error={contentError} />
           )}
 
           {hasQuizContent && date && (

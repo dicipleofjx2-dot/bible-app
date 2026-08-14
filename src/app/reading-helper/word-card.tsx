@@ -27,7 +27,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getBestQuizScore, getStartDate, WORD_CARD_MIN_QUIZ_SCORE } from '@/lib/readingHelper/db';
 import { currentDayNumber, todayDateString } from '@/lib/readingHelper/readingPlan';
-import { getDayContent } from '@/lib/readingHelper/dayContent';
+import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 import { WORD_CARD_TEMPLATES, type WordCardTemplate } from '@/lib/readingHelper/wordCardTemplates';
 
 const MIN_FONT_SIZE = 14;
@@ -80,7 +80,7 @@ export default function WordCardScreen() {
         ]);
         if (cancelled) return;
         setBestQuizScore(score);
-        const content = await getDayContent(dayNumber);
+        const content = await getDayContentForDay(startDate, dayNumber);
         if (cancelled) return;
         if (content) {
           setDefaultVerse(content.memorization.text);
