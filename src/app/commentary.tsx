@@ -8,7 +8,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { getBooks, getChapterVerses, type Book, type Verse } from '@/db/bible';
+import { DEFAULT_TRANSLATION, getBooks, getChapterVerses, type Book, type Verse } from '@/db/bible';
 import {
   getCommentaryForVerse,
   getCommentarySources,
@@ -70,7 +70,7 @@ export default function CommentaryScreen() {
   }, [db]);
 
   useEffect(() => {
-    getChapterVerses(db, bookId, chapter, 'ko_ko').then(setChapterVerses);
+    getChapterVerses(db, bookId, chapter, DEFAULT_TRANSLATION).then(setChapterVerses);
     if (source) getCommentaryVersesForChapter(bookId, chapter, source).then(setAnnotatedVerses);
   }, [db, bookId, chapter, source]);
 
@@ -167,7 +167,7 @@ export default function CommentaryScreen() {
       bookId,
       chapter,
       verse,
-      translation: 'ko_ko',
+      translation: DEFAULT_TRANSLATION,
       color: nextColor,
       note,
     });
