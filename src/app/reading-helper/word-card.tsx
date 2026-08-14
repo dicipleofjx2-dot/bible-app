@@ -25,7 +25,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getBestQuizScore, getStartDate, WORD_CARD_MIN_QUIZ_SCORE } from '@/lib/readingHelper/db';
+import { getStartDate, getTodayQuizScore, WORD_CARD_MIN_QUIZ_SCORE } from '@/lib/readingHelper/db';
 import { currentDayNumber, todayDateString } from '@/lib/readingHelper/readingPlan';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 import { WORD_CARD_TEMPLATES, type WordCardTemplate } from '@/lib/readingHelper/wordCardTemplates';
@@ -48,11 +48,12 @@ function clamp(value: number, min: number, max: number) {
 }
 
 // bible-quiz-app(성경통독도우미의 전신, 이제 폐기)에 있던 말씀카드 편집기를
-// 데이빗바이블로 이식한 버전. 원본은 AsyncStorage 기반 "오늘 퀴즈 90점 이상 +
-// 하루 제작 횟수 제한" 게이팅이 있었는데, 이식 당시엔 Supabase 진행 기록에
-// 그런 카운터가 없어 게이팅을 뺐었다. 이후 다시 "퀴즈 최고점수
-// WORD_CARD_MIN_QUIZ_SCORE(80점) 이상" 조건으로 재도입 — 날짜별 제작 횟수
-// 제한은 여전히 없음.
+// 데이빗바이블로 이식한 버전.
+//
+// 잠금 조건은 "오늘 푼 퀴즈가 WORD_CARD_MIN_QUIZ_SCORE(80점) 이상"이다.
+// 한동안 역대 최고 점수로 봤는데, 그러면 한 번 90점을 맞은 사람은 그 뒤로
+// 퀴즈를 풀지 않아도 계속 열려 있어 조건이 사실상 사라졌다.
+// (날짜별 제작 횟수 제한은 아직 없다)
 export default function WordCardScreen() {
   const theme = useTheme();
   const { session, loading: authLoading } = useAuth();
@@ -61,7 +62,7 @@ export default function WordCardScreen() {
   const [checking, setChecking] = useState(true);
   const [defaultVerse, setDefaultVerse] = useState('');
   const [defaultReference, setDefaultReference] = useState('');
-  const [bestQuizScore, setBestQuizScore] = useState(0);
+  const [todayQuizScore, setTodayQuizScore] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -76,10 +77,10 @@ export default function WordCardScreen() {
         }
         const [dayNumber, score] = await Promise.all([
           Promise.resolve(currentDayNumber(startDate)),
-          getBestQuizScore(userId).catch(() => 0),
+          getTodayQuizScore(userId, todayDateString()).catch(() => 0),
         ]);
         if (cancelled) return;
-        setBestQuizScore(score);
+        setTodayQuizScore(score);
         const content = await getDayContentForDay(startDate, dayNumber);
         if (cancelled) return;
         if (content) {
@@ -104,15 +105,17 @@ export default function WordCardScreen() {
     );
   }
 
-  if (bestQuizScore < WORD_CARD_MIN_QUIZ_SCORE) {
+  if (todayQuizScore < WORD_CARD_MIN_QUIZ_SCORE) {
     return (
       <ThemedView style={styles.centeredScreen}>
         <SafeAreaView style={styles.centered}>
           <ThemedText type="smallBold" style={styles.lockedText}>
-            🔒 성경퀴즈에서 {WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 말씀카드를 만들 수 있어요.
+            🔒 오늘 성경퀴즈에서 {WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 말씀카드를 만들 수 있어요.
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary" style={styles.lockedText}>
-            현재 최고 점수: {bestQuizScore}점
+            {todayQuizScore > 0
+              ? `오늘 점수: ${todayQuizScore}점`
+              : '오늘은 아직 퀴즈를 풀지 않으셨어요.'}
           </ThemedText>
           <Pressable
             onPress={() => router.replace('/reading-helper')}

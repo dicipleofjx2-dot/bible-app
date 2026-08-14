@@ -151,15 +151,21 @@ export async function getPointsSummary(userId: string): Promise<PointsSummary> {
   return summary;
 }
 
-/** 지금까지 본 퀴즈 중 최고 점수. 하나도 안 봤으면 0. */
-export async function getBestQuizScore(userId: string): Promise<number> {
+/**
+ * 오늘 푼 퀴즈 점수. 아직 안 풀었으면 0.
+ *
+ * 말씀카드는 "오늘" 기능이다 — 그날 퀴즈를 풀어 기준 점수를 넘겨야 그날 카드를
+ * 만들 수 있다. 예전에는 역대 최고 점수를 봤는데, 그러면 한 번 90점을 맞은
+ * 사람은 그 뒤로 퀴즈를 안 풀어도 계속 열려 있어 조건이 사실상 없어졌다.
+ *
+ * 지난 날짜를 복습으로 다시 푸는 것은 기록에 저장되지 않으므로 여기에 잡히지 않는다.
+ */
+export async function getTodayQuizScore(userId: string, dateStr: string): Promise<number> {
   const { data, error } = await supabase
     .from('reading_helper_day_records')
     .select('quiz_score')
     .eq('user_id', userId)
-    .not('quiz_score', 'is', null)
-    .order('quiz_score', { ascending: false })
-    .limit(1)
+    .eq('date', dateStr)
     .maybeSingle();
   if (error) throw error;
   return data?.quiz_score ?? 0;

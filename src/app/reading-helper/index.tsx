@@ -10,7 +10,6 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import {
-  getBestQuizScore,
   getDayRecord,
   getPointsSummary,
   getStartDate,
@@ -49,7 +48,7 @@ export default function ReadingHelperHomeScreen() {
   const [contentLoading, setContentLoading] = useState(true);
   const [contentError, setContentError] = useState(false);
   const [readingComplete, setReadingCompleteState] = useState(false);
-  const [bestQuizScore, setBestQuizScore] = useState(0);
+  const [todayQuizScore, setTodayQuizScore] = useState(0);
   const [points, setPoints] = useState<PointsSummary | null>(null);
   const [todayPoints, setTodayPoints] = useState(0);
   const [resetting, setResetting] = useState(false);
@@ -69,15 +68,14 @@ export default function ReadingHelperHomeScreen() {
     const dayNumber = currentDayNumber(startDate);
     const algoPlan = buildFullPlan(startDate);
     const algoDay = algoPlan[dayNumber - 1] ?? algoPlan[algoPlan.length - 1] ?? null;
-    const [record, bestScore, pointsSummary] = await Promise.all([
+    const [record, pointsSummary] = await Promise.all([
       getDayRecord(userId, todayDateString()),
-      getBestQuizScore(userId).catch(() => 0),
       getPointsSummary(userId).catch(() => null),
     ]);
     if (loadIdRef.current !== loadId) return;
     setDay(algoDay);
     setReadingCompleteState(record?.reading_complete ?? false);
-    setBestQuizScore(bestScore);
+    setTodayQuizScore(record?.quiz_score ?? 0);
     setPoints(pointsSummary);
     setTodayPoints(
       quizPoints(record?.quiz_score) + (record?.memorization_success ? MEMORIZATION_POINTS : 0)
@@ -252,7 +250,7 @@ export default function ReadingHelperHomeScreen() {
               성경퀴즈 80점대 10점 · 90점대 20점 · 100점 30점, 암송 성공 {MEMORIZATION_POINTS}점
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              성경퀴즈에서 {WORD_CARD_MIN_QUIZ_SCORE}점 이상을 한 번이라도 맞으면 말씀카드를 만들 수 있어요.
+              오늘 성경퀴즈에서 {WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 그날 말씀카드를 만들 수 있어요.
             </ThemedText>
           </View>
 
@@ -293,16 +291,18 @@ export default function ReadingHelperHomeScreen() {
             </Pressable>
             <Pressable
               onPress={() =>
-                bestQuizScore >= WORD_CARD_MIN_QUIZ_SCORE
+                todayQuizScore >= WORD_CARD_MIN_QUIZ_SCORE
                   ? router.push('/reading-helper/word-card')
                   : Alert.alert(
                       '말씀카드',
-                      `성경퀴즈에서 ${WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 말씀카드를 만들 수 있어요. (현재 최고 점수: ${bestQuizScore}점)`,
+                      todayQuizScore > 0
+                        ? `오늘 성경퀴즈에서 ${WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 말씀카드를 만들 수 있어요. (오늘 점수: ${todayQuizScore}점)`
+                        : `오늘 성경퀴즈를 풀어 ${WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 말씀카드를 만들 수 있어요.`,
                     )
               }
               style={({ pressed }) => [pressed && styles.pressed]}>
               <ThemedText type="small" themeColor="textSecondary">
-                💌 말씀카드 만들기{bestQuizScore < WORD_CARD_MIN_QUIZ_SCORE ? ' 🔒' : ''}
+                💌 말씀카드 만들기{todayQuizScore < WORD_CARD_MIN_QUIZ_SCORE ? ' 🔒' : ''}
               </ThemedText>
             </Pressable>
           </View>
