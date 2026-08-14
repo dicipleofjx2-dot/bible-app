@@ -8,7 +8,6 @@ import { PdfViewer } from '@/components/PdfViewer';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getBookWithContent, getMyAccess, hasBookAccess, type AccessState, type BookWithContent } from '@/db/library';
@@ -214,7 +213,7 @@ const styles = StyleSheet.create({
   },
   paragraph: {
     // 전자책 본문. 글자 크기는 사용자가 조절하므로 서체만 정한다.
-    fontFamily: FontFamily.serif,
+    
     marginBottom: Spacing.one,
   },
   lockedCard: {

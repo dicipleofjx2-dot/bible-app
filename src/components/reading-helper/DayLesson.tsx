@@ -2,7 +2,6 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
-import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
 
@@ -60,5 +59,5 @@ const styles = StyleSheet.create({
   card: { borderRadius: Spacing.four, padding: Spacing.four, gap: Spacing.two },
   spacing: { marginTop: Spacing.one, gap: Spacing.two },
   body: { lineHeight: 21 },
-  verse: { fontSize: 16, fontFamily: FontFamily.bold, lineHeight: 26 },
+  verse: { fontSize: 16, fontWeight: '700', lineHeight: 26 },
 });

@@ -8,7 +8,6 @@ import { useFocusEffect } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import {
@@ -391,7 +390,7 @@ const styles = StyleSheet.create({
   },
   verseText: {
     // QT 본문 — 오래 읽는 글이라 명조를 쓴다.
-    fontFamily: FontFamily.serif,
+    
     fontSize: 18,
     lineHeight: 33,
   },

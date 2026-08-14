@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getAllRecordDates, getStartDate } from '@/lib/readingHelper/db';
@@ -167,6 +166,6 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   cell: { width: `${100 / 7}%`, aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
   dayCell: { borderRadius: 10 },
-  dayNumber: { fontSize: 14, fontFamily: FontFamily.bold },
+  dayNumber: { fontSize: 14, fontWeight: '700', },
   dimmedText: { opacity: 0.35 },
 });

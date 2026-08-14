@@ -7,7 +7,6 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { DayLesson } from '@/components/reading-helper/DayLesson';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import {
@@ -351,7 +350,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
   },
   checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  checkboxMark: { fontSize: 14, fontFamily: FontFamily.bold, color: '#fff' },
+  checkboxMark: { fontSize: 14, fontWeight: '700', color: '#fff' },
   primaryButton: { borderRadius: Spacing.four, paddingVertical: Spacing.four, alignItems: 'center' },
   primaryButtonText: { color: '#fff' },
   secondaryButton: { borderRadius: Spacing.four, paddingVertical: Spacing.four, alignItems: 'center' },
@@ -364,7 +363,7 @@ const styles = StyleSheet.create({
   },
   pointsTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   pointsValueRow: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.two },
-  pointsTotal: { fontSize: 22, fontFamily: FontFamily.bold },
+  pointsTotal: { fontSize: 22, fontWeight: '700', },
   resetRow: { alignSelf: 'center', paddingTop: Spacing.two, paddingBottom: Spacing.one },
   pressed: { opacity: 0.85 },
 });

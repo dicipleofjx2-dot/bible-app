@@ -1,7 +1,6 @@
 import { forwardRef, useMemo } from 'react';
 import { Text, type StyleProp, type TextStyle } from 'react-native';
 
-import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 
 // 만나주석 entries only ever use this small, known set of tags (<b>, <i>,
@@ -91,8 +90,7 @@ function renderSegments(
         <Text
           key={key++}
           style={{
-            // 커스텀 서체는 fontWeight를 무시한다 — 굵기는 패밀리로 고른다.
-            fontFamily: seg.style.bold ? FontFamily.bold : FontFamily.regular,
+            fontWeight: seg.style.bold ? '700' : '400',
             fontStyle: seg.style.italic ? 'italic' : 'normal',
             color: seg.style.color ?? baseColor,
             backgroundColor: hit?.color,

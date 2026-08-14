@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { FontFamily } from '@/constants/typography';
 import { getNoticeById, type Notice } from '@/db/notices';
 
 function formatDate(iso: string): string {
@@ -75,7 +74,7 @@ const styles = StyleSheet.create({
   },
   body: {
     marginTop: Spacing.two,
-    fontFamily: FontFamily.serif,
+    
     fontSize: 17,
     lineHeight: 31,
   },

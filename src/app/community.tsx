@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { FontFamily } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
@@ -281,7 +280,7 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
   },
   commentBadgeText: {
-    fontFamily: FontFamily.bold,
+    fontWeight: '700',
   },
   emptyText: {
     textAlign: 'center',
