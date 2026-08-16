@@ -26,6 +26,7 @@ import {
   buildFullPlan,
   formatChapterRange,
   todayDateString,
+  tomorrowDateString,
   msUntilNextDayStart,
   PLAN_TOTAL_DAYS,
   type PlanDay,
@@ -279,6 +280,17 @@ export default function ReadingHelperHomeScreen() {
           </Pressable>
 
           <View style={styles.linkRow}>
+            {/* 앞으로 일주일치는 미리 볼 수 있다. 캘린더까지 들어가야만 보이면
+                그런 길이 있다는 걸 아무도 모른다. */}
+            <Pressable
+              onPress={() =>
+                router.push({ pathname: '/reading-helper/day-detail', params: { date: tomorrowDateString() } })
+              }
+              style={({ pressed }) => [pressed && styles.pressed]}>
+              <ThemedText type="small" themeColor="textSecondary">
+                🔭 다음 날 미리 보기
+              </ThemedText>
+            </Pressable>
             <Pressable onPress={() => router.push('/reading-helper/calendar')} style={({ pressed }) => [pressed && styles.pressed]}>
               <ThemedText type="small" themeColor="textSecondary">
                 📅 통독 캘린더

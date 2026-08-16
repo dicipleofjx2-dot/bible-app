@@ -106,6 +106,37 @@ export function currentDayNumber(startDateStr: string): number {
   return dayNumberForDate(startDateStr, todayDateString());
 }
 
+/**
+ * 앞으로 며칠치를 미리 볼 수 있는지.
+ *
+ * 통독은 하루치씩 따라가는 것이 원칙이지만, 주말에 몰아서 준비하거나 여행을
+ * 앞두고 미리 읽어 두려는 사람이 있다. 오늘 것밖에 볼 수 없으면 그런 사람은
+ * 앱을 못 쓴다. 일주일이면 한 주를 통째로 준비하기에 충분하고, 그 이상 열면
+ * "매일 조금씩"이라는 통독의 결이 무너진다.
+ *
+ * 미리 푼 퀴즈·암송은 기록에 남지 않는다(연습이다). 그날이 되면 다시 푼다.
+ */
+export const PREVIEW_DAYS = 7;
+
+/** 내일 날짜. 하루 경계가 4시라 단순히 new Date()+1을 쓰면 새벽에 하루가 어긋난다. */
+export function tomorrowDateString(): string {
+  const d = new Date(`${todayDateString()}T00:00:00`);
+  d.setDate(d.getDate() + 1);
+  return toDateString(d);
+}
+
+/** `dateStr`이 오늘 이후이면서 미리 보기 범위 안인가 */
+export function isPreviewDate(dateStr: string): boolean {
+  const today = todayDateString();
+  if (dateStr <= today) return false;
+  return daysBetweenInclusive(today, dateStr) - 1 <= PREVIEW_DAYS;
+}
+
+/** 미리 보기로도 열 수 없는 먼 앞날인가 */
+export function isBeyondPreview(dateStr: string): boolean {
+  return dateStr > todayDateString() && !isPreviewDate(dateStr);
+}
+
 export function formatChapterRange(chapters: PlanChapterEntry[]): string {
   if (chapters.length === 0) return '';
   // Group consecutive entries by book, e.g. "창세기 1~5장" or "창세기 48~50장, 출애굽기 1~2장"

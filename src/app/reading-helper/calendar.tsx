@@ -9,7 +9,12 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getAllRecordDates, getStartDate } from '@/lib/readingHelper/db';
-import { todayDateString } from '@/lib/readingHelper/readingPlan';
+import {
+  isBeyondPreview,
+  isPreviewDate,
+  PREVIEW_DAYS,
+  todayDateString,
+} from '@/lib/readingHelper/readingPlan';
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -124,22 +129,26 @@ export default function ReadingHelperCalendarScreen() {
             const key = dateKey(viewYear, viewMonth, day);
             const hasRecord = recordDates.has(key);
             const isToday = key === todayStr;
-            const isFuture = key > todayStr;
+            // 앞으로 일주일치는 미리 볼 수 있다. 그보다 먼 앞날만 잠근다.
+            const isPreview = isPreviewDate(key);
+            const isLocked = isBeyondPreview(key);
             const isBeforeStart = startDate !== null && key < startDate;
 
             return (
               <Pressable
                 key={i}
-                disabled={isFuture || isBeforeStart}
+                disabled={isLocked || isBeforeStart}
                 onPress={() => router.push({ pathname: '/reading-helper/day-detail', params: { date: key } })}
                 style={[
                   styles.cell,
                   styles.dayCell,
                   isToday && { backgroundColor: theme.backgroundSelected },
                   !isToday && hasRecord && { backgroundColor: theme.backgroundElement },
+                  // 미리 보기 날은 테두리만 둘러 오늘·지난날과 구분한다.
+                  isPreview && { borderWidth: 1, borderColor: theme.backgroundSelected },
                 ]}>
                 <ThemedText
-                  style={[styles.dayNumber, (isFuture || isBeforeStart) && styles.dimmedText, isToday && { color: '#fff' }]}>
+                  style={[styles.dayNumber, (isLocked || isBeforeStart) && styles.dimmedText, isToday && { color: '#fff' }]}>
                   {day}
                 </ThemedText>
                 {hasRecord && (
@@ -149,6 +158,11 @@ export default function ReadingHelperCalendarScreen() {
             );
           })}
         </View>
+
+        <ThemedText type="small" themeColor="textSecondary" style={styles.hint}>
+          테두리가 있는 날은 앞으로 {PREVIEW_DAYS}일 안의 미리 보기입니다. 미리 풀어 본 퀴즈와 암송은
+          기록에 남지 않으니, 그날이 되면 다시 하시면 됩니다.
+        </ThemedText>
       </SafeAreaView>
     </ThemedView>
   );
@@ -168,4 +182,5 @@ const styles = StyleSheet.create({
   dayCell: { borderRadius: 10 },
   dayNumber: { fontSize: 14, fontWeight: '700', },
   dimmedText: { opacity: 0.35 },
+  hint: { lineHeight: 19 },
 });
