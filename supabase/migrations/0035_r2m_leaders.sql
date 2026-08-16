@@ -4,6 +4,41 @@
 -- 0030에 적어 둔 원칙을 그대로 지킨다: 서버에는 불리언과 타임스탬프만 있고 묵상·기도·
 -- 일기 내용은 애초에 올라오지 않는다. 그러므로 리더 권한을 넓혀도 내용이 새어 나갈
 -- 경로가 구조적으로 없다.
+--
+-- 순서 주의: 판정 함수들이 아래 테이블을 참조하므로 테이블을 먼저 만든다.
+-- language sql 함수는 만들 때 본문을 바로 검사하기 때문에, 함수를 앞에 두면
+-- "relation ... does not exist"로 실패한다.
+
+-- ── 리더 자격 ──────────────────────────────────────────────────────────
+--
+-- profiles에 is_leader 컬럼을 더하지 않고 따로 테이블을 둔다. profiles의 수정
+-- 정책이 "자기 행이면 수정 가능"이라 컬럼을 더하는 순간 누구나 스스로 리더가 될 수
+-- 있기 때문이다(같은 이유로 맨 아래에서 is_admin 구멍도 막는다).
+
+create table if not exists r2m_leaders (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  created_by uuid references auth.users(id) on delete set null
+);
+
+alter table r2m_leaders enable row level security;
+
+-- ── 리더-멤버 배정 ─────────────────────────────────────────────────────
+--
+-- member_id가 기본키다 — 한 사람은 한 리더에게만 속한다. 리더를 바꾸는 것은
+-- 삭제 후 추가가 아니라 upsert 한 번으로 끝난다.
+
+create table if not exists r2m_leader_members (
+  member_id uuid primary key references auth.users(id) on delete cascade,
+  leader_id uuid not null references auth.users(id) on delete cascade,
+  assigned_at timestamptz not null default now(),
+  assigned_by uuid references auth.users(id) on delete set null,
+  constraint r2m_leader_not_self check (leader_id <> member_id)
+);
+
+create index if not exists r2m_leader_members_leader_idx on r2m_leader_members (leader_id);
+
+alter table r2m_leader_members enable row level security;
 
 -- ── 권한 판정 헬퍼 ─────────────────────────────────────────────────────
 --
@@ -48,22 +83,11 @@ as $$
   );
 $$;
 
--- ── 리더 자격 ──────────────────────────────────────────────────────────
+-- ── 리더 자격 정책 ─────────────────────────────────────────────────────
 --
--- profiles에 is_leader 컬럼을 더하지 않고 따로 테이블을 둔다. profiles의 수정
--- 정책이 "자기 행이면 수정 가능"이라 컬럼을 더하는 순간 누구나 스스로 리더가 될 수
--- 있기 때문이다(같은 이유로 아래에서 is_admin 구멍도 막는다).
-
-create table if not exists r2m_leaders (
-  user_id uuid primary key references auth.users(id) on delete cascade,
-  created_at timestamptz not null default now(),
-  created_by uuid references auth.users(id) on delete set null
-);
-
-alter table r2m_leaders enable row level security;
-
 -- 누가 리더인지는 이름과 마찬가지로 가릴 정보가 아니다(멤버도 자기 리더가 누군지
 -- 알아야 한다). 대신 자격을 주고 뺏는 건 관리자만 한다.
+
 drop policy if exists "anyone can read r2m leaders" on r2m_leaders;
 create policy "anyone can read r2m leaders" on r2m_leaders
   for select using (true);
@@ -74,22 +98,7 @@ create policy "admin can manage r2m leaders" on r2m_leaders
   using (public.r2m_is_admin())
   with check (public.r2m_is_admin());
 
--- ── 리더-멤버 배정 ─────────────────────────────────────────────────────
---
--- member_id가 기본키다 — 한 사람은 한 리더에게만 속한다. 리더를 바꾸는 것은
--- 삭제 후 추가가 아니라 upsert 한 번으로 끝난다.
-
-create table if not exists r2m_leader_members (
-  member_id uuid primary key references auth.users(id) on delete cascade,
-  leader_id uuid not null references auth.users(id) on delete cascade,
-  assigned_at timestamptz not null default now(),
-  assigned_by uuid references auth.users(id) on delete set null,
-  constraint r2m_leader_not_self check (leader_id <> member_id)
-);
-
-create index if not exists r2m_leader_members_leader_idx on r2m_leader_members (leader_id);
-
-alter table r2m_leader_members enable row level security;
+-- ── 배정 정책 ──────────────────────────────────────────────────────────
 
 drop policy if exists "read own r2m leader assignment" on r2m_leader_members;
 create policy "read own r2m leader assignment" on r2m_leader_members
