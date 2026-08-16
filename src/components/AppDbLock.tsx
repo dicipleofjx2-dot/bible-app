@@ -1,3 +1,4 @@
+import { deleteDatabaseAsync } from 'expo-sqlite';
 import { useEffect } from 'react';
 
 import { holdDbLock } from '@/lib/tabPresence';
@@ -9,9 +10,20 @@ import { holdDbLock } from '@/lib/tabPresence';
  *
  * 에러로 떨어진 탭까지 잠금을 잡으면 서로 자기가 주인인 줄 알게 되어 판단이 꼬인다.
  */
-export function AppDbLock() {
+export function AppDbLock({ staleDbNames = [] }: { staleDbNames?: string[] }) {
   useEffect(() => {
     holdDbLock();
   }, []);
+
+  // 성경 DB 이름을 올리면 옛 파일이 그대로 남는다(하나에 약 30MB). 새 DB가
+  // 확실히 열린 뒤에 지운다. 없으면 그냥 실패하므로 조용히 넘어간다.
+  useEffect(() => {
+    for (const name of staleDbNames) {
+      deleteDatabaseAsync(name).catch(() => {});
+    }
+    // 목록은 모듈 상수라 바뀌지 않는다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return null;
 }

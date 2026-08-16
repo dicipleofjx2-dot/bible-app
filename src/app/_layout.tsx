@@ -18,6 +18,22 @@ SplashScreen.preventAutoHideAsync();
 // re-run its suspending init).
 const BIBLE_DB_ASSET_SOURCE = { assetId: require('../../assets/bible-data/bible.db') };
 
+// assets/bible-data/bible.db를 고쳤으면 이 이름을 반드시 같이 올려야 한다.
+//
+// expo-sqlite는 `importAssetDatabaseAsync(..., forceOverwrite = false)`로
+// 복사한다 — 같은 이름의 파일이 이미 기기(웹은 OPFS)에 있으면 새 asset을
+// 그냥 무시한다. 이름을 안 올리면 이미 앱을 써 본 사람에게는 옛 DB가 그대로
+// 남아, 새로 넣은 번역본이나 본문이 통째로 안 보인다.
+//
+// v6: 개역개정(krv)을 넣었는데 이름을 안 올려서, 기존 사용자에게 큐티 본문이
+//     빈칸으로 나왔다. 큐티는 번역본을 고르는 화면이 아니라 개역개정으로
+//     고정 조회하기 때문에 한 절도 안 나온 것이다.
+const BIBLE_DB_NAME = 'bible-v6.db';
+
+// 이름을 올리면 옛 파일(약 30MB)이 그대로 남는다. 웹은 OPFS 용량이 넉넉하지
+// 않으므로 한 번 지워 준다. 이미 없으면 조용히 넘어간다.
+const STALE_BIBLE_DB_NAMES = ['bible-v5.db'];
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const pathname = usePathname();
@@ -52,11 +68,11 @@ export default function RootLayout() {
         <SQLiteRecoveryBoundary>
           <Suspense fallback={<ActivityIndicator style={{ flex: 1 }} />}>
             <SQLiteProvider
-              databaseName="bible-v5.db"
+              databaseName={BIBLE_DB_NAME}
               assetSource={BIBLE_DB_ASSET_SOURCE}
               useSuspense>
               <AuthProvider>
-                <AppDbLock />
+                <AppDbLock staleDbNames={STALE_BIBLE_DB_NAMES} />
                 {shouldShowIntro && <Redirect href="/intro" />}
                 <Stack screenOptions={{ headerShown: false }}>
                   <Stack.Screen name="(tabs)" />
