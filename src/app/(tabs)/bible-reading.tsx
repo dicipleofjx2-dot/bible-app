@@ -8,8 +8,8 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getIsAdmin } from '@/db/profile';
 import {
+  getLeaderScope,
   getMissionsForWeek,
   getMyActiveEnrollment,
   getTodayChecklist,
@@ -44,7 +44,8 @@ const EMPTY_CHECKLIST: DailyChecklist = {
 export default function R2MDashboardScreen() {
   const theme = useTheme();
   const { session } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
+  // 관리자뿐 아니라 리더로 지정된 회원도 리더관리에 들어간다.
+  const [canLead, setCanLead] = useState(false);
   const [enrollment, setEnrollment] = useState<ActiveEnrollment | null | undefined>(undefined);
   const [checklist, setChecklist] = useState<DailyChecklist>(EMPTY_CHECKLIST);
   const [missions, setMissions] = useState<Mission[]>([]);
@@ -52,14 +53,15 @@ export default function R2MDashboardScreen() {
   useFocusEffect(
     useCallback(() => {
       if (!session) {
+        setCanLead(false);
         setEnrollment(null);
         setChecklist(EMPTY_CHECKLIST);
         setMissions([]);
         return;
       }
-      getIsAdmin(session.user.id)
-        .then(setIsAdmin)
-        .catch(() => setIsAdmin(false));
+      getLeaderScope(session.user.id)
+        .then((s) => setCanLead(s.isAdmin || s.isLeader))
+        .catch(() => setCanLead(false));
       getTodayChecklist(session.user.id)
         .then(setChecklist)
         .catch(() => setChecklist(EMPTY_CHECKLIST));
@@ -174,7 +176,7 @@ export default function R2MDashboardScreen() {
                 성장기록
               </ThemedText>
             </Pressable>
-            {isAdmin && (
+            {canLead && (
               <Pressable onPress={() => router.push('/r2m/leaders')}>
                 <ThemedText type="link" themeColor="textSecondary">
                   리더관리

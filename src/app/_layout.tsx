@@ -174,6 +174,10 @@ export default function RootLayout() {
                     name="r2m/leaders"
                     options={{ headerShown: true, title: '리더관리' }}
                   />
+                  <Stack.Screen
+                    name="r2m/leader-assign"
+                    options={{ headerShown: true, title: '리더 지정 · 멤버 배정' }}
+                  />
                 </Stack>
               </AuthProvider>
             </SQLiteProvider>

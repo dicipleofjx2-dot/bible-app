@@ -1,6 +1,6 @@
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -8,8 +8,13 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getIsAdmin } from '@/db/profile';
-import { getEnrolledUsersStatus, type DailyChecklist, type EnrolledUserStatus } from '@/db/r2m';
+import {
+  getEnrolledUsersStatus,
+  getLeaderScope,
+  type DailyChecklist,
+  type EnrolledUserStatus,
+  type LeaderScope,
+} from '@/db/r2m';
 
 const CHECKLIST_DOTS: { key: keyof DailyChecklist; label: string }[] = [
   { key: 'qt', label: 'QT' },
@@ -28,18 +33,21 @@ function daysSince(dateStr: string): number {
 export default function R2MLeadersScreen() {
   const theme = useTheme();
   const { session, loading } = useAuth();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [scope, setScope] = useState<LeaderScope | null>(null);
   const [users, setUsers] = useState<EnrolledUserStatus[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       if (!session) return;
-      getIsAdmin(session.user.id)
-        .then(setIsAdmin)
-        .catch(() => setIsAdmin(false));
-      getEnrolledUsersStatus()
-        .then(setUsers)
+      const userId = session.user.id;
+      // 명단은 자격에 따라 범위가 달라지므로 자격을 먼저 확인하고 나서 부른다.
+      getLeaderScope(userId)
+        .then((s) => {
+          setScope(s);
+          if (!s.isAdmin && !s.isLeader) return;
+          return getEnrolledUsersStatus(userId, s).then(setUsers);
+        })
         .catch((e) => setError(e?.message ?? String(e)));
     }, [session]),
   );
@@ -56,11 +64,11 @@ export default function R2MLeadersScreen() {
     );
   }
 
-  if (isAdmin === false) {
+  if (scope && !scope.isAdmin && !scope.isLeader) {
     return (
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.safeAreaCentered}>
-          <ThemedText themeColor="textSecondary">관리자만 접근할 수 있어요.</ThemedText>
+          <ThemedText themeColor="textSecondary">리더로 지정된 분만 볼 수 있어요.</ThemedText>
         </SafeAreaView>
       </ThemedView>
     );
@@ -74,8 +82,22 @@ export default function R2MLeadersScreen() {
             리더관리
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            오늘의 훈련 완료 여부만 확인할 수 있어요. 묵상/기도 내용은 어떤 관리자도 볼 수 없습니다.
+            {scope?.isAdmin
+              ? '전체 훈련생의 오늘 완료 여부입니다. 묵상/기도 내용은 어떤 관리자도 볼 수 없습니다.'
+              : '나에게 배정된 멤버의 오늘 완료 여부입니다. 묵상/기도 내용은 리더도 볼 수 없습니다.'}
           </ThemedText>
+
+          {scope?.isAdmin && (
+            <Pressable
+              onPress={() => router.push('/r2m/leader-assign')}
+              style={({ pressed }) => [
+                styles.assignButton,
+                { backgroundColor: theme.backgroundElement },
+                pressed && styles.pressed,
+              ]}>
+              <ThemedText type="smallBold">리더 지정 · 멤버 배정 ›</ThemedText>
+            </Pressable>
+          )}
 
           {error && (
             <ThemedText type="small" style={styles.errorText}>
@@ -90,7 +112,7 @@ export default function R2MLeadersScreen() {
                 <View style={styles.userHeader}>
                   <ThemedText type="smallBold">{u.username}</ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
-                    {u.courseTitle}
+                    {u.courseTitle || '훈련과정 미등록'}
                   </ThemedText>
                 </View>
                 <View style={styles.dotsRow}>
@@ -117,9 +139,11 @@ export default function R2MLeadersScreen() {
             );
           })}
 
-          {users.length === 0 && !error && (
+          {users.length === 0 && !error && scope && (
             <ThemedText type="small" themeColor="textSecondary" style={styles.emptyText}>
-              아직 등록된 훈련생이 없어요.
+              {scope.isAdmin
+                ? '아직 훈련과정에 등록했거나 리더에게 배정된 회원이 없어요. "리더 지정 · 멤버 배정"에서 배정해 주세요.'
+                : '아직 나에게 배정된 멤버가 없어요. 관리자에게 배정을 요청해 주세요.'}
             </ThemedText>
           )}
         </ScrollView>
@@ -155,6 +179,15 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#e03131',
+  },
+  assignButton: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.two,
+    borderRadius: Spacing.five,
+  },
+  pressed: {
+    opacity: 0.7,
   },
   userCard: {
     borderRadius: Spacing.four,

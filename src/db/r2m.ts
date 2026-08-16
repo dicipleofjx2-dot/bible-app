@@ -75,10 +75,24 @@ export type ProgressCounts = {
 export type EnrolledUserStatus = {
   userId: string;
   username: string;
+  /** 훈련과정에 등록하지 않은 멤버는 빈 문자열 */
   courseTitle: string;
-  startedAt: string;
+  /** 등록하지 않았으면 null */
+  startedAt: string | null;
   today: DailyChecklist;
   lastActivityAt: string | null;
+};
+
+/** 리더관리 화면에 들어올 수 있는 자격 */
+export type LeaderScope = { isAdmin: boolean; isLeader: boolean };
+
+export type AppMember = {
+  userId: string;
+  username: string;
+  isLeader: boolean;
+  /** 이 사람이 속한 리더 (없으면 null) */
+  leaderId: string | null;
+  leaderName: string | null;
 };
 
 function mapCourse(row: any): Course {
@@ -334,19 +348,56 @@ export async function getProgressCounts(userId: string): Promise<ProgressCounts>
 // 리더관리 (admin 전용 — 완료 여부만, 콘텐츠 컬럼 select 없음)
 // ============================================================
 
-export async function getEnrolledUsersStatus(): Promise<EnrolledUserStatus[]> {
-  const { data: enrollments, error } = await supabase
-    .from('r2m_enrollments')
-    .select('user_id, started_at, profiles(username), r2m_courses(title)')
-    .is('completed_at', null)
-    .order('started_at', { ascending: true });
-  if (error) throw error;
-  const rows = enrollments ?? [];
-  if (rows.length === 0) return [];
+/** 리더관리 화면에 들어올 수 있는지 — 관리자이거나 리더이면 된다. */
+export async function getLeaderScope(userId: string): Promise<LeaderScope> {
+  const [adminResult, leaderResult] = await Promise.all([
+    supabase.from('profiles').select('is_admin').eq('id', userId).maybeSingle(),
+    supabase.from('r2m_leaders').select('user_id').eq('user_id', userId).maybeSingle(),
+  ]);
+  return {
+    isAdmin: !!(adminResult.data as any)?.is_admin,
+    isLeader: !!leaderResult.data,
+  };
+}
 
-  const userIds = [...new Set(rows.map((r: any) => r.user_id))];
+/**
+ * 리더관리 화면이 보여줄 사람들.
+ *
+ * 리더는 자기에게 배정된 멤버만, 관리자는 전체를 본다. 훈련과정에 아직 등록하지
+ * 않은 멤버도 빼지 않는다 — 리더가 챙겨야 할 사람이 목록에서 아예 사라지면
+ * "등록하라고 말해 줄" 계기가 없어진다. 대신 과정 자리를 비워 표시한다.
+ *
+ * 어느 쪽이든 완료 여부(불리언)만 가져온다. 묵상·기도 내용은 서버에 없다.
+ */
+export async function getEnrolledUsersStatus(userId: string, scope: LeaderScope): Promise<EnrolledUserStatus[]> {
+  // 리더는 배정표가 곧 명단이다. 관리자는 등록자와 배정된 멤버를 합쳐서 본다.
+  const assignmentQuery = supabase.from('r2m_leader_members').select('member_id');
+  const [assignmentResult, enrollmentResult] = await Promise.all([
+    scope.isAdmin ? assignmentQuery : assignmentQuery.eq('leader_id', userId),
+    supabase
+      .from('r2m_enrollments')
+      .select('user_id, started_at, r2m_courses(title)')
+      .is('completed_at', null)
+      .order('started_at', { ascending: true }),
+  ]);
+  if (enrollmentResult.error) throw enrollmentResult.error;
+
+  // 배정표 조회 실패는 치명적으로 다루지 않는다. 앱은 배포되었는데 0035
+  // 마이그레이션이 아직 안 돌았으면 이 테이블이 없어서 실패하는데, 그때 통째로
+  // 던지면 지금까지 잘 되던 관리자 명단까지 같이 못 보게 된다.
+  const assignedIds = (assignmentResult.data ?? []).map((r: any) => r.member_id);
+  const enrollmentByUser = new Map<string, any>(
+    (enrollmentResult.data ?? []).map((r: any) => [r.user_id, r]),
+  );
+
+  const userIds = scope.isAdmin
+    ? [...new Set([...enrollmentByUser.keys(), ...assignedIds])]
+    : assignedIds;
+  if (userIds.length === 0) return [];
+
   const date = todayDateString();
-  const [checkinsResult, prayerResult, readingHelperResult] = await Promise.all([
+  const [profileResult, checkinsResult, prayerResult, readingHelperResult] = await Promise.all([
+    supabase.from('profiles').select('id, username').in('id', userIds),
     supabase.from('r2m_daily_checkins').select('*').in('user_id', userIds).eq('date', date),
     supabase.from('prayer_logs').select('user_id').in('user_id', userIds).gte('created_at', startOfTodayISO()),
     supabase
@@ -356,30 +407,102 @@ export async function getEnrolledUsersStatus(): Promise<EnrolledUserStatus[]> {
       .eq('date', date),
   ]);
 
+  const nameByUser = new Map<string, string>((profileResult.data ?? []).map((r: any) => [r.id, r.username]));
   const checkinByUser = new Map<string, any>((checkinsResult.data ?? []).map((r: any) => [r.user_id, r]));
   const prayedUsers = new Set((prayerResult.data ?? []).map((r: any) => r.user_id));
   const readingHelperByUser = new Map<string, any>((readingHelperResult.data ?? []).map((r: any) => [r.user_id, r]));
 
-  return rows.map((row: any) => {
-    const checkin = checkinByUser.get(row.user_id);
-    const readingHelper = readingHelperByUser.get(row.user_id);
+  return userIds
+    .map((id) => {
+      const checkin = checkinByUser.get(id);
+      const readingHelper = readingHelperByUser.get(id);
+      const enrollment = enrollmentByUser.get(id);
+      return {
+        userId: id,
+        username: nameByUser.get(id) ?? '익명',
+        courseTitle: enrollment?.r2m_courses?.title ?? '',
+        startedAt: enrollment?.started_at ?? null,
+        today: {
+          qt: !!checkin?.qt,
+          reading: (readingHelper?.quiz_score ?? 0) >= READING_QUIZ_PASS_SCORE,
+          meditation: !!checkin?.meditation,
+          obedience: !!checkin?.obedience,
+          gratitude: !!checkin?.gratitude,
+          prayer: prayedUsers.has(id),
+          memorization: !!readingHelper?.memorization_success,
+        },
+        lastActivityAt: checkin?.updated_at ?? null,
+      };
+    })
+    .sort((a, b) => a.username.localeCompare(b.username, 'ko'));
+}
+
+// ============================================================
+// 리더 지정과 멤버 배정 (관리자 전용)
+// ============================================================
+
+/** 회원 전체를 리더 여부·소속 리더와 함께 가져온다. */
+export async function getMembersForAssignment(): Promise<AppMember[]> {
+  const [profileResult, leaderResult, assignmentResult] = await Promise.all([
+    supabase.from('profiles').select('id, username').order('username', { ascending: true }),
+    supabase.from('r2m_leaders').select('user_id'),
+    supabase.from('r2m_leader_members').select('member_id, leader_id'),
+  ]);
+  if (profileResult.error) throw profileResult.error;
+
+  // 위와 같은 이유 — 리더 테이블이 아직 없으면 "리더 없음"으로 보여 준다.
+  const leaderIds = new Set((leaderResult.data ?? []).map((r: any) => r.user_id));
+  const leaderByMember = new Map<string, string>(
+    (assignmentResult.data ?? []).map((r: any) => [r.member_id, r.leader_id]),
+  );
+  const nameById = new Map<string, string>((profileResult.data ?? []).map((r: any) => [r.id, r.username]));
+
+  return (profileResult.data ?? []).map((row: any) => {
+    const leaderId = leaderByMember.get(row.id) ?? null;
     return {
-      userId: row.user_id,
-      username: row.profiles?.username ?? '익명',
-      courseTitle: row.r2m_courses?.title ?? '',
-      startedAt: row.started_at,
-      today: {
-        qt: !!checkin?.qt,
-        reading: (readingHelper?.quiz_score ?? 0) >= READING_QUIZ_PASS_SCORE,
-        meditation: !!checkin?.meditation,
-        obedience: !!checkin?.obedience,
-        gratitude: !!checkin?.gratitude,
-        prayer: prayedUsers.has(row.user_id),
-        memorization: !!readingHelper?.memorization_success,
-      },
-      lastActivityAt: checkin?.updated_at ?? null,
+      userId: row.id,
+      username: row.username ?? '익명',
+      isLeader: leaderIds.has(row.id),
+      leaderId,
+      leaderName: leaderId ? (nameById.get(leaderId) ?? '익명') : null,
     };
   });
+}
+
+export async function setLeader(userId: string, on: boolean, actorId: string): Promise<{ error?: string }> {
+  if (on) {
+    const { error } = await supabase.from('r2m_leaders').upsert(
+      { user_id: userId, created_by: actorId },
+      { onConflict: 'user_id' },
+    );
+    return { error: error?.message };
+  }
+
+  // 리더 자격을 뺏으면 그 사람에게 붙어 있던 멤버는 소속이 없어진다. 배정을 그대로
+  // 두면 리더가 아닌 사람 이름이 소속으로 남아 다음 배정 때 헷갈린다.
+  const { error: unassignError } = await supabase.from('r2m_leader_members').delete().eq('leader_id', userId);
+  if (unassignError) return { error: unassignError.message };
+  const { error } = await supabase.from('r2m_leaders').delete().eq('user_id', userId);
+  return { error: error?.message };
+}
+
+/** leaderId가 null이면 소속을 없앤다. 한 사람은 한 리더에게만 속한다. */
+export async function assignMemberToLeader(
+  memberId: string,
+  leaderId: string | null,
+  actorId: string,
+): Promise<{ error?: string }> {
+  if (!leaderId) {
+    const { error } = await supabase.from('r2m_leader_members').delete().eq('member_id', memberId);
+    return { error: error?.message };
+  }
+  if (leaderId === memberId) return { error: '자기 자신을 리더로 지정할 수 없어요.' };
+
+  const { error } = await supabase.from('r2m_leader_members').upsert(
+    { member_id: memberId, leader_id: leaderId, assigned_by: actorId, assigned_at: new Date().toISOString() },
+    { onConflict: 'member_id' },
+  );
+  return { error: error?.message };
 }
 
 // ============================================================
