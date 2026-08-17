@@ -50,8 +50,9 @@ type HomeTile = {
   externalUrl?: string;
 };
 
+// 공지사항은 바둑판에 넣지 않는다 — 제목이 바로 보이는 한 줄 띠가 위에 따로
+// 있고, 그게 아이콘 한 칸보다 훨씬 잘 읽힌다.
 const HOME_TILES: HomeTile[] = [
-  { emoji: '📢', label: '공지사항', href: '/notice-board' },
   { emoji: '💌', label: '목자의 편지', href: '/shepherd-letters' },
   { emoji: '🔥', label: 'R2M훈련', href: '/bible-reading' },
   { emoji: '📆', label: '성경통독도우미', href: '/reading-helper', requiresAuth: true },
@@ -60,6 +61,7 @@ const HOME_TILES: HomeTile[] = [
   { emoji: '📕', label: '데이빗북스', href: '/library' },
   { emoji: '📋', label: '게시판', href: '/boards' },
   { emoji: '🤍', label: 'David Bible 후원', href: '/support' },
+  { emoji: '💬', label: '커뮤니티', href: '/community', requiresAuth: true },
 ];
 
 export default function HomeScreen() {
@@ -190,17 +192,33 @@ export default function HomeScreen() {
             ))}
           </View>
 
-          {/* 3. 바둑판 — 알림마당·R2M·목자편지·게시판·후원까지 한자리에 */}
+          {/* 3. 알림마당 — 제목만 노출되는 한 줄 스트립 */}
+          <Pressable
+            onPress={() => router.push('/notice-board')}
+            style={({ pressed }) => [
+              styles.noticeStrip,
+              { backgroundColor: theme.backgroundElement, borderColor: theme.border },
+              pressed && styles.pressed,
+            ]}>
+            <ThemedText type="small" numberOfLines={1} style={styles.noticeStripText}>
+              📢 {notice ? notice.title : '등록된 소식이 없어요'}
+            </ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              더보기 ›
+            </ThemedText>
+          </Pressable>
+
+          {/* 4. 바둑판 — 나머지 기능을 한눈에 */}
           <View style={styles.tileGrid}>
             {HOME_TILES.map((tile) => {
               const badge =
-                tile.label === '공지사항'
-                  ? notice?.title ?? null
-                  : tile.label === '목자의 편지'
-                    ? (letterUnseen ? 'NEW' : null)
-                    : tile.label === 'R2M훈련' && enrollment
-                      ? `오늘 ${checklistCount}/7`
-                      : null;
+                tile.label === '목자의 편지'
+                  ? letterUnseen
+                    ? 'NEW'
+                    : null
+                  : tile.label === 'R2M훈련' && enrollment
+                    ? `오늘 ${checklistCount}/7`
+                    : null;
               return (
                 <Pressable
                   key={tile.label}
