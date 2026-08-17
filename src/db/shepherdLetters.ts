@@ -8,9 +8,6 @@ export type ShepherdLetter = {
   imageUrls: string[];
   isPublished: boolean;
   createdAt: string;
-  /** 어느 연재에 속하는지. 비어 있으면 그때그때 쓰는 목자편지다. */
-  seriesId: string | null;
-  authorName: string | null;
 };
 
 export type ShepherdLetterWithParagraphs = ShepherdLetter & { paragraphs: string[] };
@@ -20,8 +17,6 @@ export type ShepherdLetterEntry = {
   coverUrl: string;
   bodyText: string;
   imageUrls: string[];
-  seriesId: string | null;
-  authorName: string;
 };
 
 function mapRow(row: any): ShepherdLetter {
@@ -33,8 +28,6 @@ function mapRow(row: any): ShepherdLetter {
     imageUrls: row.image_urls ?? [],
     isPublished: row.is_published,
     createdAt: row.created_at,
-    seriesId: row.series_id ?? null,
-    authorName: row.author_name ?? null,
   };
 }
 
@@ -91,8 +84,6 @@ export async function insertLetter(entry: ShepherdLetterEntry): Promise<{ error?
     cover_url: entry.coverUrl || null,
     body_text: entry.bodyText,
     image_urls: entry.imageUrls,
-    series_id: entry.seriesId,
-    author_name: entry.authorName || null,
     is_published: true,
   });
   return { error: error?.message };

@@ -9,37 +9,30 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getIsAdmin } from '@/db/profile';
-import {
-  createLetterSeries,
-  deleteLetterSeries,
-  getLetterSeries,
-  updateLetterSeries,
-  type LetterSeries,
-} from '@/db/letterSeries';
+import { createBoard, deleteBoard, getBoards, updateBoard, type Board } from '@/db/boards';
 
-const EMPTY = { name: '', author: '', description: '' };
+const EMPTY = { name: '', description: '', writeAccess: 'member' as 'member' | 'admin' };
 
-export default function LetterSeriesScreen() {
+export default function BoardSettingsScreen() {
   const theme = useTheme();
   const { session, loading } = useAuth();
 
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [list, setList] = useState<LetterSeries[]>([]);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const [adding, setAdding] = useState(false);
+  const [boards, setBoards] = useState<Board[]>([]);
   const [draft, setDraft] = useState(EMPTY);
+  const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [edit, setEdit] = useState(EMPTY);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(() => {
     if (!session) return;
     getIsAdmin(session.user.id)
       .then(setIsAdmin)
       .catch(() => setIsAdmin(false));
-    getLetterSeries()
-      .then(setList)
+    getBoards()
+      .then(setBoards)
       .catch((e) => setError(e?.message ?? String(e)));
   }, [session]);
 
@@ -62,12 +55,10 @@ export default function LetterSeriesScreen() {
 
   if (!session || isAdmin === false) {
     return (
-      <ThemedView style={styles.container}>
-        <SafeAreaView style={styles.centered}>
-          <ThemedText themeColor="textSecondary">
-            {session ? '관리자만 접근할 수 있어요.' : '마이페이지에서 로그인해주세요.'}
-          </ThemedText>
-        </SafeAreaView>
+      <ThemedView style={styles.centered}>
+        <ThemedText themeColor="textSecondary">
+          {session ? '관리자만 접근할 수 있어요.' : '마이페이지에서 로그인해주세요.'}
+        </ThemedText>
       </ThemedView>
     );
   }
@@ -85,11 +76,11 @@ export default function LetterSeriesScreen() {
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title" style={styles.title}>
-            연재 관리
+            게시판 관리
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            목자편지를 연재별로 묶습니다. 여기서 만든 연재는 교회 홈페이지 게시판에도 그대로
-            나타나고, 옛 글 뒤에 새 글이 이어집니다.
+            게시판을 만들고, 누가 글을 쓸 수 있는지 정합니다. 여기서 만든 게시판은 교회
+            홈페이지에도 함께 생깁니다.
           </ThemedText>
 
           {error && (
@@ -106,43 +97,36 @@ export default function LetterSeriesScreen() {
               pressed && styles.pressed,
             ]}>
             <ThemedText type="smallBold" style={styles.primaryButtonText}>
-              {adding ? '닫기' : '+ 연재 추가'}
+              {adding ? '닫기' : '+ 게시판 추가'}
             </ThemedText>
           </Pressable>
 
           {adding && (
             <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
-              <Field label="연재 이름" theme={theme}>
-                <TextInput
-                  value={draft.name}
-                  onChangeText={(t) => setDraft({ ...draft, name: t })}
-                  placeholder="예: 선교지에서 온 편지"
-                  placeholderTextColor={theme.textSecondary}
-                  style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
-                />
-              </Field>
-              <Field label="글쓴이" theme={theme}>
-                <TextInput
-                  value={draft.author}
-                  onChangeText={(t) => setDraft({ ...draft, author: t })}
-                  placeholder="예: 김지혜"
-                  placeholderTextColor={theme.textSecondary}
-                  style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
-                />
-              </Field>
-              <Field label="소개 (선택)" theme={theme}>
-                <TextInput
-                  value={draft.description}
-                  onChangeText={(t) => setDraft({ ...draft, description: t })}
-                  multiline
-                  style={[styles.textarea, { color: theme.text, backgroundColor: theme.background }]}
-                />
-              </Field>
+              <TextInput
+                value={draft.name}
+                onChangeText={(t) => setDraft({ ...draft, name: t })}
+                placeholder="게시판 이름 (예: 청년부 나눔)"
+                placeholderTextColor={theme.textSecondary}
+                style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
+              />
+              <TextInput
+                value={draft.description}
+                onChangeText={(t) => setDraft({ ...draft, description: t })}
+                placeholder="설명 (선택)"
+                placeholderTextColor={theme.textSecondary}
+                style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
+              />
+              <AccessPicker
+                value={draft.writeAccess}
+                onChange={(v) => setDraft({ ...draft, writeAccess: v })}
+                theme={theme}
+              />
               <Pressable
                 disabled={busy}
                 onPress={() =>
                   run(async () => {
-                    const result = await createLetterSeries(draft);
+                    const result = await createBoard(draft);
                     if (!result.error) {
                       setDraft(EMPTY);
                       setAdding(false);
@@ -150,11 +134,7 @@ export default function LetterSeriesScreen() {
                     return result;
                   })
                 }
-                style={({ pressed }) => [
-                  styles.primaryButton,
-                  { backgroundColor: theme.backgroundSelected, opacity: busy ? 0.5 : 1 },
-                  pressed && styles.pressed,
-                ]}>
+                style={[styles.primaryButton, { backgroundColor: theme.backgroundSelected, opacity: busy ? 0.5 : 1 }]}>
                 <ThemedText type="smallBold" style={styles.primaryButtonText}>
                   {busy ? '저장 중...' : '추가'}
                 </ThemedText>
@@ -162,40 +142,33 @@ export default function LetterSeriesScreen() {
             </View>
           )}
 
-          {list.map((series) => {
-            const editing = editingId === series.id;
+          {boards.map((board) => {
+            const editing = editingId === board.id;
             return (
-              <View key={series.id} style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
+              <View key={board.id} style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
                 {editing ? (
                   <>
-                    <Field label="연재 이름" theme={theme}>
-                      <TextInput
-                        value={edit.name}
-                        onChangeText={(t) => setEdit({ ...edit, name: t })}
-                        style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
-                      />
-                    </Field>
-                    <Field label="글쓴이" theme={theme}>
-                      <TextInput
-                        value={edit.author}
-                        onChangeText={(t) => setEdit({ ...edit, author: t })}
-                        style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
-                      />
-                    </Field>
-                    <Field label="소개" theme={theme}>
-                      <TextInput
-                        value={edit.description}
-                        onChangeText={(t) => setEdit({ ...edit, description: t })}
-                        multiline
-                        style={[styles.textarea, { color: theme.text, backgroundColor: theme.background }]}
-                      />
-                    </Field>
+                    <TextInput
+                      value={edit.name}
+                      onChangeText={(t) => setEdit({ ...edit, name: t })}
+                      style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
+                    />
+                    <TextInput
+                      value={edit.description}
+                      onChangeText={(t) => setEdit({ ...edit, description: t })}
+                      style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
+                    />
+                    <AccessPicker
+                      value={edit.writeAccess}
+                      onChange={(v) => setEdit({ ...edit, writeAccess: v })}
+                      theme={theme}
+                    />
                     <View style={styles.row}>
                       <Pressable
                         disabled={busy}
                         onPress={() =>
                           run(async () => {
-                            const result = await updateLetterSeries(series.id, edit);
+                            const result = await updateBoard(board.id, edit);
                             if (!result.error) setEditingId(null);
                             return result;
                           })
@@ -216,39 +189,34 @@ export default function LetterSeriesScreen() {
                   <>
                     <Pressable
                       onPress={() => {
-                        setEditingId(series.id);
+                        setEditingId(board.id);
                         setEdit({
-                          name: series.name,
-                          author: series.author,
-                          description: series.description,
+                          name: board.name,
+                          description: board.description,
+                          writeAccess: board.writeAccess,
                         });
                       }}>
                       <ThemedText type="smallBold">
-                        {series.name}
-                        {series.isActive ? '' : ' · 숨김'}
+                        {board.name}
+                        {board.isActive ? '' : ' · 숨김'}
                       </ThemedText>
                       <ThemedText type="small" themeColor="textSecondary">
-                        {series.author ? `${series.author} · ` : ''}
-                        홈페이지 주소 /boards/{series.slug}
+                        {board.writeAccess === 'member' ? '교인 누구나' : '관리자만'} · 홈페이지 /boards/
+                        {board.slug}
                       </ThemedText>
-                      {series.description ? (
-                        <ThemedText type="small" themeColor="textSecondary">
-                          {series.description}
-                        </ThemedText>
-                      ) : null}
                     </Pressable>
                     <View style={styles.row}>
                       <Pressable
                         disabled={busy}
-                        onPress={() => run(() => updateLetterSeries(series.id, { isActive: !series.isActive }))}
+                        onPress={() => run(() => updateBoard(board.id, { isActive: !board.isActive }))}
                         style={[styles.smallButton, { backgroundColor: theme.background }]}>
-                        <ThemedText type="small">{series.isActive ? '숨기기' : '다시 쓰기'}</ThemedText>
+                        <ThemedText type="small">{board.isActive ? '숨기기' : '다시 쓰기'}</ThemedText>
                       </Pressable>
                       <Pressable
                         disabled={busy}
-                        onPress={() => run(() => deleteLetterSeries(series.id))}
+                        onPress={() => run(() => deleteBoard(board.id))}
                         style={[styles.smallButton, { backgroundColor: theme.background }]}>
-                        <ThemedText type="small" style={styles.dangerText}>
+                        <ThemedText type="small" style={styles.errorText}>
                           지우기
                         </ThemedText>
                       </Pressable>
@@ -260,8 +228,8 @@ export default function LetterSeriesScreen() {
           })}
 
           <ThemedText type="small" themeColor="textSecondary" style={styles.footnote}>
-            연재 주소(slug)는 만들 때 정해지고 바뀌지 않습니다. 홈페이지 게시판의 옛 글과 이어
-            주는 열쇠라서, 바뀌면 그동안 쓴 글과 끊깁니다.
+            게시판 주소는 만들 때 정해지고 바뀌지 않습니다. 홈페이지의 옛 글과 이어 주는
+            열쇠라서, 바뀌면 그동안 쌓인 글과 끊깁니다.
           </ThemedText>
         </ScrollView>
       </SafeAreaView>
@@ -269,21 +237,30 @@ export default function LetterSeriesScreen() {
   );
 }
 
-function Field({
-  label,
+function AccessPicker({
+  value,
+  onChange,
   theme,
-  children,
 }: {
-  label: string;
+  value: 'member' | 'admin';
+  onChange: (v: 'member' | 'admin') => void;
   theme: ReturnType<typeof useTheme>;
-  children: React.ReactNode;
 }) {
   return (
-    <View style={styles.field}>
-      <ThemedText type="small" themeColor="textSecondary">
-        {label}
-      </ThemedText>
-      {children}
+    <View style={styles.row}>
+      {(['member', 'admin'] as const).map((v) => (
+        <Pressable
+          key={v}
+          onPress={() => onChange(v)}
+          style={[
+            styles.smallButton,
+            { backgroundColor: value === v ? theme.backgroundSelected : theme.background },
+          ]}>
+          <ThemedText type="small" style={value === v ? styles.primaryButtonText : undefined}>
+            {v === 'member' ? '교인 누구나 씀' : '관리자만 씀'}
+          </ThemedText>
+        </Pressable>
+      ))}
     </View>
   );
 }
@@ -301,15 +278,8 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 26 },
   card: { borderRadius: Spacing.four, padding: Spacing.four, gap: Spacing.two },
-  field: { gap: Spacing.one },
   input: { borderRadius: Spacing.three, paddingHorizontal: Spacing.three, paddingVertical: Spacing.two },
-  textarea: {
-    minHeight: 70,
-    borderRadius: Spacing.three,
-    padding: Spacing.three,
-    textAlignVertical: 'top',
-  },
-  row: { flexDirection: 'row', gap: Spacing.two, marginTop: Spacing.one },
+  row: { flexDirection: 'row', gap: Spacing.two },
   primaryButton: { borderRadius: Spacing.three, paddingVertical: Spacing.three, alignItems: 'center' },
   primaryButtonText: { color: '#fff' },
   smallButton: {
@@ -320,6 +290,5 @@ const styles = StyleSheet.create({
   },
   pressed: { opacity: 0.85 },
   errorText: { color: '#e03131' },
-  dangerText: { color: '#e03131' },
   footnote: { marginTop: Spacing.two, lineHeight: 19 },
 });
