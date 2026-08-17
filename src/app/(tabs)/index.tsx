@@ -11,7 +11,6 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useGradient, useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getFirstQtEntry, getQtEntryForDate, getVersesForRange, DEFAULT_TRANSLATION } from '@/db/bible';
-import { getPosts, type Post } from '@/db/community';
 import { getMyActiveEnrollment, getTodayChecklistCount, type ActiveEnrollment } from '@/db/r2m';
 import { getMeditationNote } from '@/db/userData';
 import { getLatestLetter, type ShepherdLetter } from '@/db/shepherdLetters';
@@ -30,10 +29,37 @@ type JourneyStep = { label: string; href: Href; done?: boolean };
 // 내부 라우트가 아니라 외부 링크로 연다.
 const SMART_BULLETIN_URL = 'https://dg-smart-bulletin.vercel.app/church/saebudae-church';
 
-const RECOMMENDED: { emoji: string; label: string; href: Href; requiresAuth?: boolean; external?: boolean }[] = [
-  { emoji: '📕', label: '데이빗북스', href: '/library' },
+const CHURCH_HOME_URL = 'https://newwineskin.co.kr';
+
+/**
+ * 홈 화면 바둑판.
+ *
+ * 예전에는 알림마당·R2M·목자편지가 각각 큰 카드였고 나머지는 아래 작은 줄에
+ * 몰려 있었다. 카드가 커서 화면 하나에 서너 개밖에 안 들어와, 아래쪽 기능은
+ * 있는 줄도 모르고 지나쳤다. 아이콘 바둑판으로 바꿔 한눈에 다 보이게 한다.
+ *
+ * 순서는 교회에서 자주 여는 차례대로다.
+ */
+type HomeTile = {
+  emoji: string;
+  label: string;
+  href: Href;
+  /** 로그인해야 쓸 수 있는 곳 — 안 했으면 마이페이지로 보낸다 */
+  requiresAuth?: boolean;
+  /** 앱 밖으로 나가는 곳 */
+  externalUrl?: string;
+};
+
+const HOME_TILES: HomeTile[] = [
+  { emoji: '📢', label: '공지사항', href: '/notice-board' },
+  { emoji: '💌', label: '목자의 편지', href: '/shepherd-letters' },
+  { emoji: '🔥', label: 'R2M훈련', href: '/bible-reading' },
   { emoji: '📆', label: '성경통독도우미', href: '/reading-helper', requiresAuth: true },
-  { emoji: '📰', label: '새부대스마트주보', href: SMART_BULLETIN_URL as Href, external: true },
+  { emoji: '📰', label: '새부대스마트주보', href: '/' as Href, externalUrl: SMART_BULLETIN_URL },
+  { emoji: '🏠', label: '새부대홈페이지', href: '/' as Href, externalUrl: CHURCH_HOME_URL },
+  { emoji: '📕', label: '데이빗북스', href: '/library' },
+  { emoji: '📋', label: '게시판', href: '/boards' },
+  { emoji: '🤍', label: 'David Bible 후원', href: '/support' },
 ];
 
 export default function HomeScreen() {
@@ -50,7 +76,6 @@ export default function HomeScreen() {
   const [checklistCount, setChecklistCount] = useState(0);
   const [letter, setLetter] = useState<ShepherdLetter | null>(null);
   const [letterUnseen, setLetterUnseen] = useState(false);
-  const [posts, setPosts] = useState<Post[]>([]);
 
   useFocusEffect(
     useCallback(() => {
@@ -85,14 +110,6 @@ export default function HomeScreen() {
           setLetterUnseen(await hasUnseenLetter(l?.createdAt ?? null));
         })
         .catch(() => setLetter(null));
-    }, []),
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      getPosts()
-        .then((all) => setPosts(all.slice(0, 3)))
-        .catch(() => setPosts([]));
     }, []),
   );
 
@@ -173,107 +190,45 @@ export default function HomeScreen() {
             ))}
           </View>
 
-          {/* 3. 알림마당 — 제목만 노출되는 한 줄 스트립 */}
-          <Pressable
-            onPress={() => router.push('/notice-board')}
-            style={({ pressed }) => [styles.noticeStrip, { backgroundColor: theme.backgroundElement, borderColor: theme.border }, pressed && styles.pressed]}>
-            <ThemedText type="small" numberOfLines={1} style={styles.noticeStripText}>
-              📢 {notice ? notice.title : '등록된 소식이 없어요'}
-            </ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              더보기 ›
-            </ThemedText>
-          </Pressable>
-
-          {/* 4. R2M */}
-          <Pressable
-            onPress={() => router.push('/bible-reading')}
-            style={({ pressed }) => [styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.border }, pressed && styles.pressed]}>
-            <ThemedText type="small" themeColor="textSecondary">
-              R2M
-            </ThemedText>
-            {enrollment ? (
-              <ThemedText type="smallBold">
-                {enrollment.courseTitle} · {enrollment.currentWeek}/{enrollment.totalWeeks}주차 · 오늘의 훈련 {checklistCount}/7
-              </ThemedText>
-            ) : (
-              <ThemedText type="smallBold">훈련과정에 등록해보세요</ThemedText>
-            )}
-          </Pressable>
-
-          {/* 5. 목자의 편지 */}
-          <Pressable
-            onPress={() => router.push('/shepherd-letters')}
-            style={({ pressed }) => [styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.border }, pressed && styles.pressed]}>
-            <View style={styles.letterHeader}>
-              <ThemedText type="small" themeColor="textSecondary">
-                목자의 편지
-              </ThemedText>
-              {letterUnseen && (
-                <View style={[styles.newPill, { backgroundColor: theme.accent }]}>
-                  <ThemedText type="small" style={styles.newPillText}>
-                    NEW
-                  </ThemedText>
-                </View>
-              )}
-            </View>
-            <ThemedText type="smallBold" numberOfLines={1}>
-              {letter ? letter.title : '아직 등록된 편지가 없어요'}
-            </ThemedText>
-          </Pressable>
-
-          {/* 6. 커뮤니티 — 최근 글 최대 3개를 게시판처럼 미리보기 */}
-          <View style={[styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
-            <Pressable
-              onPress={() => router.push(session ? '/community' : '/profile')}
-              style={({ pressed }) => [styles.communityHeader, pressed && styles.pressed]}>
-              <ThemedText type="small" themeColor="textSecondary">
-                커뮤니티
-              </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                더보기 ›
-              </ThemedText>
-            </Pressable>
-            {posts.length === 0 ? (
-              <ThemedText type="smallBold">성도들과 나누는 소식과 글</ThemedText>
-            ) : (
-              posts.map((post) => (
+          {/* 3. 바둑판 — 알림마당·R2M·목자편지·게시판·후원까지 한자리에 */}
+          <View style={styles.tileGrid}>
+            {HOME_TILES.map((tile) => {
+              const badge =
+                tile.label === '공지사항'
+                  ? notice?.title ?? null
+                  : tile.label === '목자의 편지'
+                    ? (letterUnseen ? 'NEW' : null)
+                    : tile.label === 'R2M훈련' && enrollment
+                      ? `오늘 ${checklistCount}/7`
+                      : null;
+              return (
                 <Pressable
-                  key={post.id}
-                  onPress={() => router.push({ pathname: '/post/[id]', params: { id: post.id } })}
-                  style={({ pressed }) => [pressed && styles.pressed]}>
-                  <ThemedText type="small" numberOfLines={1}>
-                    <ThemedText type="smallBold">{post.author}</ThemedText> {post.body}
+                  key={tile.label}
+                  onPress={() => {
+                    if (tile.externalUrl) {
+                      Linking.openURL(tile.externalUrl);
+                      return;
+                    }
+                    router.push(tile.requiresAuth && !session ? '/profile' : tile.href);
+                  }}
+                  style={({ pressed }) => [
+                    styles.tile,
+                    { backgroundColor: theme.backgroundElement, borderColor: theme.border },
+                    pressed && styles.pressed,
+                  ]}>
+                  <ThemedText style={styles.tileEmoji}>{tile.emoji}</ThemedText>
+                  <ThemedText type="small" style={styles.tileLabel} numberOfLines={2}>
+                    {tile.label}
                   </ThemedText>
+                  {badge ? (
+                    <ThemedText type="small" themeColor="textSecondary" numberOfLines={1} style={styles.tileBadge}>
+                      {badge}
+                    </ThemedText>
+                  ) : null}
                 </Pressable>
-              ))
-            )}
+              );
+            })}
           </View>
-
-          {/* 7. 추천 콘텐츠 */}
-          <View style={styles.recommendedRow}>
-            {RECOMMENDED.map((item) => (
-              <Pressable
-                key={item.label}
-                onPress={() => {
-                  if (item.external) {
-                    Linking.openURL(SMART_BULLETIN_URL);
-                    return;
-                  }
-                  router.push(item.requiresAuth && !session ? '/profile' : item.href);
-                }}
-                style={({ pressed }) => [styles.recommendedItem, pressed && styles.pressed]}>
-                <ThemedText type="small">{item.emoji} {item.label}</ThemedText>
-              </Pressable>
-            ))}
-          </View>
-
-          {/* 8. 후원 — 카드가 아닌 옅은 풋터 링크 */}
-          <Pressable onPress={() => router.push('/support')} style={styles.supportLink}>
-            <ThemedText type="small" themeColor="textSecondary">
-              🤍 David Bible 후원하기
-            </ThemedText>
-          </Pressable>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -424,6 +379,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.two,
   },
+  tileGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
+  // 한 줄에 셋 — 라벨이 긴 "새부대스마트주보"도 두 줄로 들어간다.
+  tile: {
+    width: '31.5%',
+    aspectRatio: 1,
+    borderRadius: Spacing.four,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.one,
+    gap: 2,
+  },
+  tileEmoji: { fontSize: 26 },
+  tileLabel: { textAlign: 'center' },
+  tileBadge: { textAlign: 'center', fontSize: 11 },
   pressed: {
     opacity: 0.7,
   },
