@@ -58,7 +58,9 @@ const HOME_TILES: HomeTile[] = [
   { emoji: '📆', label: '성경통독도우미', href: '/reading-helper', requiresAuth: true },
   { emoji: '📰', label: '새부대스마트주보', href: '/' as Href, externalUrl: SMART_BULLETIN_URL },
   { emoji: '🏠', label: '새부대홈페이지', href: '/' as Href, externalUrl: CHURCH_HOME_URL },
-  { emoji: '📕', label: '데이빗북스', href: '/library' },
+  // 데이빗북스 하나만 걸던 자리를 성장 탭으로 넓혔다. 데이빗북스는 그 안에
+  // 있고, 순종일기·우선순위·천국재정·샬롬기도단도 같이 열린다.
+  { emoji: '🌱', label: '성장', href: '/growth' },
   { emoji: '📋', label: '게시판', href: '/boards' },
   { emoji: '🤍', label: 'David Bible 후원', href: '/support' },
   { emoji: '💬', label: '커뮤니티', href: '/community', requiresAuth: true },
