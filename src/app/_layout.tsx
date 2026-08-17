@@ -136,6 +136,10 @@ export default function RootLayout() {
                     name="shepherd-letters/admin"
                     options={{ headerShown: true, title: '목자의 편지 관리' }}
                   />
+                  <Stack.Screen
+                    name="shepherd-letters/series"
+                    options={{ headerShown: true, title: '연재 관리' }}
+                  />
                   <Stack.Screen name="notice-board" options={{ headerShown: true, title: '알림마당' }} />
                   <Stack.Screen
                     name="notice-board/[id]"

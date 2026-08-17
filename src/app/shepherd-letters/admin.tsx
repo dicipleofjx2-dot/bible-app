@@ -1,6 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useCallback, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,6 +10,7 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getIsAdmin } from '@/db/profile';
+import { getLetterSeries, type LetterSeries } from '@/db/letterSeries';
 import {
   deleteLetter,
   getAllLettersForAdmin,
@@ -25,6 +26,8 @@ const EMPTY_ENTRY: ShepherdLetterEntry = {
   coverUrl: '',
   bodyText: '',
   imageUrls: [],
+  seriesId: null,
+  authorName: '',
 };
 
 export default function ShepherdLettersAdminScreen() {
@@ -32,6 +35,7 @@ export default function ShepherdLettersAdminScreen() {
   const { session, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [letters, setLetters] = useState<ShepherdLetter[]>([]);
+  const [seriesList, setSeriesList] = useState<LetterSeries[]>([]);
   const [entry, setEntry] = useState<ShepherdLetterEntry>(EMPTY_ENTRY);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -49,6 +53,9 @@ export default function ShepherdLettersAdminScreen() {
     getAllLettersForAdmin()
       .then(setLetters)
       .catch(() => setLetters([]));
+    getLetterSeries()
+      .then((all) => setSeriesList(all.filter((x) => x.isActive)))
+      .catch(() => setSeriesList([]));
   }, [session]);
 
   useFocusEffect(load);
@@ -161,13 +168,77 @@ export default function ShepherdLettersAdminScreen() {
             목자의 편지 관리
           </ThemedText>
 
+          <Pressable
+            onPress={() => router.push('/shepherd-letters/series')}
+            style={({ pressed }) => [styles.seriesManageLink, pressed && { opacity: 0.7 }]}>
+            <ThemedText type="small" themeColor="textSecondary">
+              ⚙️ 연재 관리
+            </ThemedText>
+          </Pressable>
+
           <View style={styles.section}>
             <ThemedText type="smallBold">새 편지 쓰기</ThemedText>
+
+            {/* 연재를 고르면 홈페이지 게시판의 그 연재에 이어 붙는다. 고르지 않으면
+                그때그때 쓰는 목자편지로 남는다. */}
+            <View style={styles.imageSection}>
+              <ThemedText type="small" themeColor="textSecondary">
+                연재 (선택)
+              </ThemedText>
+              <View style={styles.seriesRow}>
+                <Pressable
+                  onPress={() => updateEntry('seriesId', null)}
+                  style={[
+                    styles.seriesChip,
+                    {
+                      backgroundColor:
+                        entry.seriesId === null ? theme.backgroundSelected : theme.backgroundElement,
+                    },
+                  ]}>
+                  <ThemedText type="small" style={entry.seriesId === null ? styles.chipOnText : undefined}>
+                    연재 아님
+                  </ThemedText>
+                </Pressable>
+                {seriesList.map((s) => {
+                  const on = entry.seriesId === s.id;
+                  return (
+                    <Pressable
+                      key={s.id}
+                      onPress={() => {
+                        updateEntry('seriesId', s.id);
+                        // 연재의 기본 글쓴이를 채워 준다. 필요하면 아래에서 고친다.
+                        if (!entry.authorName && s.author) updateEntry('authorName', s.author);
+                      }}
+                      style={[
+                        styles.seriesChip,
+                        { backgroundColor: on ? theme.backgroundSelected : theme.backgroundElement },
+                      ]}>
+                      <ThemedText type="small" style={on ? styles.chipOnText : undefined}>
+                        {s.name}
+                      </ThemedText>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              {seriesList.length === 0 && (
+                <ThemedText type="small" themeColor="textSecondary">
+                  아직 만든 연재가 없어요. 위 "연재 관리"에서 만들 수 있습니다.
+                </ThemedText>
+              )}
+            </View>
 
             <TextInput
               value={entry.title}
               onChangeText={(v) => updateEntry('title', v)}
               placeholder="제목"
+              placeholderTextColor={theme.textSecondary}
+              style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
+            />
+
+            <TextInput
+              value={entry.authorName}
+              onChangeText={(v) => updateEntry('authorName', v)}
+              placeholder="글쓴이 (선택)"
               placeholderTextColor={theme.textSecondary}
               style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
             />
@@ -357,6 +428,10 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     borderRadius: Spacing.three,
   },
+  seriesManageLink: { alignSelf: 'flex-end' },
+  seriesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  seriesChip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
+  chipOnText: { color: '#fff' },
   errorText: {
     color: '#e03131',
   },
