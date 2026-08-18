@@ -41,13 +41,28 @@ export default function ReadingHelperOnboardingScreen() {
   const [step, setStep] = useState(0);
   const { session } = useAuth();
 
+  const [error, setError] = useState<string | null>(null);
+  const [starting, setStarting] = useState(false);
+
   async function start() {
     if (!session) {
       router.push('/profile');
       return;
     }
-    await setStartDate(session.user.id, todayDateString());
-    router.replace('/reading-helper');
+    if (starting) return;
+    setError(null);
+    setStarting(true);
+    try {
+      await setStartDate(session.user.id, todayDateString());
+      router.replace('/reading-helper');
+    } catch {
+      // 여기서 실패하는 거의 유일한 이유는 로그인이 만료된 것이다. 앱에는 아직
+      // 로그인한 것처럼 보이지만 서버가 거부한다. 예전에는 아무 말 없이 이
+      // 화면에 머물러서, 눌러도 안 넘어가는 것처럼만 보였다.
+      setError('로그인이 만료된 것 같아요. 마이페이지에서 다시 로그인한 뒤 시작해 주세요.');
+    } finally {
+      setStarting(false);
+    }
   }
 
   return (
@@ -57,6 +72,14 @@ export default function ReadingHelperOnboardingScreen() {
           {step === 0 && <WelcomeStep theme={theme} />}
           {step === 1 && <HowItWorksStep theme={theme} />}
           {step === 2 && <StartStep theme={theme} onStart={start} loggedIn={!!session} />}
+          {error && (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{error}</Text>
+              <Pressable onPress={() => router.push('/profile')} style={styles.errorButton}>
+                <Text style={styles.errorButtonText}>마이페이지로 가기</Text>
+              </Pressable>
+            </View>
+          )}
         </View>
 
         <View style={styles.footer}>
@@ -144,6 +167,10 @@ function StartStep({ theme, onStart, loggedIn }: { theme: Palette; onStart: () =
 }
 
 const styles = StyleSheet.create({
+  errorBox: { marginTop: 16, gap: 10, alignItems: 'center' },
+  errorText: { color: '#e8590c', textAlign: 'center', lineHeight: 21 },
+  errorButton: { borderRadius: 999, paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#e8590c' },
+  errorButtonText: { color: '#fff', fontWeight: '700' },
   container: { flex: 1 },
   safeArea: { flex: 1, justifyContent: 'space-between' },
   content: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },

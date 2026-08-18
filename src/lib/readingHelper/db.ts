@@ -170,3 +170,15 @@ export async function getTodayQuizScore(userId: string, dateStr: string): Promis
   if (error) throw error;
   return data?.quiz_score ?? 0;
 }
+
+/**
+ * 지금 로그인이 서버에서도 살아 있는지.
+ *
+ * 앱에는 로그인한 것처럼 보여도 토큰이 만료돼 서버가 거부하는 상태가 있다.
+ * 그때 조회는 오류 없이 0건으로 돌아오기 때문에 "자료가 없다"와 구분되지 않는다.
+ * 서버에 한 번 물어 그 둘을 가른다.
+ */
+export async function hasLiveSession(): Promise<boolean> {
+  const { data, error } = await supabase.auth.getUser();
+  return !error && !!data.user;
+}

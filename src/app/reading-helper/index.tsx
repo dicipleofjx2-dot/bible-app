@@ -18,6 +18,7 @@ import {
   resetProgress,
   setReadingComplete,
   WORD_CARD_MIN_QUIZ_SCORE,
+  hasLiveSession,
   type PointsSummary,
 } from '@/lib/readingHelper/db';
 import { confirmDestructive } from '@/lib/readingHelper/confirm';
@@ -53,6 +54,7 @@ export default function ReadingHelperHomeScreen() {
   const [points, setPoints] = useState<PointsSummary | null>(null);
   const [todayPoints, setTodayPoints] = useState(0);
   const [resetting, setResetting] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   // Guards against a slow, now-stale load() call (e.g. from focus) clobbering
   // state from a newer one (e.g. the 4am auto-refresh firing moments later).
@@ -63,6 +65,16 @@ export default function ReadingHelperHomeScreen() {
     const loadId = ++loadIdRef.current;
     const startDate = await getStartDate(userId);
     if (!startDate) {
+      // 로그인이 만료되면 조회가 오류 없이 0건으로 돌아온다(권한이 행을 가릴 뿐
+      // 실패로 치지 않는다). 그대로 두면 통독을 해 오던 분을 "처음 시작" 화면으로
+      // 보내 버리고, 거기서 시작을 눌러도 저장이 거부돼 빠져나오지 못한다.
+      // 정말 처음인지 서버에 한 번 물어보고 가른다.
+      const alive = await hasLiveSession();
+      if (!alive) {
+        setSessionExpired(true);
+        setChecking(false);
+        return;
+      }
       router.replace('/reading-helper/onboarding');
       return;
     }
@@ -122,6 +134,22 @@ export default function ReadingHelperHomeScreen() {
     return (
       <ThemedView style={styles.loadingContainer}>
         <ActivityIndicator />
+      </ThemedView>
+    );
+  }
+
+  if (sessionExpired) {
+    return (
+      <ThemedView style={styles.loadingContainer}>
+        <ThemedText style={styles.expiredText}>로그인이 만료되었어요.</ThemedText>
+        <ThemedText type="small" themeColor="textSecondary" style={styles.expiredText}>
+          다시 로그인하시면 통독 기록이 그대로 이어집니다.
+        </ThemedText>
+        <Pressable
+          onPress={() => router.push('/profile')}
+          style={({ pressed }) => [styles.expiredButton, pressed && styles.pressed]}>
+          <ThemedText type="smallBold" style={styles.expiredButtonText}>다시 로그인하기</ThemedText>
+        </Pressable>
       </ThemedView>
     );
   }
@@ -319,14 +347,28 @@ export default function ReadingHelperHomeScreen() {
             </Pressable>
           </View>
 
-          <Pressable
-            onPress={handleReset}
-            disabled={resetting}
-            style={({ pressed }) => [styles.resetRow, pressed && styles.pressed, resetting && styles.pressed]}>
-            <ThemedText type="small" themeColor="textSecondary">
-              {resetting ? '초기화하는 중…' : '🔄 처음부터 다시 시작'}
+          {/* 다시 시작은 통독 기록·퀴즈 점수·포인트를 되돌릴 수 없게 지운다.
+              그런데 바로 위 캘린더·아카이브·말씀카드 링크와 생김새가 같아서,
+              말씀카드를 만들고 돌아와 아래쪽을 누르다 잘못 짚기 쉬웠다.
+              한참 아래로 떼어 놓고 위험한 자리로 보이게 한다. */}
+          <View style={styles.resetZone}>
+            <ThemedText type="small" themeColor="textSecondary" style={styles.resetHint}>
+              통독을 처음부터 다시 하고 싶으실 때만 누르세요. 지금까지의 기록과 포인트가 모두
+              지워지고 되돌릴 수 없습니다.
             </ThemedText>
-          </Pressable>
+            <Pressable
+              onPress={handleReset}
+              disabled={resetting}
+              style={({ pressed }) => [
+                styles.resetButton,
+                pressed && styles.pressed,
+                resetting && styles.pressed,
+              ]}>
+              <ThemedText type="small" style={styles.resetButtonText}>
+                {resetting ? '초기화하는 중…' : '처음부터 다시 시작'}
+              </ThemedText>
+            </Pressable>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -377,5 +419,12 @@ const styles = StyleSheet.create({
   pointsValueRow: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.two },
   pointsTotal: { fontSize: 22, fontWeight: '700', },
   resetRow: { alignSelf: 'center', paddingTop: Spacing.two, paddingBottom: Spacing.one },
+  resetZone: { marginTop: 44, gap: 10, alignItems: 'center', paddingHorizontal: 8 },
+  resetHint: { textAlign: 'center', lineHeight: 19 },
+  resetButton: { borderRadius: 999, borderWidth: 1, borderColor: '#e03131', paddingHorizontal: 18, paddingVertical: 9 },
+  resetButtonText: { color: '#e03131' },
+  expiredText: { textAlign: 'center' },
+  expiredButton: { marginTop: 12, borderRadius: 999, paddingHorizontal: 22, paddingVertical: 11, backgroundColor: '#e8590c' },
+  expiredButtonText: { color: '#fff' },
   pressed: { opacity: 0.85 },
 });
