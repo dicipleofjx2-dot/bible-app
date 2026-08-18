@@ -8,13 +8,15 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getIsAdmin, getProfile, updateUsername } from '@/db/profile';
+import { getIsAdmin, getProfile, updateUsername, getChurches, updateMyChurch, type ChurchOption } from '@/db/profile';
 import { AuthForm } from '@/features/auth/AuthForm';
 
 export default function ProfileScreen() {
   const theme = useTheme();
   const { session, signOut } = useAuth();
   const [username, setUsername] = useState('');
+  const [churches, setChurches] = useState<ChurchOption[]>([]);
+  const [churchId, setChurchId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -23,11 +25,28 @@ export default function ProfileScreen() {
     if (!session) return;
     getProfile(session.user.id).then((profile) => {
       if (profile?.username) setUsername(profile.username);
+      setChurchId(profile?.church_id ?? null);
     });
     getIsAdmin(session.user.id)
       .then(setIsAdmin)
       .catch(() => setIsAdmin(false));
   }, [session]);
+
+  useEffect(() => {
+    getChurches()
+      .then(setChurches)
+      .catch(() => setChurches([]));
+  }, []);
+
+  async function pickChurch(id: string) {
+    if (!session) return;
+    const previous = churchId;
+    setChurchId(id);
+    const result = await updateMyChurch(session.user.id, id);
+    // 실패하면 눌린 채로 두지 않는다 — 바뀐 줄 알고 넘어가면 내용이 안 보이는
+    // 이유를 찾을 수 없다.
+    if (result.error) setChurchId(previous);
+  }
 
   async function save() {
     setSaving(true);
@@ -80,6 +99,44 @@ export default function ProfileScreen() {
                 ]}>
                 <ThemedText type="smallBold">{saved ? '저장됨' : '저장'}</ThemedText>
               </Pressable>
+            </View>
+
+            {/* 소속 교회 — 목자편지·공지사항·게시판이 이 값으로 갈린다.
+                고르지 않으면 교회 내용이 하나도 안 보이므로 눈에 띄게 알린다. */}
+            <View style={styles.section}>
+              <ThemedText type="small" themeColor="textSecondary">
+                소속 교회
+              </ThemedText>
+              {churches.length === 0 ? (
+                <ThemedText type="small" themeColor="textSecondary">
+                  고를 수 있는 교회가 없어요.
+                </ThemedText>
+              ) : (
+                <View style={styles.churchList}>
+                  {churches.map((c) => {
+                    const on = c.id === churchId;
+                    return (
+                      <Pressable
+                        key={c.id}
+                        onPress={() => pickChurch(c.id)}
+                        style={[
+                          styles.churchItem,
+                          { backgroundColor: on ? theme.backgroundSelected : theme.backgroundElement },
+                        ]}>
+                        <ThemedText type="small" style={on ? styles.churchItemOn : undefined}>
+                          {on ? '✓ ' : ''}
+                          {c.name}
+                        </ThemedText>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
+              {!churchId && churches.length > 0 && (
+                <ThemedText type="small" style={styles.warnText}>
+                  교회를 고르셔야 목자의 편지·공지사항·게시판이 보여요.
+                </ThemedText>
+              )}
             </View>
 
             {isAdmin && (
@@ -148,6 +205,10 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     fontSize: 16,
   },
+  churchList: { gap: 8 },
+  churchItem: { borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10 },
+  churchItemOn: { color: '#fff' },
+  warnText: { color: '#e8590c' },
   saveButton: {
     alignSelf: 'flex-start',
     paddingHorizontal: Spacing.four,
