@@ -46,7 +46,17 @@
       display: inline-block;
       background: #ff3d54;
       color: #fff;
-      text-decorati  <div class="wrap">
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 999px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
     <img class="icon" src="/coupang-icon.png" alt="데이빗바이블쿠팡" />
 
     <!-- 홈 화면 아이콘으로 열었을 때만 보이는 문구. 그때는 곧바로 쿠팡으로 넘어간다. -->
@@ -116,10 +126,6 @@
           var box = document.getElementById('error');
           box.textContent = '링크를 불러오지 못했어요. 잠시 후 다시 시도해주세요.';
           box.style.display = '';
-        });
-    })();
-  </script>
-    document.getElementById('status').textContent = '링크를 불러오지 못했어요. 잠시 후 다시 시도해주세요.';
         });
     })();
   </script>
