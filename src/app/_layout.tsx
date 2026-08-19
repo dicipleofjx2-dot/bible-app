@@ -9,6 +9,8 @@ import { AuthProvider } from '@/lib/auth';
 import { SkinProvider } from '@/lib/skin';
 import { SQLiteRecoveryBoundary } from '@/components/SQLiteRecoveryBoundary';
 import { AppDbLock } from '@/components/AppDbLock';
+import { YieldedNotice } from '@/components/YieldedNotice';
+import { hasYielded } from '@/lib/tabPresence';
 import { FONT_ASSETS } from '@/constants/typography';
 
 SplashScreen.preventAutoHideAsync();
@@ -56,10 +58,28 @@ export default function RootLayout() {
   // 개별 기능으로 바로 링크를 건다. 예전처럼 모든 경로를 intro로 보내면 그
   // 링크들이 전부 인트로 화면에서 끊긴다(시작하기는 '/'로만 가므로 원래
   // 가려던 화면으로 돌아갈 방법이 없다).
+  // 이 탭이 다른 탭에게 자리를 내주고 물러났는가. 물러난 탭은 DB를 다시 잡으러
+  // 들면 안 된다 — 두 탭이 서로 뺏느라 새로고침만 반복하게 된다. 화면만 띄우고
+  // 사용자가 "여기서 열기"를 누를 때만 되돌아간다.
+  //
+  // ref가 아니라 그냥 읽는 이유: 이 값은 새로고침으로만 바뀐다(sessionStorage).
+  // 한 번 그려지는 동안 달라질 일이 없다.
+  const yielded = hasYielded();
+
   const alreadyRedirected = useRef(false);
   const shouldShowIntro = pathname === '/' && !alreadyRedirected.current;
   if (shouldShowIntro) {
     alreadyRedirected.current = true;
+  }
+
+  if (yielded) {
+    return (
+      <SkinProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <YieldedNotice />
+        </ThemeProvider>
+      </SkinProvider>
+    );
   }
 
   return (

@@ -4,7 +4,7 @@ import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { hasOtherTab, onDbLockReleased } from '@/lib/tabPresence';
+import { claimDb, hasOtherTab, onDbLockReleased } from '@/lib/tabPresence';
 
 type Props = { children: ReactNode };
 type State = { error: Error | null; otherTabOpen: boolean };
@@ -26,9 +26,14 @@ const OPFS_LOCK_MESSAGE_FRAGMENT = 'Access Handle';
  *     탭을 완전히 닫기 전까지 손쓸 방법이 없고 저장소 정리가 유일한 길이다.
  *
  * 예전에는 둘을 구분하지 않고 늘 "개발 모드 문제니 저장소를 정리하라"고 안내했다.
- * 운영에서 이 화면을 본 사용자에게는 사실도 아니고 해로운 안내였다. 이제
- * 다른 탭이 살아 있는지 물어보고 맞는 쪽을 안내한다. 그 탭이 닫히면 알아서
- * 다시 시도한다.
+ * 운영에서 이 화면을 본 사용자에게는 사실도 아니고 해로운 안내였다.
+ *
+ * 그다음에는 "먼저 연 탭을 닫으세요"라고 안내했다. 맞는 말이었지만 여전히
+ * 사용자에게 일을 시켰다 — 뒤에 숨은 탭을 찾아 닫으라는 것이다. 사용자가
+ * 하려던 일은 **지금 보고 있는 탭에서 앱을 쓰는 것**이다.
+ *
+ * 이제는 자리를 달라고 하고 넘겨받는다. 잠금을 쥔 탭이 스스로 물러나고,
+ * 이 탭은 잠금이 풀리는 순간 다시 열린다. 사용자는 아무것도 안 눌러도 된다.
  */
 export class SQLiteRecoveryBoundary extends Component<Props, State> {
   state: State = { error: null, otherTabOpen: false };
@@ -43,8 +48,11 @@ export class SQLiteRecoveryBoundary extends Component<Props, State> {
 
     if (await hasOtherTab()) {
       this.setState({ otherTabOpen: true });
-      // 앞선 탭이 닫혀 잠금이 풀리는 순간 깨어난다 — 사용자가 아무것도 안 눌러도 된다.
+      // 잠금이 풀리는 순간 깨어난다. 먼저 걸어 두는 이유는, 자리를 달라고 한
+      // 뒤에 걸면 그 사이에 풀리는 것을 놓칠 수 있어서다.
       this.stopListening = onDbLockReleased(() => this.reload());
+      // 앞선 탭에게 자리를 달라고 한다. 그 탭은 스스로 물러난다(AppDbLock).
+      claimDb();
     }
   }
 
@@ -85,11 +93,10 @@ export class SQLiteRecoveryBoundary extends Component<Props, State> {
         <ThemedView style={styles.container}>
           <View style={styles.card}>
             <ThemedText type="smallBold" style={styles.title}>
-              다른 탭에서 이미 열려 있어요
+              잠시만요, 넘겨받는 중입니다
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary" style={styles.body}>
-              데이빗바이블은 한 번에 한 탭에서만 쓸 수 있습니다. 먼저 열어 둔 탭을 닫으면 여기서 바로
-              이어집니다.
+              먼저 열어 둔 탭에서 자리를 넘겨받고 있어요. 곧 이 탭에서 이어집니다.
             </ThemedText>
             <Pressable onPress={() => this.reload()} style={styles.button}>
               <ThemedText type="smallBold" style={styles.buttonText}>

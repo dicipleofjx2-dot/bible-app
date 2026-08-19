@@ -1,7 +1,7 @@
 import { deleteDatabaseAsync } from 'expo-sqlite';
 import { useEffect } from 'react';
 
-import { holdDbLock } from '@/lib/tabPresence';
+import { holdDbLock, yieldDbOnClaim } from '@/lib/tabPresence';
 
 /**
  * SQLiteProvider 안쪽에 놓는다. 이 컴포넌트가 마운트됐다는 건 DB가 실제로 열렸다는
@@ -13,6 +13,9 @@ import { holdDbLock } from '@/lib/tabPresence';
 export function AppDbLock({ staleDbNames = [] }: { staleDbNames?: string[] }) {
   useEffect(() => {
     holdDbLock();
+    // 다른 탭이 "내가 쓸게요" 하면 물러난다. 사용자가 지금 보고 있는 탭이
+    // 이기는 것이 옳다 — 뒤에 숨은 탭을 찾아 닫으라고 시킬 일이 아니다.
+    return yieldDbOnClaim();
   }, []);
 
   // 성경 DB 이름을 올리면 옛 파일이 그대로 남는다(하나에 약 30MB). 새 DB가

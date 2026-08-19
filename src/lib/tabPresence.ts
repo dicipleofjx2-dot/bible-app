@@ -71,3 +71,76 @@ export function onDbLockReleased(callback: () => void): () => void {
     });
   return () => controller.abort();
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+ * 자리 내주기 — 나중에 연 탭이 이긴다.
+ *
+ * 예전에는 두 번째 탭에 "먼저 연 탭을 닫으세요"라고 안내만 했다. 맞는 말이긴
+ * 한데, 사용자가 실제로 하려던 일은 **지금 보고 있는 탭에서 앱을 쓰는 것**이다.
+ * 홈페이지에서 링크를 눌러 새 탭이 앞으로 나온 상황이라면 더욱 그렇다 —
+ * 뒤에 숨어 있는 탭을 찾아 닫으라는 건 사용자에게 일을 시키는 것이다.
+ *
+ * 그래서 뒤집는다. 새 탭이 "내가 쓸게요"라고 알리면, 잠금을 쥐고 있던 탭이
+ * 스스로 물러나 잠금을 놓는다. 물러난 탭은 빈 화면이 아니라 "여기서 다시 열기"
+ * 단추를 보여 준다 — 되돌아갈 길은 남겨 둔다.
+ *
+ * 물러나는 방법은 새로고침이다. expo-sqlite 웹 백엔드는 열린 DB를 밖에서
+ * 닫을 길을 주지 않는다(Worker와 핸들이 모듈 수준에 숨어 있다). 탭을 다시
+ * 읽으면 브라우저가 그 Worker를 통째로 버리므로 핸들이 확실히 풀린다.
+ * ──────────────────────────────────────────────────────────────────────── */
+
+const CHANNEL_NAME = 'davidbible-tabs';
+/** 물러난 상태는 그 탭에만, 그 세션에만 남는다. 새로 연 탭에는 옮겨붙지 않는다. */
+const YIELDED_KEY = 'davidbible.yielded';
+
+function channel(): BroadcastChannel | null {
+  if (typeof BroadcastChannel === 'undefined') return null;
+  try {
+    return new BroadcastChannel(CHANNEL_NAME);
+  } catch {
+    return null;
+  }
+}
+
+/** 이 탭이 자리를 내주고 물러난 상태인가. */
+export function hasYielded(): boolean {
+  if (typeof sessionStorage === 'undefined') return false;
+  return sessionStorage.getItem(YIELDED_KEY) === '1';
+}
+
+/** "여기서 다시 열기"를 누르면 물러남을 취소하고 다시 잡으러 간다. */
+export function reclaimHere() {
+  if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem(YIELDED_KEY);
+  claimDb();
+  if (typeof window !== 'undefined') window.location.reload();
+}
+
+/** 다른 탭에게 "이제 내가 쓴다"고 알린다. */
+export function claimDb() {
+  const bus = channel();
+  if (!bus) return;
+  try {
+    bus.postMessage({ type: 'claim' });
+  } finally {
+    bus.close();
+  }
+}
+
+/**
+ * DB를 쥔 탭이 부른다. 다른 탭이 자리를 달라고 하면 물러난다.
+ *
+ * 물러난 표시를 먼저 남기고 새로고침한다. 그래야 다시 뜬 뒤에 DB를 또 잡으려
+ * 들지 않는다 — 안 그러면 두 탭이 서로 뺏느라 새로고침만 반복한다.
+ */
+export function yieldDbOnClaim(): () => void {
+  const bus = channel();
+  if (!bus) return () => {};
+
+  bus.onmessage = (event: MessageEvent) => {
+    if ((event.data as { type?: string })?.type !== 'claim') return;
+    if (typeof sessionStorage !== 'undefined') sessionStorage.setItem(YIELDED_KEY, '1');
+    if (typeof window !== 'undefined') window.location.reload();
+  };
+
+  return () => bus.close();
+}
