@@ -28,7 +28,11 @@ import {
   DEFAULT_TRANSLATION,
 } from '@/db/bible';
 import { BookChapterPicker } from '@/features/bible/BookChapterPicker';
-import { BookmarkSheet, type BookmarkWithBook } from '@/features/bible/BookmarkSheet';
+import {
+  BookmarkSheet,
+  positionLabel,
+  type BookmarkWithBook,
+} from '@/features/bible/BookmarkSheet';
 import { VerseActionSheet } from '@/features/notes/VerseActionSheet';
 import {
   addBookmark,
@@ -107,6 +111,11 @@ export default function ReadScreen() {
   // 곳이 아직 없어서 그냥 맨 위에 남는다.
   const pendingScroll = useRef<{ y: number; contentHeight: number } | null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 절마다 본문 안에서의 세로 위치. 책갈피 이름을 "뒷부분"이 아니라 "12절"로
+  // 적기 위한 것뿐이라, 못 재도(빈 채로 남아도) 책갈피는 그대로 동작한다.
+  // 값은 textColumn 기준이므로 columnOffset을 더해야 스크롤 값과 견줄 수 있다.
+  const verseOffsets = useRef(new Map<number, number>());
+  const columnOffset = useRef(0);
 
   useEffect(() => {
     return () => {
@@ -191,6 +200,9 @@ export default function ReadScreen() {
 
   useEffect(() => {
     if (bookId == null) return;
+    // 장이 바뀌면 앞 장에서 잰 위치는 남의 것이다. 지우지 않으면 아직 새 본문이
+    // 그려지기 전에 책갈피를 꽂았을 때 앞 장의 절 번호가 딸려 붙는다.
+    verseOffsets.current.clear();
     getChapterVerses(db, bookId, chapter, translation).then(setVerses);
     refreshMarks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -281,13 +293,56 @@ export default function ReadScreen() {
     saveLastPosition();
   }
 
+  /**
+   * 지금 화면 맨 위에 걸쳐 있는 절 번호. 못 재 뒀으면 null.
+   *
+   * "맨 위에 보이는 절"은 시작점이 화면 위로 이미 지나간 절 중 가장 아래 것이다
+   * (절 하나가 화면보다 길 수도 있으므로 "시작점이 화면 안에 있는 첫 절"로 잡으면
+   * 긴 절을 읽던 중에 다음 절 번호가 나온다). 여백 몇 픽셀은 봐 준다.
+   */
+  function verseAtTop(y: number): number | null {
+    if (verseOffsets.current.size === 0) return null;
+    // 절의 위치는 textColumn 기준이라, 스크롤 값에서 그 시작점을 빼고 견준다.
+    const line = y - columnOffset.current + 4;
+    let best: number | null = null;
+    let bestTop = -Infinity;
+    for (const [verse, top] of verseOffsets.current) {
+      if (top <= line && top > bestTop) {
+        bestTop = top;
+        best = verse;
+      }
+    }
+    // 맨 위보다 더 위(음수 스크롤 등)라면 첫 절로 본다.
+    if (best == null) {
+      let first: number | null = null;
+      let firstTop = Infinity;
+      for (const [verse, top] of verseOffsets.current) {
+        if (top < firstTop) {
+          firstTop = top;
+          first = verse;
+        }
+      }
+      return first;
+    }
+    return best;
+  }
+
   // 책갈피는 한 장에 하나다. 같은 장을 보고 있으면 그게 지금의 책갈피다.
   const currentBookmark =
     bookId == null
       ? null
       : (bookmarks.find((b) => b.book_id === bookId && b.chapter === chapter) ?? null);
 
-  const currentLabel = currentBook ? `${currentBook.name_ko} ${chapter}장` : '';
+  // 창을 여는 순간 다시 그려지므로, 그때의 스크롤 위치로 이름이 지어진다.
+  const currentLabel = currentBook
+    ? positionLabel(
+        currentBook.name_ko,
+        chapter,
+        verseAtTop(scrollY.current),
+        scrollY.current,
+        contentHeight.current
+      )
+    : '';
 
   async function handleAddBookmark() {
     if (bookId == null) return;
@@ -297,6 +352,7 @@ export default function ReadScreen() {
       translation,
       scrollY: scrollY.current,
       contentHeight: contentHeight.current,
+      verse: verseAtTop(scrollY.current),
     });
     await refreshBookmarks();
     setBookmarkSheetVisible(false);
@@ -394,13 +450,20 @@ export default function ReadScreen() {
             contentHeight.current = h;
             applyPendingScroll(h);
           }}>
-          <View style={styles.textColumn}>
+          <View
+            style={styles.textColumn}
+            onLayout={(e) => {
+              columnOffset.current = e.nativeEvent.layout.y;
+            }}>
             {verses.map((v) => {
               const mark = marks.find((m) => m.verse === v.verse);
               const bg = highlightHex(mark?.color ?? null);
               return (
                 <Pressable
                   key={v.id}
+                  onLayout={(e) => {
+                    verseOffsets.current.set(v.verse, e.nativeEvent.layout.y);
+                  }}
                   onLongPress={() => openVerse(v)}
                   delayLongPress={LONG_PRESS_MS}
                   unstable_pressDelay={HOLD_FEEDBACK_MS}

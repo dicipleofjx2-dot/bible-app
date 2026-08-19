@@ -30,9 +30,9 @@ function formatDate(ms: number): string {
 /**
  * 장 안에서 어디쯤이었는지를 말로 적는다.
  *
- * 몇 절이었는지까지는 알 수 없다(그러려면 절마다 화면 위치를 재야 하는데 웹에서
- * 그 신호가 오지 않는다). 그래서 "몇 절"이라고 지어내지 않고, 아는 만큼만 —
- * 장의 어느 쯤이었는지만 — 적는다. 돌아가는 자리 자체는 정확하다.
+ * 절 번호를 알면 그걸 쓰고(→ positionLabel), 못 쟀을 때 여기로 내려온다.
+ * 그럴 땐 "몇 절"이라고 지어내지 않고 아는 만큼만 — 장의 어느 쯤이었는지만 —
+ * 적는다. 돌아가는 자리 자체는 어느 쪽이든 정확하다.
  */
 export function positionText(scrollY: number, contentHeight: number): string {
   if (scrollY <= 8) return '첫머리';
@@ -43,6 +43,26 @@ export function positionText(scrollY: number, contentHeight: number): string {
   if (ratio < 0.3) return '앞부분';
   if (ratio < 0.6) return '중간쯤';
   return '뒷부분';
+}
+
+/**
+ * 목록 한 줄에 적을 이름. "창세기 3장 12절" 또는 "창세기 3장 · 뒷부분".
+ *
+ * 절 번호가 있으면 그게 훨씬 나은 이름이다 — 사람은 "뒷부분"이 아니라 "몇 절"로
+ * 자기 자리를 기억한다. 다만 절 번호는 화면을 그려야 잴 수 있어서 없을 수도
+ * 있고(예전에 꽂아 둔 책갈피, 측정이 늦은 기기), 그럴 땐 원래대로 적는다.
+ */
+export function positionLabel(
+  bookName: string,
+  chapter: number,
+  verse: number | null,
+  scrollY: number,
+  contentHeight: number
+): string {
+  const head = `${bookName} ${chapter}장`;
+  if (verse != null && verse > 0) return `${head} ${verse}절`;
+  const where = positionText(scrollY, contentHeight);
+  return where ? `${head} · ${where}` : head;
 }
 
 export function BookmarkSheet({
@@ -90,10 +110,7 @@ export function BookmarkSheet({
                   <View key={b.id} style={[styles.row, { borderColor: theme.backgroundElement }]}>
                     <Pressable style={styles.rowMain} onPress={() => onJump(b)}>
                       <ThemedText type="smallBold">
-                        {b.bookName} {b.chapter}장
-                        {positionText(b.scroll_y, b.content_height)
-                          ? ` · ${positionText(b.scroll_y, b.content_height)}`
-                          : ''}
+                        {positionLabel(b.bookName, b.chapter, b.verse, b.scroll_y, b.content_height)}
                       </ThemedText>
                       <ThemedText type="small" themeColor="textSecondary">
                         {formatDate(b.created_at)}

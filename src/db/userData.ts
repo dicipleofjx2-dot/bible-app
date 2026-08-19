@@ -106,6 +106,7 @@ function getUserDb() {
           scroll_y REAL NOT NULL,
           content_height REAL NOT NULL,
           created_at INTEGER NOT NULL,
+          verse INTEGER,
           UNIQUE(book_id, chapter, translation)
         );
         CREATE TABLE IF NOT EXISTS gratitude_entries (
@@ -124,6 +125,9 @@ function getUserDb() {
       // meditation_notes도 동일한 이유로 두 컬럼을 추가 마이그레이션한다.
       await db.execAsync(`ALTER TABLE meditation_notes ADD COLUMN qt_answers TEXT;`).catch(() => {});
       await db.execAsync(`ALTER TABLE meditation_notes ADD COLUMN application_note TEXT;`).catch(() => {});
+      // reading_bookmarks도 마찬가지. 이미 꽂아 둔 책갈피는 절 번호를 모르므로
+      // NULL로 남고, 목록에서는 예전처럼 "앞부분/뒷부분"으로 읽힌다.
+      await db.execAsync(`ALTER TABLE reading_bookmarks ADD COLUMN verse INTEGER;`).catch(() => {});
       return db;
     });
   }
@@ -189,13 +193,17 @@ export async function deleteMark(id: number): Promise<void> {
 // 기록이고, 책갈피는 "여기까지 읽었다"는 표시라 목적도 지우는 시점도 다르다.
 // 노트를 지운다고 읽던 자리가 사라지면 안 된다.
 
-// 자리를 절 번호가 아니라 스크롤 위치로 적어 둔다. 절 번호로 적으려면 절마다
-// 화면 어디에 있는지를 재야 하는데(onLayout), 이 앱의 웹 판에서는 그 신호가
-// 오지 않아 모든 책갈피가 1절을 가리키게 된다. 스크롤 위치는 웹에서도 앱에서도
-// 똑같이 들어온다.
+// 돌아갈 자리는 절 번호가 아니라 스크롤 위치로 적는다. 절 번호로 되돌아가려면
+// 그 절이 지금 화면 어디에 있는지를 다시 재야 하는데, 그 측정(onLayout)이 늦게
+// 오거나 아예 안 오는 상황이 있어서 자리 자체를 거기에 맡길 수는 없다. 스크롤
+// 위치는 웹에서도 앱에서도 똑같이 들어온다.
 //
 // 글자 크기를 바꾸면 같은 자리라도 픽셀 값이 달라지므로, 그때 잰 전체 높이를
 // 함께 적어 두고 돌아갈 때 비율로 환산한다.
+//
+// verse는 "그때 화면 맨 위에 있던 절" — 오직 목록에 이름을 적기 위한 것이고,
+// 돌아가는 데는 쓰지 않는다. 그래서 못 재도(NULL) 책갈피는 멀쩡히 동작하고,
+// 이 컬럼이 생기기 전에 꽂아 둔 책갈피도 그대로 쓰인다.
 export type Bookmark = {
   id: number;
   book_id: number;
@@ -204,6 +212,7 @@ export type Bookmark = {
   scroll_y: number;
   content_height: number;
   created_at: number;
+  verse: number | null;
 };
 
 export async function getBookmarks(): Promise<Bookmark[]> {
@@ -218,16 +227,27 @@ export async function addBookmark(entry: {
   translation: Translation;
   scrollY: number;
   contentHeight: number;
+  /** 화면 맨 위에 있던 절. 재지 못했으면 null — 목록 이름만 덜 자세해진다. */
+  verse?: number | null;
 }): Promise<void> {
   const db = await getUserDb();
   await db.runAsync(
-    `INSERT INTO reading_bookmarks (book_id, chapter, translation, scroll_y, content_height, created_at)
-     VALUES (?, ?, ?, ?, ?, ?)
+    `INSERT INTO reading_bookmarks (book_id, chapter, translation, scroll_y, content_height, created_at, verse)
+     VALUES (?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(book_id, chapter, translation)
      DO UPDATE SET scroll_y = excluded.scroll_y,
                    content_height = excluded.content_height,
-                   created_at = excluded.created_at`,
-    [entry.bookId, entry.chapter, entry.translation, entry.scrollY, entry.contentHeight, Date.now()]
+                   created_at = excluded.created_at,
+                   verse = excluded.verse`,
+    [
+      entry.bookId,
+      entry.chapter,
+      entry.translation,
+      entry.scrollY,
+      entry.contentHeight,
+      Date.now(),
+      entry.verse ?? null,
+    ]
   );
 }
 
