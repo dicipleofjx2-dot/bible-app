@@ -1,7 +1,15 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -20,9 +28,13 @@ import {
   DEFAULT_TRANSLATION,
 } from '@/db/bible';
 import { BookChapterPicker } from '@/features/bible/BookChapterPicker';
+import { BookmarkSheet, type BookmarkWithBook } from '@/features/bible/BookmarkSheet';
 import { VerseActionSheet } from '@/features/notes/VerseActionSheet';
 import {
+  addBookmark,
+  deleteBookmark,
   deleteMark,
+  getBookmarks,
   getMarksForChapter,
   upsertMark,
   COMMENTARY_HIGHLIGHT_COLORS,
@@ -33,6 +45,37 @@ import { pingCheckin } from '@/db/r2m';
 
 const MIN_FONT_SIZE = 14;
 const MAX_FONT_SIZE = 28;
+
+// 구절을 꾹 눌러 색칠·묵상 창을 여는 시간.
+//
+// 절마다 연필을 달아 두면 본문이 어수선해져서 없앴다. 대신 구절 자체를 누른다.
+// 길이는 휴대폰이 글자를 잡을 때 쓰는 시간과 같게 맞췄다 — 손에 익은 감각이라
+// 따로 배우지 않아도 된다. 이보다 길면 눌러 놓고도 "안 되는데?" 하고 손을 뗀다.
+const LONG_PRESS_MS = 500;
+// 누르고 있다는 표시(구절이 살짝 흐려짐)를 켜기까지 기다리는 시간.
+// 화면을 넘길 때 스치는 손가락마다 깜빡이지 않도록 조금 늦춘다.
+// 이 시간만큼 길게 누르기 시작점도 뒤로 밀리므로, 실제로 창이 열리기까지는
+// 두 값을 더한 만큼(약 0.7초) 걸린다.
+const HOLD_FEEDBACK_MS = 160;
+const LONG_PRESS_HINT_KEY = 'read.longPressHintSeen';
+
+// 앱을 끄고 다시 들어와도 보던 자리로 돌아오게 하는 기록.
+//
+// 책갈피와는 다른 것이다. 책갈피는 사람이 일부러 꽂아 두는 것이고, 이건 아무것도
+// 안 해도 알아서 남는 마지막 자리다. 둘 다 있어야 한다 — 어제 읽다 만 데서
+// 이어 읽고 싶은 마음과, 두고두고 다시 펴 볼 자리를 표시해 두고 싶은 마음은
+// 서로 다르다.
+const LAST_POSITION_KEY = 'read.lastPosition';
+
+type LastPosition = {
+  bookId: number;
+  chapter: number;
+  translation: Translation;
+  /** 그때 내려와 있던 만큼과, 그때 잰 본문 전체 높이. 글자 크기가 바뀌어도
+   *  둘의 비로 환산하면 같은 자리로 돌아간다. */
+  y: number;
+  contentHeight: number;
+};
 
 export default function ReadScreen() {
   const db = useSQLiteContext();
@@ -50,6 +93,72 @@ export default function ReadScreen() {
   const [fontSize, setFontSize] = useState(18);
   const [marks, setMarks] = useState<VerseMark[]>([]);
   const [activeVerse, setActiveVerse] = useState<Verse | null>(null);
+  const [showHint, setShowHint] = useState(false);
+  const [bookmarks, setBookmarks] = useState<BookmarkWithBook[]>([]);
+  const [bookmarkSheetVisible, setBookmarkSheetVisible] = useState(false);
+  // 저장된 자리를 다 읽어 보기 전에는 "첫 책 1장"을 기본값으로 밀어 넣지 않는다.
+  // 그러지 않으면 창세기 1장이 잠깐 떴다가 원래 자리로 튀는 게 보인다.
+  const [resumeChecked, setResumeChecked] = useState(false);
+
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollY = useRef(0);
+  const contentHeight = useRef(0);
+  // 본문이 다 그려진 뒤에 데려다 놓을 자리. 그리기 전에 scrollTo를 부르면 갈
+  // 곳이 아직 없어서 그냥 맨 위에 남는다.
+  const pendingScroll = useRef<{ y: number; contentHeight: number } | null>(null);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+  }, []);
+
+  // 꾹 누르는 법을 한 번도 안 써 본 사람에게만 안내를 보여 준다. 연필이 사라진
+  // 자리를 대신하는 장치라, 한 번 써 본 뒤에는 다시 띄우지 않는다.
+  useEffect(() => {
+    AsyncStorage.getItem(LONG_PRESS_HINT_KEY)
+      .then((seen) => setShowHint(seen !== '1'))
+      .catch(() => {});
+  }, []);
+
+  // 마지막으로 보던 자리 복원. 다른 화면에서 절을 눌러 들어온 경우(params)에는
+  // 그쪽이 우선이므로 건드리지 않는다.
+  useEffect(() => {
+    if (params.bookId) {
+      setResumeChecked(true);
+      return;
+    }
+    AsyncStorage.getItem(LAST_POSITION_KEY)
+      .then((raw) => {
+        if (raw) {
+          try {
+            const saved = JSON.parse(raw) as LastPosition;
+            if (saved?.bookId) {
+              setBookId(saved.bookId);
+              setChapter(saved.chapter ?? 1);
+              if (saved.translation) setTranslation(saved.translation);
+              if (saved.y > 0) {
+                pendingScroll.current = { y: saved.y, contentHeight: saved.contentHeight };
+              }
+            }
+          } catch {
+            // 저장된 값이 깨졌으면 그냥 평소대로 첫 책부터 시작한다.
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => setResumeChecked(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function openVerse(verse: Verse) {
+    setActiveVerse(verse);
+    if (showHint) {
+      setShowHint(false);
+      AsyncStorage.setItem(LONG_PRESS_HINT_KEY, '1').catch(() => {});
+    }
+  }
 
   async function refreshMarks() {
     if (bookId == null) return;
@@ -68,12 +177,12 @@ export default function ReadScreen() {
     if (params.bookId) {
       setBookId(Number(params.bookId));
       setChapter(params.chapter ? Number(params.chapter) : 1);
-    } else if (bookId == null && books.length > 0) {
+    } else if (resumeChecked && bookId == null && books.length > 0) {
       setBookId(books[0].id);
       setChapter(1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.bookId, params.chapter, books]);
+  }, [params.bookId, params.chapter, books, resumeChecked]);
 
   useEffect(() => {
     if (bookId == null) return;
@@ -88,13 +197,136 @@ export default function ReadScreen() {
   }, [db, bookId, chapter, translation]);
 
   const currentBook = books.find((b) => b.id === bookId);
+
+  // 보던 자리를 남긴다.
+  const saveLastPosition = useCallback(() => {
+    if (bookId == null || verses.length === 0) return;
+    // 아직 아까 그 자리로 데려다 놓기 전이다. 지금 적으면 맨 위(0)를 적게 되어
+    // 정작 복원하려던 자리를 스스로 지워 버린다.
+    if (pendingScroll.current) return;
+    const position: LastPosition = {
+      bookId,
+      chapter,
+      translation,
+      y: scrollY.current,
+      contentHeight: contentHeight.current,
+    };
+    AsyncStorage.setItem(LAST_POSITION_KEY, JSON.stringify(position)).catch(() => {});
+  }, [bookId, chapter, translation, verses.length]);
+
+  useEffect(() => {
+    saveLastPosition();
+  }, [saveLastPosition]);
+
+  // 자리로 데려다 놓는 일은 본문 높이가 다시 잡혔다는 신호(onContentSizeChange)로
+  // 하는 게 맞다. 다만 그 신호는 화면을 그려야 오는 것이라, 안 그려지는 상황이나
+  // 늦게 오는 기기에서는 영영 제자리에 머문다. 조금 기다렸다가 한 번 더 밀어
+  // 준다 — 앞서 처리됐으면 여긴 아무 일도 하지 않는다.
+  useEffect(() => {
+    if (!pendingScroll.current || verses.length === 0) return;
+    const timer = setTimeout(() => applyPendingScroll(contentHeight.current), 300);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [verses]);
+
+  const refreshBookmarks = useCallback(async () => {
+    const rows = await getBookmarks();
+    const bookById = new Map(books.map((b) => [b.id, b]));
+    setBookmarks(
+      rows.map((b) => ({ ...b, bookName: bookById.get(b.book_id)?.name_ko ?? '' }))
+    );
+  }, [books]);
+
+  useEffect(() => {
+    if (books.length === 0) return;
+    refreshBookmarks();
+  }, [books.length, refreshBookmarks]);
+
   const highlightHex = (color: string | null) =>
     [...HIGHLIGHT_COLORS, ...COMMENTARY_HIGHLIGHT_COLORS].find((c) => c.code === color)?.hex ?? null;
 
   function goToChapter(delta: number) {
     const next = chapter + delta;
     if (next < 1 || next > chapterCount) return;
+    // 새 장은 처음부터 읽는다. 이 줄이 없으면 앞 장에서 내려 둔 만큼 내려간
+    // 자리에서 시작해 첫머리를 놓친다.
+    scrollY.current = 0;
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
     setChapter(next);
+  }
+
+  /**
+   * 본문이 다 그려졌을 때, 데려다 놓기로 한 자리가 있으면 그리로 옮긴다.
+   *
+   * 잰 때와 지금의 글자 크기가 다르면 전체 높이도 달라지므로 그 비로 환산한다.
+   * (예: 글자를 키워 본문이 1.2배 길어졌으면 내려갈 거리도 1.2배)
+   */
+  function applyPendingScroll(measuredHeight: number) {
+    const pending = pendingScroll.current;
+    if (!pending) return;
+    pendingScroll.current = null;
+    // 새로 잰 높이를 못 받았으면 저장할 때의 높이를 그대로 쓴다. 그 사이 글자
+    // 크기를 바꾸지 않았다면 이게 정답이고, 바꿨더라도 아예 못 돌아가는 것보다는
+    // 가까운 자리에 내려놓는 편이 낫다.
+    const height = measuredHeight > 0 ? measuredHeight : pending.contentHeight;
+    const ratio = pending.contentHeight > 0 && height > 0 ? height / pending.contentHeight : 1;
+    // 높이를 모를 때는 자르지 않는다. 0으로 자르면 애써 기억해 둔 자리를 버리고
+    // 맨 위로 돌아가 버린다. 넘치는 값은 어차피 ScrollView가 알아서 막아 준다.
+    const target = pending.y * ratio;
+    const y = height > 0 ? Math.max(0, Math.min(target, height)) : Math.max(0, target);
+    scrollY.current = y;
+    scrollRef.current?.scrollTo({ y, animated: false });
+    // 복원이 끝났으니 이제 이 자리를 마지막 자리로 적어 둔다. 여기서 안 적으면
+    // 돌아온 뒤 한 번도 안 굴리고 나갔을 때 자리가 사라진다.
+    saveLastPosition();
+  }
+
+  // 책갈피는 한 장에 하나다. 같은 장을 보고 있으면 그게 지금의 책갈피다.
+  const currentBookmark =
+    bookId == null
+      ? null
+      : (bookmarks.find((b) => b.book_id === bookId && b.chapter === chapter) ?? null);
+
+  const currentLabel = currentBook ? `${currentBook.name_ko} ${chapter}장` : '';
+
+  async function handleAddBookmark() {
+    if (bookId == null) return;
+    await addBookmark({
+      bookId,
+      chapter,
+      translation,
+      scrollY: scrollY.current,
+      contentHeight: contentHeight.current,
+    });
+    await refreshBookmarks();
+    setBookmarkSheetVisible(false);
+  }
+
+  async function handleDeleteBookmark(bookmark: BookmarkWithBook) {
+    await deleteBookmark(bookmark.id);
+    await refreshBookmarks();
+  }
+
+  function handleJumpToBookmark(bookmark: BookmarkWithBook) {
+    setBookmarkSheetVisible(false);
+    pendingScroll.current = { y: bookmark.scroll_y, contentHeight: bookmark.content_height };
+    if (bookmark.book_id === bookId && bookmark.chapter === chapter) {
+      // 같은 장이라 다시 그릴 일이 없다 — 지금 높이를 그대로 써서 바로 옮긴다.
+      applyPendingScroll(contentHeight.current);
+      return;
+    }
+    setBookId(bookmark.book_id);
+    setChapter(bookmark.chapter);
+  }
+
+  function handleScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
+    scrollY.current = e.nativeEvent.contentOffset.y;
+    if (e.nativeEvent.contentSize?.height) contentHeight.current = e.nativeEvent.contentSize.height;
+    // 손을 뗀 시점(onScrollEndDrag·onMomentumScrollEnd)에 저장하면 깔끔하지만,
+    // 웹에서는 그 두 신호가 오지 않는다. 스크롤이 멎은 뒤에 한 번만 적도록
+    // 여기서 직접 시간을 잰다 — 굴리는 내내 저장하는 낭비도 함께 막는다.
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(saveLastPosition, 500);
   }
 
   return (
@@ -137,47 +369,65 @@ export default function ReadScreen() {
           </View>
         </View>
 
+        {showHint ? (
+          <View style={styles.hintWrap}>
+            <Pressable
+              onPress={() => {
+                setShowHint(false);
+                AsyncStorage.setItem(LONG_PRESS_HINT_KEY, '1').catch(() => {});
+              }}
+              style={[styles.hintRow, { backgroundColor: theme.backgroundElement }]}>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.hintText}>
+                구절을 잠시 누르고 있으면 색칠하고 묵상을 적을 수 있어요
+              </ThemedText>
+            </Pressable>
+          </View>
+        ) : null}
+
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={styles.scrollContent}
-          style={styles.scrollView}>
+          style={styles.scrollView}
+          scrollEventThrottle={100}
+          onScroll={handleScroll}
+          onContentSizeChange={(_w, h) => {
+            contentHeight.current = h;
+            applyPendingScroll(h);
+          }}>
           <View style={styles.textColumn}>
             {verses.map((v) => {
               const mark = marks.find((m) => m.verse === v.verse);
               const bg = highlightHex(mark?.color ?? null);
               return (
-                <View key={v.id} style={[styles.verseRow, bg ? { backgroundColor: bg } : null]}>
-                  <Pressable
-                    onLongPress={() => setActiveVerse(v)}
-                    delayLongPress={350}
-                    style={styles.verseTextPressable}>
-                    <ThemedText style={[styles.verseText, { fontSize, lineHeight: fontSize * 1.6 }]}>
-                      <ThemedText
-                        themeColor={bg ? undefined : 'textSecondary'}
-                        style={[{ fontSize: fontSize * 0.6 }, bg ? styles.verseNumOnHighlight : null]}>
-                        {v.verse}{' '}
-                      </ThemedText>
-                      {/* 안쪽 Text에도 서체를 다시 준다 — React Native는 중첩된
-                          Text가 자기 fontFamily를 가지면 바깥 것을 물려받지 않아,
-                          여기에 안 주면 기본 서체가 명조를 덮어쓴다. */}
-                      <ThemedText style={[styles.verseText, bg ? styles.textOnHighlight : null]}>
-                        {v.text}
-                      </ThemedText>
+                <Pressable
+                  key={v.id}
+                  onLongPress={() => openVerse(v)}
+                  delayLongPress={LONG_PRESS_MS}
+                  unstable_pressDelay={HOLD_FEEDBACK_MS}
+                  style={({ pressed }) => [
+                    styles.verseRow,
+                    bg ? { backgroundColor: bg } : null,
+                    pressed ? styles.verseRowHolding : null,
+                  ]}>
+                  <ThemedText style={[styles.verseText, { fontSize, lineHeight: fontSize * 1.6 }]}>
+                    <ThemedText
+                      themeColor={bg ? undefined : 'textSecondary'}
+                      style={[{ fontSize: fontSize * 0.6 }, bg ? styles.verseNumOnHighlight : null]}>
+                      {v.verse}{' '}
                     </ThemedText>
-                  </Pressable>
-                  <View style={styles.verseActions}>
-                    {mark?.note ? <ThemedText style={styles.noteDot}>📝</ThemedText> : null}
-                    <Pressable
-                      onPress={() => setActiveVerse(v)}
-                      hitSlop={10}
-                      style={({ pressed }) => [styles.editButton, pressed && styles.editButtonPressed]}>
-                      <ThemedText
-                        themeColor={bg ? undefined : 'textSecondary'}
-                        style={bg ? styles.verseNumOnHighlight : undefined}>
-                        ✎
-                      </ThemedText>
-                    </Pressable>
-                  </View>
-                </View>
+                    {/* 안쪽 Text에도 서체를 다시 준다 — React Native는 중첩된
+                        Text가 자기 fontFamily를 가지면 바깥 것을 물려받지 않아,
+                        여기에 안 주면 기본 서체가 명조를 덮어쓴다. */}
+                    <ThemedText style={[styles.verseText, bg ? styles.textOnHighlight : null]}>
+                      {v.text}
+                    </ThemedText>
+                    {/* 묵상을 적어 둔 절에만 붙는 표시. 연필과 달리 적어 둔 절에만
+                        나오므로 본문을 어지럽히지 않으면서 "여기 뭔가 썼다"를 알려 준다. */}
+                    {mark?.note ? (
+                      <ThemedText style={{ fontSize: fontSize * 0.7 }}> 📝</ThemedText>
+                    ) : null}
+                  </ThemedText>
+                </Pressable>
               );
             })}
           </View>
@@ -189,6 +439,16 @@ export default function ReadScreen() {
             disabled={chapter <= 1}
             style={[styles.pagerButton, { opacity: chapter <= 1 ? 0.4 : 1 }]}>
             <ThemedText type="link">이전 장</ThemedText>
+          </Pressable>
+          {/* 장을 넘기는 두 단추 사이의 빈 자리에 둔다. 실제 책에서 책갈피를
+              꽂는 손짓과 자리가 같아서 따로 찾을 필요가 없다. */}
+          <Pressable
+            onPress={() => setBookmarkSheetVisible(true)}
+            style={[
+              styles.bookmarkButton,
+              { backgroundColor: currentBookmark ? theme.backgroundSelected : 'transparent' },
+            ]}>
+            <ThemedText type="small">{currentBookmark ? '🔖 꽂힘' : '🔖 책갈피'}</ThemedText>
           </Pressable>
           <Pressable
             onPress={() => goToChapter(1)}
@@ -204,9 +464,22 @@ export default function ReadScreen() {
         onClose={() => setPickerVisible(false)}
         books={books}
         onSelect={(selectedBookId, selectedChapter) => {
+          scrollY.current = 0;
+          scrollRef.current?.scrollTo({ y: 0, animated: false });
           setBookId(selectedBookId);
           setChapter(selectedChapter);
         }}
+      />
+
+      <BookmarkSheet
+        visible={bookmarkSheetVisible}
+        currentLabel={currentLabel}
+        currentBookmark={currentBookmark}
+        bookmarks={bookmarks}
+        onAdd={handleAddBookmark}
+        onJump={handleJumpToBookmark}
+        onDelete={handleDeleteBookmark}
+        onClose={() => setBookmarkSheetVisible(false)}
       />
 
       <VerseActionSheet
@@ -307,23 +580,13 @@ const styles = StyleSheet.create({
   verseRow: {
     borderRadius: Spacing.two,
     paddingHorizontal: Spacing.one,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
+    // 꾹 누르는 것이 이제 유일한 조작이라, 누르는 동안 브라우저가 글자를
+    // 잡아 버리면(모바일 웹의 텍스트 선택) 동작이 서로 부딪힌다. 본문 복사는
+    // 열린 창에서 할 수 있게 두고, 읽는 화면에서는 선택을 끈다.
+    userSelect: 'none',
   },
-  verseTextPressable: {
-    flex: 1,
-  },
-  verseActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.one,
-  },
-  editButton: {
-    padding: Spacing.one,
-  },
-  editButtonPressed: {
-    opacity: 0.5,
+  verseRowHolding: {
+    opacity: 0.55,
   },
   verseNumOnHighlight: {
     color: '#333333',
@@ -331,9 +594,19 @@ const styles = StyleSheet.create({
   textOnHighlight: {
     color: '#1a1a1a',
   },
-  noteDot: {
-    fontSize: 12,
-    marginLeft: Spacing.one,
+  hintWrap: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    paddingHorizontal: Spacing.four,
+    marginBottom: Spacing.two,
+  },
+  hintRow: {
+    paddingVertical: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    borderRadius: Spacing.three,
+  },
+  hintText: {
+    textAlign: 'center',
   },
   pagerRow: {
     width: '100%',
@@ -346,5 +619,10 @@ const styles = StyleSheet.create({
   pagerButton: {
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
+  },
+  bookmarkButton: {
+    paddingVertical: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    borderRadius: Spacing.three,
   },
 });

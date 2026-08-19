@@ -98,6 +98,16 @@ function getUserDb() {
           memo TEXT,
           updated_at INTEGER NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS reading_bookmarks (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          book_id INTEGER NOT NULL,
+          chapter INTEGER NOT NULL,
+          translation TEXT NOT NULL,
+          scroll_y REAL NOT NULL,
+          content_height REAL NOT NULL,
+          created_at INTEGER NOT NULL,
+          UNIQUE(book_id, chapter, translation)
+        );
         CREATE TABLE IF NOT EXISTS gratitude_entries (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           date TEXT NOT NULL UNIQUE,
@@ -172,6 +182,58 @@ export async function upsertMark(mark: {
 export async function deleteMark(id: number): Promise<void> {
   const db = await getUserDb();
   await db.runAsync(`DELETE FROM verse_marks WHERE id = ?`, [id]);
+}
+
+// ── 책갈피 (bookmarks) ─────────────────────────────────────────────────────
+// 하이라이트·노트(verse_marks)와 일부러 나눠 둔다. 저 둘은 "이 말씀이 좋다"는
+// 기록이고, 책갈피는 "여기까지 읽었다"는 표시라 목적도 지우는 시점도 다르다.
+// 노트를 지운다고 읽던 자리가 사라지면 안 된다.
+
+// 자리를 절 번호가 아니라 스크롤 위치로 적어 둔다. 절 번호로 적으려면 절마다
+// 화면 어디에 있는지를 재야 하는데(onLayout), 이 앱의 웹 판에서는 그 신호가
+// 오지 않아 모든 책갈피가 1절을 가리키게 된다. 스크롤 위치는 웹에서도 앱에서도
+// 똑같이 들어온다.
+//
+// 글자 크기를 바꾸면 같은 자리라도 픽셀 값이 달라지므로, 그때 잰 전체 높이를
+// 함께 적어 두고 돌아갈 때 비율로 환산한다.
+export type Bookmark = {
+  id: number;
+  book_id: number;
+  chapter: number;
+  translation: Translation;
+  scroll_y: number;
+  content_height: number;
+  created_at: number;
+};
+
+export async function getBookmarks(): Promise<Bookmark[]> {
+  const db = await getUserDb();
+  return db.getAllAsync<Bookmark>(`SELECT * FROM reading_bookmarks ORDER BY created_at DESC`);
+}
+
+/** 한 장에 하나씩. 같은 장에 다시 꽂으면 자리를 새로 고친다. */
+export async function addBookmark(entry: {
+  bookId: number;
+  chapter: number;
+  translation: Translation;
+  scrollY: number;
+  contentHeight: number;
+}): Promise<void> {
+  const db = await getUserDb();
+  await db.runAsync(
+    `INSERT INTO reading_bookmarks (book_id, chapter, translation, scroll_y, content_height, created_at)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(book_id, chapter, translation)
+     DO UPDATE SET scroll_y = excluded.scroll_y,
+                   content_height = excluded.content_height,
+                   created_at = excluded.created_at`,
+    [entry.bookId, entry.chapter, entry.translation, entry.scrollY, entry.contentHeight, Date.now()]
+  );
+}
+
+export async function deleteBookmark(id: number): Promise<void> {
+  const db = await getUserDb();
+  await db.runAsync(`DELETE FROM reading_bookmarks WHERE id = ?`, [id]);
 }
 
 // ── 말씀노트 (meditation notes) ────────────────────────────────────────────

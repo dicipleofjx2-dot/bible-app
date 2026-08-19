@@ -63,7 +63,7 @@ export default function NotesScreen() {
           ListEmptyComponent={
             !loading ? (
               <ThemedText themeColor="textSecondary" style={styles.emptyText}>
-                읽기 화면에서 구절 옆 연필 아이콘을 눌러 하이라이트하거나 노트를 남겨보세요.
+                읽기 화면에서 구절을 잠시 누르고 있으면 하이라이트하거나 노트를 남길 수 있어요.
               </ThemedText>
             ) : null
           }

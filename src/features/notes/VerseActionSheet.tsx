@@ -44,7 +44,9 @@ export function VerseActionSheet({
           <ThemedText type="smallBold" themeColor="textSecondary">
             {verseNumber}절
           </ThemedText>
-          <ThemedText type="small" style={styles.verseText}>
+          {/* 읽는 화면에서는 꾹 누르기와 부딪히지 않도록 글자 선택을 껐다.
+              본문을 복사하려는 사람을 위해 여기서는 선택할 수 있게 둔다. */}
+          <ThemedText type="small" selectable style={styles.verseText}>
             {verseText}
           </ThemedText>
 
