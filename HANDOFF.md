@@ -1,9 +1,109 @@
 # BibleApp — Handoff / Status Reference
 
-Last updated: 2026-07-29. Everything through `1c91ae0` is **committed and
-pushed to origin/main**; Vercel auto-deploys on push, so the web app is
-live and current. Native (Android APK via EAS) is a separate story — see
-"⚠️ EAS build quota" below before offering to build one.
+Last updated: **2026-08-19**. Everything through `3175923` is **committed
+on local `main` and deployed to production**
+(https://dicipleofjx-bible.vercel.app). See "This session (2026-08-19)"
+immediately below for the newest work; older session notes follow in
+reverse order and are still accurate for their areas.
+
+**Not pushed to origin.** The last two commits (`08a3b50`, `3175923`)
+exist only locally — they were deployed straight from a git worktree, not
+via a push. Check `git log origin/main..main` before assuming the remote
+is current.
+
+Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
+quota" below before offering to build one. The quota note is from July;
+re-check current quota before relying on it.
+
+## This session (2026-08-19) — summary
+
+Two commits, both live.
+
+**`08a3b50` — 쿠팡 바로가기 빈 화면 수정 (production bug, my own doing).**
+`public/coupang.html` had been committed with its CSS truncated
+mid-property (`text-decorati`) and the `</style>` tag gone entirely, so
+browsers swallowed the whole document body *and* the script as
+stylesheet text → **completely blank page** on the user's phone for
+several days. The redirect code never even ran. Rebuilt the file whole,
+removed a leftover fragment of an older version at the end.
+**Lesson:** static HTML is invisible to `tsc` and lint. After editing
+one, count tag pairs (`<style>`/`</style>`, `<script>`/`</script>`,
+`<body>`/`</body>`) and re-fetch the **deployed URL** — not just the
+local file — to confirm.
+
+**`3175923` — 성경읽기: 연필 제거 → 꾹 누르기, 책갈피 + 이어보기.**
+See `src/app/read.tsx`, `src/features/bible/BookmarkSheet.tsx`,
+`src/db/userData.ts` (new `reading_bookmarks` table). Design notes:
+
+- The per-verse ✎ button is gone; long-press the verse itself
+  (`unstable_pressDelay` 160ms + `delayLongPress` 500ms ≈ 0.7s, verse
+  dims to 0.55 while held). **There is deliberately no short-press
+  handler** — that's what makes scrolling safe, structurally rather than
+  by tuning. A dismissible one-line hint (`read.longPressHintSeen` in
+  AsyncStorage) replaces the affordance the pencil used to provide.
+- Verses with a note show an inline 📝. Reading area is
+  `userSelect: 'none'` (text selection fought the long-press); the sheet's
+  verse text is `selectable` so copying is still possible.
+- **이어보기** (automatic): `read.lastPosition` in AsyncStorage —
+  `{bookId, chapter, translation, y, contentHeight}`.
+- **책갈피** (deliberate): `reading_bookmarks`, one per
+  `(book_id, chapter, translation)`. Button sits between 이전 장 / 다음 장.
+
+**Why position is stored as scroll offset, not verse number:** the first
+attempt keyed off verse numbers via `onLayout`, which appeared never to
+fire — so the whole design was changed. **That diagnosis was wrong**: the
+verification tab was hidden, so no frames were painted and hence no
+ResizeObserver/`onLayout`/`scroll` events at all. `onLayout` is fine on
+real devices. The scroll-based design was kept because it's genuinely more
+robust, but it costs label precision: the list reads "창세기 1장 · 뒷부분"
+rather than "창세기 1:12". **If verse numbers in labels are wanted, add
+`onLayout` measurement for the label only — the jump itself uses the
+stored scroll offset and needs no change.** This option was offered to the
+user; no answer yet.
+
+Two traps worth remembering in `read.tsx`:
+- The save-position effect will clobber the position you're about to
+  restore (writing `y: 0` before the restore lands). Guarded by skipping
+  the save while `pendingScroll` is set, then saving once right after
+  restoring.
+- When content height is unknown (`0`), do **not** clamp the target
+  scroll — clamping to 0 throws away the remembered position. Restore
+  primarily on `onContentSizeChange`, with a `setTimeout` fallback for
+  devices where that signal is late or absent.
+
+### Verification environment (read this before debugging "broken" APIs)
+
+Both the Browser pane **and** Claude-in-Chrome tabs run
+`document.visibilityState === 'hidden'` in this setup. No frames are
+painted, so `onLayout`, `onContentSizeChange`, browser-emitted `scroll`
+events, and `requestAnimationFrame` never fire, and `setTimeout` is
+throttled. **Check `document.visibilityState` before concluding an API is
+broken.** Workarounds that did work:
+- Drive scroll handlers with `el.scrollTop = N` followed by
+  `el.dispatchEvent(new Event('scroll'))`.
+- RN-web `Pressable.onPress` needs a `click` event dispatched on top of
+  `mousedown`+`mouseup` — mouse events alone are silently ignored.
+  `onLongPress` works with `mousedown` + waiting.
+
+### Deploying (worktree isolation)
+
+Deploys go from a detached worktree so a concurrent session's
+uncommitted work isn't swept in. `.vercel` is gitignored and does **not**
+come along, so `vercel --prod --yes` in a fresh worktree will silently
+**create a new Vercel project** with no env vars and fail the build (this
+happened — a stray `bibleapp-coupang-fix` project was created and later
+deleted). Always:
+
+```
+git worktree add <scratch> <commit>
+cp .env <scratch>/.env            # expo export needs EXPO_PUBLIC_* at build time
+cd <scratch> && npm install
+npx vercel link --yes --project bible-app
+npx vercel --prod --yes
+```
+
+Then confirm with `npx vercel project ls` that no new project appeared,
+and clean up with `git worktree remove --force`.
 
 ## ⚠️ EAS build quota exhausted — no more Android builds until 2026-08-01
 This account is on **EAS's free plan** (limited Android builds/month). A
@@ -604,9 +704,18 @@ tool, switch to one of the methods below instead of continuing to guess:**
   commentary text.
 - Local SQLite (user data, `user.db` via `db/userData.ts`, not synced):
   `verse_marks`, `meditation_notes`, `commentary_text_highlights`,
-  `diary_entries`, `priority_tasks`, `finance_entries`.
+  `diary_entries`, `priority_tasks`, `finance_entries`,
+  `gratitude_entries`, `reading_bookmarks` (2026-08-19).
 
 ## Known follow-ups / not yet done
+
+- **Last two commits are local-only** — `08a3b50` and `3175923` are on
+  `main` but not pushed to origin (deployed via worktree instead).
+  Confirm with `git log origin/main..main` before touching git history.
+- **책갈피 labels stop at "창세기 1장 · 뒷부분"** — verse-level labels
+  ("창세기 1:12") are possible by measuring verse offsets with `onLayout`
+  and using them for the label only; the jump already works off the stored
+  scroll offset. Offered to the user 2026-08-19, no answer yet.
 
 - **Native APK can't be rebuilt until 2026-08-01** (EAS free-tier quota —
   see ⚠️ at top). The last successfully-built APK (before the quota ran
