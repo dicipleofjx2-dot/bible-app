@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { buildFullPlan, type PlanChapterEntry } from './readingPlan';
 import type { DayQuizContent, MemorizationVerse, QuizQuestion } from './quizTypes';
+import { shuffleQuestionChoices } from './shuffleChoices';
 
 /** 하루 퀴즈에 내보내는 최대 문항 수. 주일은 5장을 읽어서 장별 문제를 다 모으면
  * 너무 길어진다 — 장마다 고르게 뽑아 이 수에 맞춘다. */
@@ -115,8 +116,15 @@ function pickQuestions(rows: ChapterRow[]): QuizQuestion[] {
     round += 1;
   }
 
+  // 보기 순서를 섞는다. 저장된 문제는 정답이 거의 다 1번이라(538개 중 531개)
+  // 문제를 안 읽고 찍어도 맞았다. 데이터를 고치지 않고 여기서 섞는 이유는,
+  // 앞으로 추가할 문제에도 같은 편중이 다시 쌓이기 때문이다.
+  // 순서는 문제 내용에서 뽑은 씨앗으로 정해 늘 같다 — 채점 화면이 저장해 둔
+  // 답 번호와 어긋나면 안 된다.
+  const shuffled = shuffleQuestionChoices(picked);
+
   // 문항 번호는 화면 표시용이라 합친 뒤 다시 매긴다.
-  return picked.map((q, i) => ({ ...q, id: i + 1 }));
+  return shuffled.map((q, i) => ({ ...q, id: i + 1 }));
 }
 
 /** 그날 암송구절은 범위 중 구절이 지정된 첫 장의 것을 쓴다. */
