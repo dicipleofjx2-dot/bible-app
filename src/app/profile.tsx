@@ -8,15 +8,25 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getIsAdmin, getProfile, updateUsername, getChurches, updateMyChurch, type ChurchOption } from '@/db/profile';
+import {
+  getIsAdmin,
+  getProfile,
+  updateUsername,
+  getMyChurch,
+  redeemInviteCode,
+  type ChurchOption,
+} from '@/db/profile';
 import { AuthForm } from '@/features/auth/AuthForm';
 
 export default function ProfileScreen() {
   const theme = useTheme();
   const { session, signOut } = useAuth();
   const [username, setUsername] = useState('');
-  const [churches, setChurches] = useState<ChurchOption[]>([]);
+  const [church, setChurch] = useState<ChurchOption | null>(null);
   const [churchId, setChurchId] = useState<string | null>(null);
+  const [inviteCode, setInviteCode] = useState('');
+  const [joining, setJoining] = useState(false);
+  const [joinError, setJoinError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -33,19 +43,26 @@ export default function ProfileScreen() {
   }, [session]);
 
   useEffect(() => {
-    getChurches()
-      .then(setChurches)
-      .catch(() => setChurches([]));
-  }, []);
+    getMyChurch(churchId)
+      .then(setChurch)
+      .catch(() => setChurch(null));
+  }, [churchId]);
 
-  async function pickChurch(id: string) {
-    if (!session) return;
-    const previous = churchId;
-    setChurchId(id);
-    const result = await updateMyChurch(session.user.id, id);
-    // 실패하면 눌린 채로 두지 않는다 — 바뀐 줄 알고 넘어가면 내용이 안 보이는
-    // 이유를 찾을 수 없다.
-    if (result.error) setChurchId(previous);
+  async function joinWithCode() {
+    if (!session || joining) return;
+    setJoinError(null);
+    setJoining(true);
+    const result = await redeemInviteCode(inviteCode);
+    setJoining(false);
+    if (result.error) {
+      setJoinError(result.error);
+      return;
+    }
+    setInviteCode('');
+    // 소속이 바뀌었으니 프로필을 다시 읽는다 — churchId가 바뀌면 위 effect가
+    // 교회 이름도 새로 가져온다.
+    const profile = await getProfile(session.user.id);
+    setChurchId(profile?.church_id ?? null);
   }
 
   async function save() {
@@ -102,41 +119,57 @@ export default function ProfileScreen() {
             </View>
 
             {/* 소속 교회 — 목자편지·공지사항·게시판이 이 값으로 갈린다.
-                고르지 않으면 교회 내용이 하나도 안 보이므로 눈에 띄게 알린다. */}
+                예전에는 교회 목록에서 아무 교회나 고를 수 있었다. 교회가 하나일
+                때는 편했지만 여러 교회가 들어오면 남의 교회 글을 읽는 길이 되어
+                초대 코드로만 들어오도록 바꿨다. */}
             <View style={styles.section}>
               <ThemedText type="small" themeColor="textSecondary">
                 소속 교회
               </ThemedText>
-              {churches.length === 0 ? (
-                <ThemedText type="small" themeColor="textSecondary">
-                  고를 수 있는 교회가 없어요.
-                </ThemedText>
-              ) : (
-                <View style={styles.churchList}>
-                  {churches.map((c) => {
-                    const on = c.id === churchId;
-                    return (
-                      <Pressable
-                        key={c.id}
-                        onPress={() => pickChurch(c.id)}
-                        style={[
-                          styles.churchItem,
-                          { backgroundColor: on ? theme.backgroundSelected : theme.backgroundElement },
-                        ]}>
-                        <ThemedText type="small" style={on ? styles.churchItemOn : undefined}>
-                          {on ? '✓ ' : ''}
-                          {c.name}
-                        </ThemedText>
-                      </Pressable>
-                    );
-                  })}
+
+              {church ? (
+                <View style={[styles.churchItem, { backgroundColor: theme.backgroundSelected }]}>
+                  <ThemedText type="smallBold">{church.name}</ThemedText>
                 </View>
-              )}
-              {!churchId && churches.length > 0 && (
+              ) : (
                 <ThemedText type="small" style={styles.warnText}>
-                  교회를 고르셔야 목자의 편지·공지사항·게시판이 보여요.
+                  아직 소속 교회가 없어요. 교회에서 받은 초대 코드를 넣으면 목자의 편지·공지사항·게시판이 보입니다.
                 </ThemedText>
               )}
+
+              <View style={styles.inviteRow}>
+                <TextInput
+                  value={inviteCode}
+                  onChangeText={(t) => setInviteCode(t.toUpperCase())}
+                  placeholder="초대 코드 (예: KQ7M2XPD)"
+                  placeholderTextColor={theme.textSecondary}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                  style={[
+                    styles.input,
+                    styles.inviteInput,
+                    { color: theme.text, borderColor: theme.backgroundElement },
+                  ]}
+                />
+                <Pressable
+                  onPress={joinWithCode}
+                  disabled={joining || !inviteCode.trim()}
+                  style={[
+                    styles.saveButton,
+                    {
+                      backgroundColor: theme.backgroundSelected,
+                      opacity: joining || !inviteCode.trim() ? 0.5 : 1,
+                    },
+                  ]}>
+                  <ThemedText type="smallBold">{joining ? '확인 중' : church ? '교회 옮기기' : '들어가기'}</ThemedText>
+                </Pressable>
+              </View>
+
+              {joinError ? (
+                <ThemedText type="small" style={styles.warnText}>
+                  {joinError}
+                </ThemedText>
+              ) : null}
             </View>
 
             {isAdmin && (
@@ -205,10 +238,11 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     fontSize: 16,
   },
-  churchList: { gap: 8 },
   churchItem: { borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10 },
-  churchItemOn: { color: '#fff' },
   warnText: { color: '#e8590c' },
+  // 코드 칸과 단추를 한 줄에. 칸이 늘어나고 단추는 제 크기를 지킨다.
+  inviteRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  inviteInput: { flex: 1, borderWidth: 1, letterSpacing: 2 },
   saveButton: {
     alignSelf: 'flex-start',
     paddingHorizontal: Spacing.four,

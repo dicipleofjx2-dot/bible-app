@@ -1,19 +1,74 @@
 # BibleApp — Handoff / Status Reference
 
-Last updated: **2026-08-19**. Everything through `3175923` is **committed
+Last updated: **2026-08-19** (책갈피 절 번호 작업은 미커밋). Everything through `3175923` is **committed
 on local `main` and deployed to production**
 (https://dicipleofjx-bible.vercel.app). See "This session (2026-08-19)"
 immediately below for the newest work; older session notes follow in
 reverse order and are still accurate for their areas.
 
-**Not pushed to origin.** The last two commits (`08a3b50`, `3175923`)
-exist only locally — they were deployed straight from a git worktree, not
-via a push. Check `git log origin/main..main` before assuming the remote
-is current.
+~~**Not pushed to origin.**~~ **Stale — corrected 2026-08-19 (later
+session).** `main` and `origin/main` are both at `20a5256`;
+`git log origin/main..main` is empty and the working tree is clean.
+`08a3b50`/`3175923` did reach the remote. The habit the old note asked
+for is still right — **check `git log origin/main..main` yourself rather
+than believing this file** — but don't act on the claim that the remote
+is behind.
 
 Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
+
+## This session (2026-08-19, 이어서 2) — AI 목회 플랫폼 전환 시작
+
+**미커밋.** 데이빗바이블·스마트주보·홈페이지를 200개 교회가 쓰는 플랫폼으로 바꾸는
+작업이 시작됐다. **설계와 진행 상황은 `Documents\dg-smart-bulletin\docs\PLATFORM.md`에
+전부 적혀 있다 — 이 영역을 건드리기 전에 그것부터 읽을 것.**
+
+이 리포에서 바뀐 것은 하나뿐이다. **마이페이지에서 아무 교회나 고르던 것을 없앴다**
+(`src/app/profile.tsx`, `src/db/profile.ts`). 교회가 하나일 땐 편했지만 여러 교회가
+들어오면 그건 남의 교회 목자편지·기도제목·게시판을 읽는 길이다. 이제 초대 코드
+(`redeem_invite` RPC)로만 들어온다.
+
+**화면만 고친 게 아니다.** `profiles`는 본인 행을 update할 수 있어서 목록만 없애면
+요청을 직접 보내 여전히 아무 교회나 들어갈 수 있었다. `dg-smart-bulletin`의
+`supabase/migrations/0026_platform.sql`에 `profiles_guard_church_change` 트리거를
+넣어 DB에서 막았다. **그 마이그레이션은 아직 실행 안 됐다** — 실행 전까지 이 화면의
+초대 코드 넣기는 동작하지 않는다.
+
+참고: 이 리포의 `0038_multi_church.sql`(라이브 적용됨)이 그 바탕이다.
+
+## This session (2026-08-19, 이어서) — 책갈피에 절 번호
+
+**아직 커밋 안 됨** (`src/app/read.tsx`, `src/db/userData.ts`,
+`src/features/bible/BookmarkSheet.tsx`). 아래 "Known follow-ups"에 있던
+"책갈피 이름이 창세기 1장 · 뒷부분에서 멈춘다"를 해결한 것.
+
+- `reading_bookmarks`에 `verse INTEGER` 컬럼 추가. 기존 설치용
+  `ALTER TABLE ... ADD COLUMN`을 `.catch(() => {})`와 함께 나란히 두었다
+  (finance_entries/meditation_notes와 같은 방식).
+- `read.tsx`가 절마다 `onLayout`으로 세로 위치를 재서 `verseOffsets` Map에
+  담고, `verseAtTop(y)`이 "시작점이 화면 위로 이미 지나간 절 중 가장 아래
+  것"을 고른다. 절 하나가 화면보다 길 수 있어서 "화면 안에서 시작하는 첫
+  절"로 잡으면 안 된다.
+- **`verse`는 이름표에만 쓴다. 돌아가는 자리는 여전히 스크롤 값이다.**
+  이게 설계의 핵심 — 측정이 안 와도(예전 책갈피, 늦은 기기) 책갈피는
+  멀쩡히 동작하고 이름만 예전처럼 "· 뒷부분"으로 돌아간다.
+  `positionLabel()`(BookmarkSheet.tsx)이 그 갈림길이다.
+- `verseOffsets`는 장이 바뀔 때 비운다. 안 그러면 새 본문이 그려지기 전에
+  꽂은 책갈피에 앞 장의 절 번호가 붙는다.
+
+**검증 (2026-08-19)**: `tsc --noEmit` 통과, lint 문제 수가 변경 전과 같음
+(33개, 전부 기존 것). 라이브로 확인한 것 — 책갈피를 꽂고/목록에 뜨고/빼는
+왕복이 새 컬럼으로 정상 동작(콘솔 에러 없음), 측정이 없을 때 옛 이름표로
+안전하게 내려감. `verseAtTop`은 **실제 DOM의 `offsetTop` 값**(RN-web의
+`onLayout`과 같은 기준)을 뽑아 13개 스크롤 값에 대해 눈에 보이는 정답 절과
+대조 — 전부 일치.
+
+**확인 못 한 것**: `onLayout`이 실제로 발화하는지. 이 세션의 브라우저 탭은
+`innerWidth === 0`이라 합성(compositing)이 아예 없어 ResizeObserver가 돌지
+않는다(아래 "Verification environment" 참고). 그래서 여기서는 항상 옛
+이름표만 나온다. **진짜 브라우저나 폰에서 "창세기 1장 12절"로 나오는지는
+사람이 봐 줘야 한다.**
 
 ## This session (2026-08-19) — summary
 
@@ -709,13 +764,11 @@ tool, switch to one of the methods below instead of continuing to guess:**
 
 ## Known follow-ups / not yet done
 
-- **Last two commits are local-only** — `08a3b50` and `3175923` are on
-  `main` but not pushed to origin (deployed via worktree instead).
-  Confirm with `git log origin/main..main` before touching git history.
-- **책갈피 labels stop at "창세기 1장 · 뒷부분"** — verse-level labels
-  ("창세기 1:12") are possible by measuring verse offsets with `onLayout`
-  and using them for the label only; the jump already works off the stored
-  scroll offset. Offered to the user 2026-08-19, no answer yet.
+- ~~**Last two commits are local-only**~~ — 사실이 아니었다. `main`과
+  `origin/main` 둘 다 `20a5256`. 맨 위 정정 참고.
+- ~~**책갈피 labels stop at "창세기 1장 · 뒷부분"**~~ — 구현했다(맨 위
+  "이어서" 절 참고). **커밋은 아직 안 했고**, 진짜 브라우저/폰에서 절 번호가
+  실제로 뜨는지는 사람 확인이 남았다.
 
 - **Native APK can't be rebuilt until 2026-08-01** (EAS free-tier quota —
   see ⚠️ at top). The last successfully-built APK (before the quota ran
