@@ -28,27 +28,55 @@ function getCoupangShortcutUrl(): string {
   return 'https://dicipleofjx-bible.vercel.app/coupang';
 }
 
-function AccountRow({ label, value }: { label: string; value: string }) {
+/**
+ * 후원계좌 한 덩어리.
+ *
+ * 예전에는 은행·계좌번호·예금주를 세 줄로 늘어놓고 줄마다 복사 단추를 붙였다.
+ * 그런데 옮겨 적을 것은 계좌번호 하나뿐이다 — 은행 이름과 예금주는 눈으로
+ * 확인하는 것이지 복사할 것이 아니다. 단추가 세 개면 어느 것을 눌러야 할지
+ * 한 번 더 생각하게 된다.
+ *
+ * 은행과 계좌번호를 한 줄에 두고 복사는 그 줄에만 붙인다. 예금주는 그 아래
+ * 작게. 두 줄이면 충분하다.
+ */
+function AccountBlock({ settings }: { settings: SupportSettings }) {
   const theme = useTheme();
   const [copied, setCopied] = useState(false);
 
+  const account = settings.bankAccount.trim();
+  const bank = settings.bankName.trim();
+  const holder = settings.bankHolder.trim();
+
   async function copy() {
-    await Clipboard.setStringAsync(value);
+    // 계좌번호만 복사한다. 은행 이름까지 붙이면 이체 화면에 그대로 붙일 수 없다.
+    await Clipboard.setStringAsync(account);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
 
   return (
-    <View style={styles.accountRow}>
-      <View style={styles.accountInfo}>
-        <ThemedText type="small" themeColor="textSecondary">
-          {label}
-        </ThemedText>
-        <ThemedText type="smallBold">{value}</ThemedText>
+    <View style={styles.accountBlock}>
+      <View style={styles.accountRow}>
+        <View style={styles.accountInfo}>
+          <ThemedText type="smallBold">
+            {bank ? `${bank} ` : ''}
+            {account}
+          </ThemedText>
+          {holder ? (
+            <ThemedText type="small" themeColor="textSecondary">
+              예금주 {holder}
+            </ThemedText>
+          ) : null}
+        </View>
+        {account ? (
+          <Pressable
+            onPress={copy}
+            accessibilityLabel="계좌번호 복사"
+            style={[styles.copyButton, { backgroundColor: theme.backgroundSelected }]}>
+            <ThemedText type="small">{copied ? '복사됨' : '복사'}</ThemedText>
+          </Pressable>
+        ) : null}
       </View>
-      <Pressable onPress={copy} style={[styles.copyButton, { backgroundColor: theme.backgroundSelected }]}>
-        <ThemedText type="small">{copied ? '복사됨' : '복사'}</ThemedText>
-      </Pressable>
     </View>
   );
 }
@@ -167,11 +195,7 @@ export default function SupportScreen() {
           <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
             <ThemedText type="smallBold">🏦 후원계좌</ThemedText>
             {hasBankInfo ? (
-              <>
-                <AccountRow label="은행" value={settings.bankName} />
-                <AccountRow label="계좌번호" value={settings.bankAccount} />
-                <AccountRow label="예금주" value={settings.bankHolder} />
-              </>
+              <AccountBlock settings={settings} />
             ) : (
               <ThemedText type="small" themeColor="textSecondary">
                 계좌 정보 준비 중입니다.
@@ -245,12 +269,17 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#e03131',
   },
+  accountBlock: {
+    gap: Spacing.one,
+  },
   accountRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: Spacing.two,
   },
   accountInfo: {
+    flex: 1,
     gap: Spacing.half,
   },
   copyButton: {

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -83,7 +83,14 @@ export default function ProfileScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      {/* 스크롤이 없어서 화면이 넘치면 아래쪽에 손이 닿지 않았다. 관리자에게는
+          관리 버튼이 다섯 개 더 붙는데, 맨 아래가 로그아웃이라 관리자일수록
+          로그아웃을 못 했다. */}
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
         {session && (
           <>
             <View style={styles.section}>
@@ -211,6 +218,7 @@ export default function ProfileScreen() {
         )}
 
         {!session && <AuthForm />}
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -226,8 +234,12 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     maxWidth: MaxContentWidth,
+  },
+  scrollContent: {
     padding: Spacing.three,
     gap: Spacing.four,
+    // 맨 아래 로그아웃이 화면 끝에 딱 붙지 않게 여유를 둔다.
+    paddingBottom: Spacing.six,
   },
   section: {
     gap: Spacing.two,
