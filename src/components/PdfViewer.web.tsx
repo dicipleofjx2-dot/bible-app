@@ -21,8 +21,12 @@ let pdfjsPromise: Promise<typeof PdfJs> | null = null;
 function loadPdfjs(): Promise<typeof PdfJs> {
   if (!pdfjsPromise) {
     pdfjsPromise = Promise.resolve().then(() => {
+      // legacy 빌드를 쓴다. 최신 빌드는 요즘 브라우저를 전제로 만들어져서,
+      // 카카오톡 안에서 열리는 브라우저나 오래된 삼성 인터넷에서는 그대로
+      // 실패한다. 성도들이 링크를 카카오톡으로 주고받는 것을 생각하면 여기서
+      // 몇 백 킬로바이트를 아끼는 것보다 열리는 쪽이 낫다.
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const mod = require('pdfjs-dist') as typeof PdfJs;
+      const mod = require('pdfjs-dist/legacy/build/pdf.min.mjs') as typeof PdfJs;
       // 워커 파일은 public/에 복사해 두고 주소로 알려준다. 번들러마다 워커를
       // 끌어오는 방법이 달라, 파일을 그대로 두는 쪽이 어디서든 확실하다.
       mod.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
@@ -154,10 +158,12 @@ export function PdfViewer({ url }: { url: string }) {
       };
     } catch (error) {
       setStatus('error');
+      // 무엇이 막았는지 화면에 그대로 남긴다. "열지 못했습니다"만 뜨면
+      // 기기에서 무슨 일이 있었는지 알 길이 없다.
       setMessage(
         error instanceof Error
-          ? `책을 열지 못했습니다 — ${error.message}`
-          : '책을 열지 못했습니다.',
+          ? `책을 열지 못했습니다 — ${error.name}: ${error.message}`
+          : `책을 열지 못했습니다 — ${String(error)}`,
       );
     }
     return undefined;
