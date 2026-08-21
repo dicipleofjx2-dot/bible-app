@@ -15,8 +15,9 @@ export type PopupNotice = {
   imageUrl: string | null;
   linkUrl: string | null;
   linkLabel: string | null;
-  startsOn: string | null;
-  endsOn: string | null;
+  /** ISO 시점. 비우면 저장하는 즉시 / 끌 때까지. */
+  startsAt: string | null;
+  endsAt: string | null;
   isActive: boolean;
 };
 
@@ -29,8 +30,8 @@ function mapRow(row: any): PopupNotice {
     imageUrl: row.image_url ?? null,
     linkUrl: row.link_url ?? null,
     linkLabel: row.link_label ?? null,
-    startsOn: row.starts_on ?? null,
-    endsOn: row.ends_on ?? null,
+    startsAt: row.starts_at ?? null,
+    endsAt: row.ends_at ?? null,
     isActive: !!row.is_active,
   };
 }
@@ -67,8 +68,8 @@ export type PopupNoticeInput = {
   imageUrl: string | null;
   linkUrl: string | null;
   linkLabel: string | null;
-  startsOn: string | null;
-  endsOn: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
   isActive: boolean;
 };
 
@@ -83,8 +84,8 @@ export async function createPopupNotice(
     image_url: input.imageUrl,
     link_url: input.linkUrl?.trim() || null,
     link_label: input.linkLabel?.trim() || null,
-    starts_on: input.startsOn || null,
-    ends_on: input.endsOn || null,
+    starts_at: input.startsAt || null,
+    ends_at: input.endsAt || null,
     is_active: input.isActive,
   });
   return { error: error?.message };
@@ -102,8 +103,8 @@ export async function updatePopupNotice(
       image_url: input.imageUrl,
       link_url: input.linkUrl?.trim() || null,
       link_label: input.linkLabel?.trim() || null,
-      starts_on: input.startsOn || null,
-      ends_on: input.endsOn || null,
+      starts_at: input.startsAt || null,
+      ends_at: input.endsAt || null,
       is_active: input.isActive,
     })
     .eq('id', id);

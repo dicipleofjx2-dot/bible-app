@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { DateChooser } from '@/components/DateChooser';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -26,8 +27,8 @@ type Draft = {
   imageUrl: string | null;
   linkUrl: string;
   linkLabel: string;
-  startsOn: string;
-  endsOn: string;
+  startsAt: string;
+  endsAt: string;
   isActive: boolean;
 };
 
@@ -38,23 +39,29 @@ const EMPTY: Draft = {
   imageUrl: null,
   linkUrl: '',
   linkLabel: '',
-  startsOn: '',
-  endsOn: '',
+  startsAt: '',
+  endsAt: '',
   isActive: true,
 };
 
-function todayISO(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+/** 시점을 사람이 읽는 말로. 요일까지 붙여야 주일과 토요일을 헷갈리지 않는다. */
+function when(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const weekday = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
+  const h = d.getHours();
+  const ampm = h < 12 ? '오전' : '오후';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${d.getMonth() + 1}/${d.getDate()}(${weekday}) ${ampm} ${h12}시`;
 }
 
 /** 기간과 켜짐을 사람 말로. 목록에서 지금 뜨는 것이 무엇인지 한눈에 알아야 한다. */
 function statusOf(n: PopupNotice): string {
   if (!n.isActive) return '꺼둠';
-  const t = todayISO();
-  if (n.startsOn && n.startsOn > t) return `${n.startsOn}부터`;
-  if (n.endsOn && n.endsOn < t) return '기간 지남';
-  return n.endsOn ? `${n.endsOn}까지 띄우는 중` : '띄우는 중';
+  const now = Date.now();
+  if (n.startsAt && new Date(n.startsAt).getTime() > now) return `${when(n.startsAt)}부터`;
+  if (n.endsAt && new Date(n.endsAt).getTime() <= now) return '기간 지남';
+  return n.endsAt ? `${when(n.endsAt)}까지 띄우는 중` : '띄우는 중';
 }
 
 /**
@@ -120,10 +127,14 @@ export default function PopupNoticeAdminScreen() {
       setMessage('제목을 적어 주세요.');
       return;
     }
-    // 끝나는 날이 시작보다 앞이면 아무 때도 안 뜬다. 저장은 되는데 화면에는
-    // 영영 안 나오는, 이유를 알 수 없는 상태가 된다.
-    if (draft.startsOn && draft.endsOn && draft.endsOn < draft.startsOn) {
-      setMessage('끝나는 날이 시작하는 날보다 앞섭니다.');
+    // 끝이 시작보다 앞이면 아무 때도 안 뜬다. 저장은 되는데 화면에는 영영
+    // 안 나오는, 이유를 알 수 없는 상태가 된다.
+    if (
+      draft.startsAt &&
+      draft.endsAt &&
+      new Date(draft.endsAt).getTime() <= new Date(draft.startsAt).getTime()
+    ) {
+      setMessage('끝나는 때가 시작하는 때보다 앞섭니다.');
       return;
     }
 
@@ -135,8 +146,8 @@ export default function PopupNoticeAdminScreen() {
       imageUrl: draft.imageUrl,
       linkUrl: draft.linkUrl,
       linkLabel: draft.linkLabel,
-      startsOn: draft.startsOn,
-      endsOn: draft.endsOn,
+      startsAt: draft.startsAt,
+      endsAt: draft.endsAt,
       isActive: draft.isActive,
     };
     const result = draft.id
@@ -234,25 +245,20 @@ export default function PopupNoticeAdminScreen() {
               ) : null}
             </View>
 
-            <ThemedText type="small" themeColor="textSecondary">
-              띄우는 기간 (비우면 오늘부터 / 끝없이)
-            </ThemedText>
-            <View style={styles.row}>
-              <TextInput
-                value={draft.startsOn}
-                onChangeText={(v) => setDraft((d) => ({ ...d, startsOn: v }))}
-                placeholder="시작 2026-09-01"
-                placeholderTextColor={theme.textSecondary}
-                style={[...inputStyle, styles.grow]}
-              />
-              <TextInput
-                value={draft.endsOn}
-                onChangeText={(v) => setDraft((d) => ({ ...d, endsOn: v }))}
-                placeholder="끝 2026-09-14"
-                placeholderTextColor={theme.textSecondary}
-                style={[...inputStyle, styles.grow]}
-              />
-            </View>
+            {/* 날짜는 손으로 치지 않는다. 휴대폰에서 열한 자를 정확히 치는 것은
+                번거롭고, 한 글자만 틀려도 저장이 막히거나 엉뚱한 날에 뜬다. */}
+            <DateChooser
+              title="띄우기 시작"
+              value={draft.startsAt}
+              onChange={(v) => setDraft((d) => ({ ...d, startsAt: v }))}
+              hint="정하지 않으면 저장하는 즉시 뜹니다."
+            />
+            <DateChooser
+              title="띄우기 끝"
+              value={draft.endsAt}
+              onChange={(v) => setDraft((d) => ({ ...d, endsAt: v }))}
+              hint="정하지 않으면 끌 때까지 계속 뜹니다. 그 시각이 되면 사라집니다."
+            />
 
             <ThemedText type="small" themeColor="textSecondary">
               눌렀을 때 갈 곳 (선택) — 앱 안이면 /notice-board 처럼
@@ -328,8 +334,8 @@ export default function PopupNoticeAdminScreen() {
                         imageUrl: n.imageUrl,
                         linkUrl: n.linkUrl ?? '',
                         linkLabel: n.linkLabel ?? '',
-                        startsOn: n.startsOn ?? '',
-                        endsOn: n.endsOn ?? '',
+                        startsAt: n.startsAt ?? '',
+                        endsAt: n.endsAt ?? '',
                         isActive: n.isActive,
                       })
                     }
