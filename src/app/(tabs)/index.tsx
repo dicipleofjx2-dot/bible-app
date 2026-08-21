@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { PopupNoticeModal } from '@/components/PopupNoticeModal';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useGradient, useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
@@ -142,6 +143,8 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      {/* 앱을 열자마자 한 번. 기간이 지났거나 오늘 이미 닫았으면 스스로 안 뜬다. */}
+      <PopupNoticeModal />
       <SafeAreaView style={styles.safeAreaOuter}>
         <ScrollView style={styles.scrollOuter} contentContainerStyle={styles.safeArea}>
           {/* 1. 오늘의 말씀 — 화면에서 가장 중요한 자리라 유일하게 그라데이션을 줘서

@@ -202,6 +202,11 @@ export default function ProfileScreen() {
                   <ThemedText type="smallBold">💝 후원정보 관리</ThemedText>
                 </Pressable>
                 <Pressable
+                  onPress={() => router.push('/popup-notices/admin')}
+                  style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
+                  <ThemedText type="smallBold">🔔 알림 팝업 관리</ThemedText>
+                </Pressable>
+                <Pressable
                   onPress={() => router.push('/r2m/courses/admin')}
                   style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
                   <ThemedText type="smallBold">🎯 R2M 훈련과정 관리</ThemedText>

@@ -47,8 +47,10 @@ import {
 } from '@/db/userData';
 import { pingCheckin } from '@/db/r2m';
 
-const MIN_FONT_SIZE = 14;
-const MAX_FONT_SIZE = 28;
+const MIN_FONT_SIZE = 16;
+// 성경은 오래 읽는 글이라 위쪽을 넉넉히 열어 둔다. 눈이 불편한 분들이
+// 28에서 더 키우지 못해 답답해했다.
+const MAX_FONT_SIZE = 36;
 
 // 구절을 꾹 눌러 색칠·묵상 창을 여는 시간.
 //
@@ -92,9 +94,17 @@ export default function ReadScreen() {
   const [chapter, setChapter] = useState(1);
   const [chapterCount, setChapterCount] = useState(1);
   const [translation, setTranslation] = useState<Translation>(DEFAULT_TRANSLATION);
+  // 상단 바에 늘 펼쳐 두던 것들을 접었다. 역본 넷과 A-/A+가 항상 나와 있어
+  // 좁은 화면에서는 책 이름이 밀렸고, 정작 자주 쓰는 것은 아니다.
+  //
+  // 펼친 칸은 본문 **위에 떠서** 나온다. 본문을 밀어내면 읽던 줄이 움직여
+  // 화면이 흔들린다 — 글자 크기를 고치는 동안 읽던 자리를 잃는 것이 가장 나쁘다.
+  const [openPanel, setOpenPanel] = useState<'none' | 'font' | 'translation'>('none');
   const [verses, setVerses] = useState<Verse[]>([]);
   const [pickerVisible, setPickerVisible] = useState(false);
-  const [fontSize, setFontSize] = useState(18);
+  // 기본값 18은 성경 본문에 작았다. 처음 열었을 때 바로 읽히는 크기로 둔다 —
+  // 매번 A+를 눌러야 읽을 수 있으면 기본값이 제 몫을 못 하는 것이다.
+  const [fontSize, setFontSize] = useState(21);
   const [marks, setMarks] = useState<VerseMark[]>([]);
   const [activeVerse, setActiveVerse] = useState<Verse | null>(null);
   const [showHint, setShowHint] = useState(false);
@@ -398,32 +408,89 @@ export default function ReadScreen() {
           </Pressable>
 
           <View style={styles.toolbarRight}>
-            {TRANSLATIONS.map((t) => (
-              <Pressable
-                key={t.code}
-                onPress={() => setTranslation(t.code)}
-                style={[
-                  styles.translationChip,
-                  {
-                    backgroundColor:
-                      translation === t.code ? theme.backgroundSelected : theme.backgroundElement,
-                  },
-                ]}>
-                <ThemedText type="small">{t.label}</ThemedText>
-              </Pressable>
-            ))}
             <Pressable
-              onPress={() => setFontSize((s) => Math.max(MIN_FONT_SIZE, s - 2))}
-              style={[styles.fontButton, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="smallBold">A-</ThemedText>
+              onPress={() => setOpenPanel((v) => (v === 'translation' ? 'none' : 'translation'))}
+              style={[
+                styles.toolButton,
+                {
+                  backgroundColor:
+                    openPanel === 'translation' ? theme.backgroundSelected : theme.backgroundElement,
+                },
+              ]}>
+              <ThemedText type="smallBold">
+                {TRANSLATIONS.find((t) => t.code === translation)?.label ?? '역본'}
+              </ThemedText>
             </Pressable>
             <Pressable
-              onPress={() => setFontSize((s) => Math.min(MAX_FONT_SIZE, s + 2))}
-              style={[styles.fontButton, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="smallBold">A+</ThemedText>
+              onPress={() => setOpenPanel((v) => (v === 'font' ? 'none' : 'font'))}
+              style={[
+                styles.toolButton,
+                {
+                  backgroundColor:
+                    openPanel === 'font' ? theme.backgroundSelected : theme.backgroundElement,
+                },
+              ]}>
+              <ThemedText type="smallBold">가</ThemedText>
             </Pressable>
           </View>
         </View>
+
+        {/* 펼친 칸. 자리를 차지하지 않도록 본문 위에 띄운다(position: absolute).
+            여기서 본문을 밀어내면 글자 크기를 고치는 동안 읽던 줄이 계속
+            움직인다. */}
+        {openPanel !== 'none' ? (
+          <>
+            <Pressable
+              onPress={() => setOpenPanel('none')}
+              style={styles.panelBackdrop}
+              accessibilityLabel="닫기"
+            />
+            <View
+              style={[
+                styles.panel,
+                { backgroundColor: theme.backgroundElement, borderColor: theme.border },
+              ]}>
+              {openPanel === 'translation' ? (
+                <View style={styles.panelRow}>
+                  {TRANSLATIONS.map((t) => (
+                    <Pressable
+                      key={t.code}
+                      onPress={() => {
+                        setTranslation(t.code);
+                        setOpenPanel('none');
+                      }}
+                      style={[
+                        styles.panelChip,
+                        {
+                          backgroundColor:
+                            translation === t.code ? theme.backgroundSelected : 'transparent',
+                          borderColor: theme.border,
+                        },
+                      ]}>
+                      <ThemedText type="small">{t.label}</ThemedText>
+                    </Pressable>
+                  ))}
+                </View>
+              ) : (
+                <View style={styles.panelRow}>
+                  <Pressable
+                    onPress={() => setFontSize((v) => Math.max(MIN_FONT_SIZE, v - 2))}
+                    style={[styles.panelChip, { borderColor: theme.border }]}>
+                    <ThemedText type="smallBold">가 작게</ThemedText>
+                  </Pressable>
+                  <View style={styles.panelSize}>
+                    <ThemedText type="smallBold">{fontSize}</ThemedText>
+                  </View>
+                  <Pressable
+                    onPress={() => setFontSize((v) => Math.min(MAX_FONT_SIZE, v + 2))}
+                    style={[styles.panelChip, { borderColor: theme.border }]}>
+                    <ThemedText type="smallBold">가 크게</ThemedText>
+                  </Pressable>
+                </View>
+              )}
+            </View>
+          </>
+        ) : null}
 
         {showHint ? (
           <View style={styles.hintWrap}>
@@ -440,6 +507,9 @@ export default function ReadScreen() {
           </View>
         ) : null}
 
+        {/* 읽는 자리를 테두리로 둘러 종이 한 장처럼 만든다. 바탕은 흰색 —
+            본문이 화면 색에 묻히지 않고, 종이에 인쇄된 것처럼 읽힌다. */}
+        <View style={[styles.readingPane, { borderColor: theme.border }]}>
         <ScrollView
           ref={scrollRef}
           contentContainerStyle={styles.scrollContent}
@@ -472,29 +542,46 @@ export default function ReadScreen() {
                     bg ? { backgroundColor: bg } : null,
                     pressed ? styles.verseRowHolding : null,
                   ]}>
-                  <ThemedText style={[styles.verseText, { fontSize, lineHeight: fontSize * 1.6 }]}>
+                  {/* 절 번호를 본문과 같은 줄에 흘려 넣지 않고 왼쪽 칸에 세운다.
+                      한 줄에 섞어 두면 두 번째 줄부터 글자가 번호 밑으로 파고들어
+                      줄 머리가 들쭉날쭉해진다. 번호 칸을 따로 두면 본문 왼쪽이
+                      한 줄로 맞는다. 칸 너비는 글자 크기를 따라간다 — 크기를
+                      키웠는데 번호 칸만 그대로면 번호와 본문이 붙는다. */}
+                  <View style={styles.verseLine}>
                     <ThemedText
                       themeColor={bg ? undefined : 'textSecondary'}
-                      style={[{ fontSize: fontSize * 0.6 }, bg ? styles.verseNumOnHighlight : null]}>
-                      {v.verse}{' '}
+                      style={[
+                        styles.verseNum,
+                        {
+                          fontSize: fontSize * 0.62,
+                          lineHeight: fontSize * 1.6,
+                          width: fontSize * 1.7,
+                        },
+                        bg ? styles.verseNumOnHighlight : null,
+                      ]}>
+                      {v.verse}
                     </ThemedText>
-                    {/* 안쪽 Text에도 서체를 다시 준다 — React Native는 중첩된
-                        Text가 자기 fontFamily를 가지면 바깥 것을 물려받지 않아,
-                        여기에 안 주면 기본 서체가 명조를 덮어쓴다. */}
-                    <ThemedText style={[styles.verseText, bg ? styles.textOnHighlight : null]}>
+                    <ThemedText
+                      style={[
+                        styles.verseText,
+                        styles.verseBody,
+                        { fontSize, lineHeight: fontSize * 1.6 },
+                        bg ? styles.textOnHighlight : null,
+                      ]}>
                       {v.text}
+                      {/* 묵상을 적어 둔 절에만 붙는 표시. 적어 둔 절에만 나오므로
+                          본문을 어지럽히지 않으면서 "여기 뭔가 썼다"를 알려 준다. */}
+                      {mark?.note ? (
+                        <ThemedText style={{ fontSize: fontSize * 0.7 }}> 📝</ThemedText>
+                      ) : null}
                     </ThemedText>
-                    {/* 묵상을 적어 둔 절에만 붙는 표시. 연필과 달리 적어 둔 절에만
-                        나오므로 본문을 어지럽히지 않으면서 "여기 뭔가 썼다"를 알려 준다. */}
-                    {mark?.note ? (
-                      <ThemedText style={{ fontSize: fontSize * 0.7 }}> 📝</ThemedText>
-                    ) : null}
-                  </ThemedText>
+                  </View>
                 </Pressable>
               );
             })}
           </View>
         </ScrollView>
+        </View>
 
         <View style={styles.pagerRow}>
           <Pressable
@@ -609,16 +696,62 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     borderRadius: Spacing.three,
   },
-  translationChip: {
-    paddingHorizontal: Spacing.two,
+  toolButton: {
+    minWidth: 44,
+    paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     borderRadius: Spacing.three,
+    alignItems: 'center',
   },
-  fontButton: {
-    width: 36,
+  // 펼친 칸을 본문 위에 띄운다. 자리를 차지하면 본문이 밀려 읽던 줄이 움직인다.
+  panelBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 5,
+  },
+  panel: {
+    position: 'absolute',
+    top: 52,
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    zIndex: 6,
+    marginHorizontal: Spacing.three,
+    padding: Spacing.two,
+    borderRadius: Spacing.three,
+    borderWidth: 1,
+  },
+  panelRow: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: Spacing.two,
+    flexWrap: 'wrap',
+  },
+  panelChip: {
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
     borderRadius: Spacing.three,
+    borderWidth: 1,
+  },
+  panelSize: {
+    minWidth: 40,
+    alignItems: 'center',
+  },
+  // 읽는 자리. 종이 한 장처럼 테두리를 두르고 바탕은 흰색으로 둔다.
+  readingPane: {
+    flex: 1,
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    marginHorizontal: Spacing.three,
+    marginBottom: Spacing.two,
+    borderWidth: 1,
+    borderRadius: Spacing.three,
+    backgroundColor: '#FFFFFF',
+    overflow: 'hidden',
   },
   scrollView: {
     flex: 1,
@@ -635,10 +768,24 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   verseText: {
+    // 읽는 자리 바탕을 흰색으로 고정했으므로 글자색도 고정한다. 그러지 않으면
+    // 어두운 화면에서 흰 종이에 흰 글씨가 되어 아무것도 안 보인다.
+    color: '#1A1A1A',
     // 성경 본문은 명조로. 가로획이 가늘고 세로획이 굵어 줄을 따라가기 쉽고,
     // 성경은 원래 명조로 조판해 온 글이라 눈에 익다.
     // 크기·줄간격은 사용자가 조절하므로 여기서는 서체만 정한다.
     
+  },
+  verseLine: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  verseNum: {
+    textAlign: 'right',
+    paddingRight: Spacing.one,
+  },
+  verseBody: {
+    flex: 1,
   },
   verseRow: {
     borderRadius: Spacing.two,
