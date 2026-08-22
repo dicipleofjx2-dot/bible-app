@@ -331,28 +331,39 @@ export default function ReadingHelperHomeScreen() {
             <ThemedText type="smallBold">암송 퍼즐 게임</ThemedText>
           </Pressable>
 
-          <View style={styles.linkRow}>
-            {/* 앞으로 일주일치는 미리 볼 수 있다. 캘린더까지 들어가야만 보이면
-                그런 길이 있다는 걸 아무도 모른다. */}
-            <Pressable
-              onPress={() =>
-                router.push({ pathname: '/reading-helper/day-detail', params: { date: tomorrowDateString() } })
-              }
-              style={({ pressed }) => [pressed && styles.pressed]}>
-              <ThemedText type="small" themeColor="textSecondary">
-                🔭 다음 날 미리 보기
-              </ThemedText>
-            </Pressable>
-            <Pressable onPress={() => router.push('/reading-helper/calendar')} style={({ pressed }) => [pressed && styles.pressed]}>
-              <ThemedText type="small" themeColor="textSecondary">
-                📅 통독 캘린더
-              </ThemedText>
-            </Pressable>
-            <Pressable onPress={() => router.push('/reading-helper/archive')} style={({ pressed }) => [pressed && styles.pressed]}>
-              <ThemedText type="small" themeColor="textSecondary">
-                🗂 전체 아카이브
-              </ThemedText>
-            </Pressable>
+          {/*
+            셋을 아이콘 타일로 세운다. 예전에는 작은 글자 세 줄이 나란히 있어서
+            무엇이 무엇인지 훑어서는 안 보였고, 손가락으로 누르기에도 작았다.
+            앞으로 일주일치는 미리 볼 수 있는데 그런 길이 있다는 걸 아무도 몰랐다.
+          */}
+          <View style={styles.tileRow}>
+            {[
+              {
+                emoji: '🔭',
+                label: '다음 날\n미리 보기',
+                go: () =>
+                  router.push({
+                    pathname: '/reading-helper/day-detail',
+                    params: { date: tomorrowDateString() },
+                  }),
+              },
+              { emoji: '📅', label: '통독\n캘린더', go: () => router.push('/reading-helper/calendar') },
+              { emoji: '🗂', label: '전체\n아카이브', go: () => router.push('/reading-helper/archive') },
+            ].map((t) => (
+              <Pressable
+                key={t.label}
+                onPress={t.go}
+                style={({ pressed }) => [
+                  styles.tile,
+                  { backgroundColor: theme.backgroundElement, borderColor: theme.border },
+                  pressed && styles.pressed,
+                ]}>
+                <ThemedText style={styles.tileEmoji}>{t.emoji}</ThemedText>
+                <ThemedText type="small" style={styles.tileLabel}>
+                  {t.label}
+                </ThemedText>
+              </Pressable>
+            ))}
           </View>
 
           {/* 다시 시작은 통독 기록·퀴즈 점수·포인트를 되돌릴 수 없게 지운다.
@@ -417,7 +428,18 @@ const styles = StyleSheet.create({
   primaryButton: { borderRadius: Spacing.four, paddingVertical: Spacing.four, alignItems: 'center' },
   primaryButtonText: { color: '#fff' },
   secondaryButton: { borderRadius: Spacing.four, paddingVertical: Spacing.four, alignItems: 'center' },
-  linkRow: { flexDirection: 'row', justifyContent: 'center', gap: Spacing.five, paddingTop: Spacing.one },
+  tileRow: { flexDirection: 'row', gap: Spacing.two, paddingTop: Spacing.two },
+  tile: {
+    flex: 1,
+    aspectRatio: 1,
+    borderRadius: Spacing.four,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.one,
+  },
+  tileEmoji: { fontSize: 34, lineHeight: 40 },
+  tileLabel: { textAlign: 'center', lineHeight: 17 },
   pointsCard: {
     borderRadius: Spacing.four,
     paddingVertical: Spacing.three,

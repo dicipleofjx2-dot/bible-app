@@ -74,6 +74,31 @@ export default function ReadingHelperCalendarScreen() {
   ];
   while (cells.length % 7 !== 0) cells.push(null);
 
+  /**
+   * 이번 주(주일~토요일)를 하루도 빠지지 않고 했는가.
+   *
+   * "오늘까지" 가 아니라 **지나온 날까지**로 잰다. 수요일에 열었는데 목·금·토가
+   * 아직 안 왔다고 "빠뜨렸다"고 하면 매주 토요일 저녁에만 칭찬을 볼 수 있다.
+   * 통독을 시작하기 전 날도 뺀다 — 시작 전은 빠뜨린 것이 아니다.
+   */
+  const weekDone = (() => {
+    if (!startDate) return false;
+    const now = new Date();
+    const sunday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+    const todayStr = todayDateString();
+    let counted = 0;
+    for (let i = 0; i < 7; i += 1) {
+      const d = new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      if (key > todayStr) break;
+      if (key < startDate) continue;
+      if (!recordDates.has(key)) return false;
+      counted += 1;
+    }
+    // 한 날도 안 지났으면 칭찬할 것이 없다(주일 새벽에 열었을 때).
+    return counted > 0;
+  })();
+
   function goPrevMonth() {
     if (viewMonth === 0) {
       setViewYear(viewYear - 1);
@@ -164,6 +189,14 @@ export default function ReadingHelperCalendarScreen() {
           })}
         </View>
 
+        {weekDone && (
+          <View style={[styles.weekDoneCard, { backgroundColor: theme.backgroundElement }]}>
+            <ThemedText type="smallBold" style={styles.weekDoneText}>
+              🌿 이번주도 잘~ 했습니다. 당신 성실해요!!
+            </ThemedText>
+          </View>
+        )}
+
         <ThemedText type="small" themeColor="textSecondary" style={styles.hint}>
           테두리가 있는 날은 앞으로 {PREVIEW_DAYS}일 안의 미리 보기입니다. 미리 풀어 본 퀴즈와 암송은
           기록에 남지 않으니, 그날이 되면 다시 하시면 됩니다.
@@ -188,5 +221,13 @@ const styles = StyleSheet.create({
   dayCell: { borderRadius: 10 },
   dayNumber: { fontSize: 14, fontWeight: '700', },
   dimmedText: { opacity: 0.35 },
+  weekDoneCard: {
+    marginHorizontal: Spacing.four,
+    marginTop: Spacing.four,
+    borderRadius: Spacing.four,
+    paddingVertical: Spacing.four,
+    paddingHorizontal: Spacing.four,
+  },
+  weekDoneText: { textAlign: 'center', lineHeight: 22 },
   hint: { lineHeight: 19 },
 });
