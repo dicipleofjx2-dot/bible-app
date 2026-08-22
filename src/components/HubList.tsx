@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     // 바탕과 카드가 명도 차이만으로 구분되던 것을 테두리와 아주 옅은 그림자로
     // 층을 나눠 카드가 위에 떠 보이게 한다.
     borderWidth: 1,
-    shadowColor: '#0F2433',
+    shadowColor: '#4A3730',
     shadowOpacity: 0.05,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 1 },

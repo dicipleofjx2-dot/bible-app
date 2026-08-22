@@ -78,11 +78,11 @@ export default function HomeScreen() {
   // 대신 받침 색을 바탕보다 밝게 띄워 높이를 만든다.
   const isDark = useColorScheme() === 'dark';
   const padColors: readonly [string, string] = isDark
-    ? ['#1C4A63', theme.accentSoft]
+    ? ['#55392E', theme.accentSoft]
     : ['#FFFFFF', theme.accentSoft];
   const padRim = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.85)';
   // shadow* 낱개 속성은 RN 0.86에서 deprecated 라 boxShadow 한 줄로 쓴다.
-  const padShadow = isDark ? null : { boxShadow: '0px 4px 8px rgba(15, 36, 51, 0.14)' };
+  const padShadow = isDark ? null : { boxShadow: '0px 4px 8px rgba(74, 55, 48, 0.16)' };
   const { session } = useAuth();
 
   const [verseRef, setVerseRef] = useState('');
@@ -282,7 +282,7 @@ export default function HomeScreen() {
 
 // 카드가 바탕 위에 떠 보이도록 하는 공통 그림자. 강하지 않게 — 층만 만든다.
 const cardShadow = {
-  shadowColor: '#0F2433',
+  shadowColor: '#4A3730',
   shadowOpacity: 0.05,
   shadowRadius: 6,
   shadowOffset: { width: 0, height: 1 },
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.four,
     padding: Spacing.four,
     gap: Spacing.two,
-    shadowColor: '#0F2433',
+    shadowColor: '#4A3730',
     shadowOpacity: 0.18,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 5 },

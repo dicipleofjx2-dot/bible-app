@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.five,
     paddingVertical: Spacing.three,
     borderRadius: Spacing.three,
-    backgroundColor: '#1F6FA8',
+    backgroundColor: '#BC5C35',
   },
   buttonText: { color: '#fff' },
   secondary: { paddingVertical: Spacing.two },

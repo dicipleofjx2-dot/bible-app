@@ -38,50 +38,64 @@ type Skin = {
 
 export const DEFAULT_SKIN: SkinId = 'david';
 
-/** 데이빗바이블의 단일 테마 — Deep Navy 글자 + 옅은 바다빛 바탕 + Gold 강조.
+/** 데이빗바이블의 단일 테마 — 살구빛 종이 + 산호색 강조 + Gold 성취.
  *
- * 원래 바탕은 따뜻한 아이보리(#FAF6EF)였는데, 2026-08 여름에 시원하게 읽히도록
- * 옅은 바다빛으로 바꿨다. 글자의 짙은 남색과 금색 강조는 그대로 둬서 브랜드가
- * 흐트러지지 않는다 — 모래와 바다처럼 맞물린다. 새부대교회 홈페이지도 같은
- * 색으로 맞춰 두어서 앱과 홈페이지가 한 브랜드로 읽힌다.
+ * 색을 두 번 갈아입었다. 처음엔 따뜻한 아이보리(#FAF6EF), 2026-08 여름엔 시원한
+ * 바다빛(#E9F1F7), 그리고 2026-08-22 에 다시 따뜻한 살구빛으로 왔다. 통독도우미를
+ * 파스텔로 바꾸자는 이야기에서 시작했는데, **한 앱에 두 벌을 두면 화면을 옮길
+ * 때마다 다른 앱에 들어온 것처럼 보여서** 전체를 옮기기로 했다.
+ *
+ * 푸른색을 통째로 버리지는 않았다. `support` 에 흐린 청회색으로 남겨 두 번째
+ * 색으로 쓴다 — 새부대교회 홈페이지와 이어 주는 다리다.
+ *
+ * 강조색은 대비를 재서 정했다. 시안의 #DD8055 는 흰 글자에 2.9:1 이라 단추에
+ * 못 쓴다(단추 글자는 전부 흰색이다). 한 단계 누른 #BC5C35 가 4.5:1.
+ *
  * (예전 4가지 스킨 선택기는 브랜드 일관성을 위해 없앴다.) */
 export const Skins: Record<SkinId, Skin> = {
   david: {
     label: 'David Bible',
     colors: {
       light: {
-        // 아침 바다. 바탕을 한 겹 낮추고 카드(backgroundElement)를 흰색으로 띄워
-        // 카드가 위에 있는 것으로 읽히게 했다.
-        text: '#0F2433',
-        background: '#E9F1F7',
+        // 살구빛 종이. 바탕을 한 겹 낮추고 카드(backgroundElement)를 흰색으로
+        // 띄워 카드가 위에 있는 것으로 읽히게 했다.
+        text: '#40302A',
+        background: '#FBF2EA',
         backgroundElement: '#FFFFFF',
-        backgroundSelected: '#1F6FA8',
-        textSecondary: '#5C7A8E',
-        accent: '#1F6FA8',
-        support: '#2E93A0',
-        border: '#DCE8F1',
-        accentSoft: '#E4F0F8',
-        done: '#F4C25A',
-        readingBackground: '#EDF3F7',
+        // 시안의 산호색은 #DD8055 였는데, 흰 글자를 얹으면 대비가 2.9:1 밖에
+        // 안 나온다. 한 단계 눌러 4.5:1 을 맞췄다 — 단추 글자는 전부 흰색이다.
+        backgroundSelected: '#BC5C35',
+        textSecondary: '#907A70',
+        accent: '#BC5C35',
+        // 원래의 푸른색을 흐린 청회색으로 남긴다. 새부대교회 홈페이지와 이어
+        // 주는 다리이자, 따뜻한 색만으로는 구분이 안 되는 자리에 쓸 두 번째 색.
+        support: '#6E8C99',
+        border: '#F1E0D3',
+        accentSoft: '#FBE6D8',
+        done: '#E9B44C',
+        readingBackground: '#FAF4ED',
       },
       dark: {
-        // 깊은 바다. 밝은 모드와 같은 계열로 맞춰 한 가족으로 읽히게 했다.
-        text: '#E6F0F6',
-        background: '#08202D',
-        backgroundElement: '#0F2C3C',
-        backgroundSelected: '#5AB0DC',
-        textSecondary: '#8CA9BA',
-        accent: '#5AB0DC',
-        support: '#5FC2CC',
-        border: '#17394C',
-        accentSoft: '#153B50',
-        done: '#F4C25A',
-        readingBackground: '#071C27',
+        // 저녁 흙빛. 밝은 모드와 같은 계열로 맞춰 한 가족으로 읽히게 했다.
+        text: '#F3E6DD',
+        background: '#241A16',
+        backgroundElement: '#33241E',
+        backgroundSelected: '#EC9A70',
+        textSecondary: '#B79E92',
+        accent: '#EC9A70',
+        support: '#9DB8C4',
+        border: '#45322A',
+        accentSoft: '#4A3126',
+        done: '#E9B44C',
+        readingBackground: '#1F1512',
       },
     },
+    // 「오늘의 말씀」 히어로 카드에만 쓴다. 그 위 글자는 전부 흰색이라 **밝은
+    // 쪽 끝**이 대비를 정한다. 시안의 #DD8055 는 흰 글자에 2.9:1 이라 지금
+    // 쓰는 #2E8FBF(3.6:1)보다 떨어진다 — #CE6E44 로 눌러 3.5:1 을 맞췄다.
     gradient: {
-      light: ['#1F6FA8', '#2E8FBF'],
-      dark: ['#12496E', '#1B6C96'],
+      light: ['#A9502C', '#CE6E44'],
+      dark: ['#7A3E22', '#A85F38'],
     },
   },
 };
