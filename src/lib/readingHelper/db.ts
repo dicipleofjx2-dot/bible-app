@@ -178,7 +178,28 @@ export async function getTodayQuizScore(userId: string, dateStr: string): Promis
  * 그때 조회는 오류 없이 0건으로 돌아오기 때문에 "자료가 없다"와 구분되지 않는다.
  * 서버에 한 번 물어 그 둘을 가른다.
  */
+/**
+ * 로그인이 정말 끊겼는지 가른다.
+ *
+ * 예전에는 `getUser()` 를 한 번 물어보고 실패하면 곧장 "만료"로 단정했다.
+ * 그런데 그 호출은 **토큰이 막 만료된 순간**이나 **잠깐 끊긴 네트워크**에서도
+ * 실패한다. 데이빗바이블에 멀쩡히 로그인해 둔 사람이 통독도우미에 들어올
+ * 때마다 "다시 로그인하세요"를 만나는 이유가 이것이었다.
+ *
+ * 그래서 끊겼다고 말하기 전에 **갱신을 먼저 시도한다.** 담아 둔 갱신표가
+ * 살아 있으면 조용히 새 토큰을 받아 그대로 이어진다. 갱신까지 실패해야
+ * 비로소 끊긴 것이다.
+ */
 export async function hasLiveSession(): Promise<boolean> {
-  const { data, error } = await supabase.auth.getUser();
-  return !error && !!data.user;
+  const { data: first, error: firstError } = await supabase.auth.getUser();
+  if (!firstError && first.user) return true;
+
+  // 담아 둔 갱신표로 새 토큰을 받아 본다.
+  const { data: refreshed } = await supabase.auth.refreshSession();
+  if (refreshed.user) return true;
+
+  // 갱신표조차 없으면 진짜로 로그아웃 상태다. 갱신표는 있는데 서버에 못 닿은
+  // 것이라면(비행기 모드 등) 끊겼다고 하지 않는다 — 잠시 뒤 저절로 풀린다.
+  const { data: stored } = await supabase.auth.getSession();
+  return !!stored.session;
 }

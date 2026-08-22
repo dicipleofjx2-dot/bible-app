@@ -63,7 +63,7 @@ export default function ReadingHelperHomeScreen() {
   const load = useCallback(async () => {
     if (!userId) return;
     const loadId = ++loadIdRef.current;
-    const startDate = await getStartDate(userId);
+    let startDate = await getStartDate(userId);
     if (!startDate) {
       // 로그인이 만료되면 조회가 오류 없이 0건으로 돌아온다(권한이 행을 가릴 뿐
       // 실패로 치지 않는다). 그대로 두면 통독을 해 오던 분을 "처음 시작" 화면으로
@@ -75,8 +75,14 @@ export default function ReadingHelperHomeScreen() {
         setChecking(false);
         return;
       }
-      router.replace('/reading-helper/onboarding');
-      return;
+      // 살아 있다면 방금 토큰이 갱신됐을 수 있다. 아까 0건이던 것은 옛 토큰이
+      // 거부당한 탓일 수 있으므로 **한 번 더 물어본다.** 이걸 안 하면 통독을
+      // 해 오던 분이 "처음 시작" 화면으로 떨어진다.
+      startDate = await getStartDate(userId);
+      if (!startDate) {
+        router.replace('/reading-helper/onboarding');
+        return;
+      }
     }
     const dayNumber = currentDayNumber(startDate);
     const algoPlan = buildFullPlan(startDate);
