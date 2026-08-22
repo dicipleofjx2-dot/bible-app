@@ -57,6 +57,15 @@ export default function ReadingHelperArchiveScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+        {/*
+          이 화면에는 헤더가 없다(Stack 의 headerShown: false). 뒤로 갈 길이
+          아예 없어서 들어오면 갇혔다. 같은 통독도우미의 day-content 화면과 같은
+          모양으로 맞춘다 — 앱 안에서 돌아가는 법이 화면마다 다르면 안 된다.
+        */}
+        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backRow}>
+          <ThemedText type="smallBold">◀ 돌아가기</ThemedText>
+        </Pressable>
+
         <ThemedText type="subtitle" style={styles.title}>
           전체 아카이브
         </ThemedText>
@@ -96,6 +105,7 @@ const styles = StyleSheet.create({
   centeredScreen: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   container: { flex: 1 },
   safeArea: { flex: 1 },
+  backRow: { alignSelf: 'flex-start', paddingTop: Spacing.three, paddingHorizontal: Spacing.four },
   title: { fontSize: 20, paddingHorizontal: Spacing.five, paddingTop: Spacing.five },
   list: { flex: 1 },
   listContent: { padding: Spacing.five, gap: Spacing.two, maxWidth: MaxContentWidth, alignSelf: 'center', width: '100%' },

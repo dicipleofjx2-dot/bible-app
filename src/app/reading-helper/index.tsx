@@ -353,22 +353,6 @@ export default function ReadingHelperHomeScreen() {
                 🗂 전체 아카이브
               </ThemedText>
             </Pressable>
-            <Pressable
-              onPress={() =>
-                todayQuizScore >= WORD_CARD_MIN_QUIZ_SCORE
-                  ? router.push('/reading-helper/word-card')
-                  : Alert.alert(
-                      '말씀카드',
-                      todayQuizScore > 0
-                        ? `오늘 성경퀴즈에서 ${WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 말씀카드를 만들 수 있어요. (오늘 점수: ${todayQuizScore}점)`
-                        : `오늘 성경퀴즈를 풀어 ${WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 말씀카드를 만들 수 있어요.`,
-                    )
-              }
-              style={({ pressed }) => [pressed && styles.pressed]}>
-              <ThemedText type="small" themeColor="textSecondary">
-                💌 말씀카드 만들기{todayQuizScore < WORD_CARD_MIN_QUIZ_SCORE ? ' 🔒' : ''}
-              </ThemedText>
-            </Pressable>
           </View>
 
           {/* 다시 시작은 통독 기록·퀴즈 점수·포인트를 되돌릴 수 없게 지운다.

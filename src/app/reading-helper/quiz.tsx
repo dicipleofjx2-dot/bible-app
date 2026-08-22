@@ -17,6 +17,18 @@ function normalizeAnswer(s: string): string {
   return s.replace(/\s+/g, '').toLowerCase();
 }
 
+/**
+ * 점수대별 칭찬.
+ *
+ * 같은 "통과"라도 80점과 100점은 마음이 다르다. 한 문구로 뭉뚱그리면 만점을
+ * 맞아도 아무 일이 없다.
+ */
+function praiseFor(score: number): string {
+  if (score >= 100) return '🏆 당신은 성경박사인가?';
+  if (score >= 90) return '🎉 대단합니다!';
+  return '👏 수고했습니다!';
+}
+
 export default function ReadingHelperQuizScreen() {
   const theme = useTheme();
   const { session } = useAuth();
@@ -139,15 +151,37 @@ export default function ReadingHelperQuizScreen() {
                   ? '만점이에요. 오늘도 수고하셨습니다.'
                   : `${score >= 90 ? '100점을 맞으면 30점' : '90점대는 20점, 100점은 30점'}까지 받을 수 있어요.`}
               </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-                💌 이제 말씀카드를 만들 수 있어요.
-              </ThemedText>
             </View>
           ) : (
             <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
               {WORD_CARD_MIN_QUIZ_SCORE}점 이상이면 포인트가 쌓이고 말씀카드도 열려요. 다시 도전해보세요!
             </ThemedText>
           )}
+
+          {/*
+            말씀카드는 **여기서 상으로 열린다.** 예전에는 통독 홈 아래에 작은
+            줄로 늘 놓여 있었는데, 잠겨 있을 때가 대부분이라 눌러 봐야 "80점을
+            맞으세요"만 나왔다. 상은 상을 받은 자리에서 줘야 한다.
+
+            복습은 기록에 남지 않으므로 여기서도 열지 않는다.
+          */}
+          {!isReview && score >= WORD_CARD_MIN_QUIZ_SCORE ? (
+            <View style={[styles.congratsCard, { backgroundColor: theme.backgroundElement }]}>
+              <ThemedText style={styles.congratsText}>{praiseFor(score)}</ThemedText>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
+                오늘 말씀카드를 만들 수 있어요.
+              </ThemedText>
+              <Pressable
+                onPress={() => router.push('/reading-helper/word-card')}
+                style={({ pressed }) => [
+                  styles.cardButton,
+                  { backgroundColor: theme.backgroundSelected },
+                  pressed && styles.pressed,
+                ]}>
+                <ThemedText type="smallBold">💌 말씀카드 만들기</ThemedText>
+              </Pressable>
+            </View>
+          ) : null}
 
           <Pressable
             onPress={() =>
@@ -276,5 +310,13 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.85 },
   scoreText: { fontSize: 48, fontWeight: '800', },
   congratsCard: { borderRadius: Spacing.four, padding: Spacing.five, alignItems: 'center', gap: Spacing.four, width: '100%' },
+  cardButton: {
+    minHeight: 48,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Spacing.three,
+    marginTop: Spacing.two,
+  },
   congratsText: { textAlign: 'center', lineHeight: 21 },
 });

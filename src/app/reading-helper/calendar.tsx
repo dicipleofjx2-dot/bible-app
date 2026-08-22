@@ -97,6 +97,11 @@ export default function ReadingHelperCalendarScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+        {/* 헤더가 없는 화면이라 뒤로 갈 길이 없었다. 아카이브와 같은 모양으로 둔다. */}
+        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backRow}>
+          <ThemedText type="smallBold">◀ 돌아가기</ThemedText>
+        </Pressable>
+
         <View style={styles.header}>
           <Pressable onPress={goPrevMonth} hitSlop={12}>
             <ThemedText style={styles.navArrow}>◀</ThemedText>
@@ -172,6 +177,7 @@ const styles = StyleSheet.create({
   centeredScreen: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   container: { flex: 1 },
   safeArea: { flex: 1, padding: Spacing.five, gap: Spacing.three },
+  backRow: { alignSelf: 'flex-start', paddingTop: Spacing.three, paddingHorizontal: Spacing.four },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   navArrow: { fontSize: 18, paddingHorizontal: Spacing.three },
   monthTitle: { fontSize: 18 },
