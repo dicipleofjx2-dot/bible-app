@@ -8,7 +8,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "bibleapp",
     "userInterfaceStyle": "automatic",
-    "backgroundColor": "#1E3350",
+    "backgroundColor": "#FBF2EA",
     "ios": {
       "bundleIdentifier": "com.dicipleofjx2.bibleapp",
       "buildNumber": "1",
@@ -18,7 +18,7 @@
       "package": "com.dicipleofjx2.bibleapp",
       "versionCode": 5,
       "adaptiveIcon": {
-        "backgroundColor": "#1E3350",
+        "backgroundColor": "#BC5C35",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -34,9 +34,14 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#1E3350",
+          "backgroundColor": "#FBF2EA",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200
+          "imageWidth": 200,
+          "dark": {
+            "backgroundColor": "#241A16",
+            "image": "./assets/images/splash-icon-dark.png",
+            "imageWidth": 200
+          }
         }
       ],
       "expo-sqlite",
