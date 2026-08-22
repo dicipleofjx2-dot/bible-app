@@ -245,12 +245,29 @@ const assets = [
   // 놓으면 대비가 3.8:1 로 묻힌다 — 크림색으로 뒤집는다.
   { file: 'splash-icon-dark.png', size: 1024, scale: NORMAL, mark: CREAM, accent: GOLD },
   { file: 'favicon.png', size: 196, ground: true, scale: NORMAL, mark: CREAM, accent: GOLD },
+
+  // ── 홈 화면에 추가했을 때 쓰이는 것들 ──────────────────────
+  //
+  // 이게 없으면 브라우저가 48px 파비콘을 긁어다 쓰고, 그것도 **설치하는 순간
+  // 박제된다.** 그래서 새 아이콘을 배포해도 홈 화면 아이콘은 안 바뀐다.
+  // public/ 로 나가므로 웹 배포에 그대로 실린다.
+  { file: 'web/apple-touch-icon.png', size: 180, ground: true, scale: NORMAL, mark: CREAM, accent: GOLD },
+  { file: 'web/icon-192.png', size: 192, ground: true, scale: NORMAL, mark: CREAM, accent: GOLD },
+  { file: 'web/icon-512.png', size: 512, ground: true, scale: NORMAL, mark: CREAM, accent: GOLD },
+  // maskable 은 기기가 동그랗게든 네모나게든 잘라 낸다. 가운데 80% 안에
+  // 들어가야 어떻게 잘려도 나무가 온전하다 — 적응형 아이콘과 같은 이유다.
+  { file: 'web/icon-512-maskable.png', size: 512, ground: true, scale: ADAPTIVE, mark: CREAM, accent: GOLD },
 ];
 
-const dir = path.join(process.cwd(), 'assets', 'images');
+const assetsDir = path.join(process.cwd(), 'assets', 'images');
+const publicDir = path.join(process.cwd(), 'public');
+fs.mkdirSync(publicDir, { recursive: true });
 for (const asset of assets) {
   const png = render(asset);
-  const out = path.join(dir, asset.file);
+  // 'web/…' 로 시작하는 것은 public/ 으로 — 웹 배포에 그대로 실린다.
+  const out = asset.file.startsWith('web/')
+    ? path.join(publicDir, asset.file.slice(4))
+    : path.join(assetsDir, asset.file);
   fs.writeFileSync(out, PNG.sync.write(png));
   console.log(`${asset.file.padEnd(30)} ${asset.size}x${asset.size}  ${(fs.statSync(out).size / 1024).toFixed(0)}KB`);
 }

@@ -1,0 +1,17 @@
+{
+  "name": "데이빗바이블",
+  "short_name": "데이빗바이블",
+  "description": "새부대교회 성경 앱 — 매일 QT, 성경 읽기, 통독도우미, 목자의 편지",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF2EA",
+  "theme_color": "#BC5C35",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
