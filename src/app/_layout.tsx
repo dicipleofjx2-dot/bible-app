@@ -30,11 +30,14 @@ const BIBLE_DB_ASSET_SOURCE = { assetId: require('../../assets/bible-data/bible.
 // v6: 개역개정(krv)을 넣었는데 이름을 안 올려서, 기존 사용자에게 큐티 본문이
 //     빈칸으로 나왔다. 큐티는 번역본을 고르는 화면이 아니라 개역개정으로
 //     고정 조회하기 때문에 한 절도 안 나온 것이다.
-const BIBLE_DB_NAME = 'bible-v6.db';
+// v7: 큐티 일정 23일치를 고쳤는데(에스겔 9장을 11절까지인데 13절부터로 잡는 등)
+//     **또 이름을 안 올려서** 고친 것이 안 나갔다. 위 경고를 그대로 적어 두고도
+//     같은 실수를 반복했다. bible.db 를 건드리면 이 줄부터 고칠 것.
+const BIBLE_DB_NAME = 'bible-v7.db';
 
 // 이름을 올리면 옛 파일(약 30MB)이 그대로 남는다. 웹은 OPFS 용량이 넉넉하지
 // 않으므로 한 번 지워 준다. 이미 없으면 조용히 넘어간다.
-const STALE_BIBLE_DB_NAMES = ['bible-v5.db'];
+const STALE_BIBLE_DB_NAMES = ['bible-v5.db', 'bible-v6.db'];
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
