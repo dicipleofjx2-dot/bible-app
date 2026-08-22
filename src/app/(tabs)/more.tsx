@@ -5,7 +5,7 @@ const SECTIONS: HubSection[] = [
   {
     items: [
       { emoji: '👤', label: '마이페이지', description: '로그인·닉네임·관리자 메뉴', href: '/profile' },
-      { emoji: '💝', label: '후원', description: '정기후원·쿠팡파트너스·후원계좌', href: '/support' },
+      { emoji: '💝', label: '후원', description: '쿠팡파트너스·후원계좌', href: '/support' },
     ],
   },
 ];
