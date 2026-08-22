@@ -30,6 +30,8 @@ export type DayRecord = {
   quiz_score: number | null;
   memorization_success: boolean | null;
   memorization_attempts: number | null;
+  /** 3초 OX 퀴즈를 10문제 다 맞혔는지 */
+  speed_quiz_success: boolean | null;
 };
 
 async function upsertDayRecord(userId: string, dateStr: string, patch: Partial<DayRecord>): Promise<void> {
@@ -46,7 +48,7 @@ async function upsertDayRecord(userId: string, dateStr: string, patch: Partial<D
 export async function getDayRecord(userId: string, dateStr: string): Promise<DayRecord | null> {
   const { data, error } = await supabase
     .from('reading_helper_day_records')
-    .select('date, reading_complete, quiz_score, memorization_success, memorization_attempts')
+    .select('date, reading_complete, quiz_score, memorization_success, memorization_attempts, speed_quiz_success')
     .eq('user_id', userId)
     .eq('date', dateStr)
     .maybeSingle();
@@ -60,6 +62,12 @@ export async function setReadingComplete(userId: string, dateStr: string, comple
 
 export async function setQuizScore(userId: string, dateStr: string, score: number): Promise<void> {
   await upsertDayRecord(userId, dateStr, { quiz_score: score });
+}
+
+/** 3초 OX 퀴즈 결과. 다 맞혔을 때만 기록한다 — 틀린 판은 남기지 않는다.
+ * 몇 번을 다시 하든 상관없고, 한 번 다 맞히면 그날 10점이다. */
+export async function setSpeedQuizSuccess(userId: string, dateStr: string): Promise<void> {
+  await upsertDayRecord(userId, dateStr, { speed_quiz_success: true });
 }
 
 export type MemorizationResult = { success: boolean; attemptsUsed: number };
@@ -106,6 +114,9 @@ export const WORD_CARD_MIN_QUIZ_SCORE = 80;
 /** 암송 퍼즐을 성공했을 때 주는 포인트 */
 export const MEMORIZATION_POINTS = 10;
 
+/** 3초 OX 퀴즈 10문제를 다 맞혔을 때 주는 포인트. 부분 점수는 없다. */
+export const SPEED_QUIZ_POINTS = 10;
+
 /** 퀴즈 점수를 포인트로 환산한다. 80점 미만은 0점 —
  * 말씀카드 잠금 해제 기준과 같은 선이라 "80점"이 하나의 기준으로 읽힌다. */
 export function quizPoints(score: number | null | undefined): number {
@@ -120,10 +131,13 @@ export type PointsSummary = {
   total: number;
   quiz: number;
   memorization: number;
+  speedQuiz: number;
   /** 포인트를 받은 퀴즈 횟수 (80점 이상만) */
   quizCount: number;
   /** 암송 성공 횟수 */
   memorizationCount: number;
+  /** 3초 OX 퀴즈 만점 횟수 */
+  speedQuizCount: number;
 };
 
 /** 지금까지 쌓인 포인트. 별도 테이블을 두지 않고 그날그날의 기록에서 계산한다 —
@@ -131,11 +145,19 @@ export type PointsSummary = {
 export async function getPointsSummary(userId: string): Promise<PointsSummary> {
   const { data, error } = await supabase
     .from('reading_helper_day_records')
-    .select('quiz_score, memorization_success')
+    .select('quiz_score, memorization_success, speed_quiz_success')
     .eq('user_id', userId);
   if (error) throw error;
 
-  const summary: PointsSummary = { total: 0, quiz: 0, memorization: 0, quizCount: 0, memorizationCount: 0 };
+  const summary: PointsSummary = {
+    total: 0,
+    quiz: 0,
+    memorization: 0,
+    speedQuiz: 0,
+    quizCount: 0,
+    memorizationCount: 0,
+    speedQuizCount: 0,
+  };
   for (const row of data ?? []) {
     const earned = quizPoints(row.quiz_score as number | null);
     if (earned > 0) {
@@ -146,8 +168,12 @@ export async function getPointsSummary(userId: string): Promise<PointsSummary> {
       summary.memorization += MEMORIZATION_POINTS;
       summary.memorizationCount += 1;
     }
+    if (row.speed_quiz_success) {
+      summary.speedQuiz += SPEED_QUIZ_POINTS;
+      summary.speedQuizCount += 1;
+    }
   }
-  summary.total = summary.quiz + summary.memorization;
+  summary.total = summary.quiz + summary.memorization + summary.speedQuiz;
   return summary;
 }
 

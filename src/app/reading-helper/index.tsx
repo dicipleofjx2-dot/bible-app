@@ -18,6 +18,7 @@ import {
   quizPoints,
   resetProgress,
   setReadingComplete,
+  SPEED_QUIZ_POINTS,
   WORD_CARD_MIN_QUIZ_SCORE,
   hasLiveSession,
   type PointsSummary,
@@ -98,7 +99,9 @@ export default function ReadingHelperHomeScreen() {
     setTodayQuizScore(record?.quiz_score ?? 0);
     setPoints(pointsSummary);
     setTodayPoints(
-      quizPoints(record?.quiz_score) + (record?.memorization_success ? MEMORIZATION_POINTS : 0)
+      quizPoints(record?.quiz_score) +
+        (record?.memorization_success ? MEMORIZATION_POINTS : 0) +
+        (record?.speed_quiz_success ? SPEED_QUIZ_POINTS : 0)
     );
     setChecking(false);
 
@@ -294,13 +297,14 @@ export default function ReadingHelperHomeScreen() {
             {points && points.total > 0 && (
               <ThemedText type="small" themeColor="textSecondary">
                 성경퀴즈 {points.quiz}점 ({points.quizCount}회) · 암송 {points.memorization}점 (
-                {points.memorizationCount}회)
+                {points.memorizationCount}회) · 3초 OX {points.speedQuiz}점 ({points.speedQuizCount}회)
               </ThemedText>
             )}
             {/* 규칙을 화면에 그대로 적어 둔다 — 몇 점을 받으면 뭐가 열리는지
                 모르면 포인트가 쌓여도 동기가 되지 않는다. */}
             <ThemedText type="small" themeColor="textSecondary">
-              성경퀴즈 80점대 10점 · 90점대 20점 · 100점 30점, 암송 성공 {MEMORIZATION_POINTS}점
+              성경퀴즈 80점대 10점 · 90점대 20점 · 100점 30점, 암송 성공 {MEMORIZATION_POINTS}점, 3초 OX
+              전부 맞히면 {SPEED_QUIZ_POINTS}점
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
               오늘 성경퀴즈에서 {WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 그날 말씀카드를 만들 수 있어요.
@@ -319,6 +323,18 @@ export default function ReadingHelperHomeScreen() {
             <ThemedText type="smallBold" style={styles.primaryButtonText}>
               성경퀴즈 풀기
             </ThemedText>
+          </Pressable>
+
+          {/* 3초 OX는 같은 본문을 두 번째로 만나는 자리다 — 성경퀴즈로 차분히 푼
+              뒤에 속도로 한 번 더. 그래서 성경퀴즈 바로 아래에 둔다. */}
+          <Pressable
+            onPress={() =>
+              hasQuizContent
+                ? router.push('/reading-helper/speed-quiz')
+                : Alert.alert('3초 성경 OX', '오늘의 퀴즈 콘텐츠는 아직 준비되지 않았습니다.')
+            }
+            style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
+            <ThemedText type="smallBold">⏱️ 3초 성경 OX</ThemedText>
           </Pressable>
 
           <Pressable
