@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard';
-import { router, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Image, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,8 +8,6 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { useAuth } from '@/lib/auth';
-import { getMyAccess, toggleSubscription, type AccessState } from '@/db/library';
 import { getSupportSettings, type SupportSettings } from '@/db/support';
 
 const EMPTY_SETTINGS: SupportSettings = { coupangUrl: '', bankName: '', bankAccount: '', bankHolder: '' };
@@ -83,40 +81,15 @@ function AccountBlock({ settings }: { settings: SupportSettings }) {
 
 export default function SupportScreen() {
   const theme = useTheme();
-  const { session } = useAuth();
   const [settings, setSettings] = useState<SupportSettings>(EMPTY_SETTINGS);
-  const [access, setAccess] = useState<AccessState>({ purchasedBookIds: [], hasActiveSubscription: false });
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(() => {
     getSupportSettings()
       .then(setSettings)
       .catch(() => setSettings(EMPTY_SETTINGS));
-    if (session) {
-      getMyAccess(session.user.id).then(setAccess).catch(() => {});
-    } else {
-      setAccess({ purchasedBookIds: [], hasActiveSubscription: false });
-    }
-  }, [session]);
+  }, []);
 
   useFocusEffect(load);
-
-  async function handleToggleSubscription() {
-    if (!session) {
-      router.push('/profile');
-      return;
-    }
-    setError(null);
-    setPending(true);
-    const result = await toggleSubscription(session.user.id, access.hasActiveSubscription);
-    setPending(false);
-    if (result.error) {
-      setError(result.error);
-      return;
-    }
-    load();
-  }
 
   const hasCoupangUrl = settings.coupangUrl.trim().length > 0;
   const hasBankInfo = settings.bankName.trim() || settings.bankAccount.trim();
@@ -131,27 +104,6 @@ export default function SupportScreen() {
           <ThemedText themeColor="textSecondary">
             여러분의 후원이 데이빗바이블이 계속 성장하는 데 큰 힘이 됩니다.
           </ThemedText>
-
-          <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
-            <ThemedText type="smallBold">💝 정기후원 (월 5,000원)</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              정기후원을 시작하면 데이빗북스 구독전용 콘텐츠도 함께 이용하실 수 있어요. 정식 결제
-              연동(카드 자동결제) 준비 중이라, 지금은 체험용으로 구독 상태만 활성화됩니다.
-            </ThemedText>
-            {error && (
-              <ThemedText type="small" style={styles.errorText}>
-                {error}
-              </ThemedText>
-            )}
-            <Pressable
-              disabled={pending}
-              onPress={handleToggleSubscription}
-              style={[styles.primaryButton, { backgroundColor: theme.backgroundSelected, opacity: pending ? 0.5 : 1 }]}>
-              <ThemedText type="smallBold">
-                {pending ? '처리 중...' : access.hasActiveSubscription ? '구독 해지하기' : '정기후원 시작하기'}
-              </ThemedText>
-            </Pressable>
-          </View>
 
           <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
             <ThemedText type="smallBold">🛒 쿠팡파트너스로 응원하기</ThemedText>
@@ -265,9 +217,6 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.8,
-  },
-  errorText: {
-    color: '#e03131',
   },
   accountBlock: {
     gap: Spacing.one,
