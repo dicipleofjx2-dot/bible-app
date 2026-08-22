@@ -88,6 +88,7 @@ export function bibleGatewayUrl(
 export const LINK_SOURCE_LABEL: Record<string, string> = {
   krv: '대한성서공회',
   klb: 'Bible Gateway',
+  koerv: 'Bible Gateway',
   esv: 'ESV.org',
   niv: 'Bible Gateway',
 };
@@ -109,5 +110,6 @@ export function externalReadUrl(
   if (translation === 'esv') return esvReadUrl(bookNameEn, chapter, startVerse);
   if (translation === 'niv') return bibleGatewayUrl(bookNameEn, chapter, startVerse, 'NIV');
   if (translation === 'klb') return bibleGatewayUrl(bookNameEn, chapter, startVerse, 'KLB');
+  if (translation === 'koerv') return bibleGatewayUrl(bookNameEn, chapter, startVerse, 'KOERV');
   return null;
 }

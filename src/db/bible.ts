@@ -10,7 +10,8 @@ export type Translation =
   | 'open_en'
   | 'esv'
   | 'niv'
-  | 'klb';
+  | 'klb'
+  | 'koerv';
 
 // 개역한글 (ko_ko) is kept out of this user-facing list (superseded by 개역개정)
 // but its rows stay in the database so existing notes/highlights that
@@ -29,6 +30,7 @@ export const TRANSLATIONS: { code: Translation; label: string; linkOnly?: boolea
   { code: 'open_ko', label: '오픈성경' },
   { code: 'krv', label: '개역개정', linkOnly: true },
   { code: 'klb', label: '현대인의 성경', linkOnly: true },
+  { code: 'koerv', label: '쉬운말 성경', linkOnly: true },
   { code: 'esv', label: 'ESV', linkOnly: true },
   { code: 'niv', label: 'NIV', linkOnly: true },
   { code: 'en_kjv', label: 'KJV' },
