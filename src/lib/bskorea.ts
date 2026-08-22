@@ -43,3 +43,20 @@ export function bskoreaReadUrl(bookId: number, chapter: number, startVerse: numb
   if (!code) return null;
   return `${BASE}?version=${VERSION}&book=${code}&chap=${chapter}&sec=${Math.max(1, startVerse)}`;
 }
+
+/**
+ * ESV(Crossway)를 esv.org 에서 연다.
+ *
+ * ESV 본문은 Crossway 저작물이라 앱에 담지 않는다. 대신 출판사가 직접 공개한
+ * 자리로 보낸다 — 성서공회와 같은 방식이다.
+ *
+ * 주소 형식은 2026-08-22에 확인했다.
+ *   https://www.esv.org/Ezekiel+9:6/   ·   .../1+Samuel+1:1/   ·   .../Psalms+23:1/
+ * 우리 DB 의 `books.name_en`("1 Samuel", "Psalms")이 그대로 통한다.
+ */
+export function esvReadUrl(bookNameEn: string, chapter: number, startVerse: number): string | null {
+  const name = bookNameEn.trim();
+  if (!name) return null;
+  const ref = `${name} ${chapter}:${Math.max(1, startVerse)}`;
+  return `https://www.esv.org/${encodeURIComponent(ref).replace(/%20/g, '+')}/`;
+}

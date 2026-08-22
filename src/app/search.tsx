@@ -42,7 +42,9 @@ export default function SearchScreen() {
             style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
           />
           <View style={styles.translationRow}>
-            {TRANSLATIONS.map((t) => (
+            {/* 링크로만 보는 역본(개역개정·ESV)은 앱에 본문이 없어 검색할 것이
+                없다. 목록에 두면 골라 놓고 "왜 안 나오지"가 된다. */}
+            {TRANSLATIONS.filter((t) => !t.linkOnly).map((t) => (
               <Pressable
                 key={t.code}
                 onPress={() => {

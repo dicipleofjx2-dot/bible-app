@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { DayLesson } from '@/components/reading-helper/DayLesson';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { bskoreaReadUrl } from '@/lib/bskorea';
 import { useAuth } from '@/lib/auth';
 import {
   getDayRecord,
@@ -227,22 +228,39 @@ export default function ReadingHelperHomeScreen() {
           </View>
 
           {chapters.length > 0 && (
-            <Pressable
-              onPress={() =>
-                router.push({
-                  pathname: '/read',
-                  params: { bookId: String(chapters[0].bookId), chapter: String(chapters[0].chapter) },
-                })
-              }
-              style={({ pressed }) => [
-                styles.primaryButton,
-                { backgroundColor: theme.backgroundSelected },
-                pressed && styles.pressed,
-              ]}>
-              <ThemedText type="smallBold" style={styles.primaryButtonText}>
-                📖 오늘 본문 읽기 (개역개정)
-              </ThemedText>
-            </Pressable>
+            <>
+              {/*
+                개역개정은 대한성서공회 저작물이라 앱에 담지 않는다. 그 사이트로
+                보낸다. 인터넷이 없을 때를 위해 앱에서 읽는 길(오픈성경)을 함께
+                둔다 — 링크만 두면 지하철·비행기에서 통독이 막힌다.
+              */}
+              <Pressable
+                onPress={() => {
+                  const url = bskoreaReadUrl(chapters[0].bookId, chapters[0].chapter, 1);
+                  if (url) Linking.openURL(url);
+                }}
+                style={({ pressed }) => [
+                  styles.primaryButton,
+                  { backgroundColor: theme.backgroundSelected },
+                  pressed && styles.pressed,
+                ]}>
+                <ThemedText type="smallBold" style={styles.primaryButtonText}>
+                  📖 오늘 본문 읽기 (개역개정 · 성서공회)
+                </ThemedText>
+              </Pressable>
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: '/read',
+                    params: { bookId: String(chapters[0].bookId), chapter: String(chapters[0].chapter) },
+                  })
+                }
+                style={({ pressed }) => [styles.secondaryLink, pressed && styles.pressed]}>
+                <ThemedText type="small" themeColor="textSecondary">
+                  앱에서 읽기 (오픈성경 · 인터넷 없어도 됩니다)
+                </ThemedText>
+              </Pressable>
+            </>
           )}
 
           <Pressable
@@ -411,6 +429,7 @@ const styles = StyleSheet.create({
   },
   checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   checkboxMark: { fontSize: 14, fontWeight: '700', color: '#fff' },
+  secondaryLink: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   primaryButton: { borderRadius: Spacing.four, paddingVertical: Spacing.four, alignItems: 'center' },
   primaryButtonText: { color: '#fff' },
   secondaryButton: { borderRadius: Spacing.four, paddingVertical: Spacing.four, alignItems: 'center' },

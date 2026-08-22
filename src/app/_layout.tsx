@@ -36,11 +36,11 @@ const BIBLE_DB_ASSET_SOURCE = { assetId: require('../../assets/bible-data/bible.
 // v8: v7 로 올릴 때 build-bible-db.mjs 로 DB 를 다시 만들었는데, 그 스크립트가
 //     **개역개정(krv)을 안 넣는다.** 큐티는 krv 로 고정 조회하므로 2178일이
 //     전부 빈칸인 DB 가 그대로 나갔다. 백업에서 krv 를 되살려 다시 만들었다.
-const BIBLE_DB_NAME = 'bible-v8.db';
+const BIBLE_DB_NAME = 'bible-v9.db';
 
 // 이름을 올리면 옛 파일(약 30MB)이 그대로 남는다. 웹은 OPFS 용량이 넉넉하지
 // 않으므로 한 번 지워 준다. 이미 없으면 조용히 넘어간다.
-const STALE_BIBLE_DB_NAMES = ['bible-v5.db', 'bible-v6.db', 'bible-v7.db'];
+const STALE_BIBLE_DB_NAMES = ['bible-v5.db', 'bible-v6.db', 'bible-v7.db', 'bible-v8.db'];
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

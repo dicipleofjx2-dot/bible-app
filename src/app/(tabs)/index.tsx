@@ -11,7 +11,7 @@ import { PopupNoticeModal } from '@/components/PopupNoticeModal';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useGradient, useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getFirstQtEntry, getQtEntryForDate, getVersesForRange, DEFAULT_TRANSLATION } from '@/db/bible';
+import { getFirstQtEntry, getQtEntryForDate } from '@/db/bible';
 import { getMyActiveEnrollment, getTodayChecklistCount, type ActiveEnrollment } from '@/db/r2m';
 import { getMeditationNote } from '@/db/userData';
 import { getLatestLetter, type ShepherdLetter } from '@/db/shepherdLetters';

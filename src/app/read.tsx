@@ -3,6 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -16,6 +17,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { bskoreaReadUrl, esvReadUrl } from '@/lib/bskorea';
 import { useAuth } from '@/lib/auth';
 import {
   getBooks,
@@ -213,12 +215,16 @@ export default function ReadScreen() {
     // 장이 바뀌면 앞 장에서 잰 위치는 남의 것이다. 지우지 않으면 아직 새 본문이
     // 그려지기 전에 책갈피를 꽂았을 때 앞 장의 절 번호가 딸려 붙는다.
     verseOffsets.current.clear();
-    getChapterVerses(db, bookId, chapter, translation).then(setVerses);
+    // 링크로만 보는 역본은 DB 에 한 절도 없다. 물어볼 것도 없다.
+    if (TRANSLATIONS.find((t) => t.code === translation)?.linkOnly) setVerses([]);
+    else getChapterVerses(db, bookId, chapter, translation).then(setVerses);
     refreshMarks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [db, bookId, chapter, translation]);
 
   const currentBook = books.find((b) => b.id === bookId);
+  // 이 역본은 본문이 앱에 없다(TRANSLATIONS 의 linkOnly).
+  const linkOnly = Boolean(TRANSLATIONS.find((t) => t.code === translation)?.linkOnly);
 
   // 보던 자리를 남긴다.
   const saveLastPosition = useCallback(() => {
@@ -525,6 +531,36 @@ export default function ReadScreen() {
             onLayout={(e) => {
               columnOffset.current = e.nativeEvent.layout.y;
             }}>
+            {/*
+              저작권이 있는 역본은 본문을 앱에 담지 않는다. 출판사가 공개한
+              자리로 보내기만 한다 — 개역개정은 대한성서공회, ESV 는 esv.org.
+              여기서 링크만 그리므로 verses 는 늘 비어 있다.
+            */}
+            {linkOnly && currentBook ? (
+              <View style={styles.linkOnlyBox}>
+                <ThemedText type="title" style={styles.linkOnlyRef}>
+                  {currentBook.name_ko} {chapter}장
+                </ThemedText>
+                <Pressable
+                  onPress={() => {
+                    const url =
+                      translation === 'esv'
+                        ? esvReadUrl(currentBook.name_en, chapter, 1)
+                        : bskoreaReadUrl(currentBook.id, chapter, 1);
+                    if (url) Linking.openURL(url);
+                  }}
+                  style={[styles.linkOnlyButton, { backgroundColor: theme.backgroundSelected }]}>
+                  <ThemedText type="smallBold">
+                    📖 {translation === 'esv' ? 'ESV.org' : '대한성서공회'}에서 읽기
+                  </ThemedText>
+                </Pressable>
+                <ThemedText type="small" themeColor="textSecondary" style={styles.linkOnlyNote}>
+                  {translation === 'esv' ? 'ESV' : '개역개정'}는 출판사 사이트에서 보실 수 있습니다.
+                  앱에서 바로 읽으시려면 위에서 오픈성경을 골라 주세요.
+                </ThemedText>
+              </View>
+            ) : null}
+
             {verses.map((v) => {
               const mark = marks.find((m) => m.verse === v.verse);
               const bg = highlightHex(mark?.color ?? null);
@@ -761,6 +797,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: BottomTabInset + Spacing.four,
   },
+  linkOnlyBox: { gap: Spacing.three, alignItems: 'center', paddingVertical: Spacing.six },
+  linkOnlyRef: { textAlign: 'center' },
+  linkOnlyButton: {
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Spacing.three,
+    paddingHorizontal: Spacing.five,
+  },
+  linkOnlyNote: { textAlign: 'center', lineHeight: 20 },
   textColumn: {
     width: '100%',
     maxWidth: MaxContentWidth,
