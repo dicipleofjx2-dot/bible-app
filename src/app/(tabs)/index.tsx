@@ -9,6 +9,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { PopupNoticeModal } from '@/components/PopupNoticeModal';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useGradient, useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getFirstQtEntry, getQtEntryForDate } from '@/db/bible';
@@ -71,6 +72,17 @@ export default function HomeScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
   const gradient = useGradient();
+
+  // 바둑판 아이콘 받침. 밝은 모드와 어두운 모드가 서로 다른 방식으로 층을
+  // 만든다 — 어두운 바탕에 검은 그림자는 보이지 않으므로, 어두울 때는 그림자
+  // 대신 받침 색을 바탕보다 밝게 띄워 높이를 만든다.
+  const isDark = useColorScheme() === 'dark';
+  const padColors: readonly [string, string] = isDark
+    ? ['#1C4A63', theme.accentSoft]
+    : ['#FFFFFF', theme.accentSoft];
+  const padRim = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.85)';
+  // shadow* 낱개 속성은 RN 0.86에서 deprecated 라 boxShadow 한 줄로 쓴다.
+  const padShadow = isDark ? null : { boxShadow: '0px 4px 8px rgba(15, 36, 51, 0.14)' };
   const { session } = useAuth();
 
   const [verseRef, setVerseRef] = useState('');
@@ -233,12 +245,23 @@ export default function HomeScreen() {
                     }
                     router.push(tile.requiresAuth && !session ? '/profile' : tile.href);
                   }}
-                  style={({ pressed }) => [
-                    styles.tile,
-                    { backgroundColor: theme.backgroundElement, borderColor: theme.border },
-                    pressed && styles.pressed,
-                  ]}>
-                  <ThemedText style={styles.tileEmoji}>{tile.emoji}</ThemedText>
+                  style={({ pressed }) => [styles.tile, pressed && styles.pressed]}>
+                  {/*
+                    네모 카드를 걷어내고 받침 원만 남긴다. 카드가 여섯 개 늘어서
+                    있으면 테두리와 바탕이 먼저 보이고 정작 아이콘은 그 안에
+                    작게 묻힌다. 원 하나면 아이콘이 곧 단추가 된다.
+
+                    입체감은 전부 이 원에 싣는다 — 위가 밝고 아래가 어두운
+                    그라디언트로 빛을 받은 것처럼, 흰 테두리로 윗면 하이라이트를,
+                    아래 그림자로 높이를 만든다.
+                  */}
+                  <LinearGradient
+                    colors={padColors}
+                    start={{ x: 0.5, y: 0 }}
+                    end={{ x: 0.5, y: 1 }}
+                    style={[styles.tilePad, padShadow, { borderColor: padRim }]}>
+                    <ThemedText style={styles.tileEmoji}>{tile.emoji}</ThemedText>
+                  </LinearGradient>
                   <ThemedText type="small" style={styles.tileLabel} numberOfLines={2}>
                     {tile.label}
                   </ThemedText>
@@ -401,19 +424,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.two,
   },
-  tileGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
+  // 카드가 없어지면 항목끼리 붙어 보인다. 세로 간격을 따로 벌린다.
+  tileGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: Spacing.two, rowGap: Spacing.four },
   // 한 줄에 셋 — 라벨이 긴 "새부대스마트주보"도 두 줄로 들어간다.
   tile: {
     width: '31.5%',
-    aspectRatio: 1,
-    borderRadius: Spacing.four,
+    // 정사각형(aspectRatio: 1)을 버린다. 카드가 있을 때는 그 칸을 카드가 채워
+    // 정사각형이 곧 단추였지만, 카드를 걷어낸 지금은 넓은 화면에서 237px짜리
+    // 빈 사각형 한가운데 68px 원 하나만 남는다. 높이는 내용만큼만 준다.
+    minHeight: 108,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: Spacing.one,
+    paddingHorizontal: Spacing.one,
+    gap: Spacing.two,
+  },
+  tilePad: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: Spacing.one,
-    gap: 2,
   },
-  tileEmoji: { fontSize: 26 },
+  tileEmoji: { fontSize: 34, lineHeight: 42 },
   tileLabel: { textAlign: 'center' },
   tileBadge: { textAlign: 'center', fontSize: 11 },
   pressed: {

@@ -304,11 +304,15 @@ function SpeedGame({
           {outcome === null ? secondsLeft : ' '}
         </ThemedText>
 
+        {/*
+          물음과 답 후보는 **같은 크기**로 둔다. 3초 안에 둘을 다 읽어야 하는데
+          물음만 작으면 그것부터 놓친다. 대신 색과 굵기로 갈라 놓는다 — 물음은
+          본문색, 답 후보는 강조색에 굵게. 크기로 나누면 작은 쪽이 부수적인
+          것처럼 보이지만, 여기서는 둘 다 읽어야 답할 수 있다.
+        */}
         <View style={styles.questionArea}>
-          <ThemedText type="small" themeColor="textSecondary" style={styles.prompt}>
-            {question.prompt}
-          </ThemedText>
-          <ThemedText style={styles.candidate}>{question.candidate}</ThemedText>
+          <ThemedText style={[styles.prompt, { color: theme.text }]}>{question.prompt}</ThemedText>
+          <ThemedText style={[styles.candidate, { color: theme.accent }]}>{question.candidate}</ThemedText>
         </View>
 
         {outcome === null ? (
@@ -372,8 +376,8 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   countdown: { fontSize: 56, fontWeight: '800', textAlign: 'center', lineHeight: 64 },
   questionArea: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: Spacing.four },
-  prompt: { textAlign: 'center', lineHeight: 22 },
-  candidate: { fontSize: 34, fontWeight: '800', textAlign: 'center', lineHeight: 44 },
+  prompt: { fontSize: 30, fontWeight: '600', textAlign: 'center', lineHeight: 40 },
+  candidate: { fontSize: 30, fontWeight: '800', textAlign: 'center', lineHeight: 42 },
   answerRow: { flexDirection: 'row', gap: Spacing.four },
   answerButton: {
     flex: 1,
