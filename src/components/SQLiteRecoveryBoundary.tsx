@@ -1,5 +1,5 @@
-import { Component, type ReactNode } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Component, Fragment, type ReactNode } from 'react';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -7,7 +7,25 @@ import { Spacing } from '@/constants/theme';
 import { claimDb, hasOtherTab, onDbLockReleased } from '@/lib/tabPresence';
 
 type Props = { children: ReactNode };
-type State = { error: Error | null; otherTabOpen: boolean };
+type State = {
+  error: Error | null;
+  otherTabOpen: boolean;
+  /** 다시 시도한 횟수. 이 값을 children 의 key 로 써서 통째로 새로 마운트한다. */
+  attempt: number;
+  retrying: boolean;
+};
+
+/**
+ * 다시 시도하는 횟수와 간격.
+ *
+ * 앞선 페이지가 완전히 정리되기까지는 시간이 조금 걸린다. 그 사이에 새 페이지가
+ * 열리면 저장소 핸들이 겹쳐 실패하는데, **잠깐 뒤에는 대개 풀린다.** 실제로
+ * 탭이 하나뿐인데도 실패하는 경우의 거의 전부가 이것이다(다른 탭이 없으니
+ * 잠금도 안 잡혀 있어서, 예전 코드는 이걸 "저장소가 망가졌다"로 잘못 읽었다).
+ *
+ * 사람에게 화면을 내밀기 전에 조용히 몇 번 다시 해 본다.
+ */
+const RETRY_DELAYS_MS = [300, 700, 1200, 2000];
 
 const OPFS_LOCK_MESSAGE_FRAGMENT = 'Access Handle';
 
@@ -36,15 +54,24 @@ const OPFS_LOCK_MESSAGE_FRAGMENT = 'Access Handle';
  * 이 탭은 잠금이 풀리는 순간 다시 열린다. 사용자는 아무것도 안 눌러도 된다.
  */
 export class SQLiteRecoveryBoundary extends Component<Props, State> {
-  state: State = { error: null, otherTabOpen: false };
+  state: State = { error: null, otherTabOpen: false, attempt: 0, retrying: false };
   private stopListening: (() => void) | null = null;
+  private retryTimer: ReturnType<typeof setTimeout> | null = null;
+  private retries = 0;
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error) {
     return { error, otherTabOpen: false };
   }
 
   async componentDidCatch(error: Error) {
-    if (!this.isOpfsLock(error)) return;
+    // **오류 문구로 가리지 않는다.** 예전에는 메시지에 'Access Handle' 이 들어
+    // 있을 때만 다른 탭을 의심했는데, 라이브러리가 오류를 한 겹 감싸거나
+    // 브라우저가 문구를 바꾸면 그대로 놓쳤다. 그러면 멀쩡한 상황에 "저장소를
+    // 정리하세요"가 떴다 — 사실이 아니고 해로운 안내다.
+    //
+    // 웹에서 DB 열기가 실패했고 다른 탭이 잠금을 쥐고 있다면, 오류 문구가
+    // 무엇이든 원인은 그것이다. 문구는 화면에 무슨 말을 쓸지 고를 때만 쓴다.
+    if (Platform.OS !== 'web') return;
 
     if (await hasOtherTab()) {
       this.setState({ otherTabOpen: true });
@@ -53,11 +80,26 @@ export class SQLiteRecoveryBoundary extends Component<Props, State> {
       this.stopListening = onDbLockReleased(() => this.reload());
       // 앞선 탭에게 자리를 달라고 한다. 그 탭은 스스로 물러난다(AppDbLock).
       claimDb();
+      return;
     }
+
+    // 잠금을 쥔 탭이 없는데도 실패했다. 앞선 페이지가 아직 정리되는 중일 가능성이
+    // 크다 — 잠깐 뒤에 조용히 다시 해 본다. 사람에게 오류 화면을 내미는 것은
+    // 몇 번 해 보고 나서다.
+    const delay = RETRY_DELAYS_MS[this.retries];
+    if (delay === undefined) return;
+    this.retries += 1;
+    this.setState({ retrying: true });
+    this.retryTimer = setTimeout(() => {
+      // key 를 바꿔 SQLiteProvider 를 통째로 새로 마운트한다. 새로고침보다
+      // 가볍고, 보고 있던 화면을 잃지 않는다.
+      this.setState((prev) => ({ error: null, retrying: false, attempt: prev.attempt + 1 }));
+    }, delay);
   }
 
   componentWillUnmount() {
     this.stopListening?.();
+    if (this.retryTimer) clearTimeout(this.retryTimer);
   }
 
   private isOpfsLock(error: Error) {
@@ -83,8 +125,21 @@ export class SQLiteRecoveryBoundary extends Component<Props, State> {
   }
 
   render() {
-    const { error, otherTabOpen } = this.state;
-    if (!error) return this.props.children;
+    const { error, otherTabOpen, attempt, retrying } = this.state;
+    // key 가 바뀌면 아래 나무가 통째로 새로 마운트된다 — 다시 시도하는 방법이다.
+    if (!error) return <Fragment key={attempt}>{this.props.children}</Fragment>;
+
+    // 조용히 다시 해 보는 중. 오류 화면 대신 기다리는 표시만 낸다.
+    if (retrying) {
+      return (
+        <ThemedView style={styles.container}>
+          <ActivityIndicator />
+          <ThemedText type="small" themeColor="textSecondary" style={styles.body}>
+            저장소를 여는 중입니다...
+          </ThemedText>
+        </ThemedView>
+      );
+    }
 
     const opfsLock = this.isOpfsLock(error);
 

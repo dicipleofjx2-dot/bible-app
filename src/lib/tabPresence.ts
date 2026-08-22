@@ -54,6 +54,47 @@ export async function hasOtherTab(): Promise<boolean> {
 }
 
 /**
+ * 잠금이 빌 때까지 기다린다. 비어 있으면 곧바로 돌아온다.
+ *
+ * 부딪힌 뒤에 수습하지 않고 **부딪히기 전에** 쓰는 것이 이 함수의 쓸모다.
+ * DB 를 열기 전에 이걸 한 번 기다리면 두 번째 탭이 애초에 실패하지 않는다.
+ *
+ * 반드시 시간 제한을 둔다. 앞선 탭이 옛 판이라 자리를 내줄 줄 모르거나,
+ * 먹통이 되어 잠금만 쥐고 있을 수 있다. 그때는 그냥 열어 보고 실패하면
+ * 에러 경계가 받는 편이, 영원히 기다리는 빈 화면보다 낫다.
+ *
+ * 돌려주는 값: 자리가 났으면 true, 시간이 다 됐으면 false.
+ */
+export function waitForDbLockFree(timeoutMs = 4000): Promise<boolean> {
+  const manager = locks();
+  if (!manager) return Promise.resolve(true);
+
+  return new Promise<boolean>((resolve) => {
+    const controller = new AbortController();
+    let settled = false;
+    const finish = (ok: boolean) => {
+      if (settled) return;
+      settled = true;
+      controller.abort();
+      resolve(ok);
+    };
+    const timer = setTimeout(() => finish(false), timeoutMs);
+
+    manager
+      .request(LOCK_NAME, { mode: 'exclusive', signal: controller.signal }, async () => {
+        // 여기 들어왔다는 건 자리가 났다는 뜻이다. 콜백이 끝나면 잠금은 곧바로
+        // 풀리고, 그 자리를 우리 DB 가 이어받는다.
+        clearTimeout(timer);
+        finish(true);
+      })
+      .catch(() => {
+        clearTimeout(timer);
+        finish(false);
+      });
+  });
+}
+
+/**
  * 다른 탭이 잠금을 놓으면(=탭이 닫히면) 알려 준다.
  * 같은 잠금을 요청해 줄을 서 두면 차례가 오는 순간 콜백이 불린다.
  * 정리 함수를 돌려주므로 화면이 사라질 때 요청을 취소할 수 있다.

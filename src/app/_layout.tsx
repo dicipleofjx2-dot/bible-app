@@ -9,6 +9,7 @@ import { AuthProvider } from '@/lib/auth';
 import { SkinProvider } from '@/lib/skin';
 import { SQLiteRecoveryBoundary } from '@/components/SQLiteRecoveryBoundary';
 import { AppDbLock } from '@/components/AppDbLock';
+import { DbTabGate } from '@/components/DbTabGate';
 import { YieldedNotice } from '@/components/YieldedNotice';
 import { hasYielded } from '@/lib/tabPresence';
 import { FONT_ASSETS } from '@/constants/typography';
@@ -92,6 +93,10 @@ export default function RootLayout() {
     <SkinProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <SQLiteRecoveryBoundary>
+          {/* DB 를 열기 **전에** 다른 탭에게 자리를 비켜 달라고 한다. 부딪힌 뒤에
+              수습하면 화면이 한 번 깜빡이고, 오류 문구가 조금만 달라져도 못
+              알아챈다. DbTabGate 설명 참고. */}
+          <DbTabGate>
           <Suspense fallback={<ActivityIndicator style={{ flex: 1 }} />}>
             <SQLiteProvider
               databaseName={BIBLE_DB_NAME}
@@ -212,6 +217,7 @@ export default function RootLayout() {
               </AuthProvider>
             </SQLiteProvider>
           </Suspense>
+          </DbTabGate>
         </SQLiteRecoveryBoundary>
       </ThemeProvider>
     </SkinProvider>
