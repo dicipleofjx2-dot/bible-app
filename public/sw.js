@@ -30,12 +30,22 @@ self.addEventListener("push", (event) => {
     body: payload.body || "",
     icon: payload.icon || "/favicon.png",
     badge: "/favicon.png",
-    // 같은 tag 면 새 알림이 옛것을 덮는다. 출석 알림이 예배마다 쌓이지 않게.
+    // 같은 tag 면 새 알림이 옛것을 덮는다. 편지가 알림창에 쌓이지 않게.
     tag: payload.tag || undefined,
     data: { url: payload.url || "/" },
     // 어르신들이 알림창을 지나치지 않게 진동을 준다(안드로이드).
     vibrate: [80, 40, 80],
   };
+
+  // **덮어쓸 때도 다시 알린다.**
+  //
+  // tag 로 교체되는 알림은 renotify 가 없으면 소리도 진동도 없이 조용히 바뀐다.
+  // 그래서 시험 알림은 받았는데 그 뒤에 올라온 글은 "안 왔다"가 됐다 — 알림창을
+  // 열어 보면 들어와 있지만 아무도 그걸 열어 보지 않는다.
+  //
+  // renotify 는 tag 가 있을 때만 줄 수 있다. 없이 주면 브라우저가 TypeError 를
+  // 던져 알림이 통째로 안 뜬다.
+  if (options.tag) options.renotify = true;
 
   event.waitUntil(self.registration.showNotification(title, options));
 });
