@@ -33,11 +33,14 @@ const BIBLE_DB_ASSET_SOURCE = { assetId: require('../../assets/bible-data/bible.
 // v7: 큐티 일정 23일치를 고쳤는데(에스겔 9장을 11절까지인데 13절부터로 잡는 등)
 //     **또 이름을 안 올려서** 고친 것이 안 나갔다. 위 경고를 그대로 적어 두고도
 //     같은 실수를 반복했다. bible.db 를 건드리면 이 줄부터 고칠 것.
-const BIBLE_DB_NAME = 'bible-v7.db';
+// v8: v7 로 올릴 때 build-bible-db.mjs 로 DB 를 다시 만들었는데, 그 스크립트가
+//     **개역개정(krv)을 안 넣는다.** 큐티는 krv 로 고정 조회하므로 2178일이
+//     전부 빈칸인 DB 가 그대로 나갔다. 백업에서 krv 를 되살려 다시 만들었다.
+const BIBLE_DB_NAME = 'bible-v8.db';
 
 // 이름을 올리면 옛 파일(약 30MB)이 그대로 남는다. 웹은 OPFS 용량이 넉넉하지
 // 않으므로 한 번 지워 준다. 이미 없으면 조용히 넘어간다.
-const STALE_BIBLE_DB_NAMES = ['bible-v5.db', 'bible-v6.db'];
+const STALE_BIBLE_DB_NAMES = ['bible-v5.db', 'bible-v6.db', 'bible-v7.db'];
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

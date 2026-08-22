@@ -94,8 +94,12 @@ function buildQtSchedule(db, koData) {
     // 예전에는 개역한글 원본(koData)의 절 수를 썼는데, 그 파일은 시편 118편이
     // 9절까지밖에 없다(실제로는 29절). 원본이 깨진 곳에서는 멀쩡한 일정도
     // 틀린 것으로 보이고, 반대로 진짜 틀린 곳을 놓친다.
+    // **개역개정(krv) 기준으로 잰다.** 큐티 화면은 번역본을 고르는 곳이 아니라
+    // krv 로 고정 조회한다(DEFAULT_TRANSLATION). 다른 번역본에 있다고 통과시키면
+    // 화면에서는 한 절도 안 나오는 날이 그대로 나간다.
     const maxRow = db.exec(
-      `SELECT MAX(verse) AS m FROM verses WHERE book_id = ${bookId} AND chapter = ${chapter}`,
+      `SELECT MAX(verse) AS m FROM verses
+        WHERE book_id = ${bookId} AND chapter = ${chapter} AND translation = 'krv'`,
     );
     const maxVerse = maxRow[0]?.values?.[0]?.[0] ?? undefined;
     if (!maxVerse) {
