@@ -114,16 +114,19 @@ export async function turnPushOff(): Promise<{ error?: string }> {
  * 삼키면 "안 온다"만 남고 어디가 문제인지 알 수 없다(queuePush 와 다른 점).
  */
 export async function sendTestPush(): Promise<{ error?: string; sent?: number }> {
-  const { error: queueError } = await supabase.from('push_outbox').insert({
-    topic: 'notice',
-    title: '시험 알림입니다',
-    body: '이 알림이 보이면 준비가 끝난 것입니다.',
-    url: '/notice-board',
+  const { data, error } = await supabase.functions.invoke('send-push', {
+    body: {
+      enqueue: {
+        topic: 'notice',
+        title: '시험 알림입니다',
+        body: '이 알림이 보이면 준비가 끝난 것입니다.',
+        url: '/notice-board',
+      },
+    },
   });
-  if (queueError) return { error: `쌓기 실패: ${queueError.message}` };
-
-  const { data, error } = await supabase.functions.invoke('send-push');
   if (error) return { error: `보내기 실패: ${error.message}` };
+  const failed = (data as { error?: string } | null)?.error;
+  if (failed) return { error: failed };
 
   const sent = (data as { sent?: number } | null)?.sent ?? 0;
   if (sent === 0) {
@@ -140,16 +143,12 @@ export async function sendTestPush(): Promise<{ error?: string; sent?: number }>
  */
 export async function queuePush(topic: PushTopic, title: string, body: string, url: string) {
   try {
-    const { error } = await supabase.from('push_outbox').insert({
-      topic,
-      title,
-      body: body.replace(/\s+/g, ' ').trim().slice(0, 120),
-      url,
+    // **함수에 맡긴다.** 예전에는 앱이 push_outbox 에 직접 넣었는데, 글을 올려도
+    // 한 줄도 안 쌓였다 — RLS 가 막았고 여기서 그 오류를 삼켰다. 쓰는 것과
+    // 보내는 것을 함수 한 곳에서 하면 그 문제가 없어진다.
+    await supabase.functions.invoke('send-push', {
+      body: { enqueue: { topic, title, body, url } },
     });
-    if (error) return;
-
-    // 깨우기. 실패해도 줄은 남아 있으므로 다음 발행 때 함께 나간다.
-    await supabase.functions.invoke('send-push').catch(() => {});
   } catch {
     // 알림 때문에 글쓰기가 막히면 안 된다.
   }

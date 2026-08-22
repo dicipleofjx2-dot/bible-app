@@ -41,6 +41,86 @@ Deno.serve(async (req) => {
     { auth: { persistSession: false } },
   );
 
+  // 상태 조회 — "알림이 안 온다"를 가릴 때 쓴다. 숫자만 돌려주고 구독 내용은
+  // 절대 내보내지 않는다.
+  let body: Record<string, unknown> = {};
+  try {
+    body = await req.json();
+  } catch {
+    body = {};
+  }
+  if (body.stats) {
+    const subs = await db
+      .from("app_push_subscriptions")
+      .select("id", { count: "exact", head: true });
+    const outbox = await db.from("push_outbox").select("id", { count: "exact", head: true });
+    const unsent = await db
+      .from("push_outbox")
+      .select("id", { count: "exact", head: true })
+      .is("sent_at", null);
+    const recent = await db
+      .from("push_outbox")
+      .select("topic, title, sent_at, sent_count")
+      .order("created_at", { ascending: false })
+      .limit(5);
+    return json({
+      subscriptions: subs.count ?? 0,
+      outboxTotal: outbox.count ?? 0,
+      outboxUnsent: unsent.count ?? 0,
+      recent: recent.data ?? [],
+      vapidReady: true,
+    });
+  }
+
+  // 앱이 보낸 알림거리를 여기서 쌓는다.
+  //
+  // 예전에는 앱이 push_outbox 에 직접 넣었는데, 글을 올려도 한 줄도 안 쌓였다.
+  // RLS 가 막았고 앱은 그 오류를 삼켰다(알림 때문에 글쓰기가 막히면 안 되므로).
+  // 쓰는 길을 이리로 옮기면 그 문제가 통째로 없어진다 — 대신 **부른 사람이
+  // 관리자인지 여기서 확인한다.**
+  if (body.enqueue) {
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const asUser = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } }, auth: { persistSession: false } },
+    );
+    const { data: who } = await asUser.auth.getUser();
+    if (!who?.user) return json({ error: "로그인이 필요합니다." }, 401);
+
+    const { data: profile } = await db
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", who.user.id)
+      .maybeSingle();
+    if (!profile?.is_admin) return json({ error: "관리자만 보낼 수 있습니다." }, 403);
+
+    const job = body.enqueue as { topic?: string; title?: string; body?: string; url?: string };
+    if (job.topic !== "notice" && job.topic !== "shepherd_letter") {
+      return json({ error: "알 수 없는 종류입니다." }, 400);
+    }
+    const { error } = await db.from("push_outbox").insert({
+      topic: job.topic,
+      title: String(job.title ?? "").slice(0, 120),
+      body: String(job.body ?? "").replace(/\s+/g, " ").trim().slice(0, 120),
+      url: String(job.url ?? "/"),
+      created_by: who.user.id,
+    });
+    if (error) return json({ error: `쌓기 실패: ${error.message}` }, 500);
+  }
+
+  // 시험 발송 — RLS 를 거치지 않고 여기서 바로 한 줄 쌓는다. "구독은 됐는데
+  // 알림이 안 온다"가 보내는 길 문제인지 쌓는 길 문제인지 가른다.
+  if (body.test) {
+    const { error } = await db.from("push_outbox").insert({
+      topic: "notice",
+      title: "시험 알림입니다",
+      body: "이 알림이 보이면 준비가 끝난 것입니다.",
+      url: "/notice-board",
+    });
+    if (error) return json({ error: `쌓기 실패: ${error.message}` }, 500);
+  }
+
   const { data: pending } = await db
     .from("push_outbox")
     .select("id, topic, title, body, url")
