@@ -277,8 +277,11 @@ function WordCardEditor({
 
           <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1 }}>
             <View style={styles.cardPreview} onLayout={handleCardLayout}>
+              {/* 내가 고른 사진 > 기본 그림 > 색. 앞의 것이 있으면 뒤는 안 쓴다. */}
               {backgroundImageUri ? (
                 <Image source={{ uri: backgroundImageUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+              ) : template.image ? (
+                <Image source={template.image} style={StyleSheet.absoluteFill} resizeMode="cover" />
               ) : (
                 <LinearGradient colors={template.colors} style={StyleSheet.absoluteFill} />
               )}
@@ -350,7 +353,11 @@ function WordCardEditor({
                       styles.templateSwatchWrap,
                       !backgroundImageUri && t.id === template.id && { borderColor: theme.backgroundSelected },
                     ]}>
-                    <LinearGradient colors={t.colors} style={styles.templateSwatch} />
+                    {t.image ? (
+                      <Image source={t.image} style={styles.templateSwatch} resizeMode="cover" />
+                    ) : (
+                      <LinearGradient colors={t.colors} style={styles.templateSwatch} />
+                    )}
                     <ThemedText type="small">{t.name}</ThemedText>
                   </Pressable>
                 ))}
