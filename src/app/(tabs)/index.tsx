@@ -2,7 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -18,6 +18,7 @@ import { getMeditationNote } from '@/db/userData';
 import { getLatestLetter, type ShepherdLetter } from '@/db/shepherdLetters';
 import { getLatestNotice, type Notice } from '@/db/notices';
 import { hasUnseenLetter } from '@/lib/shepherdLetterBadge';
+import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
 import type { Href } from 'expo-router';
 
 function todayDateString() {
@@ -240,7 +241,14 @@ export default function HomeScreen() {
                   key={tile.label}
                   onPress={() => {
                     if (tile.externalUrl) {
-                      Linking.openURL(tile.externalUrl);
+                      // 이름 붙인 창으로 연다 — 같은 곳을 여러 탭에 띄우지 않는다.
+                      // 자세한 이유는 lib/openExternal.ts.
+                      openAppWindow(
+                        tile.externalUrl,
+                        tile.externalUrl === SMART_BULLETIN_URL
+                          ? APP_WINDOW.smartBulletin
+                          : APP_WINDOW.churchSite,
+                      );
                       return;
                     }
                     router.push(tile.requiresAuth && !session ? '/profile' : tile.href);

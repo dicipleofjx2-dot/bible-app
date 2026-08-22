@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -38,6 +38,7 @@ import {
 
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
+import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
 
 export default function ReadingHelperHomeScreen() {
   const theme = useTheme();
@@ -240,7 +241,7 @@ export default function ReadingHelperHomeScreen() {
               <Pressable
                 onPress={() => {
                   const url = bskoreaReadUrl(chapters[0].bookId, chapters[0].chapter, 1);
-                  if (url) Linking.openURL(url);
+                  if (url) openAppWindow(url, APP_WINDOW.bibleReader);
                 }}
                 style={({ pressed }) => [
                   styles.primaryButton,

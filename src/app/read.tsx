@@ -2,15 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Linking,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -48,6 +40,7 @@ import {
   type VerseMark,
 } from '@/db/userData';
 import { pingCheckin } from '@/db/r2m';
+import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
 
 const MIN_FONT_SIZE = 16;
 // 성경은 오래 읽는 글이라 위쪽을 넉넉히 열어 둔다. 눈이 불편한 분들이
@@ -550,7 +543,7 @@ export default function ReadScreen() {
                       chapter,
                       1,
                     );
-                    if (url) Linking.openURL(url);
+                    if (url) openAppWindow(url, APP_WINDOW.bibleReader);
                   }}
                   style={[styles.linkOnlyButton, { backgroundColor: theme.backgroundSelected }]}>
                   <ThemedText type="smallBold">

@@ -1,7 +1,7 @@
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 
@@ -27,6 +27,7 @@ import { getIsAdmin } from '@/db/profile';
 import { getPublicShepherdQt, getShepherdQtForAdmin, upsertShepherdQt, type ShepherdQt } from '@/db/shepherdQt';
 import { pingCheckin } from '@/db/r2m';
 import { EMPTY_QT_ANSWERS, QUESTION_GROUPS, parseQtAnswers } from '@/constants/qt-questions';
+import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
 
 function todayDateString() {
   const d = new Date();
@@ -201,7 +202,7 @@ export default function MeditationScreen() {
                 <Pressable
                   onPress={() => {
                     const url = bskoreaReadUrl(entry.bookId, entry.chapter, entry.startVerse);
-                    if (url) Linking.openURL(url);
+                    if (url) openAppWindow(url, APP_WINDOW.bibleReader);
                   }}
                   style={[styles.readButton, { backgroundColor: theme.backgroundSelected }]}>
                   <ThemedText type="smallBold">📖 대한성서공회에서 본문 읽기</ThemedText>
