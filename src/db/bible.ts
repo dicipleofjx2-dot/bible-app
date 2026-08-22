@@ -2,7 +2,15 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 // 'esv' 는 **DB 에 없는 역본**이다. 본문을 앱에 담지 않고 esv.org 로 보내기만
 // 하므로 verses 표에는 한 절도 들어 있지 않다. 고르면 링크 안내가 뜬다.
-export type Translation = 'krv' | 'ko_ko' | 'en_kjv' | 'open_ko' | 'open_en' | 'esv';
+export type Translation =
+  | 'krv'
+  | 'ko_ko'
+  | 'en_kjv'
+  | 'open_ko'
+  | 'open_en'
+  | 'esv'
+  | 'niv'
+  | 'klb';
 
 // 개역한글 (ko_ko) is kept out of this user-facing list (superseded by 개역개정)
 // but its rows stay in the database so existing notes/highlights that
@@ -20,7 +28,9 @@ export type Translation = 'krv' | 'ko_ko' | 'en_kjv' | 'open_ko' | 'open_en' | '
 export const TRANSLATIONS: { code: Translation; label: string; linkOnly?: boolean }[] = [
   { code: 'open_ko', label: '오픈성경' },
   { code: 'krv', label: '개역개정', linkOnly: true },
+  { code: 'klb', label: '현대인의 성경', linkOnly: true },
   { code: 'esv', label: 'ESV', linkOnly: true },
+  { code: 'niv', label: 'NIV', linkOnly: true },
   { code: 'en_kjv', label: 'KJV' },
   { code: 'open_en', label: 'Open Bible' },
 ];

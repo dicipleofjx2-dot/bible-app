@@ -17,7 +17,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { bskoreaReadUrl, esvReadUrl } from '@/lib/bskorea';
+import { externalReadUrl, LINK_SOURCE_LABEL } from '@/lib/bskorea';
 import { useAuth } from '@/lib/auth';
 import {
   getBooks,
@@ -543,20 +543,23 @@ export default function ReadScreen() {
                 </ThemedText>
                 <Pressable
                   onPress={() => {
-                    const url =
-                      translation === 'esv'
-                        ? esvReadUrl(currentBook.name_en, chapter, 1)
-                        : bskoreaReadUrl(currentBook.id, chapter, 1);
+                    const url = externalReadUrl(
+                      translation,
+                      currentBook.id,
+                      currentBook.name_en,
+                      chapter,
+                      1,
+                    );
                     if (url) Linking.openURL(url);
                   }}
                   style={[styles.linkOnlyButton, { backgroundColor: theme.backgroundSelected }]}>
                   <ThemedText type="smallBold">
-                    📖 {translation === 'esv' ? 'ESV.org' : '대한성서공회'}에서 읽기
+                    📖 {LINK_SOURCE_LABEL[translation] ?? '출판사 사이트'}에서 읽기
                   </ThemedText>
                 </Pressable>
                 <ThemedText type="small" themeColor="textSecondary" style={styles.linkOnlyNote}>
-                  {translation === 'esv' ? 'ESV' : '개역개정'}는 출판사 사이트에서 보실 수 있습니다.
-                  앱에서 바로 읽으시려면 위에서 오픈성경을 골라 주세요.
+                  이 역본은 출판사 사이트에서 보실 수 있습니다. 앱에서 바로 읽으시려면 위에서
+                  오픈성경을 골라 주세요.
                 </ThemedText>
               </View>
             ) : null}

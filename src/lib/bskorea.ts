@@ -60,3 +60,54 @@ export function esvReadUrl(bookNameEn: string, chapter: number, startVerse: numb
   const ref = `${name} ${chapter}:${Math.max(1, startVerse)}`;
   return `https://www.esv.org/${encodeURIComponent(ref).replace(/%20/g, '+')}/`;
 }
+
+/**
+ * BibleGateway 로 보낸다 — NIV·현대인의 성경처럼 그 사이트가 공개한 역본.
+ *
+ * BibleGateway 는 NIV 판권을 가진 Zondervan 계열이 운영한다. 본문을 우리가
+ * 복제하지 않고 그 자리로 안내만 하므로 성서공회·esv.org 와 같은 방식이다.
+ *
+ * 주소 형식은 2026-08-22에 확인했다.
+ *   https://www.biblegateway.com/passage/?search=Ezekiel%209:6&version=NIV
+ * 책 이름은 영어(books.name_en)를 쓴다. 한글 역본(KLB)이라도 검색어는 영어여야
+ * 한다 — 사이트가 영어 책 이름으로 찾는다.
+ */
+export function bibleGatewayUrl(
+  bookNameEn: string,
+  chapter: number,
+  startVerse: number,
+  version: string,
+): string | null {
+  const name = bookNameEn.trim();
+  if (!name) return null;
+  const ref = `${name} ${chapter}:${Math.max(1, startVerse)}`;
+  return `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}&version=${version}`;
+}
+
+/** 링크로만 보는 역본이 어디로 가는지 한 곳에 모은다. */
+export const LINK_SOURCE_LABEL: Record<string, string> = {
+  krv: '대한성서공회',
+  klb: 'Bible Gateway',
+  esv: 'ESV.org',
+  niv: 'Bible Gateway',
+};
+
+/**
+ * 이 역본을 바깥에서 여는 주소.
+ *
+ * 화면마다 if 를 늘어놓으면 역본을 더할 때 빠뜨리는 곳이 생긴다. 여기 한 곳만
+ * 고치면 큐티·성경읽기·통독이 함께 따라온다.
+ */
+export function externalReadUrl(
+  translation: string,
+  bookId: number,
+  bookNameEn: string,
+  chapter: number,
+  startVerse: number,
+): string | null {
+  if (translation === 'krv') return bskoreaReadUrl(bookId, chapter, startVerse);
+  if (translation === 'esv') return esvReadUrl(bookNameEn, chapter, startVerse);
+  if (translation === 'niv') return bibleGatewayUrl(bookNameEn, chapter, startVerse, 'NIV');
+  if (translation === 'klb') return bibleGatewayUrl(bookNameEn, chapter, startVerse, 'KLB');
+  return null;
+}
