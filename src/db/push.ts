@@ -108,6 +108,31 @@ export async function turnPushOff(): Promise<{ error?: string }> {
 }
 
 /**
+ * 시험 알림 — 관리자가 글을 올리지 않고 확인해 볼 수 있게.
+ *
+ * 무엇이 막혔는지 가려 준다. 실패하면 그 이유를 그대로 돌려준다 — 조용히
+ * 삼키면 "안 온다"만 남고 어디가 문제인지 알 수 없다(queuePush 와 다른 점).
+ */
+export async function sendTestPush(): Promise<{ error?: string; sent?: number }> {
+  const { error: queueError } = await supabase.from('push_outbox').insert({
+    topic: 'notice',
+    title: '시험 알림입니다',
+    body: '이 알림이 보이면 준비가 끝난 것입니다.',
+    url: '/notice-board',
+  });
+  if (queueError) return { error: `쌓기 실패: ${queueError.message}` };
+
+  const { data, error } = await supabase.functions.invoke('send-push');
+  if (error) return { error: `보내기 실패: ${error.message}` };
+
+  const sent = (data as { sent?: number } | null)?.sent ?? 0;
+  if (sent === 0) {
+    return { error: '보낼 곳이 없습니다. 이 기기에서 먼저 「새 글 알림 받기」를 켜 주세요.' };
+  }
+  return { sent };
+}
+
+/**
  * 보낼 거리를 쌓고, 보내는 함수를 깨운다.
  *
  * 글쓰기와 한 몸으로 묶지 않는다 — 알림이 실패해도 글은 이미 올라가 있어야

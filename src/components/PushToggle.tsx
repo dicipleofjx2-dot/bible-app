@@ -8,6 +8,7 @@ import {
   isPushOn,
   isPushSupported,
   needsHomeScreen,
+  sendTestPush,
   turnPushOff,
   turnPushOn,
 } from '@/db/push';
@@ -22,7 +23,7 @@ import {
  * 대신 전해 주는 방식이라 그렇다. 없는 자리에 단추만 두면 눌러도 아무 일이
  * 안 일어나므로 아예 감춘다.
  */
-export function PushToggle() {
+export function PushToggle({ isAdmin = false }: { isAdmin?: boolean }) {
   const theme = useTheme();
   const [supported, setSupported] = useState<boolean | null>(null);
   const [homeNeeded, setHomeNeeded] = useState(false);
@@ -91,6 +92,25 @@ export function PushToggle() {
           )}
         </Pressable>
       </View>
+      {/* 관리자는 글을 올리지 않고도 확인해 볼 수 있어야 한다. 안 그러면
+          시험하려고 알림마당에 진짜 글을 올렸다 지워야 한다. */}
+      {isAdmin && on ? (
+        <Pressable
+          disabled={busy}
+          onPress={async () => {
+            setMessage(null);
+            setBusy(true);
+            const result = await sendTestPush();
+            setBusy(false);
+            setMessage(result.error ?? `시험 알림을 ${result.sent}곳에 보냈습니다.`);
+          }}
+          style={styles.testButton}>
+          <ThemedText type="small" themeColor="textSecondary">
+            시험 알림 보내기
+          </ThemedText>
+        </Pressable>
+      ) : null}
+
       {message ? (
         <ThemedText type="small" themeColor="support">
           {message}
@@ -104,6 +124,7 @@ const styles = StyleSheet.create({
   card: { borderRadius: Spacing.three, padding: Spacing.four, gap: Spacing.two },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   textCol: { flex: 1, gap: Spacing.one },
+  testButton: { minHeight: 44, justifyContent: 'center' },
   button: {
     minHeight: 44,
     minWidth: 64,

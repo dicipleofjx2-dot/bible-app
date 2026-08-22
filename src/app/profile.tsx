@@ -181,7 +181,7 @@ export default function ProfileScreen() {
             </View>
 
             {/* 새 글 알림. 웹에서만 보인다 — 폰 앱에는 이 기능이 없다. */}
-            <PushToggle />
+            <PushToggle isAdmin={isAdmin} />
 
             {isAdmin && (
               <View style={styles.adminLinkGroup}>
