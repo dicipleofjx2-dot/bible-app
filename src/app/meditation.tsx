@@ -1,7 +1,7 @@
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 
@@ -10,6 +10,7 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { bskoreaReadUrl } from '@/lib/bskorea';
 import {
   getFirstQtEntry,
   getLastQtEntry,
@@ -41,7 +42,10 @@ export default function MeditationScreen() {
   const params = useLocalSearchParams<{ date?: string }>();
   const { session } = useAuth();
 
-  const [passage, setPassage] = useState<Verse[]>([]);
+  // 본문 절을 담지 않는다. 개역개정은 대한성서공회 저작물이라 앱에 담아 두지
+  // 않고, 그 사이트로 보내 거기서 읽게 한다. 저장에 필요한 범위는 큐티 일정이
+  // 이미 들고 있으므로 그것을 그대로 쓴다.
+  const [entry, setEntry] = useState<QtEntry | null>(null);
   const [referenceLabel, setReferenceLabel] = useState('');
   const [currentDate, setCurrentDate] = useState<string | null>(null);
   const [navigating, setNavigating] = useState(false);
@@ -55,8 +59,7 @@ export default function MeditationScreen() {
   const [publicQt, setPublicQt] = useState<ShepherdQt | null>(null);
 
   async function showQtEntry(qt: QtEntry) {
-    const verses = await getVersesForRange(db, qt.bookId, qt.chapter, qt.startVerse, qt.endVerse, DEFAULT_TRANSLATION);
-    setPassage(verses);
+    setEntry(qt);
     setReferenceLabel(qt.label);
     setCurrentDate(qt.date);
 
@@ -133,15 +136,13 @@ export default function MeditationScreen() {
   }
 
   async function saveNote() {
-    const first = passage[0];
-    const last = passage[passage.length - 1];
-    if (!first || !last || !currentDate) return;
+    if (!entry || !currentDate) return;
     await upsertMeditationNote({
       date: currentDate,
-      bookId: first.book_id,
-      chapter: first.chapter,
-      startVerse: first.verse,
-      endVerse: last.verse,
+      bookId: entry.bookId,
+      chapter: entry.chapter,
+      startVerse: entry.startVerse,
+      endVerse: entry.endVerse,
       label: referenceLabel,
       note,
       qtAnswers,
@@ -151,10 +152,10 @@ export default function MeditationScreen() {
     if (isAdmin && session) {
       await upsertShepherdQt({
         date: currentDate,
-        bookId: first.book_id,
-        chapter: first.chapter,
-        startVerse: first.verse,
-        endVerse: last.verse,
+        bookId: entry.bookId,
+        chapter: entry.chapter,
+        startVerse: entry.startVerse,
+        endVerse: entry.endVerse,
         label: referenceLabel,
         qtAnswers,
         reflection: note,
@@ -180,23 +181,34 @@ export default function MeditationScreen() {
               <ThemedText type="small" themeColor="textSecondary">
                 본문
               </ThemedText>
-              {passage.length > 0 && (
+              {entry && (
                 <ThemedText type="smallBold" themeColor="textSecondary">
                   {referenceLabel}
                 </ThemedText>
               )}
             </View>
 
-            {passage.length > 0 && (
+            {/*
+              본문을 앱에 싣지 않는다. 개역개정은 대한성서공회 저작물이라,
+              복제해 두는 대신 저작권자가 직접 제공하는 자리로 보낸다. 눌렀을 때
+              그 장의 그 절로 바로 맞춰지도록 주소에 장·절을 실어 보낸다.
+            */}
+            {entry && (
               <View style={styles.passageText}>
-                {passage.map((v) => (
-                  <ThemedText key={v.id} style={styles.verseText}>
-                    <ThemedText type="smallBold" themeColor="textSecondary">
-                      {v.verse}{' '}
-                    </ThemedText>
-                    {v.text}
-                  </ThemedText>
-                ))}
+                <ThemedText type="title" style={styles.referenceBig}>
+                  {referenceLabel}
+                </ThemedText>
+                <Pressable
+                  onPress={() => {
+                    const url = bskoreaReadUrl(entry.bookId, entry.chapter, entry.startVerse);
+                    if (url) Linking.openURL(url);
+                  }}
+                  style={[styles.readButton, { backgroundColor: theme.backgroundSelected }]}>
+                  <ThemedText type="smallBold">📖 대한성서공회에서 본문 읽기</ThemedText>
+                </Pressable>
+                <ThemedText type="small" themeColor="textSecondary">
+                  개역개정 본문은 대한성서공회 성경읽기에서 보실 수 있습니다.
+                </ThemedText>
               </View>
             )}
 
@@ -384,6 +396,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: Spacing.two,
+  },
+  referenceBig: { textAlign: 'center' },
+  readButton: {
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Spacing.three,
+    paddingHorizontal: Spacing.four,
   },
   passageText: {
     gap: Spacing.one,

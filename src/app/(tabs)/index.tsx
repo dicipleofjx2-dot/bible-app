@@ -74,7 +74,6 @@ export default function HomeScreen() {
   const { session } = useAuth();
 
   const [verseRef, setVerseRef] = useState('');
-  const [verseExcerpt, setVerseExcerpt] = useState('');
   const [qtDoneToday, setQtDoneToday] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [enrollment, setEnrollment] = useState<ActiveEnrollment | null>(null);
@@ -89,9 +88,9 @@ export default function HomeScreen() {
         let qt = await getQtEntryForDate(db, today);
         if (!qt) qt = await getFirstQtEntry(db);
         if (qt) {
-          const verses = await getVersesForRange(db, qt.bookId, qt.chapter, qt.startVerse, qt.endVerse, DEFAULT_TRANSLATION);
+          // 본문은 싣지 않는다. 개역개정은 대한성서공회 저작물이라 앱에 담아 두지
+          // 않고 그 사이트로 보낸다(큐티 화면도 같다). 여기서는 범위만 알린다.
           setVerseRef(qt.label);
-          setVerseExcerpt(verses.map((v) => v.text).join(' '));
         }
         const note = await getMeditationNote(today).catch(() => null);
         setQtDoneToday(!!note);
@@ -158,8 +157,8 @@ export default function HomeScreen() {
                 <ThemedText type="smallBold" style={styles.heroRef}>
                   {verseRef}
                 </ThemedText>
-                <ThemedText style={styles.heroExcerpt} numberOfLines={4}>
-                  {verseExcerpt}
+                <ThemedText style={styles.heroExcerpt} numberOfLines={2}>
+                  본문은 QT 화면에서 대한성서공회 성경읽기로 열립니다.
                 </ThemedText>
               </>
             ) : (
