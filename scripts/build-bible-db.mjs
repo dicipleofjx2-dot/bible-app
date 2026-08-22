@@ -89,7 +89,15 @@ function buildQtSchedule(db, koData) {
     }
     const bookId = bookIndex + 1;
     const chapter = Number(chapterRaw);
-    const maxVerse = koData[bookIndex].chapters[chapter - 1]?.length;
+    // **앱이 실제로 읽는 표**를 기준으로 잰다.
+    //
+    // 예전에는 개역한글 원본(koData)의 절 수를 썼는데, 그 파일은 시편 118편이
+    // 9절까지밖에 없다(실제로는 29절). 원본이 깨진 곳에서는 멀쩡한 일정도
+    // 틀린 것으로 보이고, 반대로 진짜 틀린 곳을 놓친다.
+    const maxRow = db.exec(
+      `SELECT MAX(verse) AS m FROM verses WHERE book_id = ${bookId} AND chapter = ${chapter}`,
+    );
+    const maxVerse = maxRow[0]?.values?.[0]?.[0] ?? undefined;
     if (!maxVerse) {
       // Known gap in the bundled 개역한글 source data (e.g. 욥기 42장 has 0
       // verses there). Skip this one day rather than fail the whole build;
@@ -113,6 +121,18 @@ function buildQtSchedule(db, koData) {
       endVerse = Number(match[2]);
     } else {
       throw new Error(`qt_schedule.xlsx: unrecognized passage format "${label}" (date ${date})`);
+    }
+
+    // 범위가 실제 본문과 맞는지 여기서 막는다.
+    //
+    // 예전에는 그냥 넣었다. 그래서 "에스겔 9장 13절-끝"(9장은 11절까지)처럼
+    // 한 절도 안 나오는 날이 16일 섞여 들어갔고, 앱에서는 그날 큐티가 통째로
+    // 비어 보였다. 빌드는 멀쩡히 끝나므로 아무도 몰랐다.
+    if (startVerse > endVerse || endVerse > maxVerse || startVerse < 1) {
+      throw new Error(
+        `qt_schedule.xlsx: ${bookName} ${chapter}장은 ${maxVerse}절까지인데 ` +
+          `${startVerse}-${endVerse}절로 적혀 있습니다 (${date}, "${label}")`,
+      );
     }
 
     insertQt.run([date, bookId, chapter, startVerse, endVerse, label]);
