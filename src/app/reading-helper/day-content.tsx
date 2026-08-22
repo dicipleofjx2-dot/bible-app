@@ -94,6 +94,14 @@ export default function ReadingHelperDayContentScreen() {
                 </ThemedText>
               </Pressable>
 
+              {/* 3초 OX는 오늘 것만 열려 있었다. 도입 전에 지나간 날들이야말로
+                  복습할 자리라, 지난날에도 같은 길을 낸다. */}
+              <Pressable
+                onPress={() => router.push({ pathname: '/reading-helper/speed-quiz', params: { date } })}
+                style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
+                <ThemedText type="smallBold">⏱️ 3초 성경 OX 다시 하기</ThemedText>
+              </Pressable>
+
               <Pressable
                 onPress={() => router.push({ pathname: '/reading-helper/memorize', params: { date } })}
                 style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>

@@ -144,6 +144,14 @@ export default function ReadingHelperDayDetailScreen() {
               </Pressable>
 
               <Pressable
+                onPress={() => router.push({ pathname: '/reading-helper/speed-quiz', params: { date } })}
+                style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
+                <ThemedText type="smallBold">
+                  {isPreview ? '⏱️ 3초 성경 OX 미리 해보기' : '⏱️ 3초 성경 OX 다시 해보기'}
+                </ThemedText>
+              </Pressable>
+
+              <Pressable
                 onPress={() => router.push({ pathname: '/reading-helper/memorize', params: { date } })}
                 style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
                 <ThemedText type="smallBold">
