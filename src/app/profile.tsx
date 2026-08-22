@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PushToggle } from '@/components/PushToggle';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -178,6 +179,9 @@ export default function ProfileScreen() {
                 </ThemedText>
               ) : null}
             </View>
+
+            {/* 새 글 알림. 웹에서만 보인다 — 폰 앱에는 이 기능이 없다. */}
+            <PushToggle />
 
             {isAdmin && (
               <View style={styles.adminLinkGroup}>

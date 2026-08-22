@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { queuePush } from '@/db/push';
 
 export type Notice = {
   id: string;
@@ -59,12 +60,21 @@ export async function getAllNoticesForAdmin(): Promise<Notice[]> {
 }
 
 export async function insertNotice(entry: NoticeEntry): Promise<{ error?: string }> {
-  const { error } = await supabase.from('notices').insert({
-    title: entry.title,
-    body_text: entry.bodyText,
-    is_published: true,
-  });
-  return { error: error?.message };
+  const { data, error } = await supabase
+    .from('notices')
+    .insert({ title: entry.title, body_text: entry.bodyText, is_published: true })
+    .select('id')
+    .maybeSingle();
+  if (error) return { error: error.message };
+
+  // 글이 올라간 뒤에 따로 보낸다(shepherdLetters 와 같은 이유).
+  await queuePush(
+    'notice',
+    '알림마당에 새 글이 올라왔어요',
+    entry.title,
+    data?.id ? `/notice-board/${data.id}` : '/notice-board',
+  );
+  return {};
 }
 
 export async function deleteNotice(id: string): Promise<{ error?: string }> {
