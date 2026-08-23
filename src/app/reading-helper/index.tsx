@@ -22,6 +22,8 @@ import {
   WORD_CARD_MIN_QUIZ_SCORE,
   hasLiveSession,
   type PointsSummary,
+  getTogetherToday,
+  getMissedDates,
 } from '@/lib/readingHelper/db';
 import { confirmDestructive } from '@/lib/readingHelper/confirm';
 import {
@@ -58,6 +60,8 @@ export default function ReadingHelperHomeScreen() {
   const [todayPoints, setTodayPoints] = useState(0);
   const [resetting, setResetting] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [together, setTogether] = useState<{ readToday: number; joinedTotal: number } | null>(null);
+  const [missed, setMissed] = useState<string[]>([]);
 
   // Guards against a slow, now-stale load() call (e.g. from focus) clobbering
   // state from a newer one (e.g. the 4am auto-refresh firing moments later).
@@ -84,6 +88,7 @@ export default function ReadingHelperHomeScreen() {
       setPoints(null);
       setTodayPoints(0);
       setChecking(false);
+      getTogetherToday().then(setTogether).catch(() => {});
       if (!guestDay) {
         setContentLoading(false);
         return;
@@ -141,6 +146,10 @@ export default function ReadingHelperHomeScreen() {
         (record?.speed_quiz_success ? SPEED_QUIZ_POINTS : 0)
     );
     setChecking(false);
+    getTogetherToday().then(setTogether).catch(() => {});
+    getMissedDates(userId, startDate, todayDateString())
+      .then(setMissed)
+      .catch(() => setMissed([]));
 
     if (!algoDay) {
       setContentLoading(false);
@@ -341,6 +350,44 @@ export default function ReadingHelperHomeScreen() {
             </>
           )}
 
+          {missed.length > 0 ? (
+            /* 돌아올 문.
+               하루 빠지면 진도가 밀리고, 이틀 밀리면 대개 그만둔다. 지금까지는
+               빠진 날이 그냥 빠진 채로 남았다 — 어디서부터 따라잡아야 하는지
+               화면 어디에도 없었다.
+
+               「N일 밀렸어요」로 몰아세우지 않는다. 가장 오래된 빠진 날 하나만
+               가리켜, 오늘 한 걸음만 더 걸으면 되게 한다. */
+            <Pressable
+              onPress={() =>
+                router.push({ pathname: '/reading-helper/day-detail', params: { date: missed[0] } })
+              }
+              style={({ pressed }) => [
+                styles.missedCard,
+                { backgroundColor: theme.backgroundElement },
+                pressed && styles.pressed,
+              ]}>
+              <ThemedText type="small">
+                못 읽고 지나간 날이 <ThemedText type="smallBold">{missed.length}일</ThemedText> 있어요.{'\n'}
+                <ThemedText type="smallBold">{missed[0]}</ThemedText>부터 이어서 읽어 보실래요?
+              </ThemedText>
+            </Pressable>
+          ) : null}
+
+          {together && together.readToday > 0 ? (
+            /* 「나만 하는 게 아니구나」 한 줄.
+               이름은 오지 않는다(0044) — 누가 했는지 보이면 못 한 사람이
+               부끄러워 아예 안 들어온다. 도우려던 것이 정확히 반대로 작동한다.
+               0명일 때는 아예 안 보여 준다. "오늘 0명이 읽었어요" 는 격려가
+               아니라 찬물이다(새벽에 제일 먼저 여는 사람이 늘 있다). */
+            <View style={[styles.togetherRow, { backgroundColor: theme.backgroundElement }]}>
+              <ThemedText type="small">
+                🌿 오늘 <ThemedText type="smallBold">{together.readToday}명</ThemedText>이 함께 읽었어요
+                {together.joinedTotal > 0 ? ` · 함께 걷는 분 ${together.joinedTotal}명` : ''}
+              </ThemedText>
+            </View>
+          ) : null}
+
           <Pressable
             onPress={toggleReadingComplete}
             style={({ pressed }) => [styles.completeRow, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
@@ -486,6 +533,19 @@ export default function ReadingHelperHomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  missedCard: {
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 12,
+  },
+  togetherRow: {
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
   guestBanner: {
     borderRadius: 12,
     paddingHorizontal: 14,

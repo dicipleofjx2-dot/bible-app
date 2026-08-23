@@ -229,3 +229,48 @@ export async function hasLiveSession(): Promise<boolean> {
   const { data: stored } = await supabase.auth.getSession();
   return !!stored.session;
 }
+
+/**
+ * 오늘 몇 명이 함께 읽었는가.
+ *
+ * 이름은 오지 않는다(0044). 숫자 둘뿐이다 — 누가 했는지 보이면 못 한 사람이
+ * 부끄러워 아예 안 들어오기 때문이다.
+ *
+ * 실패해도 던지지 않는다. 이건 곁들이는 한 줄이라, 못 세었다고 통독 화면이
+ * 통째로 안 뜨면 안 된다.
+ */
+export async function getTogetherToday(): Promise<{ readToday: number; joinedTotal: number } | null> {
+  const { data, error } = await supabase.rpc('reading_helper_today_together');
+  if (error || !data || data.length === 0) return null;
+  const row = Array.isArray(data) ? data[0] : data;
+  return { readToday: row.read_today ?? 0, joinedTotal: row.joined_total ?? 0 };
+}
+
+/**
+ * 통독을 마치지 **못한** 날들. 어제까지만 본다.
+ *
+ * 오늘은 아직 하루가 안 갔으니 빠뜨린 것이 아니다. 시작일 전도 아니다.
+ *
+ * 「기록이 있느냐」가 아니라 「통독을 완료했느냐」로 센다 — 퀴즈만 풀어 본 날을
+ * 다 한 것으로 치면, 정작 본문을 안 읽은 날이 조용히 묻힌다.
+ */
+export async function getMissedDates(userId: string, startDate: string, todayStr: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('reading_helper_day_records')
+    .select('date, reading_complete')
+    .eq('user_id', userId);
+  if (error) throw error;
+  const done = new Set(
+    (data ?? []).filter((r) => r.reading_complete).map((r) => r.date as string)
+  );
+
+  const missed: string[] = [];
+  const d = new Date(`${startDate}T00:00:00`);
+  const end = new Date(`${todayStr}T00:00:00`);
+  while (d < end) {
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    if (!done.has(key)) missed.push(key);
+    d.setDate(d.getDate() + 1);
+  }
+  return missed;
+}
