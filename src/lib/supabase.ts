@@ -33,7 +33,13 @@ export const supabase = createClient(supabaseUrl ?? '', supabaseAnonKey ?? '', {
     storage: isServer ? noopStorage : AsyncStorage,
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false,
+    // 카카오 로그인은 브라우저를 카카오로 보냈다가 #access_token=... 을 달고
+    // 돌아온다. 이걸 켜 두어야 supabase-js 가 그 조각을 주워 세션을 연다.
+    //
+    // 프리렌더(isServer)에서는 켜면 안 된다 — window 도 location 도 없다.
+    // 네이티브(앱)에는 주소창이 없으므로 여기서 할 일이 없다. 거기서는
+    // openAuthSessionAsync 가 받아 온 주소를 auth.tsx 가 직접 푼다.
+    detectSessionInUrl: Platform.OS === 'web' && !isServer,
   },
 });
 
