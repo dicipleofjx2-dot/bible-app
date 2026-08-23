@@ -51,6 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   async function signInWithKakao() {
     const isWeb = Platform.OS === 'web';
+    // ⚠️ 끝의 슬래시를 지우지 말 것.
+    //
+    // Supabase 허용목록은 `https://…vercel.app/**` 로 적혀 있는데, 그 `/**` 는
+    // **경로가 있어야** 맞는다. `window.location.origin` 만 보내면(슬래시 없음)
+    // 목록에 없는 주소로 판정돼, 카카오 로그인은 성공하고도 Site URL
+    // (http://localhost:3000)로 튕긴다 — 폰에서는 그냥 죽은 화면이라
+    // "로그인했는데 앱이 다운됐다"로 보인다. 2026-08-23 에 실제로 그랬다.
     const redirectTo = isWeb
       ? `${window.location.origin}/`
       : Linking.createURL('/');
