@@ -545,13 +545,15 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
   },
+  // 배경 넷이 다 옅은 수채화라, 검은 알약에 흰 글씨는 흐릿하게만 보인다.
+  // 밝은 알약에 어두운 글씨로 뒤집는다.
   watermarkPill: {
     paddingHorizontal: Spacing.two,
     paddingVertical: Spacing.half,
     borderRadius: 999,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: 'rgba(255,255,255,0.75)',
   },
-  watermarkText: { fontSize: 11, color: '#fff', fontWeight: '600' },
+  watermarkText: { fontSize: 11, color: '#4A3728', fontWeight: '600' },
   templateRow: { flexDirection: 'row', gap: Spacing.two, justifyContent: 'center', flexWrap: 'wrap' },
   templateSwatchWrap: {
     alignItems: 'center',
