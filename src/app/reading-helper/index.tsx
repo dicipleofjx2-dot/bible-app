@@ -64,8 +64,44 @@ export default function ReadingHelperHomeScreen() {
   const loadIdRef = useRef(0);
 
   const load = useCallback(async () => {
-    if (!userId) return;
     const loadId = ++loadIdRef.current;
+
+    // 로그인 없이 들어온 경우 — **문을 막지 않는다.**
+    //
+    // 예전에는 여기서 그냥 돌아가 버려서, 로그인 안 한 사람에게는 빙글빙글 도는
+    // 원만 남았다. 로그인하라는 말조차 없어서 고장으로 보인다.
+    //
+    // 통독 계획은 시작일만 있으면 계산되고 해설·퀴즈·암송구절은 누구나 읽을 수
+    // 있다. 그래서 **오늘 시작한 사람 기준(1일차)**으로 그대로 보여 준다. 저장이
+    // 필요한 것(통독 완료·포인트·점수)만 로그인으로 안내한다.
+    if (!userId) {
+      const guestStart = todayDateString();
+      const guestDay = buildFullPlan(guestStart)[0] ?? null;
+      if (loadIdRef.current !== loadId) return;
+      setDay(guestDay);
+      setReadingCompleteState(false);
+      setTodayQuizScore(0);
+      setPoints(null);
+      setTodayPoints(0);
+      setChecking(false);
+      if (!guestDay) {
+        setContentLoading(false);
+        return;
+      }
+      setChapters(guestDay.chapters);
+      setContentLoading(true);
+      setContentError(false);
+      try {
+        const content = await getDayContentForDay(guestStart, 1);
+        if (loadIdRef.current === loadId) setDayContent(content);
+      } catch {
+        if (loadIdRef.current === loadId) setContentError(true);
+      } finally {
+        if (loadIdRef.current === loadId) setContentLoading(false);
+      }
+      return;
+    }
+
     let startDate = await getStartDate(userId);
     if (!startDate) {
       // 로그인이 만료되면 조회가 오류 없이 0건으로 돌아온다(권한이 행을 가릴 뿐
@@ -141,7 +177,7 @@ export default function ReadingHelperHomeScreen() {
     return () => clearTimeout(timer);
   }, [load, dayContent]);
 
-  if (!userId || checking) {
+  if (checking) {
     return (
       <ThemedView style={styles.loadingContainer}>
         <ActivityIndicator />
@@ -200,8 +236,29 @@ export default function ReadingHelperHomeScreen() {
     }
   }
 
+  /**
+   * 저장이 필요한 일을 로그인 없이 눌렀을 때.
+   *
+   * 예전에는 `if (!userId) return` 으로 조용히 아무 일도 안 했다. 눌러도 반응이
+   * 없으니 고장으로 보인다. 무엇이 필요한지 말해 주고 로그인 화면을 연다.
+   */
+  function askToSignIn(what: string) {
+    Alert.alert(
+      '로그인이 필요해요',
+      `${what}은 로그인해야 남길 수 있어요.
+지금 보시는 것은 그대로 보실 수 있습니다.`,
+      [
+        { text: '나중에', style: 'cancel' },
+        { text: '로그인', onPress: () => router.push('/profile') },
+      ]
+    );
+  }
+
   async function toggleReadingComplete() {
-    if (!userId) return;
+    if (!userId) {
+      askToSignIn('통독 기록');
+      return;
+    }
     const next = !readingComplete;
     setReadingCompleteState(next);
     await setReadingComplete(userId, todayDateString(), next);
@@ -214,6 +271,23 @@ export default function ReadingHelperHomeScreen() {
           <Pressable onPress={() => router.push('/')} hitSlop={12} style={styles.backRow}>
             <ThemedText type="smallBold">◀ 데이빗바이블 홈</ThemedText>
           </Pressable>
+
+          {!userId && (
+            /* 무엇을 보고 있는 것인지 먼저 말해 준다. 이 안내가 없으면 "왜 Day 1
+               이지", "내 기록은 어디 갔지" 가 된다. */
+            <Pressable
+              onPress={() => router.push('/profile')}
+              style={({ pressed }) => [
+                styles.guestBanner,
+                { backgroundColor: theme.backgroundElement },
+                pressed && styles.pressed,
+              ]}>
+              <ThemedText type="small">
+                둘러보는 중입니다 — 오늘 시작하면 읽을 1일차예요.{'\n'}
+                <ThemedText type="smallBold">로그인하면</ThemedText> 내 진도와 포인트가 이어집니다.
+              </ThemedText>
+            </Pressable>
+          )}
 
           <View style={styles.header}>
             <ThemedText type="subtitle" style={styles.dayTitle}>
@@ -412,6 +486,12 @@ export default function ReadingHelperHomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  guestBanner: {
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 12,
+  },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   container: { flex: 1, flexDirection: 'row' },
   safeAreaOuter: { flex: 1, width: '100%' },

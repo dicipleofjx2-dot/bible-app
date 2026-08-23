@@ -25,15 +25,17 @@ export default function ReadingHelperArchiveScreen() {
     useCallback(() => {
       let cancelled = false;
       (async () => {
-        if (!userId) return;
-        const startDate = await getStartDate(userId);
+        // 전체 계획은 시작일만 있으면 계산된다. 로그인 전에는 오늘 시작 기준으로
+        // 통째로 훑어볼 수 있게 둔다 — 무엇을 읽게 되는지 먼저 보고 정하시라고.
+        const startDate = userId ? await getStartDate(userId) : todayDateString();
         if (!startDate) {
           router.replace('/reading-helper/onboarding');
           return;
         }
         const today = todayDateString();
         const algoPlan = buildFullPlan(startDate).filter((d) => d.date <= today);
-        const dates = await getAllRecordDates(userId);
+        // 로그인 전에는 표시할 내 기록이 없다. 계획만 훑어본다.
+        const dates = userId ? await getAllRecordDates(userId) : new Set<string>();
         const plan = algoPlan;
         if (cancelled) return;
         setPastDays(plan.reverse());

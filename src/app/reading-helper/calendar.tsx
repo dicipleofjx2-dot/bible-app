@@ -43,8 +43,12 @@ export default function ReadingHelperCalendarScreen() {
     useCallback(() => {
       let cancelled = false;
       (async () => {
-        if (!userId) return;
-        const [start, dates] = await Promise.all([getStartDate(userId), getAllRecordDates(userId)]);
+        // 로그인 전에는 오늘 시작 기준 달력만 보여 준다. 표시할 「내 기록」이
+        // 없을 뿐 달력 자체는 볼 수 있다 — 예전에는 여기서 돌아가 버려 화면이
+        // 영원히 로딩 중이었다.
+        const [start, dates] = userId
+          ? await Promise.all([getStartDate(userId), getAllRecordDates(userId)])
+          : [todayDateString(), new Set<string>()];
         if (cancelled) return;
         setStartDate(start);
         setRecordDates(dates);
