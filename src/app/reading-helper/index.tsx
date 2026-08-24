@@ -24,6 +24,9 @@ import {
   type PointsSummary,
   getTogetherToday,
   getMissedDates,
+  getWeeklyRanking,
+  getMyRank,
+  type RankRow,
 } from '@/lib/readingHelper/db';
 import { confirmDestructive } from '@/lib/readingHelper/confirm';
 import {
@@ -62,6 +65,8 @@ export default function ReadingHelperHomeScreen() {
   const [sessionExpired, setSessionExpired] = useState(false);
   const [together, setTogether] = useState<{ readToday: number; joinedTotal: number } | null>(null);
   const [missed, setMissed] = useState<string[]>([]);
+  const [ranking, setRanking] = useState<RankRow[]>([]);
+  const [myRank, setMyRank] = useState<{ rank: number; points: number; total: number } | null>(null);
 
   // Guards against a slow, now-stale load() call (e.g. from focus) clobbering
   // state from a newer one (e.g. the 4am auto-refresh firing moments later).
@@ -89,6 +94,7 @@ export default function ReadingHelperHomeScreen() {
       setTodayPoints(0);
       setChecking(false);
       getTogetherToday().then(setTogether).catch(() => {});
+      getWeeklyRanking().then(setRanking).catch(() => {});
       if (!guestDay) {
         setContentLoading(false);
         return;
@@ -147,6 +153,8 @@ export default function ReadingHelperHomeScreen() {
     );
     setChecking(false);
     getTogetherToday().then(setTogether).catch(() => {});
+    getWeeklyRanking().then(setRanking).catch(() => {});
+    getMyRank().then(setMyRank).catch(() => {});
     getMissedDates(userId, startDate, todayDateString())
       .then(setMissed)
       .catch(() => setMissed([]));
@@ -433,6 +441,49 @@ export default function ReadingHelperHomeScreen() {
             </ThemedText>
           </View>
 
+          {ranking.length > 0 ? (
+            /* 이번 주 순위 다섯.
+               **누적이 아니라 이번 주**다(0046). 누적으로 세우면 먼저 시작한
+               사람이 영원히 위에 있어, 오늘 들어온 분은 아무리 해도 1등을 못
+               본다 — 그러면 순위표가 "난 안 되겠다"가 된다.
+               위 다섯만 나온다. 꼴찌는 아무도 볼 수 없다. */
+            <View style={[styles.rankCard, { backgroundColor: theme.backgroundElement }]}>
+              <ThemedText type="smallBold" style={styles.rankTitle}>
+                🏅 이번 주 순위
+              </ThemedText>
+              {ranking.map((r) => (
+                <View key={r.rank} style={styles.rankRow}>
+                  <ThemedText type={r.isMe ? 'smallBold' : 'small'} style={styles.rankNo}>
+                    {r.rank}등
+                  </ThemedText>
+                  <ThemedText
+                    type={r.isMe ? 'smallBold' : 'small'}
+                    style={styles.rankName}
+                    numberOfLines={1}>
+                    {r.displayName}
+                    {r.isMe ? ' (나)' : ''}
+                  </ThemedText>
+                  <ThemedText
+                    type="smallBold"
+                    style={[styles.rankPoints, { color: theme.backgroundSelected }]}>
+                    {r.points}점
+                  </ThemedText>
+                </View>
+              ))}
+              {myRank && myRank.rank > ranking.length ? (
+                /* 다섯 등 밖이어도 자기 자리는 보여 준다. 그래야 「조금만 더」가
+                   된다. 점수가 아예 없으면 아무 말도 하지 않는다 — 0점 꼴찌라고
+                   적어 주는 것은 격려가 아니다. */
+                <ThemedText type="small" themeColor="textSecondary" style={styles.rankMine}>
+                  나는 {myRank.total}명 중 {myRank.rank}등 · {myRank.points}점
+                </ThemedText>
+              ) : null}
+              <ThemedText type="small" themeColor="textSecondary" style={styles.rankHint}>
+                매주 주일에 새로 시작합니다. 이름은 마이페이지에서 닉네임을 지으면 바뀝니다.
+              </ThemedText>
+            </View>
+          ) : null}
+
           <DayLesson dayContent={dayContent} loading={contentLoading} error={contentError} />
 
           <Pressable
@@ -533,6 +584,20 @@ export default function ReadingHelperHomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  rankCard: {
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 12,
+    gap: 6,
+  },
+  rankTitle: { marginBottom: 2 },
+  rankRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  rankNo: { width: 34 },
+  rankName: { flex: 1 },
+  rankPoints: { minWidth: 44, textAlign: 'right' },
+  rankMine: { marginTop: 4 },
+  rankHint: { marginTop: 2, lineHeight: 18 },
   missedCard: {
     borderRadius: 12,
     paddingHorizontal: 14,

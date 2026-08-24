@@ -274,3 +274,34 @@ export async function getMissedDates(userId: string, startDate: string, todayStr
   }
   return missed;
 }
+
+export type RankRow = { rank: number; displayName: string; points: number; isMe: boolean };
+
+/**
+ * 이번 주 통독 점수 상위 다섯.
+ *
+ * **누적이 아니라 이번 주**다(0046). 누적으로 세우면 먼저 시작한 사람이 영원히
+ * 위에 있어, 오늘 들어온 분은 아무리 해도 1등을 못 본다 — 그러면 순위표가
+ * 동기부여가 아니라 "난 안 되겠다"가 된다.
+ *
+ * 이름은 서버에서 가려 온다. 지금 82명 중 65명의 닉네임이 이메일 주소 그대로라,
+ * 그대로 띄우면 순위표가 교인 이메일 명부가 된다.
+ */
+export async function getWeeklyRanking(topN = 5): Promise<RankRow[]> {
+  const { data, error } = await supabase.rpc('reading_helper_ranking', { top_n: topN });
+  if (error || !data) return [];
+  return (data as Array<{ rank: number; display_name: string; points: number; is_me: boolean }>).map((r) => ({
+    rank: r.rank,
+    displayName: r.display_name,
+    points: r.points,
+    isMe: Boolean(r.is_me),
+  }));
+}
+
+/** 내 이번 주 순위. 다섯 등 밖이어도 자기 자리는 알아야 「조금만 더」가 된다. */
+export async function getMyRank(): Promise<{ rank: number; points: number; total: number } | null> {
+  const { data, error } = await supabase.rpc('reading_helper_my_rank');
+  if (error || !data || (Array.isArray(data) && data.length === 0)) return null;
+  const row = Array.isArray(data) ? data[0] : data;
+  return { rank: row.rank, points: row.points, total: row.total };
+}
