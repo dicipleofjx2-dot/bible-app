@@ -459,7 +459,7 @@ export default function ReadingHelperHomeScreen() {
                위 다섯만 나온다. 꼴찌는 아무도 볼 수 없다. */
             <View style={[styles.rankCard, { backgroundColor: theme.backgroundElement }]}>
               <ThemedText type="smallBold" style={styles.rankTitle}>
-                🏅 이번 주 순위
+                🏅 통독 순위
               </ThemedText>
               {ranking.map((r) => (
                 <View key={r.rank} style={styles.rankRow}>
@@ -473,11 +473,19 @@ export default function ReadingHelperHomeScreen() {
                     {r.displayName}
                     {r.isMe ? ' (나)' : ''}
                   </ThemedText>
-                  <ThemedText
-                    type="smallBold"
-                    style={[styles.rankPoints, { color: theme.backgroundSelected }]}>
-                    {r.points}점
-                  </ThemedText>
+                  {/* 총점을 크게, 이번 주는 곁에 작게. 순위는 총점으로 선다. */}
+                  <View style={styles.rankPointsBox}>
+                    <ThemedText
+                      type="smallBold"
+                      style={[styles.rankPoints, { color: theme.backgroundSelected }]}>
+                      {r.points}점
+                    </ThemedText>
+                    {r.weekPoints > 0 ? (
+                      <ThemedText type="small" themeColor="textSecondary" style={styles.rankWeek}>
+                        이번 주 +{r.weekPoints}
+                      </ThemedText>
+                    ) : null}
+                  </View>
                 </View>
               ))}
               {myRank && myRank.rank > ranking.length ? (
@@ -485,11 +493,11 @@ export default function ReadingHelperHomeScreen() {
                    된다. 점수가 아예 없으면 아무 말도 하지 않는다 — 0점 꼴찌라고
                    적어 주는 것은 격려가 아니다. */
                 <ThemedText type="small" themeColor="textSecondary" style={styles.rankMine}>
-                  나는 {myRank.total}명 중 {myRank.rank}등 · {myRank.points}점
+                  나는 {myRank.total}명 중 {myRank.rank}등 · 총 {myRank.points}점
                 </ThemedText>
               ) : null}
               <ThemedText type="small" themeColor="textSecondary" style={styles.rankHint}>
-                매주 주일에 새로 시작합니다. 이름은 마이페이지에서 닉네임을 지으면 바뀝니다.
+순위는 지금까지 쌓은 총점으로 매깁니다. 이름은 마이페이지에서 닉네임을 지으면 바뀝니다.
               </ThemedText>
             </View>
           ) : null}
@@ -619,7 +627,9 @@ const styles = StyleSheet.create({
   rankRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   rankNo: { width: 34 },
   rankName: { flex: 1 },
-  rankPoints: { minWidth: 44, textAlign: 'right' },
+  rankPointsBox: { minWidth: 76, alignItems: 'flex-end' },
+  rankPoints: { textAlign: 'right' },
+  rankWeek: { textAlign: 'right' },
   rankMine: { marginTop: 4 },
   rankHint: { marginTop: 2, lineHeight: 18 },
   missedCard: {
