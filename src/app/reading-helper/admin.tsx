@@ -11,7 +11,7 @@ import { useAuth } from '@/lib/auth';
 import { getIsAdmin } from '@/db/profile';
 import { getAdminBoard, type AdminBoardRow } from '@/lib/readingHelper/db';
 
-type SortKey = 'week' | 'missed' | 'name';
+type SortKey = 'total' | 'week' | 'missed' | 'name';
 
 /**
  * 통독 현황판 — 관리자만.
@@ -23,16 +23,18 @@ type SortKey = 'week' | 'missed' | 'name';
  * **격려하려면 누구인지 알아야 하므로 가리지 않는다.** 대신 서버 함수 첫 줄에서
  * 관리자인지 확인한다(0047).
  *
- * 기본 정렬을 「빠뜨린 날 많은 순」으로 두지 않았다. 그렇게 두면 화면을 열자마자
- * 못 하는 분들이 줄 세워져 보인다 — 이 화면의 목적은 채근이 아니라 돌봄이다.
- * 필요하면 눌러서 그 순서로 볼 수 있다.
+ * 총점 순으로 연다. 「누가 멀리 왔나」가 제일 먼저 궁금한 것이고, 빠뜨린 날
+ * 순으로 열면 화면을 열자마자 못 하는 분들이 줄 세워져 보인다 — 이 화면의
+ * 목적은 채근이 아니라 돌봄이다. 필요하면 눌러서 그 순서로 볼 수 있다.
  */
 export default function ReadingHelperAdminScreen() {
   const theme = useTheme();
   const { session, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [rows, setRows] = useState<AdminBoardRow[] | null>(null);
-  const [sort, setSort] = useState<SortKey>('week');
+  // 총점 순으로 연다. 「누가 멀리 왔나」가 이 화면에서 제일 먼저 궁금한
+  // 것이고, 빠뜨린 날 순으로 열면 못 하는 분들이 줄 세워져 보인다.
+  const [sort, setSort] = useState<SortKey>('total');
 
   const load = useCallback(() => {
     if (!session) {
@@ -65,8 +67,10 @@ export default function ReadingHelperAdminScreen() {
     );
   }
 
+  // 서버는 이번 주 점수 순으로 준다(0047). 다른 기준은 여기서 다시 세운다.
   const sorted = rows ? [...rows] : [];
-  if (sort === 'missed') sorted.sort((a, b) => b.missedDays - a.missedDays);
+  if (sort === 'total') sorted.sort((a, b) => b.totalPoints - a.totalPoints || b.weekPoints - a.weekPoints);
+  else if (sort === 'missed') sorted.sort((a, b) => b.missedDays - a.missedDays);
   else if (sort === 'name') sorted.sort((a, b) => a.displayName.localeCompare(b.displayName, 'ko'));
 
   const doneToday = rows?.filter((r) => r.lastDone === todayStr()).length ?? 0;
@@ -89,6 +93,7 @@ export default function ReadingHelperAdminScreen() {
           <View style={styles.sortRow}>
             {(
               [
+                ['total', '총점 순'],
                 ['week', '이번 주 점수'],
                 ['missed', '빠뜨린 날'],
                 ['name', '이름'],
@@ -136,11 +141,14 @@ export default function ReadingHelperAdminScreen() {
                 </ThemedText>
               </View>
 
-              {sorted.map((r) => (
+              {sorted.map((r, i) => (
                 <View
                   key={r.userId}
                   style={[styles.row, { borderColor: theme.backgroundElement }]}>
                   <ThemedText type="small" style={styles.colName} numberOfLines={1}>
+                    {/* 점수 순으로 볼 때만 등수를 붙인다. 이름 순·빠뜨린 날 순에
+                        등수가 붙어 있으면 그 숫자가 무엇의 등수인지 헷갈린다. */}
+                    {sort === 'total' || sort === 'week' ? `${i + 1}. ` : ''}
                     {r.displayName}
                   </ThemedText>
                   <ThemedText type="small" style={styles.colNum}>
@@ -166,8 +174,9 @@ export default function ReadingHelperAdminScreen() {
           )}
 
           <ThemedText type="small" themeColor="textSecondary" style={styles.note}>
-            「일차」는 시작일로부터 며칠째인지, 「마친 날」은 통독 완료를 누른 날 수입니다. 이름이 이메일로
-            보이는 분은 아직 닉네임을 안 지으신 분입니다.
+            「일차」는 시작일로부터 며칠째인지, 「마친 날」은 그날 성경퀴즈에서 80점 이상을 맞은 날 수입니다.
+            「빠뜨림」은 지나온 날 중 그러지 못한 날이고요. 이름이 이메일로 보이는 분은 아직 닉네임을 안
+            지으신 분입니다.
           </ThemedText>
         </ScrollView>
       </SafeAreaView>
