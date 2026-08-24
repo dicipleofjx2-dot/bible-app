@@ -10,6 +10,7 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { bskoreaReadUrl } from '@/lib/bskorea';
 import { useAuth } from '@/lib/auth';
+import { getIsAdmin } from '@/db/profile';
 import {
   getDayRecord,
   getPointsSummary,
@@ -67,6 +68,7 @@ export default function ReadingHelperHomeScreen() {
   const [missed, setMissed] = useState<string[]>([]);
   const [ranking, setRanking] = useState<RankRow[]>([]);
   const [myRank, setMyRank] = useState<{ rank: number; points: number; total: number } | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Guards against a slow, now-stale load() call (e.g. from focus) clobbering
   // state from a newer one (e.g. the 4am auto-refresh firing moments later).
@@ -155,6 +157,7 @@ export default function ReadingHelperHomeScreen() {
     getTogetherToday().then(setTogether).catch(() => {});
     getWeeklyRanking().then(setRanking).catch(() => {});
     getMyRank().then(setMyRank).catch(() => {});
+    getIsAdmin(userId).then(setIsAdmin).catch(() => setIsAdmin(false));
     getMissedDates(userId, startDate, todayDateString())
       .then(setMissed)
       .catch(() => setMissed([]));
@@ -482,6 +485,19 @@ export default function ReadingHelperHomeScreen() {
                 매주 주일에 새로 시작합니다. 이름은 마이페이지에서 닉네임을 지으면 바뀝니다.
               </ThemedText>
             </View>
+          ) : null}
+
+          {isAdmin ? (
+            /* 관리자에게만 보이는 입구. 성도에게 보여 봐야 눌러도 막힌다. */
+            <Pressable
+              onPress={() => router.push('/reading-helper/admin')}
+              style={({ pressed }) => [
+                styles.secondaryButton,
+                { backgroundColor: theme.backgroundElement },
+                pressed && styles.pressed,
+              ]}>
+              <ThemedText type="smallBold">📋 통독 현황판 (관리자)</ThemedText>
+            </Pressable>
           ) : null}
 
           <DayLesson dayContent={dayContent} loading={contentLoading} error={contentError} />

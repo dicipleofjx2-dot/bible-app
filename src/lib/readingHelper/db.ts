@@ -305,3 +305,38 @@ export async function getMyRank(): Promise<{ rank: number; points: number; total
   const row = Array.isArray(data) ? data[0] : data;
   return { rank: row.rank, points: row.points, total: row.total };
 }
+
+export type AdminBoardRow = {
+  userId: string;
+  displayName: string;
+  startDate: string;
+  dayNumber: number;
+  doneDays: number;
+  missedDays: number;
+  lastDone: string | null;
+  weekPoints: number;
+  totalPoints: number;
+};
+
+/**
+ * 관리자용 통독 현황판(0047).
+ *
+ * 순위표와 달리 **이름을 가리지 않는다** — 격려하려면 누구인지 알아야 한다.
+ * 관리자인지는 서버 함수 첫 줄에서 확인하므로, 관리자가 아니면 여기서 오류가
+ * 온다(화면에서도 한 번 더 거른다).
+ */
+export async function getAdminBoard(): Promise<AdminBoardRow[]> {
+  const { data, error } = await supabase.rpc('reading_helper_admin_board');
+  if (error || !data) return [];
+  return (data as Array<Record<string, unknown>>).map((r) => ({
+    userId: String(r.user_id),
+    displayName: String(r.display_name ?? '이름 없음'),
+    startDate: String(r.start_date ?? ''),
+    dayNumber: Number(r.day_number ?? 0),
+    doneDays: Number(r.done_days ?? 0),
+    missedDays: Number(r.missed_days ?? 0),
+    lastDone: (r.last_done as string | null) ?? null,
+    weekPoints: Number(r.week_points ?? 0),
+    totalPoints: Number(r.total_points ?? 0),
+  }));
+}
