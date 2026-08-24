@@ -11,6 +11,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { bskoreaReadUrl } from '@/lib/bskorea';
 import { useAuth } from '@/lib/auth';
 import { getIsAdmin } from '@/db/profile';
+import { getMyLook, type MyLook } from '@/lib/readingHelper/shop';
 import {
   getDayRecord,
   getPointsSummary,
@@ -69,6 +70,7 @@ export default function ReadingHelperHomeScreen() {
   const [ranking, setRanking] = useState<RankRow[]>([]);
   const [myRank, setMyRank] = useState<{ rank: number; points: number; total: number } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [myLook, setMyLook] = useState<MyLook | null>(null);
 
   // Guards against a slow, now-stale load() call (e.g. from focus) clobbering
   // state from a newer one (e.g. the 4am auto-refresh firing moments later).
@@ -158,6 +160,7 @@ export default function ReadingHelperHomeScreen() {
     getWeeklyRanking().then(setRanking).catch(() => {});
     getMyRank().then(setMyRank).catch(() => {});
     getIsAdmin(userId).then(setIsAdmin).catch(() => setIsAdmin(false));
+    getMyLook().then(setMyLook).catch(() => setMyLook(null));
     getMissedDates(userId, startDate, todayDateString())
       .then(setMissed)
       .catch(() => setMissed([]));
@@ -422,7 +425,15 @@ export default function ReadingHelperHomeScreen() {
 
           <View style={[styles.pointsCard, { backgroundColor: theme.backgroundElement }]}>
             <View style={styles.pointsTopRow}>
-              <ThemedText type="smallBold">내 포인트</ThemedText>
+              {/* 이름과 함께 지금 달고 있는 칭호·배지를 보여 준다.
+                  순위표는 다섯 등까지만 나오므로, 그 밖인 분은 산 칭호를 영영
+                  못 본다 — 사고도 "어디가 달라진 거지"가 된다. */}
+              <ThemedText type="smallBold" numberOfLines={1} style={styles.pointsWho}>
+                {myLook?.titleEmoji ? `${myLook.titleEmoji} ` : ''}
+                {myLook?.titleLabel ? `${myLook.titleLabel} ` : ''}
+                {myLook?.displayName || '내'} 포인트
+                {myLook?.badgeEmoji ? ` ${myLook.badgeEmoji}` : ''}
+              </ThemedText>
               <View style={styles.pointsValueRow}>
                 {todayPoints > 0 && (
                   <ThemedText type="small" style={{ color: theme.backgroundSelected }}>
@@ -631,6 +642,7 @@ export default function ReadingHelperHomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  pointsWho: { flex: 1, minWidth: 0 },
   completeNote: { marginTop: -4, marginBottom: 12, lineHeight: 18 },
   rankCard: {
     borderRadius: 12,

@@ -140,8 +140,8 @@ export default function ReadingHelperShopScreen() {
           </Section>
 
           <ThemedText type="small" themeColor="textSecondary" style={styles.note}>
-            산 칭호와 배지는 통독 순위표에 함께 나옵니다. 칭호와 배지는 하나씩 달 수 있고, 언제든 바꿀 수
-            있어요.
+            사면 바로 달립니다(이미 달고 있는 것이 없을 때). 칭호와 배지는 하나씩 달 수 있고 언제든 바꿀 수
+            있어요. 달고 있는 것은 통독 홈의 내 포인트와 순위표에 함께 나옵니다.
           </ThemedText>
         </ScrollView>
       </SafeAreaView>

@@ -87,3 +87,31 @@ export async function unequip(kind: 'title' | 'badge'): Promise<{ error: string 
   const { error } = await supabase.rpc('shop_unequip', { target_kind: kind });
   return { error: error?.message ?? null };
 }
+
+export type MyLook = {
+  displayName: string;
+  titleLabel: string;
+  titleEmoji: string;
+  badgeEmoji: string;
+};
+
+/**
+ * 내 이름과 지금 달고 있는 칭호·배지(0053).
+ *
+ * 순위표는 다섯 등까지만 보여 주므로, 다섯 등 밖인 사람은 산 칭호를 영영 못
+ * 본다. 자기 화면에서는 언제나 보여야 한다 — 안 보이면 "어디가 달라진 거지"가
+ * 된다(실제로 그랬다).
+ *
+ * 내 화면에 쓰는 것이라 이름을 가리지 않는다. 남에게 나가지 않는다.
+ */
+export async function getMyLook(): Promise<MyLook | null> {
+  const { data, error } = await supabase.rpc('my_shop_look');
+  if (error || !data || (Array.isArray(data) && data.length === 0)) return null;
+  const row = Array.isArray(data) ? data[0] : data;
+  return {
+    displayName: row.display_name ?? '',
+    titleLabel: row.title_label ?? '',
+    titleEmoji: row.title_emoji ?? '',
+    badgeEmoji: row.badge_emoji ?? '',
+  };
+}
