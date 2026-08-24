@@ -470,7 +470,12 @@ export default function ReadingHelperHomeScreen() {
                     type={r.isMe ? 'smallBold' : 'small'}
                     style={styles.rankName}
                     numberOfLines={1}>
+                    {/* 산 칭호는 이름 앞에, 배지는 뒤에. 아무 데도 안 보이면
+                        살 이유가 없다 — 순위표가 그것이 드러나는 유일한 자리다. */}
+                    {r.titleEmoji ? `${r.titleEmoji} ` : ''}
+                    {r.titleLabel ? `${r.titleLabel} ` : ''}
                     {r.displayName}
+                    {r.badgeEmoji ? ` ${r.badgeEmoji}` : ''}
                     {r.isMe ? ' (나)' : ''}
                   </ThemedText>
                   {/* 총점을 크게, 이번 주는 곁에 작게. 순위는 총점으로 선다. */}
@@ -497,8 +502,19 @@ export default function ReadingHelperHomeScreen() {
                 </ThemedText>
               ) : null}
               <ThemedText type="small" themeColor="textSecondary" style={styles.rankHint}>
-순위는 지금까지 쌓은 총점으로 매깁니다. 이름은 마이페이지에서 닉네임을 지으면 바뀝니다.
+                순위는 지금까지 쌓은 총점으로 매깁니다. 이름은 마이페이지에서 닉네임을 지으면 바뀝니다.
               </ThemedText>
+              <Pressable
+                onPress={() => router.push('/reading-helper/shop')}
+                style={({ pressed }) => [
+                  styles.shopButton,
+                  { backgroundColor: theme.backgroundSelected },
+                  pressed && styles.pressed,
+                ]}>
+                <ThemedText type="smallBold" style={styles.primaryButtonText}>
+                  🎁 포인트 교환소 — 칭호·배지 바꾸기
+                </ThemedText>
+              </Pressable>
             </View>
           ) : null}
 
@@ -632,6 +648,7 @@ const styles = StyleSheet.create({
   rankWeek: { textAlign: 'right' },
   rankMine: { marginTop: 4 },
   rankHint: { marginTop: 2, lineHeight: 18 },
+  shopButton: { marginTop: 8, borderRadius: 10, paddingVertical: 10, alignItems: 'center' },
   missedCard: {
     borderRadius: 12,
     paddingHorizontal: 14,

@@ -290,6 +290,10 @@ export type RankRow = {
   points: number;
   /** 이번 주 점수. 순위에는 안 쓰고 곁에 보여만 준다. */
   weekPoints: number;
+  /** 교환소에서 산 칭호·배지(0051). 없으면 빈 문자열. */
+  titleLabel: string;
+  titleEmoji: string;
+  badgeEmoji: string;
   isMe: boolean;
 };
 
@@ -312,6 +316,9 @@ export async function getWeeklyRanking(topN = 5): Promise<RankRow[]> {
       display_name: string;
       points: number;
       week_points: number;
+      title_label: string;
+      title_emoji: string;
+      badge_emoji: string;
       is_me: boolean;
     }>
   ).map((r) => ({
@@ -319,6 +326,9 @@ export async function getWeeklyRanking(topN = 5): Promise<RankRow[]> {
     displayName: r.display_name,
     points: r.points,
     weekPoints: r.week_points ?? 0,
+    titleLabel: r.title_label ?? '',
+    titleEmoji: r.title_emoji ?? '',
+    badgeEmoji: r.badge_emoji ?? '',
     isMe: Boolean(r.is_me),
   }));
 }
