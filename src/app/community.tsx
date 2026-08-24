@@ -9,7 +9,7 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
-import { createPost, deletePost, getPosts, type Post } from '@/db/community';
+import { createPost, deletePost, getPosts, markCommunitySeen, type Post } from '@/db/community';
 
 export default function CommunityScreen() {
   const theme = useTheme();
@@ -49,6 +49,10 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
     getPosts()
       .then(setPosts)
       .catch(() => setPosts([]));
+    // 이 화면을 봤다고 적는다 — 홈의 안 읽은 글 수가 여기서 0이 된다.
+    // 실패해도 아무 말 하지 않는다. 숫자가 안 지워졌다고 커뮤니티에 오류를
+    // 띄울 일은 아니다.
+    markCommunitySeen().catch(() => {});
   }, []);
 
   useFocusEffect(load);

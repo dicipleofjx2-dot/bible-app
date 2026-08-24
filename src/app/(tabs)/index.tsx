@@ -17,6 +17,7 @@ import { getMyActiveEnrollment, getTodayChecklistCount, type ActiveEnrollment } 
 import { getMeditationNote } from '@/db/userData';
 import { getLatestLetter, type ShepherdLetter } from '@/db/shepherdLetters';
 import { getLatestNotice, type Notice } from '@/db/notices';
+import { getCommunityUnread } from '@/db/community';
 import { hasUnseenLetter } from '@/lib/shepherdLetterBadge';
 import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
 import type { Href } from 'expo-router';
@@ -93,6 +94,7 @@ export default function HomeScreen() {
   const [checklistCount, setChecklistCount] = useState(0);
   const [letter, setLetter] = useState<ShepherdLetter | null>(null);
   const [letterUnseen, setLetterUnseen] = useState(false);
+  const [communityUnread, setCommunityUnread] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -117,6 +119,20 @@ export default function HomeScreen() {
         .then(setNotice)
         .catch(() => setNotice(null));
     }, []),
+  );
+
+  // 커뮤니티에 안 읽은 글이 몇 개인지. 화면에 돌아올 때마다 다시 센다 —
+  // 커뮤니티를 보고 나오면 그 자리에서 0이 되어야 한다.
+  useFocusEffect(
+    useCallback(() => {
+      if (!session) {
+        setCommunityUnread(0);
+        return;
+      }
+      getCommunityUnread()
+        .then(setCommunityUnread)
+        .catch(() => setCommunityUnread(0));
+    }, [session]),
   );
 
   useFocusEffect(
@@ -235,7 +251,12 @@ export default function HomeScreen() {
                     : null
                   : tile.label === 'R2M훈련' && enrollment
                     ? `오늘 ${checklistCount}/7`
-                    : null;
+                    : tile.label === '커뮤니티' && communityUnread > 0
+                      ? // 99를 넘으면 「99+」로 적는다. 세 자리가 되면 아이콘을 덮는다.
+                        communityUnread > 99
+                        ? '99+'
+                        : String(communityUnread)
+                      : null;
               return (
                 <Pressable
                   key={tile.label}

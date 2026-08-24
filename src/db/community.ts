@@ -90,3 +90,23 @@ export async function deleteComment(commentId: string): Promise<void> {
   const { error } = await supabase.from('comments').delete().eq('id', commentId);
   if (error) throw error;
 }
+
+/**
+ * 내가 안 읽은 커뮤니티 글 수(0052).
+ *
+ * 내 글은 안 센다 — 방금 쓴 내 글이 「안 읽은 글 1개」로 뜨면 고장으로 보인다.
+ * 한 번도 안 본 사람은 최근 7일 것만 센다.
+ *
+ * 실패해도 던지지 않는다. 홈 화면에 곁들이는 숫자라, 못 세었다고 홈이 통째로
+ * 안 뜨면 안 된다.
+ */
+export async function getCommunityUnread(): Promise<number> {
+  const { data, error } = await supabase.rpc('community_unread_count');
+  if (error || typeof data !== 'number') return 0;
+  return data;
+}
+
+/** 커뮤니티를 지금 봤다고 적는다. 화면이 실제로 뜬 뒤에 부른다. */
+export async function markCommunitySeen(): Promise<void> {
+  await supabase.rpc('community_mark_seen');
+}
