@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
 
   const { data: pending } = await db
     .from("push_outbox")
-    .select("id, topic, title, body, url")
+    .select("id, topic, title, body, url, target_user_ids")
     .is("sent_at", null)
     .order("created_at", { ascending: true })
     .limit(20);
@@ -133,10 +133,19 @@ Deno.serve(async (req) => {
   let totalSent = 0;
 
   for (const job of pending) {
-    const { data: subs } = await db
+    // 받을 사람이 적혀 있으면 그 사람들에게만 간다(0045). 비어 있으면 전처럼
+    // 그 주제를 켠 사람 전부에게 — 기존 알림은 그대로다.
+    //
+    // 저녁 통독 알림이 「오늘 아직 안 하신 분」만 고를 때 쓴다. 이걸 안 보면
+    // 이미 다 읽으신 분께도 "아직이시죠?" 가 가서, 그게 알림을 끄게 만드는
+    // 가장 흔한 이유가 된다.
+    let query = db
       .from("app_push_subscriptions")
       .select("id, endpoint, p256dh, auth")
       .contains("topics", [job.topic]);
+    const only = job.target_user_ids as string[] | null;
+    if (only && only.length > 0) query = query.in("user_id", only);
+    const { data: subs } = await query;
 
     const payload = JSON.stringify({
       title: job.title,
