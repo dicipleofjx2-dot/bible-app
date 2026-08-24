@@ -413,6 +413,13 @@ export default function ReadingHelperHomeScreen() {
             <ThemedText type="smallBold">오늘 통독 완료</ThemedText>
           </Pressable>
 
+          {/* 체크박스와 달력이 서로 다른 것을 본다. 그 사실을 숨기면 "체크했는데
+              달력에 안 찍힌다"가 된다. 무엇이 기록되는지 그대로 적는다. */}
+          <ThemedText type="small" themeColor="textSecondary" style={styles.completeNote}>
+            달력의 ✓ 는 그날 성경퀴즈에서 {WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞은 날에 찍힙니다. 위 체크는 나만
+            보는 표시예요.
+          </ThemedText>
+
           <View style={[styles.pointsCard, { backgroundColor: theme.backgroundElement }]}>
             <View style={styles.pointsTopRow}>
               <ThemedText type="smallBold">내 포인트</ThemedText>
@@ -600,6 +607,7 @@ export default function ReadingHelperHomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  completeNote: { marginTop: -4, marginBottom: 12, lineHeight: 18 },
   rankCard: {
     borderRadius: 12,
     paddingHorizontal: 14,

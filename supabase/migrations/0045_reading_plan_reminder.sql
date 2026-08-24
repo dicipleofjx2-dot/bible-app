@@ -58,7 +58,8 @@ begin
     select 1 from reading_helper_day_records r
     where r.user_id = p.user_id
       and r.date = (now() at time zone 'Asia/Seoul')::date
-      and r.reading_complete = true
+      -- 「마쳤다」의 기준은 앱·달력과 같다: 그날 성경퀴즈 80점 이상.
+      and r.quiz_score >= 80
   );
 
   n := coalesce(array_length(targets, 1), 0);

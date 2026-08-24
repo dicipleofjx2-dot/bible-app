@@ -60,8 +60,10 @@ begin
           + case when r.speed_quiz_success then 10 else 0 end
         else 0 end
       )::int as week_points,
-      count(*) filter (where r.reading_complete)::int as done_days,
-      max(r.date) filter (where r.reading_complete) as last_done
+      -- 「마쳤다」의 기준은 앱·달력과 같다: 그날 성경퀴즈 80점 이상.
+      -- 눌러서 표시하는 통독 완료는 실제로 읽었는지와 상관이 없다.
+      count(*) filter (where r.quiz_score >= 80)::int as done_days,
+      max(r.date) filter (where r.quiz_score >= 80) as last_done
     from reading_helper_day_records r
     group by r.user_id
   )

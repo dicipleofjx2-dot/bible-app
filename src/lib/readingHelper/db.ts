@@ -83,10 +83,24 @@ export async function setMemorizationResult(
   });
 }
 
-/** Every date with any recorded activity — used for the 아카이브 체크 표시와
- * 통독 캘린더 점. */
-export async function getAllRecordDates(userId: string): Promise<Set<string>> {
-  const { data, error } = await supabase.from('reading_helper_day_records').select('date').eq('user_id', userId);
+/**
+ * 그날을 **마쳤다**고 볼 날들. 달력의 체크와 아카이브 표시가 이것을 본다.
+ *
+ * 기준은 **그날 성경퀴즈 80점 이상** 하나다. 예전에는
+ *   · 기록이 하나라도 있으면(퀴즈를 한 문제만 풀어 봐도) 체크가 됐고,
+ *   · 「오늘 통독 완료」 체크박스는 그냥 누르기만 하면 됐다.
+ * 둘 다 실제로 읽었는지와는 상관이 없다. 퀴즈 80점은 본문을 읽지 않고는 잘
+ * 나오지 않으므로, 이것만이 스스로에게 정직한 표시가 된다.
+ *
+ * ⚠️ 이 기준은 달력·아카이브·밀린 날·관리자 현황판·저녁 알림이 **모두 같이**
+ *    본다. 한 곳만 고치면 "달력엔 체크인데 밀렸다고 나온다"가 된다.
+ */
+export async function getCompletedDates(userId: string): Promise<Set<string>> {
+  const { data, error } = await supabase
+    .from('reading_helper_day_records')
+    .select('date, quiz_score')
+    .eq('user_id', userId)
+    .gte('quiz_score', WORD_CARD_MIN_QUIZ_SCORE);
   if (error) throw error;
   return new Set((data ?? []).map((r) => r.date as string));
 }
@@ -251,18 +265,12 @@ export async function getTogetherToday(): Promise<{ readToday: number; joinedTot
  *
  * 오늘은 아직 하루가 안 갔으니 빠뜨린 것이 아니다. 시작일 전도 아니다.
  *
- * 「기록이 있느냐」가 아니라 「통독을 완료했느냐」로 센다 — 퀴즈만 풀어 본 날을
- * 다 한 것으로 치면, 정작 본문을 안 읽은 날이 조용히 묻힌다.
+ * 마쳤는지는 **그날 성경퀴즈 80점 이상**으로 본다(getCompletedDates). 눌러서
+ * 표시하는 「통독 완료」는 실제로 읽었는지와 상관이 없어 기준으로 쓸 수 없다.
  */
 export async function getMissedDates(userId: string, startDate: string, todayStr: string): Promise<string[]> {
-  const { data, error } = await supabase
-    .from('reading_helper_day_records')
-    .select('date, reading_complete')
-    .eq('user_id', userId);
-  if (error) throw error;
-  const done = new Set(
-    (data ?? []).filter((r) => r.reading_complete).map((r) => r.date as string)
-  );
+  // 「그날을 마쳤다」의 기준은 한 곳뿐이다 — getCompletedDates(퀴즈 80점 이상).
+  const done = await getCompletedDates(userId);
 
   const missed: string[] = [];
   const d = new Date(`${startDate}T00:00:00`);

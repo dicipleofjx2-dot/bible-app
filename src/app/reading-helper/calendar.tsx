@@ -8,7 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getAllRecordDates, getStartDate } from '@/lib/readingHelper/db';
+import { getCompletedDates, getStartDate } from '@/lib/readingHelper/db';
 import {
   isBeyondPreview,
   isPreviewDate,
@@ -47,7 +47,7 @@ export default function ReadingHelperCalendarScreen() {
         // 없을 뿐 달력 자체는 볼 수 있다 — 예전에는 여기서 돌아가 버려 화면이
         // 영원히 로딩 중이었다.
         const [start, dates] = userId
-          ? await Promise.all([getStartDate(userId), getAllRecordDates(userId)])
+          ? await Promise.all([getStartDate(userId), getCompletedDates(userId)])
           : [todayDateString(), new Set<string>()];
         if (cancelled) return;
         setStartDate(start);
@@ -202,6 +202,7 @@ export default function ReadingHelperCalendarScreen() {
         )}
 
         <ThemedText type="small" themeColor="textSecondary" style={styles.hint}>
+          ✓ 는 그날 성경퀴즈에서 80점 이상을 맞은 날입니다.{'\n'}
           테두리가 있는 날은 앞으로 {PREVIEW_DAYS}일 안의 미리 보기입니다. 미리 풀어 본 퀴즈와 암송은
           기록에 남지 않으니, 그날이 되면 다시 하시면 됩니다.
         </ThemedText>

@@ -24,7 +24,9 @@ as $$
     (select count(distinct r.user_id)::int
        from reading_helper_day_records r
       where r.date = coalesce(target_date, current_date)
-        and r.reading_complete = true),
+        -- 「마쳤다」의 기준은 앱과 같아야 한다: 그날 성경퀴즈 80점 이상.
+        -- 눌러서 표시하는 통독 완료는 실제로 읽었는지와 상관이 없다.
+        and r.quiz_score >= 80),
     (select count(*)::int from reading_helper_progress);
 $$;
 

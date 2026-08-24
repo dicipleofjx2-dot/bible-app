@@ -9,11 +9,9 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import {
-  getDayRecord,
   getStartDate,
   quizPoints,
   setQuizScore,
-  setReadingComplete,
   WORD_CARD_MIN_QUIZ_SCORE,
 } from '@/lib/readingHelper/db';
 import { currentDayNumber, dayNumberForDate, todayDateString } from '@/lib/readingHelper/readingPlan';
@@ -54,8 +52,6 @@ export default function ReadingHelperQuizScreen() {
   const [correctCount, setCorrectCount] = useState(0);
   const [score, setScore] = useState<number | null>(null);
   const [answers, setAnswers] = useState<(number | string)[]>([]);
-  /** 통독 완료를 아직 안 눌렀다 — 결과 화면에서 한 번 물어본다. */
-  const [offerComplete, setOfferComplete] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -112,11 +108,9 @@ export default function ReadingHelperQuizScreen() {
     const finalScore = Math.round((finalCorrectCount / total) * 100);
     if (!isReview && userId) {
       await setQuizScore(userId, todayDateString(), finalScore);
-      // 퀴즈를 풀었으면 본문을 읽은 것이다. 그런데 「오늘 통독 완료」를 따로
-      // 눌러야 해서, 퀴즈까지 다 풀고도 체크를 빠뜨리는 일이 잦았다
-      // (2026-08-23 기준 퀴즈 110건 · 통독완료 95건). 여기서 물어본다.
-      const record = await getDayRecord(userId, todayDateString());
-      if (!record?.reading_complete) setOfferComplete(true);
+      // 여기서 「통독 완료로 표시할까요?」를 묻던 것을 뺐다. 달력의 ✓ 기준이
+      // **퀴즈 80점 이상**으로 바뀌어(2026-08-24), 이 점수를 저장한 것만으로
+      // 이미 기록이 끝났기 때문이다. 물어보면 두 번 하는 일이 된다.
     }
     setAnswers(finalAnswers);
     setScore(finalScore);
@@ -195,32 +189,6 @@ export default function ReadingHelperQuizScreen() {
                   pressed && styles.pressed,
                 ]}>
                 <ThemedText type="smallBold">💌 말씀카드 만들기</ThemedText>
-              </Pressable>
-            </View>
-          ) : null}
-
-          {offerComplete ? (
-            <View style={[styles.congratsCard, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="small" style={styles.bodyText}>
-                오늘 본문을 읽으셨나요? 통독 기록에 남겨 드릴게요.
-              </ThemedText>
-              <Pressable
-                onPress={async () => {
-                  if (!userId) return;
-                  setOfferComplete(false);
-                  await setReadingComplete(userId, todayDateString(), true);
-                }}
-                style={({ pressed }) => [
-                  styles.cardButton,
-                  { backgroundColor: theme.backgroundSelected },
-                  pressed && styles.pressed,
-                ]}>
-                <ThemedText type="smallBold">✓ 오늘 통독 완료로 표시</ThemedText>
-              </Pressable>
-              <Pressable onPress={() => setOfferComplete(false)} style={({ pressed }) => [pressed && styles.pressed]}>
-                <ThemedText type="small" themeColor="textSecondary">
-                  아직이에요
-                </ThemedText>
               </Pressable>
             </View>
           ) : null}

@@ -8,7 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getAllRecordDates, getStartDate } from '@/lib/readingHelper/db';
+import { getCompletedDates, getStartDate } from '@/lib/readingHelper/db';
 import { buildFullPlan, formatChapterRange, todayDateString, type PlanDay } from '@/lib/readingHelper/readingPlan';
 
 
@@ -35,7 +35,7 @@ export default function ReadingHelperArchiveScreen() {
         const today = todayDateString();
         const algoPlan = buildFullPlan(startDate).filter((d) => d.date <= today);
         // 로그인 전에는 표시할 내 기록이 없다. 계획만 훑어본다.
-        const dates = userId ? await getAllRecordDates(userId) : new Set<string>();
+        const dates = userId ? await getCompletedDates(userId) : new Set<string>();
         const plan = algoPlan;
         if (cancelled) return;
         setPastDays(plan.reverse());
