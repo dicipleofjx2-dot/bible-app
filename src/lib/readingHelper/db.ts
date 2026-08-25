@@ -125,6 +125,18 @@ export async function resetProgress(userId: string): Promise<void> {
 /** 말씀카드 잠금 해제 기준 — 어느 날짜든 하루라도 이 점수 이상을 맞으면 된다. */
 export const WORD_CARD_MIN_QUIZ_SCORE = 80;
 
+/**
+ * 포인트를 세기 시작하는 날 (YYYY-MM-DD).
+ *
+ * 이 날부터의 기록만 점수·순위·상점 잔액에 들어간다. 그 전 기록은 시험 삼아
+ * 눌러 본 것이 섞여 있어 순위의 근거가 되기 어렵다.
+ *
+ * ⚠️ DB 쪽 같은 규칙은 reading_helper_points_since() 다(0054). **둘은 반드시
+ *    같은 날짜여야 한다** — 어긋나면 화면의 내 점수와 순위표·상점 잔액이
+ *    서로 다른 숫자를 말한다. 날짜를 바꿀 때는 두 곳을 함께 고칠 것.
+ */
+export const POINTS_START_DATE = '2026-08-19';
+
 /** 암송 퍼즐을 성공했을 때 주는 포인트 */
 export const MEMORIZATION_POINTS = 10;
 
@@ -155,12 +167,16 @@ export type PointsSummary = {
 };
 
 /** 지금까지 쌓인 포인트. 별도 테이블을 두지 않고 그날그날의 기록에서 계산한다 —
- * 기록이 곧 근거라 따로 관리하다 어긋날 일이 없고, 통독을 리셋하면 함께 0이 된다. */
+ * 기록이 곧 근거라 따로 관리하다 어긋날 일이 없고, 통독을 리셋하면 함께 0이 된다.
+ *
+ * POINTS_START_DATE 이후 기록만 센다. 통독 진척(마친 날 수 등)은 자르지 않는다 —
+ * 그건 포인트가 아니라 얼마나 걸어왔는가다. */
 export async function getPointsSummary(userId: string): Promise<PointsSummary> {
   const { data, error } = await supabase
     .from('reading_helper_day_records')
     .select('quiz_score, memorization_success, speed_quiz_success')
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .gte('date', POINTS_START_DATE);
   if (error) throw error;
 
   const summary: PointsSummary = {
