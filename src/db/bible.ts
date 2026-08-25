@@ -11,7 +11,8 @@ export type Translation =
   | 'esv'
   | 'niv'
   | 'klb'
-  | 'koerv';
+  | 'koerv'
+  | 'tgl';
 
 // 개역한글 (ko_ko) is kept out of this user-facing list (superseded by 개역개정)
 // but its rows stay in the database so existing notes/highlights that
@@ -35,6 +36,9 @@ export const TRANSLATIONS: { code: Translation; label: string; linkOnly?: boolea
   { code: 'niv', label: 'NIV', linkOnly: true },
   { code: 'en_kjv', label: 'KJV' },
   { code: 'open_en', label: 'Open Bible' },
+  // 필리핀 성도를 위한 따갈로그. 본문은 담지 않고 Bible Gateway 로 보낸다 —
+  // 개역개정을 성서공회로 보내는 것과 같은 방식이다.
+  { code: 'tgl', label: 'Tagalog', linkOnly: true },
 ];
 
 /** 화면에서 따로 고르지 않았을 때 쓰는 번역 */

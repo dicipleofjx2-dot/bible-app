@@ -91,6 +91,7 @@ export const LINK_SOURCE_LABEL: Record<string, string> = {
   koerv: 'Bible Gateway',
   esv: 'ESV.org',
   niv: 'Bible Gateway',
+  tgl: 'Bible Gateway',
 };
 
 /**
@@ -111,5 +112,9 @@ export function externalReadUrl(
   if (translation === 'niv') return bibleGatewayUrl(bookNameEn, chapter, startVerse, 'NIV');
   if (translation === 'klb') return bibleGatewayUrl(bookNameEn, chapter, startVerse, 'KLB');
   if (translation === 'koerv') return bibleGatewayUrl(bookNameEn, chapter, startVerse, 'KOERV');
+  // 따갈로그 — Magandang Balita Biblia. 2026-08-25 에 실제로 본문이 나오는 것을
+  // 확인했다(요한복음 3:16 이 따갈로그로 옴). Bible Gateway 는 없는 판본 코드에도
+  // 200 을 돌려주므로 코드만 보고 되는 줄 알면 안 된다.
+  if (translation === 'tgl') return bibleGatewayUrl(bookNameEn, chapter, startVerse, 'MBBTAG');
   return null;
 }
