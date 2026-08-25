@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { todayDateString } from './readingPlan';
 
 /** 성경통독도우미 progress storage — unlike bible-quiz-app's original
  * AsyncStorage-first design, this always goes straight to Supabase: every
@@ -153,7 +154,14 @@ export function quizPoints(score: number | null | undefined): number {
   return 0;
 }
 
+/** 연속으로 빠진 날이 3의 배수가 되는 날에 매기는 큰 벌점 */
+export const MISS_PENALTY_BIG = 50;
+
+/** 그 밖에 하루 빠질 때마다 매기는 벌점 */
+export const MISS_PENALTY = 10;
+
 export type PointsSummary = {
+  /** 벌점을 뺀 점수. 0 아래로는 안 내려간다 */
   total: number;
   quiz: number;
   memorization: number;
@@ -164,6 +172,10 @@ export type PointsSummary = {
   memorizationCount: number;
   /** 3초 OX 퀴즈 만점 횟수 */
   speedQuizCount: number;
+  /** 빠진 날 수 (개인 시작일 이후, 어제까지) */
+  missedDays: number;
+  /** 빠진 날 벌점 합계. total 에서 이미 빠져 있다 */
+  penalty: number;
 };
 
 /** 지금까지 쌓인 포인트. 별도 테이블을 두지 않고 그날그날의 기록에서 계산한다 —
@@ -174,7 +186,7 @@ export type PointsSummary = {
 export async function getPointsSummary(userId: string): Promise<PointsSummary> {
   const { data, error } = await supabase
     .from('reading_helper_day_records')
-    .select('quiz_score, memorization_success, speed_quiz_success')
+    .select('date, quiz_score, memorization_success, speed_quiz_success')
     .eq('user_id', userId)
     .gte('date', POINTS_START_DATE);
   if (error) throw error;
@@ -187,6 +199,8 @@ export async function getPointsSummary(userId: string): Promise<PointsSummary> {
     quizCount: 0,
     memorizationCount: 0,
     speedQuizCount: 0,
+    missedDays: 0,
+    penalty: 0,
   };
   for (const row of data ?? []) {
     const earned = quizPoints(row.quiz_score as number | null);
@@ -203,7 +217,42 @@ export async function getPointsSummary(userId: string): Promise<PointsSummary> {
       summary.speedQuizCount += 1;
     }
   }
-  summary.total = summary.quiz + summary.memorization + summary.speedQuiz;
+  // 빠진 날 벌점. DB 의 reading_helper_penalties() 와 **같은 규칙**이어야 한다 —
+  // 어긋나면 내 화면의 점수와 순위표가 서로 다른 숫자를 말한다.
+  const done = new Set(
+    (data ?? [])
+      .filter((row) => (row.quiz_score as number | null) != null && (row.quiz_score as number) >= WORD_CARD_MIN_QUIZ_SCORE)
+      .map((row) => String(row.date)),
+  );
+  const { data: progress } = await supabase
+    .from('reading_helper_progress')
+    .select('start_date')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (progress?.start_date) {
+    const from = String(progress.start_date) > POINTS_START_DATE ? String(progress.start_date) : POINTS_START_DATE;
+    // 오늘은 세지 않는다 — 아직 하루가 안 갔는데 안 했다고 깎으면 안 된다.
+    const yesterday = new Date(`${todayDateString()}T00:00:00Z`);
+    yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+    let streak = 0;
+    for (let d = new Date(`${from}T00:00:00Z`); d <= yesterday; d.setUTCDate(d.getUTCDate() + 1)) {
+      const key = d.toISOString().slice(0, 10);
+      if (done.has(key)) {
+        streak = 0;
+        continue;
+      }
+      streak += 1;
+      summary.missedDays += 1;
+      summary.penalty += streak % 3 === 0 ? MISS_PENALTY_BIG : MISS_PENALTY;
+    }
+  }
+
+  // 0 에서 막는다. 음수를 보면 다시 시작할 엄두가 안 난다.
+  summary.total = Math.max(
+    summary.quiz + summary.memorization + summary.speedQuiz - summary.penalty,
+    0,
+  );
   return summary;
 }
 
