@@ -614,6 +614,23 @@ export const STRINGS = {
     ko: '잠시 후 다시 시도해주세요.',
     en: 'Please try again in a moment.',
   },
+  // 배경 넉 장의 이름. 그림 자체는 그대로고 부르는 말만 바뀐다.
+  'wc.tpl.teaching': { ko: '가르치심', en: 'Teaching' },
+  'wc.tpl.comfort': { ko: '위로', en: 'Comfort' },
+  'wc.tpl.walking': { ko: '동행', en: 'Walking together' },
+  'wc.tpl.through': { ko: '지나온 길', en: 'The road behind' },
+  // 카드에 찍히는 표시는 교회 이름이라 그대로 두고, 켜고 끄는 단추 말만 옮긴다.
+  'wc.watermarkToggle': { ko: '{name} 표시', en: 'Show the church mark' },
+  'wc.verseLabel': { ko: '은혜받은 구절', en: 'The verse that moved you' },
+  'wc.versePlaceholder': {
+    ko: '오늘 은혜받은 말씀을 적어주세요',
+    en: 'Write the words that moved you today',
+  },
+  'wc.referencePlaceholder': { ko: '예: 창 1:1', en: 'e.g. Gen 1:1' },
+  'wc.done': { ko: '말씀카드가 완성되었어요!', en: 'Your Word Card is ready!' },
+  'wc.saveOrShare': { ko: '이미지 저장/공유하기', en: 'Save or share the image' },
+  'wc.share': { ko: '공유하기', en: 'Share' },
+  'wc.editAgain': { ko: '다시 편집하기', en: 'Edit again' },
 
   // ── 언어 ─────────────────────────────────────────────────────
   'lang.title': { ko: '언어', en: 'Language' },

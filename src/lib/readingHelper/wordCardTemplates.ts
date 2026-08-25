@@ -1,8 +1,14 @@
 import type { ImageSourcePropType } from 'react-native';
 
+import type { StringKey } from '@/constants/strings';
+
 export type WordCardTemplate = {
   id: string;
-  name: string;
+  /**
+   * 화면에 뜨는 이름은 여기 적지 않고 **열쇠만** 둔다. 말을 여기 적어 두면
+   * 모듈을 읽을 때 굳어, 언어를 바꿔도 처음 언어로 남는다.
+   */
+  nameKey: StringKey;
   /**
    * 그림 배경. 있으면 이 그림을 깔고 colors 는 안 쓴다.
    *
@@ -29,28 +35,28 @@ export type WordCardTemplate = {
 export const WORD_CARD_TEMPLATES: WordCardTemplate[] = [
   {
     id: 'teaching',
-    name: '가르치심',
+    nameKey: 'wc.tpl.teaching',
     image: require('../../../assets/images/word-cards/teaching.jpg'),
     colors: ['#FBF0DC', '#F6E3C8'],
     textColor: '#4A3728',
   },
   {
     id: 'comfort',
-    name: '위로',
+    nameKey: 'wc.tpl.comfort',
     image: require('../../../assets/images/word-cards/comfort.jpg'),
     colors: ['#FBF2E4', '#F3E7D2'],
     textColor: '#4A3728',
   },
   {
     id: 'walking',
-    name: '동행',
+    nameKey: 'wc.tpl.walking',
     image: require('../../../assets/images/word-cards/walking.jpg'),
     colors: ['#FAEFE0', '#F2E2D0'],
     textColor: '#4A3728',
   },
   {
     id: 'through',
-    name: '지나온 길',
+    nameKey: 'wc.tpl.through',
     image: require('../../../assets/images/word-cards/through.jpg'),
     colors: ['#FBF1E2', '#F4E5D3'],
     textColor: '#4A3728',

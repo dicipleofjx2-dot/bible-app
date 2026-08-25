@@ -56,7 +56,7 @@ function clamp(value: number, min: number, max: number) {
 // 퀴즈를 풀지 않아도 계속 열려 있어 조건이 사실상 사라졌다.
 // (날짜별 제작 횟수 제한은 아직 없다)
 export default function WordCardScreen() {
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
   const theme = useTheme();
   const { session, loading: authLoading } = useAuth();
   const userId = session?.user.id;
@@ -112,17 +112,17 @@ export default function WordCardScreen() {
       <ThemedView style={styles.centeredScreen}>
         <SafeAreaView style={styles.centered}>
           <ThemedText type="smallBold" style={styles.lockedText}>
-            🔒 오늘 성경퀴즈에서 {WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 말씀카드를 만들 수 있어요.
+            {t('wc.locked', { score: WORD_CARD_MIN_QUIZ_SCORE })}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary" style={styles.lockedText}>
             {todayQuizScore > 0
-              ? `오늘 점수: ${todayQuizScore}점`
-              : '오늘은 아직 퀴즈를 풀지 않으셨어요.'}
+              ? t('wc.todayScore', { n: todayQuizScore })
+              : t('wc.notTakenYet')}
           </ThemedText>
           <Pressable
             onPress={() => router.replace('/reading-helper')}
             style={[styles.lockedButton, { backgroundColor: theme.backgroundSelected }]}>
-            <ThemedText type="smallBold">성경퀴즈 풀러가기</ThemedText>
+            <ThemedText type="smallBold">{t('wc.goToQuiz')}</ThemedText>
           </Pressable>
         </SafeAreaView>
       </ThemedView>
@@ -141,6 +141,7 @@ function WordCardEditor({
   defaultVerse: string;
   defaultReference: string;
 }) {
+  const { t } = useI18n();
   const [verse, setVerse] = useState(defaultVerse);
   const [reference, setReference] = useState(defaultReference);
   const [template, setTemplate] = useState<WordCardTemplate>(WORD_CARD_TEMPLATES[0]);
@@ -213,7 +214,7 @@ function WordCardEditor({
   async function pickBackgroundImage() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('사진 접근 권한이 필요합니다.');
+      Alert.alert(t('wc.needPhotoPermission'));
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.9 });
@@ -232,21 +233,21 @@ function WordCardEditor({
       if (Platform.OS === 'web') {
         const dataUri = await viewShotRef.current.capture();
         const blob = await (await fetch(dataUri)).blob();
-        const file = new File([blob], '말씀카드.png', { type: 'image/png' });
+        const file = new File([blob], t('wc.fileName'), { type: 'image/png' });
         const nav = navigator as Navigator & {
           canShare?: (data: { files: File[] }) => boolean;
           share?: (data: { files: File[]; title?: string }) => Promise<void>;
         };
         if (nav.canShare?.({ files: [file] }) && nav.share) {
-          await nav.share({ files: [file], title: '말씀카드' });
+          await nav.share({ files: [file], title: t('wc.shareTitle') });
         } else {
           const link = document.createElement('a');
           link.href = dataUri;
-          link.download = '말씀카드.png';
+          link.download = t('wc.fileName');
           document.body.appendChild(link);
           link.click();
           link.remove();
-          Alert.alert('이미지 저장 완료', '말씀카드 이미지가 다운로드되었어요.');
+          Alert.alert(t('wc.savedTitle'), t('wc.savedBody'));
         }
         return;
       }
@@ -254,12 +255,12 @@ function WordCardEditor({
       const uri = await viewShotRef.current.capture();
       const available = await Sharing.isAvailableAsync();
       if (!available) {
-        Alert.alert('공유 불가', '이 기기에서는 공유 기능을 사용할 수 없습니다.');
+        Alert.alert(t('wc.shareUnavailableTitle'), t('wc.shareUnavailable'));
         return;
       }
-      await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: '말씀카드 공유하기' });
+      await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: t('wc.shareDialogTitle') });
     } catch {
-      Alert.alert('공유 실패', '잠시 후 다시 시도해주세요.');
+      Alert.alert(t('wc.shareFailedTitle'), t('wc.shareFailed'));
     } finally {
       setSharing(false);
     }
@@ -270,11 +271,11 @@ function WordCardEditor({
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backRow}>
-            <ThemedText type="smallBold">◀ 성경통독도우미</ThemedText>
+            <ThemedText type="smallBold">{t('wc.backToHelper')}</ThemedText>
           </Pressable>
 
           <ThemedText type="small" themeColor="textSecondary">
-            말씀카드 만들기
+            {t('wc.title')}
           </ThemedText>
 
           <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1 }}>
@@ -341,26 +342,27 @@ function WordCardEditor({
           {!created ? (
             <>
               <ThemedText type="small" themeColor="textSecondary">
-                배경
+                {t('wc.background')}
               </ThemedText>
               <View style={styles.templateRow}>
-                {WORD_CARD_TEMPLATES.map((t) => (
+                {/* 말 옮기는 t() 와 이름이 겹치지 않게 tpl 로 받는다. */}
+                {WORD_CARD_TEMPLATES.map((tpl) => (
                   <Pressable
-                    key={t.id}
+                    key={tpl.id}
                     onPress={() => {
                       setBackgroundImageUri(null);
-                      selectTemplate(t);
+                      selectTemplate(tpl);
                     }}
                     style={[
                       styles.templateSwatchWrap,
-                      !backgroundImageUri && t.id === template.id && { borderColor: theme.backgroundSelected },
+                      !backgroundImageUri && tpl.id === template.id && { borderColor: theme.backgroundSelected },
                     ]}>
-                    {t.image ? (
-                      <Image source={t.image} style={styles.templateSwatch} resizeMode="cover" />
+                    {tpl.image ? (
+                      <Image source={tpl.image} style={styles.templateSwatch} resizeMode="cover" />
                     ) : (
-                      <LinearGradient colors={t.colors} style={styles.templateSwatch} />
+                      <LinearGradient colors={tpl.colors} style={styles.templateSwatch} />
                     )}
-                    <ThemedText type="small">{t.name}</ThemedText>
+                    <ThemedText type="small">{t(tpl.nameKey)}</ThemedText>
                   </Pressable>
                 ))}
                 <Pressable
@@ -373,12 +375,12 @@ function WordCardEditor({
                       <ThemedText type="smallBold">+</ThemedText>
                     </View>
                   )}
-                  <ThemedText type="small">내 사진</ThemedText>
+                  <ThemedText type="small">{t('wc.myPhoto')}</ThemedText>
                 </Pressable>
               </View>
 
               <ThemedText type="small" themeColor="textSecondary">
-                글자 크기 · 카드 위 텍스트를 드래그해서 위치를 옮길 수 있어요
+                {t('wc.fontSize')}
               </ThemedText>
               <View style={styles.stepperRow}>
                 <Pressable
@@ -397,12 +399,12 @@ function WordCardEditor({
                 <Pressable
                   onPress={resetPosition}
                   style={({ pressed }) => [styles.resetButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
-                  <ThemedText type="small">위치 초기화</ThemedText>
+                  <ThemedText type="small">{t('wc.resetPosition')}</ThemedText>
                 </Pressable>
               </View>
 
               <ThemedText type="small" themeColor="textSecondary">
-                글자 색
+                {t('wc.textColor')}
               </ThemedText>
               <View style={styles.colorRow}>
                 {TEXT_COLORS.map((c) => (
@@ -446,26 +448,26 @@ function WordCardEditor({
                     { backgroundColor: theme.backgroundElement },
                     showWatermark && { backgroundColor: theme.backgroundSelected },
                   ]}>
-                  <ThemedText type="small">{WATERMARK_TEXT} 표시</ThemedText>
+                  <ThemedText type="small">{t('wc.watermarkToggle', { name: WATERMARK_TEXT })}</ThemedText>
                 </Pressable>
               </View>
 
               <ThemedText type="small" themeColor="textSecondary">
-                은혜받은 구절
+                {t('wc.verseLabel')}
               </ThemedText>
               <TextInput
                 value={verse}
                 onChangeText={setVerse}
                 multiline
                 style={[styles.textInput, { backgroundColor: theme.backgroundElement, color: theme.text }]}
-                placeholder="오늘 은혜받은 말씀을 적어주세요"
+                placeholder={t('wc.versePlaceholder')}
                 placeholderTextColor={theme.textSecondary}
               />
               <TextInput
                 value={reference}
                 onChangeText={setReference}
                 style={[styles.referenceInput, { backgroundColor: theme.backgroundElement, color: theme.text }]}
-                placeholder="예: 창 1:1"
+                placeholder={t('wc.referencePlaceholder')}
                 placeholderTextColor={theme.textSecondary}
               />
 
@@ -478,14 +480,14 @@ function WordCardEditor({
                   pressed && styles.pressed,
                 ]}>
                 <ThemedText type="smallBold" style={styles.primaryButtonText}>
-                  말씀카드 만들기
+                  {t('wc.title')}
                 </ThemedText>
               </Pressable>
             </>
           ) : (
             <>
               <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-                말씀카드가 완성되었어요!
+                {t('wc.done')}
               </ThemedText>
               <Pressable
                 onPress={share}
@@ -499,14 +501,14 @@ function WordCardEditor({
                   <ActivityIndicator color="#fff" />
                 ) : (
                   <ThemedText type="smallBold" style={styles.primaryButtonText}>
-                    {Platform.OS === 'web' ? '이미지 저장/공유하기' : '공유하기'}
+                    {Platform.OS === 'web' ? t('wc.saveOrShare') : t('wc.share')}
                   </ThemedText>
                 )}
               </Pressable>
               <Pressable
                 onPress={() => setCreated(false)}
                 style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
-                <ThemedText type="smallBold">다시 편집하기</ThemedText>
+                <ThemedText type="smallBold">{t('wc.editAgain')}</ThemedText>
               </Pressable>
             </>
           )}
