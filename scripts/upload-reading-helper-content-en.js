@@ -33,6 +33,16 @@ if (!SERVICE_KEY) {
   process.exit(1);
 }
 
+// 안내문의 「여기에키」를 실제 키로 안 바꾸고 그대로 돌리는 일이 실제로 있었다.
+// 그러면 한글이 HTTP 헤더에 실리려다 fetch 안쪽에서 ByteString 오류로 터지는데,
+// 그 오류만 봐서는 무엇이 잘못됐는지 알 수가 없다. 미리 걸러 준다.
+if (!/^[\x20-\x7E]+$/.test(SERVICE_KEY)) {
+  console.error('SUPABASE_SERVICE_ROLE_KEY 에 영문·숫자가 아닌 글자가 들어 있습니다.');
+  console.error('안내문의 「여기에키」를 실제 키로 바꾸셨는지 보세요.');
+  console.error('키는 Supabase 대시보드 → Project Settings → API Keys → service_role 에 있습니다.');
+  process.exit(1);
+}
+
 const enPath = process.argv[2];
 if (!enPath) {
   console.error('영어 콘텐츠 파일 경로를 인자로 주세요. (예: content-en/genesis-01-12.js)');
