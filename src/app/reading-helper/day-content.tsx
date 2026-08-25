@@ -47,7 +47,7 @@ export default function ReadingHelperDayContentScreen() {
         const dayNumber = dayNumberForDate(startDate, date);
         try {
           const plan = buildFullPlan(startDate);
-          const content = await getDayContentForDay(startDate, dayNumber);
+          const content = await getDayContentForDay(startDate, dayNumber, lang);
           if (cancelled) return;
           setDay(plan[dayNumber - 1] ?? null);
           setDayContent(content);
@@ -60,7 +60,7 @@ export default function ReadingHelperDayContentScreen() {
       return () => {
         cancelled = true;
       };
-    }, [date, userId])
+    }, [date, userId, lang])
   );
 
   const hasQuizContent = dayContent !== null;

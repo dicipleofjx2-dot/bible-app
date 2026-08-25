@@ -9,7 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { useT } from '@/lib/i18n';
+import { useI18n, useT } from '@/lib/i18n';
 import { getStartDate, MEMORIZATION_POINTS, setMemorizationResult } from '@/lib/readingHelper/db';
 import { currentDayNumber, dayNumberForDate, todayDateString } from '@/lib/readingHelper/readingPlan';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
@@ -32,6 +32,7 @@ type Status = 'playing' | 'success' | 'failed';
 export default function ReadingHelperMemorizeScreen() {
   const theme = useTheme();
   const t = useT();
+  const { lang } = useI18n();
   const beepPlayer = useAudioPlayer(wrongBeep);
   const { session } = useAuth();
   const userId = session?.user.id;
@@ -57,7 +58,7 @@ export default function ReadingHelperMemorizeScreen() {
           return;
         }
         const dayNumber = reviewDate ? dayNumberForDate(startDate, reviewDate) : currentDayNumber(startDate);
-        const dayContent = await getDayContentForDay(startDate, dayNumber);
+        const dayContent = await getDayContentForDay(startDate, dayNumber, lang);
         if (!cancelled) {
           setContent(dayContent);
           setLoading(false);
@@ -66,7 +67,7 @@ export default function ReadingHelperMemorizeScreen() {
       return () => {
         cancelled = true;
       };
-    }, [userId, reviewDate])
+    }, [userId, reviewDate, lang])
   );
 
   if (loading) {

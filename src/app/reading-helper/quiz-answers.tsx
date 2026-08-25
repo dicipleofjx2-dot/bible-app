@@ -11,6 +11,7 @@ import { useAuth } from '@/lib/auth';
 import { getStartDate } from '@/lib/readingHelper/db';
 import { currentDayNumber, dayNumberForDate } from '@/lib/readingHelper/readingPlan';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
+import { useI18n } from '@/lib/i18n';
 import type { DayQuizContent, QuizQuestion } from '@/lib/readingHelper/quizTypes';
 
 function normalizeAnswer(s: string): string {
@@ -36,6 +37,7 @@ function isAnswerCorrect(q: QuizQuestion, userAnswer: number | string | undefine
 }
 
 export default function ReadingHelperQuizAnswersScreen() {
+  const { lang } = useI18n();
   const theme = useTheme();
   const { session } = useAuth();
   const userId = session?.user.id;
@@ -65,7 +67,7 @@ export default function ReadingHelperQuizAnswersScreen() {
           return;
         }
         const dayNumber = reviewDate ? dayNumberForDate(startDate, reviewDate) : currentDayNumber(startDate);
-        const dayContent = await getDayContentForDay(startDate, dayNumber);
+        const dayContent = await getDayContentForDay(startDate, dayNumber, lang);
         if (!cancelled) {
           setContent(dayContent);
           setLoading(false);
@@ -74,7 +76,7 @@ export default function ReadingHelperQuizAnswersScreen() {
       return () => {
         cancelled = true;
       };
-    }, [userId, reviewDate])
+    }, [userId, reviewDate, lang])
   );
 
   if (loading) {

@@ -109,7 +109,7 @@ export default function ReadingHelperHomeScreen() {
       setContentLoading(true);
       setContentError(false);
       try {
-        const content = await getDayContentForDay(guestStart, 1);
+        const content = await getDayContentForDay(guestStart, 1, lang);
         if (loadIdRef.current === loadId) setDayContent(content);
       } catch {
         if (loadIdRef.current === loadId) setContentError(true);
@@ -178,14 +178,14 @@ export default function ReadingHelperHomeScreen() {
       // 읽을 범위는 계획 공식(평일 3장·주일 5장)이 곧 기준이고, 해설·퀴즈·암송구절만
       // 우리가 보관한 콘텐츠에서 가져온다. 예전에는 블로그 발행 순서가 기준이었는데,
       // 발행이 멈추면 범위조차 안 보이던 문제가 있었다.
-      const content = await getDayContentForDay(startDate, dayNumber);
+      const content = await getDayContentForDay(startDate, dayNumber, lang);
       if (loadIdRef.current === loadId) setDayContent(content);
     } catch {
       if (loadIdRef.current === loadId) setContentError(true);
     } finally {
       if (loadIdRef.current === loadId) setContentLoading(false);
     }
-  }, [userId]);
+  }, [userId, lang]);
 
   useFocusEffect(
     useCallback(() => {

@@ -10,7 +10,12 @@
 -- 가리는 규칙과 「위 다섯만」은 0046 그대로다 — 82명 중 65명의 닉네임이 이메일
 -- 주소라 그대로 띄우면 순위표가 교인 이메일 명부가 된다.
 
-create or replace function public.reading_helper_ranking(top_n integer default 5)
+-- ⚠️ 돌려주는 칸이 늘었으므로(week_points 추가) 먼저 지워야 한다.
+--    create or replace 로는 반환 형태를 못 바꾼다:
+--      42P13: cannot change return type of existing function
+drop function if exists public.reading_helper_ranking(integer);
+
+create function public.reading_helper_ranking(top_n integer default 5)
 returns table (rank integer, display_name text, points integer, week_points integer, is_me boolean)
 language sql
 security definer

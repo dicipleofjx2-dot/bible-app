@@ -49,7 +49,7 @@ export default function ReadingHelperDayDetailScreen() {
           getDayRecord(userId, date),
         ]);
         const dayEntry = dayNumber >= 1 ? (plan[dayNumber - 1] ?? null) : null;
-        const content = dayEntry ? await getDayContentForDay(startDate, dayEntry.dayNumber) : null;
+        const content = dayEntry ? await getDayContentForDay(startDate, dayEntry.dayNumber, lang) : null;
         if (cancelled) return;
         setDay(dayEntry);
         setRecord(dayRecord);
@@ -59,7 +59,7 @@ export default function ReadingHelperDayDetailScreen() {
       return () => {
         cancelled = true;
       };
-    }, [date, userId])
+    }, [date, userId, lang])
   );
 
   if (loading) {

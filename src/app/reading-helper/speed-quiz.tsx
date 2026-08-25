@@ -9,7 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { useT } from '@/lib/i18n';
+import { useI18n, useT } from '@/lib/i18n';
 import { getStartDate, setSpeedQuizSuccess, SPEED_QUIZ_POINTS } from '@/lib/readingHelper/db';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 import { currentDayNumber, dayNumberForDate, todayDateString } from '@/lib/readingHelper/readingPlan';
@@ -32,6 +32,7 @@ type Outcome = 'correct' | 'wrong' | 'timeout';
 export default function ReadingHelperSpeedQuizScreen() {
   const theme = useTheme();
   const t = useT();
+  const { lang } = useI18n();
   const { session } = useAuth();
   const userId = session?.user.id;
   // 지난 날짜를 복습으로 여는 경우. 복습은 기록에 남지 않는다 — 성경퀴즈·암송과
@@ -56,7 +57,7 @@ export default function ReadingHelperSpeedQuizScreen() {
           return;
         }
         const day = reviewDate ? dayNumberForDate(startDate, reviewDate) : currentDayNumber(startDate);
-        const content = await getDayContentForDay(startDate, day);
+        const content = await getDayContentForDay(startDate, day, lang);
         if (cancelled) return;
         setDayNumber(day);
         setQuestions(content ? buildSpeedQuiz(content.questions) : []);
@@ -65,7 +66,7 @@ export default function ReadingHelperSpeedQuizScreen() {
       return () => {
         cancelled = true;
       };
-    }, [userId, reviewDate])
+    }, [userId, reviewDate, lang])
   );
 
   if (loading) {

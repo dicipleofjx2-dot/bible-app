@@ -8,7 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { useT } from '@/lib/i18n';
+import { useI18n, useT } from '@/lib/i18n';
 import type { StringKey } from '@/constants/strings';
 import {
   getStartDate,
@@ -42,6 +42,7 @@ function praiseKeyFor(score: number): StringKey {
 export default function ReadingHelperQuizScreen() {
   const theme = useTheme();
   const t = useT();
+  const { lang } = useI18n();
   const { session } = useAuth();
   const userId = session?.user.id;
   // A `date` param means this was opened from the archive/calendar to review
@@ -72,7 +73,7 @@ export default function ReadingHelperQuizScreen() {
           return;
         }
         const dayNumber = reviewDate ? dayNumberForDate(startDate, reviewDate) : currentDayNumber(startDate);
-        const dayContent = await getDayContentForDay(startDate, dayNumber);
+        const dayContent = await getDayContentForDay(startDate, dayNumber, lang);
         if (!cancelled) {
           setContent(dayContent);
           setLoading(false);
@@ -81,7 +82,7 @@ export default function ReadingHelperQuizScreen() {
       return () => {
         cancelled = true;
       };
-    }, [userId, reviewDate])
+    }, [userId, reviewDate, lang])
   );
 
   if (loading) {

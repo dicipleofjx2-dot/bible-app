@@ -28,6 +28,7 @@ import { useAuth } from '@/lib/auth';
 import { getStartDate, getTodayQuizScore, WORD_CARD_MIN_QUIZ_SCORE } from '@/lib/readingHelper/db';
 import { currentDayNumber, todayDateString } from '@/lib/readingHelper/readingPlan';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
+import { useI18n } from '@/lib/i18n';
 import { WORD_CARD_TEMPLATES, type WordCardTemplate } from '@/lib/readingHelper/wordCardTemplates';
 
 const MIN_FONT_SIZE = 14;
@@ -55,6 +56,7 @@ function clamp(value: number, min: number, max: number) {
 // 퀴즈를 풀지 않아도 계속 열려 있어 조건이 사실상 사라졌다.
 // (날짜별 제작 횟수 제한은 아직 없다)
 export default function WordCardScreen() {
+  const { lang } = useI18n();
   const theme = useTheme();
   const { session, loading: authLoading } = useAuth();
   const userId = session?.user.id;
@@ -81,7 +83,7 @@ export default function WordCardScreen() {
         ]);
         if (cancelled) return;
         setTodayQuizScore(score);
-        const content = await getDayContentForDay(startDate, dayNumber);
+        const content = await getDayContentForDay(startDate, dayNumber, lang);
         if (cancelled) return;
         if (content) {
           setDefaultVerse(content.memorization.text);
@@ -92,7 +94,7 @@ export default function WordCardScreen() {
       return () => {
         cancelled = true;
       };
-    }, [authLoading, userId]),
+    }, [authLoading, userId, lang]),
   );
 
   if (authLoading || !userId || checking) {
