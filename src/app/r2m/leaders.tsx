@@ -8,6 +8,8 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
+import type { StringKey } from '@/constants/strings';
 import {
   getEnrolledUsersStatus,
   getLeaderScope,
@@ -16,14 +18,15 @@ import {
   type LeaderScope,
 } from '@/db/r2m';
 
-const CHECKLIST_DOTS: { key: keyof DailyChecklist; label: string }[] = [
-  { key: 'qt', label: 'QT' },
-  { key: 'reading', label: '읽기' },
-  { key: 'meditation', label: '묵상' },
-  { key: 'prayer', label: '기도' },
-  { key: 'memorization', label: '암송' },
-  { key: 'obedience', label: '순종' },
-  { key: 'gratitude', label: '감사' },
+// 말이 아니라 열쇠만. 모듈 상수에 말을 담으면 처음 언어로 굳는다.
+const CHECKLIST_DOTS: { key: keyof DailyChecklist; labelKey: StringKey }[] = [
+  { key: 'qt', labelKey: 'r2m.item.qt' },
+  { key: 'reading', labelKey: 'r2m.short.reading' },
+  { key: 'meditation', labelKey: 'r2m.short.meditation' },
+  { key: 'prayer', labelKey: 'r2m.short.prayer' },
+  { key: 'memorization', labelKey: 'r2m.short.memorization' },
+  { key: 'obedience', labelKey: 'r2m.short.obedience' },
+  { key: 'gratitude', labelKey: 'r2m.short.gratitude' },
 ];
 
 function daysSince(dateStr: string): number {
@@ -32,6 +35,7 @@ function daysSince(dateStr: string): number {
 
 export default function R2MLeadersScreen() {
   const theme = useTheme();
+  const { lang, t } = useI18n();
   const { session, loading } = useAuth();
   const [scope, setScope] = useState<LeaderScope | null>(null);
   const [users, setUsers] = useState<EnrolledUserStatus[]>([]);
@@ -46,10 +50,10 @@ export default function R2MLeadersScreen() {
         .then((s) => {
           setScope(s);
           if (!s.isAdmin && !s.isLeader) return;
-          return getEnrolledUsersStatus(userId, s).then(setUsers);
+          return getEnrolledUsersStatus(userId, s, lang).then(setUsers);
         })
         .catch((e) => setError(e?.message ?? String(e)));
-    }, [session]),
+    }, [session, lang]),
   );
 
   if (loading) return null;
@@ -58,7 +62,7 @@ export default function R2MLeadersScreen() {
     return (
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.safeAreaCentered}>
-          <ThemedText themeColor="textSecondary">마이페이지에서 로그인해주세요.</ThemedText>
+          <ThemedText themeColor="textSecondary">{t('r2m.needLogin')}</ThemedText>
         </SafeAreaView>
       </ThemedView>
     );
@@ -68,7 +72,7 @@ export default function R2MLeadersScreen() {
     return (
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.safeAreaCentered}>
-          <ThemedText themeColor="textSecondary">리더로 지정된 분만 볼 수 있어요.</ThemedText>
+          <ThemedText themeColor="textSecondary">{t('r2m.leaders.onlyLeaders')}</ThemedText>
         </SafeAreaView>
       </ThemedView>
     );
@@ -79,12 +83,10 @@ export default function R2MLeadersScreen() {
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content}>
           <ThemedText type="title" style={styles.title}>
-            리더관리
+            {t('r2m.leaders.title')}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            {scope?.isAdmin
-              ? '전체 훈련생의 오늘 완료 여부입니다. 묵상/기도 내용은 어떤 관리자도 볼 수 없습니다.'
-              : '나에게 배정된 멤버의 오늘 완료 여부입니다. 묵상/기도 내용은 리더도 볼 수 없습니다.'}
+            {scope?.isAdmin ? t('r2m.leaders.noteAdmin') : t('r2m.leaders.noteLeader')}
           </ThemedText>
 
           {scope?.isAdmin && (
@@ -95,7 +97,7 @@ export default function R2MLeadersScreen() {
                 { backgroundColor: theme.backgroundElement },
                 pressed && styles.pressed,
               ]}>
-              <ThemedText type="smallBold">리더 지정 · 멤버 배정 ›</ThemedText>
+              <ThemedText type="smallBold">{t('r2m.leaders.assignLink')}</ThemedText>
             </Pressable>
           )}
 
@@ -112,7 +114,7 @@ export default function R2MLeadersScreen() {
                 <View style={styles.userHeader}>
                   <ThemedText type="smallBold">{u.username}</ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
-                    {u.courseTitle || '훈련과정 미등록'}
+                    {u.courseTitle || t('r2m.leaders.noCourse')}
                   </ThemedText>
                 </View>
                 <View style={styles.dotsRow}>
@@ -125,14 +127,14 @@ export default function R2MLeadersScreen() {
                         ]}
                       />
                       <ThemedText type="small" themeColor="textSecondary">
-                        {d.label}
+                        {t(d.labelKey)}
                       </ThemedText>
                     </View>
                   ))}
                 </View>
                 {inactive && (
                   <ThemedText type="small" style={styles.inactiveText}>
-                    ⚠️ 최근 활동 없음 — 관심이 필요해요
+                    {t('r2m.leaders.inactive')}
                   </ThemedText>
                 )}
               </View>
@@ -141,9 +143,7 @@ export default function R2MLeadersScreen() {
 
           {users.length === 0 && !error && scope && (
             <ThemedText type="small" themeColor="textSecondary" style={styles.emptyText}>
-              {scope.isAdmin
-                ? '아직 훈련과정에 등록했거나 리더에게 배정된 회원이 없어요. "리더 지정 · 멤버 배정"에서 배정해 주세요.'
-                : '아직 나에게 배정된 멤버가 없어요. 관리자에게 배정을 요청해 주세요.'}
+              {scope.isAdmin ? t('r2m.leaders.emptyAdmin') : t('r2m.leaders.emptyLeader')}
             </ThemedText>
           )}
         </ScrollView>

@@ -632,6 +632,142 @@ export const STRINGS = {
   'wc.share': { ko: '공유하기', en: 'Share' },
   'wc.editAgain': { ko: '다시 편집하기', en: 'Edit again' },
 
+  // ── R2M ──────────────────────────────────────────────────────
+  // 과정 이름·설명은 여기 없다. 관리자가 지어 DB(r2m_courses)에 넣는 말이라
+  // 영어 자리(title_en / description_en)를 표에 따로 두었다.
+  'r2m.courses.empty': {
+    ko: '아직 등록된 훈련과정이 없어요.',
+    en: 'No training courses have been added yet.',
+  },
+  'r2m.courses.weeks': { ko: '{n}주 과정', en: '{n}-week course' },
+  'r2m.course.notFound': { ko: '과정을 찾을 수 없어요.', en: 'That course could not be found.' },
+  'r2m.course.enrolled': {
+    ko: '이미 등록됨 · R2M 홈에서 진행하기',
+    en: 'Already enrolled · continue from the R2M home',
+  },
+  'r2m.course.enrolling': { ko: '등록 중...', en: 'Enrolling…' },
+  'r2m.course.enroll': { ko: '이 과정 등록하기', en: 'Enrol in this course' },
+  'r2m.course.curriculum': { ko: '주차별 커리큘럼', en: 'Week-by-week curriculum' },
+  'r2m.course.week': { ko: '{n}주 · {title}', en: 'Week {n} · {title}' },
+  'r2m.course.noWeeks': {
+    ko: '아직 등록된 주차 커리큘럼이 없어요.',
+    en: 'No weekly curriculum has been added yet.',
+  },
+
+  'r2m.home.noCourseTitle': {
+    ko: '아직 등록된 훈련과정이 없어요',
+    en: 'You are not enrolled in a course yet',
+  },
+  'r2m.home.noCourseBody': {
+    ko: '말씀을 읽고, 묵상하고, 기도하고, 순종하며 함께 성장하는 R2M 훈련과정에 참여해보세요.',
+    en: 'Join an R2M course and grow together — reading, meditating, praying and obeying the word.',
+  },
+  'r2m.home.browse': { ko: '훈련과정 둘러보기', en: 'Browse the courses' },
+  'r2m.home.weekProgress': {
+    ko: '{week} / {total}주차 · 이번 주 진행률 {done}/7',
+    en: 'Week {week} of {total} · this week {done}/7',
+  },
+  'r2m.home.missions': { ko: '이번 주 미션', en: 'This week’s missions' },
+  'r2m.home.todayTraining': { ko: '오늘의 훈련', en: 'Today’s training' },
+  'r2m.home.done': { ko: '완료', en: 'Done' },
+  'r2m.home.go': { ko: '하러 가기 ›', en: 'Go ›' },
+
+  'r2m.progress.title': { ko: '성장기록', en: 'Growth Record' },
+  'r2m.progress.subtitle': {
+    ko: '점수나 등급이 아니라, 지금까지 쌓아온 발걸음을 기록합니다.',
+    en: 'Not a score or a grade — a record of the steps you have taken so far.',
+  },
+  'r2m.item.qt': { ko: 'QT', en: 'Quiet Time' },
+  'r2m.item.reading': { ko: '성경읽기', en: 'Bible Reading' },
+  'r2m.item.meditation': { ko: '묵상', en: 'Meditation' },
+  'r2m.item.prayer': { ko: '기도', en: 'Prayer' },
+  'r2m.item.memorization': { ko: '말씀암송', en: 'Memorising' },
+  'r2m.item.obedience': { ko: '순종', en: 'Obedience' },
+  'r2m.item.gratitude': { ko: '감사', en: 'Gratitude' },
+  // 짧은 이름 — 리더관리의 좁은 칸에 쓴다.
+  'r2m.short.reading': { ko: '읽기', en: 'Read' },
+  'r2m.short.meditation': { ko: '묵상', en: 'Meditate' },
+  'r2m.short.prayer': { ko: '기도', en: 'Pray' },
+  'r2m.short.memorization': { ko: '암송', en: 'Memorise' },
+  'r2m.short.obedience': { ko: '순종', en: 'Obey' },
+  'r2m.short.gratitude': { ko: '감사', en: 'Thanks' },
+  // 세는 말. 숫자는 큰 글씨로 따로 있고 여기엔 단위만 붙는다.
+  'r2m.unit.days': { ko: '일', en: 'days' },
+  'r2m.unit.times': { ko: '회', en: 'times' },
+  'r2m.unit.count': { ko: '개', en: 'entries' },
+
+  'r2m.gratitude.title': { ko: '감사노트', en: 'Gratitude Notes' },
+  'r2m.gratitude.subtitle': {
+    ko: '오늘 감사한 일 세 가지를 적어보세요.',
+    en: 'Write down three things you are thankful for today.',
+  },
+  'r2m.gratitude.placeholder': { ko: '감사한 일 {n}', en: 'Thankful for… {n}' },
+  'r2m.gratitude.saved': { ko: '저장됨', en: 'Saved' },
+  'r2m.gratitude.save': { ko: '저장', en: 'Save' },
+  'r2m.gratitude.past': { ko: '지난 감사노트', en: 'Earlier notes' },
+  'r2m.gratitude.empty': { ko: '아직 기록이 없어요.', en: 'Nothing written down yet.' },
+
+  'r2m.needLogin': {
+    ko: '마이페이지에서 로그인해주세요.',
+    en: 'Please sign in from My Page.',
+  },
+  'r2m.leaders.onlyLeaders': {
+    ko: '리더로 지정된 분만 볼 수 있어요.',
+    en: 'Only those appointed as leaders can see this.',
+  },
+  'r2m.leaders.title': { ko: '리더관리', en: 'Leaders' },
+  'r2m.leaders.noteAdmin': {
+    ko: '전체 훈련생의 오늘 완료 여부입니다. 묵상/기도 내용은 어떤 관리자도 볼 수 없습니다.',
+    en: 'Today’s completion for every trainee. No administrator can see what was written for meditation or prayer.',
+  },
+  'r2m.leaders.noteLeader': {
+    ko: '나에게 배정된 멤버의 오늘 완료 여부입니다. 묵상/기도 내용은 리더도 볼 수 없습니다.',
+    en: 'Today’s completion for the members assigned to you. Leaders cannot see what was written for meditation or prayer either.',
+  },
+  'r2m.leaders.assignLink': {
+    ko: '리더 지정 · 멤버 배정 ›',
+    en: 'Assign leaders and members ›',
+  },
+  'r2m.leaders.noCourse': { ko: '훈련과정 미등록', en: 'Not enrolled in a course' },
+  'r2m.leaders.inactive': {
+    ko: '⚠️ 최근 활동 없음 — 관심이 필요해요',
+    en: '⚠️ No recent activity — worth checking in',
+  },
+  'r2m.leaders.emptyAdmin': {
+    ko: '아직 훈련과정에 등록했거나 리더에게 배정된 회원이 없어요. 「리더 지정 · 멤버 배정」에서 배정해 주세요.',
+    en: 'No one has enrolled in a course or been assigned to a leader yet. Use “Assign leaders and members” to set that up.',
+  },
+  'r2m.leaders.emptyLeader': {
+    ko: '아직 나에게 배정된 멤버가 없어요. 관리자에게 배정을 요청해 주세요.',
+    en: 'No members have been assigned to you yet. Ask an administrator to assign some.',
+  },
+
+  'r2m.assign.onlyAdmin': {
+    ko: '관리자만 접근할 수 있어요.',
+    en: 'Only administrators can open this.',
+  },
+  'r2m.assign.title': { ko: '리더 지정 · 멤버 배정', en: 'Assign Leaders and Members' },
+  'r2m.assign.note': {
+    ko: '회원에게 리더 자격을 주면 그분도 리더관리 화면을 볼 수 있어요. 배정된 멤버의 훈련 완료 여부만 보이고, 다른 리더의 멤버는 보이지 않습니다.',
+    en: 'Giving someone leader status lets them open the Leaders screen. They see only whether their own assigned members finished, and never another leader’s members.',
+  },
+  'r2m.assign.counts': {
+    ko: '리더 {leaders}명 · 소속된 멤버 {assigned}명 · 전체 회원 {total}명',
+    en: '{leaders} leaders · {assigned} members assigned · {total} members in all',
+  },
+  'r2m.assign.searchPlaceholder': { ko: '이름으로 찾기', en: 'Search by name' },
+  'r2m.assign.isLeader': { ko: ' · 리더', en: ' · leader' },
+  'r2m.assign.removeLeader': { ko: '리더 자격 빼기', en: 'Remove leader status' },
+  'r2m.assign.makeLeader': { ko: '리더로 지정', en: 'Make a leader' },
+  'r2m.assign.leaderOf': { ko: '소속 리더: {name}', en: 'Leader: {name}' },
+  'r2m.assign.noLeader': { ko: '없음', en: 'none' },
+  'r2m.assign.unassign': { ko: '소속 없음', en: 'No leader' },
+  'r2m.assign.needLeaderFirst': {
+    ko: '먼저 누군가를 리더로 지정해 주세요.',
+    en: 'Make someone a leader first.',
+  },
+  'r2m.assign.noMatch': { ko: '찾는 회원이 없어요.', en: 'No one matches that search.' },
+
   // ── 언어 ─────────────────────────────────────────────────────
   'lang.title': { ko: '언어', en: 'Language' },
   'lang.ko': { ko: '한국어', en: 'Korean' },

@@ -25,8 +25,23 @@ import {
   type Mission,
 } from '@/db/r2m';
 
-const EMPTY_COURSE_FORM = { title: '', description: '', totalWeeks: '6', leaderMessage: '' };
-const EMPTY_WEEK_FORM = { weekNumber: '1', title: '', theme: '', description: '' };
+// 영어 칸은 비워 두어도 된다. 비워 두면 영어로 보는 분에게도 한글이 그대로 나온다.
+const EMPTY_COURSE_FORM = {
+  title: '',
+  description: '',
+  titleEn: '',
+  descriptionEn: '',
+  totalWeeks: '6',
+  leaderMessage: '',
+};
+const EMPTY_WEEK_FORM = {
+  weekNumber: '1',
+  title: '',
+  theme: '',
+  description: '',
+  titleEn: '',
+  descriptionEn: '',
+};
 const EMPTY_MISSION_FORM = { weekNumber: '1', body: '' };
 
 export default function R2MCoursesAdminScreen() {
@@ -83,6 +98,8 @@ export default function R2MCoursesAdminScreen() {
     const result = await insertCourse({
       title: courseForm.title.trim(),
       description: courseForm.description,
+      titleEn: courseForm.titleEn.trim(),
+      descriptionEn: courseForm.descriptionEn.trim(),
       totalWeeks,
       leaderMessage: courseForm.leaderMessage,
     });
@@ -120,6 +137,8 @@ export default function R2MCoursesAdminScreen() {
       title: weekForm.title.trim(),
       theme: weekForm.theme,
       description: weekForm.description,
+      titleEn: weekForm.titleEn.trim(),
+      descriptionEn: weekForm.descriptionEn.trim(),
     });
     if (result.error) {
       setWeekError(result.error);
@@ -205,6 +224,22 @@ export default function R2MCoursesAdminScreen() {
               multiline
               style={[styles.input, styles.multiline, { color: theme.text, backgroundColor: theme.backgroundElement }]}
             />
+            {/* 영어로 보는 분에게 나갈 말. 비워 두면 위의 한글이 그대로 나간다. */}
+            <TextInput
+              value={courseForm.titleEn}
+              onChangeText={(v) => setCourseForm((p) => ({ ...p, titleEn: v }))}
+              placeholder="과정명 영어 (비워 두면 한글이 그대로 나옵니다)"
+              placeholderTextColor={theme.textSecondary}
+              style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
+            />
+            <TextInput
+              value={courseForm.descriptionEn}
+              onChangeText={(v) => setCourseForm((p) => ({ ...p, descriptionEn: v }))}
+              placeholder="소개 영어 (비워 두어도 됩니다)"
+              placeholderTextColor={theme.textSecondary}
+              multiline
+              style={[styles.input, styles.multiline, { color: theme.text, backgroundColor: theme.backgroundElement }]}
+            />
             <TextInput
               value={courseForm.totalWeeks}
               onChangeText={(v) => setCourseForm((p) => ({ ...p, totalWeeks: v.replace(/[^0-9]/g, '') }))}
@@ -275,6 +310,12 @@ export default function R2MCoursesAdminScreen() {
                         {w.theme}
                       </ThemedText>
                     ) : null}
+                    {/* 영어를 적어 두었는지 여기서 바로 보이게 한다. 같은 주차 번호로
+                        다시 저장하면 아래 칸에 적은 것으로 덮이므로, 무엇이 들어 있는지
+                        모르면 영어를 실수로 지우게 된다. */}
+                    <ThemedText type="small" themeColor="textSecondary">
+                      EN: {w.titleEn || '(없음)'}
+                    </ThemedText>
                   </View>
                   <Pressable onPress={() => handleDeleteWeek(w.id)} hitSlop={8}>
                     <ThemedText type="small" style={styles.errorText}>
@@ -314,6 +355,21 @@ export default function R2MCoursesAdminScreen() {
                   value={weekForm.description}
                   onChangeText={(v) => setWeekForm((p) => ({ ...p, description: v }))}
                   placeholder="설명"
+                  placeholderTextColor={theme.textSecondary}
+                  multiline
+                  style={[styles.input, styles.multiline, { color: theme.text, backgroundColor: theme.background }]}
+                />
+                <TextInput
+                  value={weekForm.titleEn}
+                  onChangeText={(v) => setWeekForm((p) => ({ ...p, titleEn: v }))}
+                  placeholder="주차 제목 영어 (비워 두면 한글이 그대로 나옵니다)"
+                  placeholderTextColor={theme.textSecondary}
+                  style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
+                />
+                <TextInput
+                  value={weekForm.descriptionEn}
+                  onChangeText={(v) => setWeekForm((p) => ({ ...p, descriptionEn: v }))}
+                  placeholder="설명 영어 (비워 두어도 됩니다)"
                   placeholderTextColor={theme.textSecondary}
                   multiline
                   style={[styles.input, styles.multiline, { color: theme.text, backgroundColor: theme.background }]}

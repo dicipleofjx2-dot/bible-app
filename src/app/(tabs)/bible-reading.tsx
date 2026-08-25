@@ -18,17 +18,20 @@ import {
   type Mission,
 } from '@/db/r2m';
 import type { Href } from 'expo-router';
+import { useI18n } from '@/lib/i18n';
+import type { StringKey } from '@/constants/strings';
 
-type ChecklistItem = { key: keyof DailyChecklist; label: string; href: Href };
+type ChecklistItem = { key: keyof DailyChecklist; labelKey: StringKey; href: Href };
 
+// 말이 아니라 열쇠만. 모듈 상수에 말을 담으면 처음 언어로 굳는다.
 const CHECKLIST_ITEMS: ChecklistItem[] = [
-  { key: 'qt', label: 'QT', href: '/meditation' },
-  { key: 'reading', label: '성경읽기', href: '/read' },
-  { key: 'meditation', label: '묵상', href: '/notes' },
-  { key: 'prayer', label: '기도', href: '/prayer-group' },
-  { key: 'memorization', label: '말씀암송', href: '/reading-helper' },
-  { key: 'obedience', label: '순종', href: '/spiritual-journal' },
-  { key: 'gratitude', label: '감사', href: '/r2m/gratitude' },
+  { key: 'qt', labelKey: 'r2m.item.qt', href: '/meditation' },
+  { key: 'reading', labelKey: 'r2m.item.reading', href: '/read' },
+  { key: 'meditation', labelKey: 'r2m.item.meditation', href: '/notes' },
+  { key: 'prayer', labelKey: 'r2m.item.prayer', href: '/prayer-group' },
+  { key: 'memorization', labelKey: 'r2m.item.memorization', href: '/reading-helper' },
+  { key: 'obedience', labelKey: 'r2m.item.obedience', href: '/spiritual-journal' },
+  { key: 'gratitude', labelKey: 'r2m.item.gratitude', href: '/r2m/gratitude' },
 ];
 
 const EMPTY_CHECKLIST: DailyChecklist = {
@@ -43,6 +46,7 @@ const EMPTY_CHECKLIST: DailyChecklist = {
 
 export default function R2MDashboardScreen() {
   const theme = useTheme();
+  const { lang, t } = useI18n();
   const { session } = useAuth();
   // 관리자뿐 아니라 리더로 지정된 회원도 리더관리에 들어간다.
   const [canLead, setCanLead] = useState(false);
@@ -65,7 +69,7 @@ export default function R2MDashboardScreen() {
       getTodayChecklist(session.user.id)
         .then(setChecklist)
         .catch(() => setChecklist(EMPTY_CHECKLIST));
-      getMyActiveEnrollment(session.user.id)
+      getMyActiveEnrollment(session.user.id, lang)
         .then((e) => {
           setEnrollment(e);
           if (e) {
@@ -77,7 +81,7 @@ export default function R2MDashboardScreen() {
           }
         })
         .catch(() => setEnrollment(null));
-    }, [session]),
+    }, [session, lang]),
   );
 
   const doneCount = Object.values(checklist).filter(Boolean).length;
@@ -92,15 +96,15 @@ export default function R2MDashboardScreen() {
 
           {enrollment === null && (
             <ThemedView type="backgroundElement" style={styles.emptyCard}>
-              <ThemedText type="smallBold">아직 등록된 훈련과정이 없어요</ThemedText>
+              <ThemedText type="smallBold">{t('r2m.home.noCourseTitle')}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                말씀을 읽고, 묵상하고, 기도하고, 순종하며 함께 성장하는 R2M 훈련과정에 참여해보세요.
+                {t('r2m.home.noCourseBody')}
               </ThemedText>
               <Pressable
                 onPress={() => router.push('/r2m/courses')}
                 style={[styles.primaryButton, { backgroundColor: theme.accent }]}>
                 <ThemedText type="smallBold" style={styles.primaryButtonText}>
-                  훈련과정 둘러보기
+                  {t('r2m.home.browse')}
                 </ThemedText>
               </Pressable>
             </ThemedView>
@@ -111,7 +115,11 @@ export default function R2MDashboardScreen() {
               <ThemedView type="backgroundElement" style={styles.headerCard}>
                 <ThemedText type="smallBold">{enrollment.courseTitle}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  {enrollment.currentWeek} / {enrollment.totalWeeks}주차 · 이번 주 진행률 {doneCount}/7
+                  {t('r2m.home.weekProgress', {
+                    week: enrollment.currentWeek,
+                    total: enrollment.totalWeeks,
+                    done: doneCount,
+                  })}
                 </ThemedText>
                 {enrollment.leaderMessage ? (
                   <View style={[styles.leaderMessage, { borderColor: theme.accent }]}>
@@ -122,7 +130,7 @@ export default function R2MDashboardScreen() {
 
               {missions.length > 0 && (
                 <View style={styles.section}>
-                  <ThemedText type="smallBold">이번 주 미션</ThemedText>
+                  <ThemedText type="smallBold">{t('r2m.home.missions')}</ThemedText>
                   {missions.map((m) => (
                     <ThemedText key={m.id} type="small" themeColor="textSecondary">
                       • {m.body}
@@ -132,7 +140,7 @@ export default function R2MDashboardScreen() {
               )}
 
               <View style={styles.section}>
-                <ThemedText type="smallBold">오늘의 훈련</ThemedText>
+                <ThemedText type="smallBold">{t('r2m.home.todayTraining')}</ThemedText>
                 {CHECKLIST_ITEMS.map((item) => {
                   const done = checklist[item.key];
                   return (
@@ -153,10 +161,10 @@ export default function R2MDashboardScreen() {
                         </ThemedText>
                       </View>
                       <ThemedText type="smallBold" style={styles.checklistLabel}>
-                        {item.label}
+                        {t(item.labelKey)}
                       </ThemedText>
                       <ThemedText type="small" themeColor="textSecondary">
-                        {done ? '완료' : '하러 가기 ›'}
+                        {done ? t('r2m.home.done') : t('r2m.home.go')}
                       </ThemedText>
                     </Pressable>
                   );
@@ -168,18 +176,18 @@ export default function R2MDashboardScreen() {
           <View style={styles.linksRow}>
             <Pressable onPress={() => router.push('/r2m/courses')}>
               <ThemedText type="link" themeColor="textSecondary">
-                훈련과정
+                {t('nav.courses')}
               </ThemedText>
             </Pressable>
             <Pressable onPress={() => router.push('/r2m/progress')}>
               <ThemedText type="link" themeColor="textSecondary">
-                성장기록
+                {t('r2m.progress.title')}
               </ThemedText>
             </Pressable>
             {canLead && (
               <Pressable onPress={() => router.push('/r2m/leaders')}>
                 <ThemedText type="link" themeColor="textSecondary">
-                  리더관리
+                  {t('r2m.leaders.title')}
                 </ThemedText>
               </Pressable>
             )}

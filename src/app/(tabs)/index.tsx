@@ -12,7 +12,7 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useGradient, useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { useT } from '@/lib/i18n';
+import { useI18n } from '@/lib/i18n';
 import type { StringKey } from '@/constants/strings';
 import { getFirstQtEntry, getQtEntryForDate } from '@/db/bible';
 import { getMyActiveEnrollment, getTodayChecklistCount, type ActiveEnrollment } from '@/db/r2m';
@@ -84,7 +84,7 @@ const HOME_TILES: HomeTile[] = [
 export default function HomeScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
-  const t = useT();
+  const { lang, t } = useI18n();
   const gradient = useGradient();
 
   // 바둑판 아이콘 받침. 밝은 모드와 어두운 모드가 서로 다른 방식으로 층을
@@ -165,13 +165,13 @@ export default function HomeScreen() {
         setChecklistCount(0);
         return;
       }
-      getMyActiveEnrollment(session.user.id)
+      getMyActiveEnrollment(session.user.id, lang)
         .then(setEnrollment)
         .catch(() => setEnrollment(null));
       getTodayChecklistCount(session.user.id)
         .then(setChecklistCount)
         .catch(() => setChecklistCount(0));
-    }, [session]),
+    }, [session, lang]),
   );
 
   const journeySteps: JourneyStep[] = [

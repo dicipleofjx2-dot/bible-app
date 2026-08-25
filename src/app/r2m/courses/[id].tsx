@@ -8,11 +8,13 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import {
   enrollInCourse,
   getCourseById,
   getCourseWeeks,
   getMyEnrollmentForCourse,
+  pickText,
   type Course,
   type CourseWeek,
 } from '@/db/r2m';
@@ -20,6 +22,7 @@ import {
 export default function CourseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const theme = useTheme();
+  const { lang, t } = useI18n();
   const { session } = useAuth();
   const [course, setCourse] = useState<Course | null>(null);
   const [weeks, setWeeks] = useState<CourseWeek[]>([]);
@@ -63,7 +66,7 @@ export default function CourseDetailScreen() {
     return (
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.safeAreaCentered}>
-          <ThemedText themeColor="textSecondary">과정을 찾을 수 없어요.</ThemedText>
+          <ThemedText themeColor="textSecondary">{t('r2m.course.notFound')}</ThemedText>
         </SafeAreaView>
       </ThemedView>
     );
@@ -71,14 +74,16 @@ export default function CourseDetailScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <Stack.Screen options={{ title: course.title }} />
+      <Stack.Screen options={{ title: pickText(course.title, course.titleEn, lang) }} />
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content}>
-          <ThemedText type="subtitle">{course.title}</ThemedText>
+          <ThemedText type="subtitle">{pickText(course.title, course.titleEn, lang)}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            {course.totalWeeks}주 과정
+            {t('r2m.courses.weeks', { n: course.totalWeeks })}
           </ThemedText>
-          {course.description ? <ThemedText>{course.description}</ThemedText> : null}
+          {course.description ? (
+            <ThemedText>{pickText(course.description, course.descriptionEn, lang)}</ThemedText>
+          ) : null}
 
           {error && (
             <ThemedText type="small" style={styles.errorText}>
@@ -94,28 +99,39 @@ export default function CourseDetailScreen() {
               { backgroundColor: theme.accent, opacity: enrolled || enrolling ? 0.5 : 1 },
             ]}>
             <ThemedText type="smallBold" style={styles.enrollButtonText}>
-              {enrolled ? '이미 등록됨 · R2M 홈에서 진행하기' : enrolling ? '등록 중...' : '이 과정 등록하기'}
+              {enrolled
+                ? t('r2m.course.enrolled')
+                : enrolling
+                  ? t('r2m.course.enrolling')
+                  : t('r2m.course.enroll')}
             </ThemedText>
           </Pressable>
 
           <View style={styles.weeksSection}>
-            <ThemedText type="smallBold">주차별 커리큘럼</ThemedText>
+            <ThemedText type="smallBold">{t('r2m.course.curriculum')}</ThemedText>
             {weeks.map((w) => (
               <View key={w.id} style={[styles.weekRow, { backgroundColor: theme.backgroundElement }]}>
                 <ThemedText type="smallBold">
-                  {w.weekNumber}주 · {w.title}
+                  {t('r2m.course.week', {
+                    n: w.weekNumber,
+                    title: pickText(w.title, w.titleEn, lang),
+                  })}
                 </ThemedText>
                 {w.theme ? (
                   <ThemedText type="small" themeColor="textSecondary">
                     {w.theme}
                   </ThemedText>
                 ) : null}
-                {w.description ? <ThemedText type="small">{w.description}</ThemedText> : null}
+                {w.description ? (
+                  <ThemedText type="small">
+                    {pickText(w.description, w.descriptionEn, lang)}
+                  </ThemedText>
+                ) : null}
               </View>
             ))}
             {weeks.length === 0 && (
               <ThemedText type="small" themeColor="textSecondary">
-                아직 등록된 주차 커리큘럼이 없어요.
+                {t('r2m.course.noWeeks')}
               </ThemedText>
             )}
           </View>

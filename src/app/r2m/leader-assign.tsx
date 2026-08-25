@@ -8,11 +8,13 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import { getIsAdmin } from '@/db/profile';
 import { assignMemberToLeader, getMembersForAssignment, setLeader, type AppMember } from '@/db/r2m';
 
 export default function R2MLeaderAssignScreen() {
   const theme = useTheme();
+  const { t } = useI18n();
   const { session, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [members, setMembers] = useState<AppMember[]>([]);
@@ -75,7 +77,7 @@ export default function R2MLeaderAssignScreen() {
     return (
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.safeAreaCentered}>
-          <ThemedText themeColor="textSecondary">마이페이지에서 로그인해주세요.</ThemedText>
+          <ThemedText themeColor="textSecondary">{t('r2m.needLogin')}</ThemedText>
         </SafeAreaView>
       </ThemedView>
     );
@@ -85,7 +87,7 @@ export default function R2MLeaderAssignScreen() {
     return (
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.safeAreaCentered}>
-          <ThemedText themeColor="textSecondary">관리자만 접근할 수 있어요.</ThemedText>
+          <ThemedText themeColor="textSecondary">{t('r2m.assign.onlyAdmin')}</ThemedText>
         </SafeAreaView>
       </ThemedView>
     );
@@ -96,11 +98,10 @@ export default function R2MLeaderAssignScreen() {
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <ThemedText type="title" style={styles.title}>
-            리더 지정 · 멤버 배정
+            {t('r2m.assign.title')}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            회원에게 리더 자격을 주면 그분도 리더관리 화면을 볼 수 있어요. 배정된 멤버의 훈련
-            완료 여부만 보이고, 다른 리더의 멤버는 보이지 않습니다.
+            {t('r2m.assign.note')}
           </ThemedText>
 
           {error && (
@@ -111,15 +112,18 @@ export default function R2MLeaderAssignScreen() {
 
           <View style={[styles.summary, { backgroundColor: theme.backgroundElement }]}>
             <ThemedText type="small" themeColor="textSecondary">
-              리더 {leaders.length}명 · 소속된 멤버 {members.filter((m) => m.leaderId).length}명 · 전체 회원{' '}
-              {members.length}명
+              {t('r2m.assign.counts', {
+                leaders: leaders.length,
+                assigned: members.filter((m) => m.leaderId).length,
+                total: members.length,
+              })}
             </ThemedText>
           </View>
 
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder="이름으로 찾기"
+            placeholder={t('r2m.assign.searchPlaceholder')}
             placeholderTextColor={theme.textSecondary}
             style={[styles.search, { color: theme.text, backgroundColor: theme.backgroundElement }]}
           />
@@ -132,7 +136,7 @@ export default function R2MLeaderAssignScreen() {
                 <View style={styles.cardHeader}>
                   <ThemedText type="smallBold">
                     {m.username}
-                    {m.isLeader ? ' · 리더' : ''}
+                    {m.isLeader ? t('r2m.assign.isLeader') : ''}
                   </ThemedText>
                   <Pressable
                     disabled={busy}
@@ -142,7 +146,9 @@ export default function R2MLeaderAssignScreen() {
                       { borderColor: theme.accent, opacity: busy ? 0.5 : 1 },
                       pressed && styles.pressed,
                     ]}>
-                    <ThemedText type="small">{m.isLeader ? '리더 자격 빼기' : '리더로 지정'}</ThemedText>
+                    <ThemedText type="small">
+                      {m.isLeader ? t('r2m.assign.removeLeader') : t('r2m.assign.makeLeader')}
+                    </ThemedText>
                   </Pressable>
                 </View>
 
@@ -151,7 +157,8 @@ export default function R2MLeaderAssignScreen() {
                   onPress={() => setPickingFor(picking ? null : m.userId)}
                   style={({ pressed }) => [styles.leaderRow, pressed && styles.pressed]}>
                   <ThemedText type="small" themeColor="textSecondary">
-                    소속 리더: {m.leaderName ?? '없음'} {picking ? '▲' : '▼'}
+                    {t('r2m.assign.leaderOf', { name: m.leaderName ?? t('r2m.assign.noLeader') })}{' '}
+                    {picking ? '▲' : '▼'}
                   </ThemedText>
                 </Pressable>
 
@@ -164,7 +171,7 @@ export default function R2MLeaderAssignScreen() {
                         { backgroundColor: theme.background },
                         pressed && styles.pressed,
                       ]}>
-                      <ThemedText type="small">소속 없음</ThemedText>
+                      <ThemedText type="small">{t('r2m.assign.unassign')}</ThemedText>
                     </Pressable>
                     {leaders
                       .filter((l) => l.userId !== m.userId)
@@ -184,7 +191,7 @@ export default function R2MLeaderAssignScreen() {
                       ))}
                     {leaders.filter((l) => l.userId !== m.userId).length === 0 && (
                       <ThemedText type="small" themeColor="textSecondary">
-                        먼저 누군가를 리더로 지정해 주세요.
+                        {t('r2m.assign.needLeaderFirst')}
                       </ThemedText>
                     )}
                   </View>
@@ -195,7 +202,7 @@ export default function R2MLeaderAssignScreen() {
 
           {visible.length === 0 && (
             <ThemedText type="small" themeColor="textSecondary" style={styles.emptyText}>
-              찾는 회원이 없어요.
+              {t('r2m.assign.noMatch')}
             </ThemedText>
           )}
         </ScrollView>

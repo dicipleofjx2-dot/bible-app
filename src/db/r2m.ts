@@ -9,6 +9,9 @@ export type Course = {
   id: string;
   title: string;
   description: string;
+  /** 관리자가 적어 둔 영어. 안 적었으면 빈 문자열이고, 화면에는 한글이 나온다. */
+  titleEn: string;
+  descriptionEn: string;
   totalWeeks: number;
   leaderMessage: string;
   isPublished: boolean;
@@ -22,7 +25,24 @@ export type CourseWeek = {
   title: string;
   theme: string;
   description: string;
+  titleEn: string;
+  descriptionEn: string;
 };
+
+/**
+ * 과정 이름·주차 제목처럼 **관리자가 지은 말**을 그 언어로 고른다.
+ *
+ * 이 말은 사전(strings.ts)에 넣을 수 없다 — 교회마다 기수마다 다르고, 바꾸려면
+ * 앱을 새로 배포해야 하기 때문이다. 그래서 DB 에 영어 자리를 나란히 두고
+ * 고르는 규칙은 **여기 한 곳에만** 둔다. 화면마다 따로 고르면 어느 화면은
+ * 영어가 나오고 어느 화면은 한글이 나오는 일이 생긴다.
+ *
+ * 영어 자리가 비어 있으면 한글을 그대로 준다. 빈 줄보다 낫다.
+ */
+export function pickText(ko: string, en: string, lang: 'ko' | 'en'): string {
+  if (lang === 'en' && en.trim().length > 0) return en;
+  return ko;
+}
 
 export type Mission = {
   id: string;
@@ -100,6 +120,8 @@ function mapCourse(row: any): Course {
     id: row.id,
     title: row.title,
     description: row.description ?? '',
+    titleEn: row.title_en ?? '',
+    descriptionEn: row.description_en ?? '',
     totalWeeks: row.total_weeks,
     leaderMessage: row.leader_message ?? '',
     isPublished: row.is_published,
@@ -115,6 +137,8 @@ function mapWeek(row: any): CourseWeek {
     title: row.title,
     theme: row.theme ?? '',
     description: row.description ?? '',
+    titleEn: row.title_en ?? '',
+    descriptionEn: row.description_en ?? '',
   };
 }
 
@@ -218,10 +242,13 @@ export async function enrollInCourse(userId: string, courseId: string): Promise<
 
 // 완료되지 않은 가장 최근 등록을 "현재 과정"으로 삼는다. 계산된 주차가 총 주차를 넘으면
 // 이번 조회에서 자동으로 completed_at을 채우고(수료 처리), 활성 과정 없음으로 반환한다.
-export async function getMyActiveEnrollment(userId: string): Promise<ActiveEnrollment | null> {
+export async function getMyActiveEnrollment(
+  userId: string,
+  lang: 'ko' | 'en' = 'ko',
+): Promise<ActiveEnrollment | null> {
   const { data, error } = await supabase
     .from('r2m_enrollments')
-    .select('id, course_id, started_at, r2m_courses(title, total_weeks, leader_message)')
+    .select('id, course_id, started_at, r2m_courses(title, title_en, total_weeks, leader_message)')
     .eq('user_id', userId)
     .is('completed_at', null)
     .order('started_at', { ascending: false })
@@ -241,7 +268,7 @@ export async function getMyActiveEnrollment(userId: string): Promise<ActiveEnrol
   return {
     enrollmentId: data.id,
     courseId: data.course_id,
-    courseTitle: course.title,
+    courseTitle: pickText(course.title, course.title_en ?? '', lang),
     leaderMessage: course.leader_message ?? '',
     totalWeeks: course.total_weeks,
     currentWeek,
@@ -369,14 +396,18 @@ export async function getLeaderScope(userId: string): Promise<LeaderScope> {
  *
  * 어느 쪽이든 완료 여부(불리언)만 가져온다. 묵상·기도 내용은 서버에 없다.
  */
-export async function getEnrolledUsersStatus(userId: string, scope: LeaderScope): Promise<EnrolledUserStatus[]> {
+export async function getEnrolledUsersStatus(
+  userId: string,
+  scope: LeaderScope,
+  lang: 'ko' | 'en' = 'ko',
+): Promise<EnrolledUserStatus[]> {
   // 리더는 배정표가 곧 명단이다. 관리자는 등록자와 배정된 멤버를 합쳐서 본다.
   const assignmentQuery = supabase.from('r2m_leader_members').select('member_id');
   const [assignmentResult, enrollmentResult] = await Promise.all([
     scope.isAdmin ? assignmentQuery : assignmentQuery.eq('leader_id', userId),
     supabase
       .from('r2m_enrollments')
-      .select('user_id, started_at, r2m_courses(title)')
+      .select('user_id, started_at, r2m_courses(title, title_en)')
       .is('completed_at', null)
       .order('started_at', { ascending: true }),
   ]);
@@ -422,8 +453,14 @@ export async function getEnrolledUsersStatus(userId: string, scope: LeaderScope)
       const enrollment = enrollmentByUser.get(id);
       return {
         userId: id,
-        username: nameByUser.get(id) ?? '익명',
-        courseTitle: enrollment?.r2m_courses?.title ?? '',
+        username: nameByUser.get(id) ?? (lang === 'en' ? 'Anonymous' : '익명'),
+        courseTitle: enrollment?.r2m_courses
+          ? pickText(
+              enrollment.r2m_courses.title,
+              enrollment.r2m_courses.title_en ?? '',
+              lang,
+            )
+          : '',
         startedAt: enrollment?.started_at ?? null,
         today: {
           qt: !!checkin?.qt,
@@ -556,6 +593,8 @@ export async function getAllCoursesForAdmin(): Promise<Course[]> {
 export async function insertCourse(entry: {
   title: string;
   description: string;
+  titleEn?: string;
+  descriptionEn?: string;
   totalWeeks: number;
   leaderMessage: string;
 }): Promise<{ id?: string; error?: string }> {
@@ -564,6 +603,8 @@ export async function insertCourse(entry: {
     .insert({
       title: entry.title,
       description: entry.description,
+      title_en: entry.titleEn || null,
+      description_en: entry.descriptionEn || null,
       total_weeks: entry.totalWeeks,
       leader_message: entry.leaderMessage,
     })
@@ -574,13 +615,26 @@ export async function insertCourse(entry: {
 
 export async function updateCourse(
   id: string,
-  patch: Partial<{ title: string; description: string; totalWeeks: number; leaderMessage: string; isPublished: boolean }>,
+  patch: Partial<{
+    title: string;
+    description: string;
+    titleEn: string;
+    descriptionEn: string;
+    totalWeeks: number;
+    leaderMessage: string;
+    isPublished: boolean;
+  }>,
 ): Promise<{ error?: string }> {
   const { error } = await supabase
     .from('r2m_courses')
     .update({
       ...(patch.title !== undefined ? { title: patch.title } : {}),
       ...(patch.description !== undefined ? { description: patch.description } : {}),
+      // 빈칸으로 지우면 null 로 되돌린다 — 그러면 화면에 한글이 다시 나온다.
+      ...(patch.titleEn !== undefined ? { title_en: patch.titleEn || null } : {}),
+      ...(patch.descriptionEn !== undefined
+        ? { description_en: patch.descriptionEn || null }
+        : {}),
       ...(patch.totalWeeks !== undefined ? { total_weeks: patch.totalWeeks } : {}),
       ...(patch.leaderMessage !== undefined ? { leader_message: patch.leaderMessage } : {}),
       ...(patch.isPublished !== undefined ? { is_published: patch.isPublished } : {}),
@@ -600,6 +654,8 @@ export async function upsertCourseWeek(entry: {
   title: string;
   theme: string;
   description: string;
+  titleEn?: string;
+  descriptionEn?: string;
 }): Promise<{ error?: string }> {
   const { error } = await supabase.from('r2m_course_weeks').upsert(
     {
@@ -608,6 +664,8 @@ export async function upsertCourseWeek(entry: {
       title: entry.title,
       theme: entry.theme,
       description: entry.description,
+      title_en: entry.titleEn || null,
+      description_en: entry.descriptionEn || null,
     },
     { onConflict: 'course_id,week_number' },
   );

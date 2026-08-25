@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import { pingCheckin } from '@/db/r2m';
 import { getAllGratitudeEntries, getGratitudeEntry, upsertGratitudeEntry, type GratitudeEntry } from '@/db/userData';
 
@@ -18,6 +19,7 @@ function todayDateString() {
 
 export default function GratitudeScreen() {
   const theme = useTheme();
+  const { t } = useI18n();
   const { session } = useAuth();
   const today = todayDateString();
 
@@ -54,17 +56,17 @@ export default function GratitudeScreen() {
       <ThemedView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
           <ThemedText type="title" style={styles.title}>
-            감사노트
+            {t('r2m.gratitude.title')}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            오늘 감사한 일 세 가지를 적어보세요.
+            {t('r2m.gratitude.subtitle')}
           </ThemedText>
 
           <View style={styles.form}>
             {[
-              { value: item1, setter: setItem1, placeholder: '감사한 일 1' },
-              { value: item2, setter: setItem2, placeholder: '감사한 일 2' },
-              { value: item3, setter: setItem3, placeholder: '감사한 일 3' },
+              { value: item1, setter: setItem1, placeholder: t('r2m.gratitude.placeholder', { n: 1 }) },
+              { value: item2, setter: setItem2, placeholder: t('r2m.gratitude.placeholder', { n: 2 }) },
+              { value: item3, setter: setItem3, placeholder: t('r2m.gratitude.placeholder', { n: 3 }) },
             ].map((row, i) => (
               <TextInput
                 key={i}
@@ -82,13 +84,13 @@ export default function GratitudeScreen() {
               onPress={save}
               style={[styles.saveButton, { backgroundColor: theme.accent }]}>
               <ThemedText type="smallBold" style={styles.saveButtonText}>
-                {saved ? '저장됨' : '저장'}
+                {saved ? t('r2m.gratitude.saved') : t('r2m.gratitude.save')}
               </ThemedText>
             </Pressable>
           </View>
 
           <View style={styles.historySection}>
-            <ThemedText type="smallBold">지난 감사노트</ThemedText>
+            <ThemedText type="smallBold">{t('r2m.gratitude.past')}</ThemedText>
             {history
               .filter((e) => e.date !== today)
               .map((entry) => (
@@ -105,7 +107,7 @@ export default function GratitudeScreen() {
               ))}
             {history.length === 0 && (
               <ThemedText type="small" themeColor="textSecondary">
-                아직 기록이 없어요.
+                {t('r2m.gratitude.empty')}
               </ThemedText>
             )}
           </View>

@@ -8,22 +8,27 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
+import type { StringKey } from '@/constants/strings';
 import { getProgressCounts, type ProgressCounts } from '@/db/r2m';
 
 const EMPTY_COUNTS: ProgressCounts = { qt: 0, reading: 0, meditation: 0, prayer: 0, memorization: 0, obedience: 0, gratitude: 0 };
 
-const ROWS: { key: keyof ProgressCounts; emoji: string; label: string; unit: string }[] = [
-  { key: 'qt', emoji: '📖', label: 'QT', unit: '일' },
-  { key: 'reading', emoji: '📚', label: '성경읽기', unit: '일' },
-  { key: 'meditation', emoji: '💡', label: '묵상', unit: '개' },
-  { key: 'prayer', emoji: '🙏', label: '기도', unit: '회' },
-  { key: 'memorization', emoji: '✍️', label: '말씀암송', unit: '회' },
-  { key: 'obedience', emoji: '❤️‍🔥', label: '순종', unit: '회' },
-  { key: 'gratitude', emoji: '🙌', label: '감사', unit: '회' },
+// 말이 아니라 **열쇠만** 둔다. 말을 모듈 상수에 담으면 모듈을 읽을 때 굳어,
+// 언어를 바꿔도 처음 언어로 남는다.
+const ROWS: { key: keyof ProgressCounts; emoji: string; labelKey: StringKey; unitKey: StringKey }[] = [
+  { key: 'qt', emoji: '📖', labelKey: 'r2m.item.qt', unitKey: 'r2m.unit.days' },
+  { key: 'reading', emoji: '📚', labelKey: 'r2m.item.reading', unitKey: 'r2m.unit.days' },
+  { key: 'meditation', emoji: '💡', labelKey: 'r2m.item.meditation', unitKey: 'r2m.unit.count' },
+  { key: 'prayer', emoji: '🙏', labelKey: 'r2m.item.prayer', unitKey: 'r2m.unit.times' },
+  { key: 'memorization', emoji: '✍️', labelKey: 'r2m.item.memorization', unitKey: 'r2m.unit.times' },
+  { key: 'obedience', emoji: '❤️‍🔥', labelKey: 'r2m.item.obedience', unitKey: 'r2m.unit.times' },
+  { key: 'gratitude', emoji: '🙌', labelKey: 'r2m.item.gratitude', unitKey: 'r2m.unit.times' },
 ];
 
 export default function R2MProgressScreen() {
   const theme = useTheme();
+  const { t } = useI18n();
   const { session } = useAuth();
   const [counts, setCounts] = useState<ProgressCounts>(EMPTY_COUNTS);
 
@@ -44,10 +49,10 @@ export default function R2MProgressScreen() {
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content}>
           <ThemedText type="title" style={styles.title}>
-            성장기록
+            {t('r2m.progress.title')}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            점수나 등급이 아니라, 지금까지 쌓아온 발걸음을 기록합니다.
+            {t('r2m.progress.subtitle')}
           </ThemedText>
 
           <View style={styles.grid}>
@@ -58,7 +63,7 @@ export default function R2MProgressScreen() {
                   {counts[row.key]}
                 </ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  {row.label} {row.unit}
+                  {t(row.labelKey)} {t(row.unitKey)}
                 </ThemedText>
               </View>
             ))}

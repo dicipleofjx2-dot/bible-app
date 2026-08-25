@@ -7,10 +7,12 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { getPublishedCourses, type Course } from '@/db/r2m';
+import { useI18n } from '@/lib/i18n';
+import { getPublishedCourses, pickText, type Course } from '@/db/r2m';
 
 export default function R2MCoursesScreen() {
   const theme = useTheme();
+  const { lang, t } = useI18n();
   const [courses, setCourses] = useState<Course[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,25 +33,25 @@ export default function R2MCoursesScreen() {
           contentContainerStyle={styles.listContent}
           ListHeaderComponent={
             <ThemedText type="title" style={styles.title}>
-              훈련과정
+              {t('nav.courses')}
             </ThemedText>
           }
           ListEmptyComponent={
             <ThemedText themeColor="textSecondary" style={styles.emptyText}>
-              {error ?? '아직 등록된 훈련과정이 없어요.'}
+              {error ?? t('r2m.courses.empty')}
             </ThemedText>
           }
           renderItem={({ item }) => (
             <Pressable
               onPress={() => router.push({ pathname: '/r2m/courses/[id]', params: { id: item.id } })}
               style={({ pressed }) => [styles.card, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
-              <ThemedText type="smallBold">{item.title}</ThemedText>
+              <ThemedText type="smallBold">{pickText(item.title, item.titleEn, lang)}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                {item.totalWeeks}주 과정
+                {t('r2m.courses.weeks', { n: item.totalWeeks })}
               </ThemedText>
               {item.description ? (
                 <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
-                  {item.description}
+                  {pickText(item.description, item.descriptionEn, lang)}
                 </ThemedText>
               ) : null}
             </Pressable>
