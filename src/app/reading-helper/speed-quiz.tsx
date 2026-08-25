@@ -9,6 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { useT } from '@/lib/i18n';
 import { getStartDate, setSpeedQuizSuccess, SPEED_QUIZ_POINTS } from '@/lib/readingHelper/db';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 import { currentDayNumber, dayNumberForDate, todayDateString } from '@/lib/readingHelper/readingPlan';
@@ -30,6 +31,7 @@ type Outcome = 'correct' | 'wrong' | 'timeout';
 
 export default function ReadingHelperSpeedQuizScreen() {
   const theme = useTheme();
+  const t = useT();
   const { session } = useAuth();
   const userId = session?.user.id;
   // 지난 날짜를 복습으로 여는 경우. 복습은 기록에 남지 않는다 — 성경퀴즈·암송과
@@ -78,9 +80,9 @@ export default function ReadingHelperSpeedQuizScreen() {
     return (
       <ThemedView style={styles.screen}>
         <SafeAreaView style={styles.centered}>
-          <ThemedText type="subtitle">3초 성경 OX</ThemedText>
+          <ThemedText type="subtitle">{t('ox.title')}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-            오늘의 퀴즈 콘텐츠가 아직 준비되지 않아 문제를 만들 수 없어요.
+            {t('ox.notReady')}
           </ThemedText>
           <Pressable
             onPress={() => router.back()}
@@ -89,7 +91,7 @@ export default function ReadingHelperSpeedQuizScreen() {
               { backgroundColor: theme.backgroundElement },
               pressed && styles.pressed,
             ]}>
-            <ThemedText type="smallBold">돌아가기</ThemedText>
+            <ThemedText type="smallBold">{t('quiz.back')}</ThemedText>
           </Pressable>
         </SafeAreaView>
       </ThemedView>
@@ -133,6 +135,7 @@ function SpeedGame({
   onRestart: () => void;
 }) {
   const theme = useTheme();
+  const t = useT();
   const tickPlayer = useAudioPlayer(tickSound);
   const wrongPlayer = useAudioPlayer(wrongSound);
 
@@ -229,8 +232,8 @@ function SpeedGame({
       <ThemedView style={styles.screen}>
         <SafeAreaView style={styles.centered}>
           <ThemedText type="small" themeColor="textSecondary">
-            3초 성경 OX | Day {dayNumber}
-            {isReview ? ' (복습)' : ''}
+            {t('ox.title')} | Day {dayNumber}
+            {isReview ? t('quiz.headerReview') : ''}
           </ThemedText>
           <ThemedText style={[styles.bigScore, { color: theme.backgroundSelected }]}>
             {correctCount} / {total}
@@ -239,17 +242,17 @@ function SpeedGame({
           {allCorrect ? (
             <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
               <ThemedText style={styles.cardText}>
-                {isReview ? '🏆 전부 맞혔어요!' : `🏆 전부 맞혔어요! 포인트 +${SPEED_QUIZ_POINTS}점`}
+                {isReview
+                  ? t('ox.allCorrectReview')
+                  : t('ox.allCorrect', { n: SPEED_QUIZ_POINTS })}
               </ThemedText>
               <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-                {isReview
-                  ? '복습 결과는 기록에 저장되지 않아요.'
-                  : '3초 안에 열 문제를 다 맞히다니, 오늘 본문을 제대로 읽으셨네요.'}
+                {isReview ? t('quiz.reviewNotSaved') : t('ox.allCorrectNote')}
               </ThemedText>
             </View>
           ) : (
             <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-              열 문제를 모두 맞혀야 포인트 {SPEED_QUIZ_POINTS}점을 받아요. 다시 도전해보세요!
+              {t('ox.retryNote', { n: SPEED_QUIZ_POINTS })}
             </ThemedText>
           )}
 
@@ -267,7 +270,7 @@ function SpeedGame({
               pressed && styles.pressed,
             ]}>
             <ThemedText type="smallBold" style={styles.onAccent}>
-              다시 하기
+              {t('ox.retry')}
             </ThemedText>
           </Pressable>
           <Pressable
@@ -277,7 +280,7 @@ function SpeedGame({
               { backgroundColor: theme.backgroundElement },
               pressed && styles.pressed,
             ]}>
-            <ThemedText type="smallBold">돌아가기</ThemedText>
+            <ThemedText type="smallBold">{t('quiz.back')}</ThemedText>
           </Pressable>
         </SafeAreaView>
       </ThemedView>
@@ -289,7 +292,8 @@ function SpeedGame({
       <SafeAreaView style={styles.playArea} edges={['bottom']}>
         <View style={styles.header}>
           <ThemedText type="smallBold">
-            3초 성경 OX{isReview ? ' (복습)' : ''}
+            {t('ox.title')}
+            {isReview ? t('quiz.headerReview') : ''}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             {index + 1} / {total}
@@ -341,11 +345,15 @@ function SpeedGame({
         ) : (
           <View style={[styles.feedback, { backgroundColor: theme.backgroundElement }]}>
             <ThemedText style={styles.feedbackMark}>
-              {outcome === 'correct' ? '⭕ 정답!' : outcome === 'timeout' ? '⏰ 시간 초과' : '❌ 땡!'}
+              {outcome === 'correct'
+                ? t('ox.correct')
+                : outcome === 'timeout'
+                  ? t('ox.timeout')
+                  : t('ox.wrong')}
             </ThemedText>
             {outcome !== 'correct' && (
               <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-                정답은 「{question.answer}」
+                {t('ox.answerIs', { answer: question.answer })}
               </ThemedText>
             )}
           </View>

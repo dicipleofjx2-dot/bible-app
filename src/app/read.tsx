@@ -90,7 +90,18 @@ export default function ReadScreen() {
   const [bookId, setBookId] = useState<number | null>(null);
   const [chapter, setChapter] = useState(1);
   const [chapterCount, setChapterCount] = useState(1);
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
+
+  /**
+   * 책 이름을 그 언어로.
+   *
+   * 책 이름은 문구 사전에 없다 — 66권을 사전에 옮겨 적으면 성경 표(books)의
+   * name_en 과 같은 것을 두 군데 두게 되고, 언젠가 둘이 어긋난다. 표에 이미
+   * 있는 것을 쓴다.
+   */
+  const bookNameOf = (b: Book | undefined | null) =>
+    b ? (lang === 'en' ? b.name_en : b.name_ko) : '';
+
   const [translation, setTranslation] = useState<Translation>(DEFAULT_TRANSLATION);
   /**
    * 저장해 둔 역본이 있었는가.
@@ -272,7 +283,7 @@ export default function ReadScreen() {
     const rows = await getBookmarks();
     const bookById = new Map(books.map((b) => [b.id, b]));
     setBookmarks(
-      rows.map((b) => ({ ...b, bookName: bookById.get(b.book_id)?.name_ko ?? '' }))
+      rows.map((b) => ({ ...b, bookName: bookNameOf(bookById.get(b.book_id)) }))
     );
   }, [books]);
 
@@ -363,7 +374,8 @@ export default function ReadScreen() {
   // 창을 여는 순간 다시 그려지므로, 그때의 스크롤 위치로 이름이 지어진다.
   const currentLabel = currentBook
     ? positionLabel(
-        currentBook.name_ko,
+        t,
+        bookNameOf(currentBook),
         chapter,
         verseAtTop(scrollY.current),
         scrollY.current,
@@ -420,7 +432,9 @@ export default function ReadScreen() {
             onPress={() => setPickerVisible(true)}
             style={[styles.bookButton, { backgroundColor: theme.backgroundElement }]}>
             <ThemedText type="smallBold">
-              {currentBook ? `${currentBook.name_ko} ${chapter}장` : '선택'}
+              {currentBook
+                ? t('read.bookChapter', { book: bookNameOf(currentBook), chapter })
+                : t('read.select')}
             </ThemedText>
           </Pressable>
 
@@ -435,7 +449,7 @@ export default function ReadScreen() {
                 },
               ]}>
               <ThemedText type="smallBold">
-                {TRANSLATIONS.find((t) => t.code === translation)?.label ?? '역본'}
+                {TRANSLATIONS.find((v) => v.code === translation)?.label ?? t('read.translation')}
               </ThemedText>
             </Pressable>
             <Pressable
@@ -447,7 +461,7 @@ export default function ReadScreen() {
                     openPanel === 'font' ? theme.backgroundSelected : theme.backgroundElement,
                 },
               ]}>
-              <ThemedText type="smallBold">가</ThemedText>
+              <ThemedText type="smallBold">{t('read.fontButton')}</ThemedText>
             </Pressable>
           </View>
         </View>
@@ -460,7 +474,7 @@ export default function ReadScreen() {
             <Pressable
               onPress={() => setOpenPanel('none')}
               style={styles.panelBackdrop}
-              accessibilityLabel="닫기"
+              accessibilityLabel={t('read.close')}
             />
             <View
               style={[
@@ -469,22 +483,22 @@ export default function ReadScreen() {
               ]}>
               {openPanel === 'translation' ? (
                 <View style={styles.panelRow}>
-                  {TRANSLATIONS.map((t) => (
+                  {TRANSLATIONS.map((v) => (
                     <Pressable
-                      key={t.code}
+                      key={v.code}
                       onPress={() => {
-                        setTranslation(t.code);
+                        setTranslation(v.code);
                         setOpenPanel('none');
                       }}
                       style={[
                         styles.panelChip,
                         {
                           backgroundColor:
-                            translation === t.code ? theme.backgroundSelected : 'transparent',
+                            translation === v.code ? theme.backgroundSelected : 'transparent',
                           borderColor: theme.border,
                         },
                       ]}>
-                      <ThemedText type="small">{t.label}</ThemedText>
+                      <ThemedText type="small">{v.label}</ThemedText>
                     </Pressable>
                   ))}
                 </View>
@@ -493,7 +507,7 @@ export default function ReadScreen() {
                   <Pressable
                     onPress={() => setFontSize((v) => Math.max(MIN_FONT_SIZE, v - 2))}
                     style={[styles.panelChip, { borderColor: theme.border }]}>
-                    <ThemedText type="smallBold">가 작게</ThemedText>
+                    <ThemedText type="smallBold">{t('read.fontSmaller')}</ThemedText>
                   </Pressable>
                   <View style={styles.panelSize}>
                     <ThemedText type="smallBold">{fontSize}</ThemedText>
@@ -501,7 +515,7 @@ export default function ReadScreen() {
                   <Pressable
                     onPress={() => setFontSize((v) => Math.min(MAX_FONT_SIZE, v + 2))}
                     style={[styles.panelChip, { borderColor: theme.border }]}>
-                    <ThemedText type="smallBold">가 크게</ThemedText>
+                    <ThemedText type="smallBold">{t('read.fontBigger')}</ThemedText>
                   </Pressable>
                 </View>
               )}
@@ -518,7 +532,7 @@ export default function ReadScreen() {
               }}
               style={[styles.hintRow, { backgroundColor: theme.backgroundElement }]}>
               <ThemedText type="small" themeColor="textSecondary" style={styles.hintText}>
-                구절을 잠시 누르고 있으면 색칠하고 묵상을 적을 수 있어요
+                {t('read.longPressHint')}
               </ThemedText>
             </Pressable>
           </View>
@@ -550,7 +564,7 @@ export default function ReadScreen() {
             {linkOnly && currentBook ? (
               <View style={styles.linkOnlyBox}>
                 <ThemedText type="title" style={styles.linkOnlyRef}>
-                  {currentBook.name_ko} {chapter}장
+                  {t('read.bookChapter', { book: bookNameOf(currentBook), chapter })}
                 </ThemedText>
                 <Pressable
                   onPress={() => {
@@ -565,12 +579,13 @@ export default function ReadScreen() {
                   }}
                   style={[styles.linkOnlyButton, { backgroundColor: theme.backgroundSelected }]}>
                   <ThemedText type="smallBold">
-                    📖 {LINK_SOURCE_LABEL[translation] ?? '출판사 사이트'}에서 읽기
+                    {t('read.readAtPublisher', {
+                      source: LINK_SOURCE_LABEL[translation] ?? t('read.publisherSite'),
+                    })}
                   </ThemedText>
                 </Pressable>
                 <ThemedText type="small" themeColor="textSecondary" style={styles.linkOnlyNote}>
-                  이 역본은 출판사 사이트에서 보실 수 있습니다. 앱에서 바로 읽으시려면 위에서
-                  오픈성경을 골라 주세요.
+                  {t('read.linkOnlyNote')}
                 </ThemedText>
               </View>
             ) : null}
@@ -638,7 +653,7 @@ export default function ReadScreen() {
             onPress={() => goToChapter(-1)}
             disabled={chapter <= 1}
             style={[styles.pagerButton, { opacity: chapter <= 1 ? 0.4 : 1 }]}>
-            <ThemedText type="link">이전 장</ThemedText>
+            <ThemedText type="link">{t('read.prevChapter')}</ThemedText>
           </Pressable>
           {/* 장을 넘기는 두 단추 사이의 빈 자리에 둔다. 실제 책에서 책갈피를
               꽂는 손짓과 자리가 같아서 따로 찾을 필요가 없다. */}
@@ -648,13 +663,15 @@ export default function ReadScreen() {
               styles.bookmarkButton,
               { backgroundColor: currentBookmark ? theme.backgroundSelected : 'transparent' },
             ]}>
-            <ThemedText type="small">{currentBookmark ? '🔖 꽂힘' : '🔖 책갈피'}</ThemedText>
+            <ThemedText type="small">
+              🔖 {currentBookmark ? t('read.bookmarked') : t('read.bookmark')}
+            </ThemedText>
           </Pressable>
           <Pressable
             onPress={() => goToChapter(1)}
             disabled={chapter >= chapterCount}
             style={[styles.pagerButton, { opacity: chapter >= chapterCount ? 0.4 : 1 }]}>
-            <ThemedText type="link">다음 장</ThemedText>
+            <ThemedText type="link">{t('read.nextChapter')}</ThemedText>
           </Pressable>
         </View>
       </ThemedView>

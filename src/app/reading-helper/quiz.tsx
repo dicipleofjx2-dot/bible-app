@@ -8,6 +8,8 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { useT } from '@/lib/i18n';
+import type { StringKey } from '@/constants/strings';
 import {
   getStartDate,
   quizPoints,
@@ -27,15 +29,19 @@ function normalizeAnswer(s: string): string {
  *
  * 같은 "통과"라도 80점과 100점은 마음이 다르다. 한 문구로 뭉뚱그리면 만점을
  * 맞아도 아무 일이 없다.
+ *
+ * 문구가 아니라 **열쇠**를 돌려준다. 문구를 직접 돌려주면 이 함수가 모듈을
+ * 읽을 때 굳어, 언어를 바꿔도 한글이 남는다.
  */
-function praiseFor(score: number): string {
-  if (score >= 100) return '🏆 당신은 성경박사인가?';
-  if (score >= 90) return '🎉 대단합니다!';
-  return '👏 수고했습니다!';
+function praiseKeyFor(score: number): StringKey {
+  if (score >= 100) return 'quiz.praise100';
+  if (score >= 90) return 'quiz.praise90';
+  return 'quiz.praise';
 }
 
 export default function ReadingHelperQuizScreen() {
   const theme = useTheme();
+  const t = useT();
   const { session } = useAuth();
   const userId = session?.user.id;
   // A `date` param means this was opened from the archive/calendar to review
@@ -90,9 +96,9 @@ export default function ReadingHelperQuizScreen() {
     return (
       <ThemedView style={styles.centeredScreen}>
         <SafeAreaView style={styles.centered}>
-          <ThemedText type="subtitle">성경퀴즈</ThemedText>
+          <ThemedText type="subtitle">{t('quiz.title')}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-            오늘의 퀴즈 콘텐츠는 아직 준비되지 않았습니다.
+            {t('quiz.notReady')}
           </ThemedText>
           <BackButton />
         </SafeAreaView>
@@ -145,26 +151,32 @@ export default function ReadingHelperQuizScreen() {
       <ThemedView style={styles.centeredScreen}>
         <SafeAreaView style={styles.centered}>
           <ThemedText type="small" themeColor="textSecondary">
-            {isReview ? '복습 결과' : '퀴즈 결과'} | Day {content.dayNumber}
+            {isReview ? t('quiz.resultReview') : t('quiz.result')} | Day {content.dayNumber}
           </ThemedText>
-          <ThemedText style={[styles.scoreText, { color: theme.backgroundSelected }]}>{score}점</ThemedText>
+          <ThemedText style={[styles.scoreText, { color: theme.backgroundSelected }]}>
+            {t('quiz.score', { n: score })}
+          </ThemedText>
 
           {isReview ? (
             <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-              복습 결과는 기록에 저장되지 않아요.
+              {t('quiz.reviewNotSaved')}
             </ThemedText>
           ) : earnedPoints > 0 ? (
             <View style={[styles.congratsCard, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText style={styles.congratsText}>🎉 포인트 +{earnedPoints}점을 받았어요!</ThemedText>
+              <ThemedText style={styles.congratsText}>
+                {t('quiz.earned', { n: earnedPoints })}
+              </ThemedText>
               <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
                 {score >= 100
-                  ? '만점이에요. 오늘도 수고하셨습니다.'
-                  : `${score >= 90 ? '100점을 맞으면 30점' : '90점대는 20점, 100점은 30점'}까지 받을 수 있어요.`}
+                  ? t('quiz.perfect')
+                  : score >= 90
+                    ? t('quiz.canGetMore90')
+                    : t('quiz.canGetMore')}
               </ThemedText>
             </View>
           ) : (
             <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-              {WORD_CARD_MIN_QUIZ_SCORE}점 이상이면 포인트가 쌓이고 말씀카드도 열려요. 다시 도전해보세요!
+              {t('quiz.tryAgain', { score: WORD_CARD_MIN_QUIZ_SCORE })}
             </ThemedText>
           )}
 
@@ -177,9 +189,9 @@ export default function ReadingHelperQuizScreen() {
           */}
           {!isReview && score >= WORD_CARD_MIN_QUIZ_SCORE ? (
             <View style={[styles.congratsCard, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText style={styles.congratsText}>{praiseFor(score)}</ThemedText>
+              <ThemedText style={styles.congratsText}>{t(praiseKeyFor(score))}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-                오늘 말씀카드를 만들 수 있어요.
+                {t('quiz.wordCardUnlocked')}
               </ThemedText>
               <Pressable
                 onPress={() => router.push('/reading-helper/word-card')}
@@ -188,7 +200,7 @@ export default function ReadingHelperQuizScreen() {
                   { backgroundColor: theme.backgroundSelected },
                   pressed && styles.pressed,
                 ]}>
-                <ThemedText type="smallBold">💌 말씀카드 만들기</ThemedText>
+                <ThemedText type="smallBold">{t('quiz.makeWordCard')}</ThemedText>
               </Pressable>
             </View>
           ) : null}
@@ -202,7 +214,7 @@ export default function ReadingHelperQuizScreen() {
             }
             style={({ pressed }) => [pressed && styles.pressed]}>
             <ThemedText type="smallBold" themeColor="backgroundSelected">
-              정답/해설확인 ▶
+              {t('quiz.showAnswers')}
             </ThemedText>
           </Pressable>
 
@@ -218,7 +230,7 @@ export default function ReadingHelperQuizScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <ThemedText type="smallBold">
             성경퀴즈 | Day {content.dayNumber}
-            {isReview ? ' (복습)' : ''}
+            {isReview ? t('quiz.headerReview') : ''}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary" style={styles.progressLabel}>
             {index + 1} / {total}
@@ -253,7 +265,7 @@ export default function ReadingHelperQuizScreen() {
             <TextInput
               value={shortAnswer}
               onChangeText={setShortAnswer}
-              placeholder="정답을 입력하세요"
+              placeholder={t('quiz.answerPlaceholder')}
               placeholderTextColor={theme.textSecondary}
               style={[styles.shortAnswerInput, { backgroundColor: theme.backgroundElement, color: theme.text }]}
             />
@@ -268,7 +280,7 @@ export default function ReadingHelperQuizScreen() {
               pressed && answered && styles.pressed,
             ]}>
             <ThemedText type="smallBold" style={styles.primaryButtonText}>
-              {index + 1 < total ? '다음' : '점수 확인'}
+              {index + 1 < total ? t('quiz.next') : t('quiz.seeScore')}
             </ThemedText>
           </Pressable>
         </ScrollView>
@@ -279,11 +291,12 @@ export default function ReadingHelperQuizScreen() {
 
 function BackButton() {
   const theme = useTheme();
+  const t = useT();
   return (
     <Pressable
       onPress={() => router.back()}
       style={({ pressed }) => [styles.primaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
-      <ThemedText type="smallBold">돌아가기</ThemedText>
+      <ThemedText type="smallBold">{t('quiz.back')}</ThemedText>
     </Pressable>
   );
 }

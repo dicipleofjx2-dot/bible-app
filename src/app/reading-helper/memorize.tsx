@@ -9,6 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { useT } from '@/lib/i18n';
 import { getStartDate, MEMORIZATION_POINTS, setMemorizationResult } from '@/lib/readingHelper/db';
 import { currentDayNumber, dayNumberForDate, todayDateString } from '@/lib/readingHelper/readingPlan';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
@@ -30,6 +31,7 @@ type Status = 'playing' | 'success' | 'failed';
 
 export default function ReadingHelperMemorizeScreen() {
   const theme = useTheme();
+  const t = useT();
   const beepPlayer = useAudioPlayer(wrongBeep);
   const { session } = useAuth();
   const userId = session?.user.id;
@@ -79,9 +81,9 @@ export default function ReadingHelperMemorizeScreen() {
     return (
       <ThemedView style={styles.centeredScreen}>
         <SafeAreaView style={styles.centered}>
-          <ThemedText type="subtitle">암송 퍼즐</ThemedText>
+          <ThemedText type="subtitle">{t('mem.title')}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-            오늘의 암송구절이 아직 준비되지 않았습니다.
+            {t('mem.notReady')}
           </ThemedText>
           <BackButton />
         </SafeAreaView>
@@ -116,6 +118,7 @@ function PuzzleGame({
   userId: string | undefined;
   playBeep: () => void;
 }) {
+  const t = useT();
   const { words } = memorization;
   const [pool, setPool] = useState<number[]>(() => shuffle(words.map((_, i) => i)));
   const [slots, setSlots] = useState<(number | null)[]>(() => words.map(() => null));
@@ -175,13 +178,13 @@ function PuzzleGame({
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <ThemedText type="smallBold" themeColor="textSecondary">
-            {isReview ? '암송구절 복습' : '오늘의 암송구절'}
+            {isReview ? t('mem.reviewTitle') : t('mem.todayTitle')}
           </ThemedText>
           <ThemedText type="smallBold">{memorization.reference}</ThemedText>
 
           {status === 'playing' && (
             <ThemedText type="small" themeColor="textSecondary" style={styles.attemptsLabel}>
-              남은 기회: {attemptsLeft}/{MAX_ATTEMPTS}
+              {t('mem.attemptsLeft', { left: attemptsLeft, max: MAX_ATTEMPTS })}
             </ThemedText>
           )}
 
@@ -199,11 +202,13 @@ function PuzzleGame({
           {status === 'success' && (
             <View style={[styles.resultCard, { backgroundColor: theme.backgroundElement }]}>
               <ThemedText type="smallBold">
-                {isReview ? '🎉 암송 성공!' : `🎉 암송 성공! 포인트 +${MEMORIZATION_POINTS}점`}
+                {isReview
+                  ? t('mem.successReview')
+                  : t('mem.success', { n: MEMORIZATION_POINTS })}
               </ThemedText>
               {isReview && (
                 <ThemedText type="small" themeColor="textSecondary" style={styles.answerReveal}>
-                  복습 결과는 기록에 저장되지 않아요.
+                  {t('quiz.reviewNotSaved')}
                 </ThemedText>
               )}
             </View>
@@ -211,9 +216,9 @@ function PuzzleGame({
 
           {status === 'failed' && (
             <View style={[styles.resultCard, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="smallBold">암송 실패</ThemedText>
+              <ThemedText type="smallBold">{t('mem.failed')}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary" style={styles.answerReveal}>
-                정답: {memorization.text}
+                {t('mem.answerIs', { text: memorization.text })}
               </ThemedText>
             </View>
           )}
@@ -251,7 +256,7 @@ function PuzzleGame({
                   pressed && allFilled && styles.pressed,
                 ]}>
                 <ThemedText type="smallBold" style={styles.primaryButtonText}>
-                  제출
+                  {t('mem.submit')}
                 </ThemedText>
               </Pressable>
             </>
@@ -266,11 +271,12 @@ function PuzzleGame({
 
 function BackButton() {
   const theme = useTheme();
+  const t = useT();
   return (
     <Pressable
       onPress={() => router.back()}
       style={({ pressed }) => [styles.primaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
-      <ThemedText type="smallBold">돌아가기</ThemedText>
+      <ThemedText type="smallBold">{t('quiz.back')}</ThemedText>
     </Pressable>
   );
 }

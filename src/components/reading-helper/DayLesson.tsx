@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/lib/i18n';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
 
 type Props = {
@@ -17,19 +18,20 @@ type Props = {
  * just for a different day. */
 export function DayLesson({ dayContent, loading, error }: Props) {
   const theme = useTheme();
+  const t = useT();
 
   return (
     <>
       <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
         <ThemedText type="smallBold" themeColor="textSecondary">
-          오늘의 본문 이야기
+          {t('lesson.narrativeTitle')}
         </ThemedText>
 
         {loading ? (
           <ActivityIndicator style={styles.spacing} />
         ) : error ? (
           <ThemedText type="small" themeColor="textSecondary" style={styles.spacing}>
-            콘텐츠를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.
+            {t('lesson.loadFailed')}
           </ThemedText>
         ) : dayContent ? (
           <View style={styles.spacing}>
@@ -37,7 +39,7 @@ export function DayLesson({ dayContent, loading, error }: Props) {
           </View>
         ) : (
           <ThemedText type="small" themeColor="textSecondary" style={styles.spacing}>
-            이 날짜의 통독 콘텐츠는 아직 준비 중입니다. 곧 업데이트됩니다.
+            {t('lesson.notReady')}
           </ThemedText>
         )}
       </View>
@@ -45,7 +47,7 @@ export function DayLesson({ dayContent, loading, error }: Props) {
       {dayContent && (
         <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
           <ThemedText type="smallBold" themeColor="textSecondary">
-            오늘의 암송구절
+            {t('lesson.memorizationTitle')}
           </ThemedText>
           <ThemedText type="smallBold">{dayContent.memorization.reference}</ThemedText>
           <ThemedText style={styles.verse}>{dayContent.memorization.text}</ThemedText>

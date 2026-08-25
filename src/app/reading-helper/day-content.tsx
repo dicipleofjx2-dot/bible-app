@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { DayLesson } from '@/components/reading-helper/DayLesson';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useI18n } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import { getStartDate } from '@/lib/readingHelper/db';
 import { buildFullPlan, dayNumberForDate, formatChapterRange, type PlanDay } from '@/lib/readingHelper/readingPlan';
@@ -21,6 +22,7 @@ import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
  * summary and retake the quiz/memorization puzzle from scratch. */
 export default function ReadingHelperDayContentScreen() {
   const theme = useTheme();
+  const { lang, t } = useI18n();
   const { session } = useAuth();
   const userId = session?.user.id;
   const { date } = useLocalSearchParams<{ date: string }>();
@@ -68,11 +70,11 @@ export default function ReadingHelperDayContentScreen() {
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backRow}>
-            <ThemedText type="smallBold">◀ 돌아가기</ThemedText>
+            <ThemedText type="smallBold">{t('cal.back')}</ThemedText>
           </Pressable>
 
           <ThemedText type="subtitle" style={styles.title}>
-            {day ? `Day ${day.dayNumber}` : date} {day ? `| ${formatChapterRange(day.chapters)}` : ''}
+            {day ? `Day ${day.dayNumber}` : date} {day ? `| ${formatChapterRange(day.chapters, lang)}` : ''}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             {date}
@@ -90,7 +92,7 @@ export default function ReadingHelperDayContentScreen() {
                 onPress={() => router.push({ pathname: '/reading-helper/quiz', params: { date } })}
                 style={({ pressed }) => [styles.primaryButton, { backgroundColor: theme.backgroundSelected }, pressed && styles.pressed]}>
                 <ThemedText type="smallBold" style={styles.primaryButtonText}>
-                  성경퀴즈 다시 풀기
+                  {t('dc.quizAgain')}
                 </ThemedText>
               </Pressable>
 
@@ -99,13 +101,13 @@ export default function ReadingHelperDayContentScreen() {
               <Pressable
                 onPress={() => router.push({ pathname: '/reading-helper/speed-quiz', params: { date } })}
                 style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
-                <ThemedText type="smallBold">⏱️ 3초 성경 OX 다시 하기</ThemedText>
+                <ThemedText type="smallBold">{t('dc.oxAgain')}</ThemedText>
               </Pressable>
 
               <Pressable
                 onPress={() => router.push({ pathname: '/reading-helper/memorize', params: { date } })}
                 style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
-                <ThemedText type="smallBold">암송 퍼즐 다시 하기</ThemedText>
+                <ThemedText type="smallBold">{t('dc.memAgain')}</ThemedText>
               </Pressable>
             </>
           )}

@@ -7,6 +7,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { getChapterCount, type Book } from '@/db/bible';
+import { useI18n } from '@/lib/i18n';
 
 type Props = {
   visible: boolean;
@@ -18,6 +19,12 @@ type Props = {
 export function BookChapterPicker({ visible, onClose, books, onSelect }: Props) {
   const db = useSQLiteContext();
   const theme = useTheme();
+  const { lang, t } = useI18n();
+
+  // 책 이름은 성경 표에 이미 두 말로 들어 있다. 문구 사전에 66권을 옮겨 적으면
+  // 같은 것이 두 군데가 되어 언젠가 어긋난다.
+  const bookNameOf = (b: Book) => (lang === 'en' ? b.name_en : b.name_ko);
+
   const [pendingBook, setPendingBook] = useState<Book | null>(null);
   const [pendingChapterCount, setPendingChapterCount] = useState(1);
 
@@ -45,18 +52,23 @@ export function BookChapterPicker({ visible, onClose, books, onSelect }: Props) 
       <View style={styles.backdrop}>
         <ThemedView type="background" style={[styles.sheet, { borderColor: theme.backgroundElement }]}>
           <View style={styles.header}>
-            <ThemedText type="subtitle">{pendingBook ? pendingBook.name_ko : '책 선택'}</ThemedText>
+            <ThemedText type="subtitle">
+              {pendingBook ? bookNameOf(pendingBook) : t('picker.chooseBook')}
+            </ThemedText>
             <Pressable onPress={pendingBook ? () => setPendingBook(null) : handleClose}>
               <ThemedText type="link" themeColor="textSecondary">
-                {pendingBook ? '뒤로' : '닫기'}
+                {pendingBook ? t('picker.back') : t('picker.close')}
               </ThemedText>
             </Pressable>
           </View>
 
           {!pendingBook && (
             <FlatList
-              data={[{ title: '구약', data: otBooks }, { title: '신약', data: ntBooks }]}
-              keyExtractor={(section) => section.title}
+              data={[
+                { key: 'ot', title: t('picker.ot'), data: otBooks },
+                { key: 'nt', title: t('picker.nt'), data: ntBooks },
+              ]}
+              keyExtractor={(section) => section.key}
               renderItem={({ item: section }) => (
                 <View>
                   <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionTitle}>
@@ -72,7 +84,7 @@ export function BookChapterPicker({ visible, onClose, books, onSelect }: Props) 
                           { backgroundColor: theme.backgroundElement },
                           pressed && styles.pressed,
                         ]}>
-                        <ThemedText type="small">{book.name_ko}</ThemedText>
+                        <ThemedText type="small">{bookNameOf(book)}</ThemedText>
                       </Pressable>
                     ))}
                   </View>

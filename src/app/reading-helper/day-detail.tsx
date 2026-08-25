@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useI18n } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import { getDayRecord, getStartDate, type DayRecord } from '@/lib/readingHelper/db';
 import {
@@ -21,6 +22,7 @@ import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 
 export default function ReadingHelperDayDetailScreen() {
   const theme = useTheme();
+  const { lang, t } = useI18n();
   const { session } = useAuth();
   const userId = session?.user.id;
   const { date } = useLocalSearchParams<{ date: string }>();
@@ -75,11 +77,11 @@ export default function ReadingHelperDayDetailScreen() {
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backRow}>
-            <ThemedText type="smallBold">◀ 돌아가기</ThemedText>
+            <ThemedText type="smallBold">{t('cal.back')}</ThemedText>
           </Pressable>
 
           <ThemedText type="subtitle" style={styles.title}>
-            {day ? `Day ${day.dayNumber}` : date} {day ? `| ${formatChapterRange(day.chapters)}` : ''}
+            {day ? `Day ${day.dayNumber}` : date} {day ? `| ${formatChapterRange(day.chapters, lang)}` : ''}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             {date}
@@ -89,34 +91,37 @@ export default function ReadingHelperDayDetailScreen() {
             // 아직 오지 않은 날 — 기록 자리를 보여줄 것이 없다. 대신 무엇을 할 수
             // 있는지와, 여기서 한 것은 기록에 남지 않는다는 점을 먼저 알린다.
             <View style={[styles.notice, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="smallBold">미리 보는 날입니다</ThemedText>
+              <ThemedText type="smallBold">{t('dd.previewTitle')}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                본문과 해설을 미리 읽고 퀴즈·암송을 연습해 보실 수 있어요. 여기서 한 것은 기록과
-                포인트에 반영되지 않으니, 그날이 되면 다시 하시면 됩니다.
+                {t('dd.previewNote')}
               </ThemedText>
             </View>
           ) : (
             <>
               <View style={[styles.row, { backgroundColor: theme.backgroundElement }]}>
-                <ThemedText type="smallBold">읽기 완료</ThemedText>
-                <ThemedText type="small">{record?.reading_complete ? '✓ 완료' : '미완료'}</ThemedText>
-              </View>
-
-              <View style={[styles.row, { backgroundColor: theme.backgroundElement }]}>
-                <ThemedText type="smallBold">성경퀴즈</ThemedText>
+                <ThemedText type="smallBold">{t('dd.readingDone')}</ThemedText>
                 <ThemedText type="small">
-                  {record?.quiz_score != null ? `${record.quiz_score}점` : '응시 안함'}
+                  {record?.reading_complete ? t('dd.done') : t('dd.notDone')}
                 </ThemedText>
               </View>
 
               <View style={[styles.row, { backgroundColor: theme.backgroundElement }]}>
-                <ThemedText type="smallBold">암송 퍼즐</ThemedText>
+                <ThemedText type="smallBold">{t('quiz.title')}</ThemedText>
+                <ThemedText type="small">
+                  {record?.quiz_score != null
+                    ? t('quiz.score', { n: record.quiz_score })
+                    : t('dd.quizNotTaken')}
+                </ThemedText>
+              </View>
+
+              <View style={[styles.row, { backgroundColor: theme.backgroundElement }]}>
+                <ThemedText type="smallBold">{t('mem.title')}</ThemedText>
                 <ThemedText type="small">
                   {record?.memorization_success != null
                     ? record.memorization_success
-                      ? `✓ 성공 (${record.memorization_attempts}회 시도)`
-                      : '실패'
-                    : '시도 안함'}
+                      ? t('dd.memSuccess', { n: record.memorization_attempts ?? 0 })
+                      : t('dd.memFailed')
+                    : t('dd.memNotTried')}
                 </ThemedText>
               </View>
             </>
@@ -128,7 +133,7 @@ export default function ReadingHelperDayDetailScreen() {
                 onPress={() => router.push({ pathname: '/reading-helper/day-content', params: { date } })}
                 style={({ pressed }) => [styles.reviewButton, { backgroundColor: theme.backgroundSelected }, pressed && styles.pressed]}>
                 <ThemedText type="smallBold" style={styles.reviewButtonText}>
-                  {isPreview ? '📖 본문과 해설 미리 보기' : '📖 처음부터 다시 보기'}
+                  {isPreview ? t('dd.previewLesson') : t('dd.reviewLesson')}
                 </ThemedText>
               </Pressable>
 
@@ -139,7 +144,7 @@ export default function ReadingHelperDayDetailScreen() {
                 onPress={() => router.push({ pathname: '/reading-helper/quiz', params: { date } })}
                 style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
                 <ThemedText type="smallBold">
-                  {isPreview ? '성경퀴즈 미리 풀어보기' : '성경퀴즈 다시 풀어보기'}
+                  {isPreview ? t('dd.previewQuiz') : t('dd.reviewQuiz')}
                 </ThemedText>
               </Pressable>
 
@@ -147,7 +152,7 @@ export default function ReadingHelperDayDetailScreen() {
                 onPress={() => router.push({ pathname: '/reading-helper/speed-quiz', params: { date } })}
                 style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
                 <ThemedText type="smallBold">
-                  {isPreview ? '⏱️ 3초 성경 OX 미리 해보기' : '⏱️ 3초 성경 OX 다시 해보기'}
+                  {isPreview ? t('dd.previewOx') : t('dd.reviewOx')}
                 </ThemedText>
               </Pressable>
 
@@ -155,7 +160,7 @@ export default function ReadingHelperDayDetailScreen() {
                 onPress={() => router.push({ pathname: '/reading-helper/memorize', params: { date } })}
                 style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
                 <ThemedText type="smallBold">
-                  {isPreview ? '암송 퍼즐 미리 해보기' : '암송 퍼즐 다시 해보기'}
+                  {isPreview ? t('dd.previewMem') : t('dd.reviewMem')}
                 </ThemedText>
               </Pressable>
             </>
@@ -163,7 +168,7 @@ export default function ReadingHelperDayDetailScreen() {
 
           {!hasContent && isPreview && (
             <ThemedText type="small" themeColor="textSecondary">
-              이 날의 해설과 퀴즈는 아직 준비되지 않았습니다. 조금 뒤에 다시 확인해 주세요.
+              {t('dd.notReady')}
             </ThemedText>
           )}
         </ScrollView>

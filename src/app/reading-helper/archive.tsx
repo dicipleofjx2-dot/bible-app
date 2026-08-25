@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useI18n } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import { getCompletedDates, getStartDate } from '@/lib/readingHelper/db';
 import { buildFullPlan, formatChapterRange, todayDateString, type PlanDay } from '@/lib/readingHelper/readingPlan';
@@ -14,6 +15,7 @@ import { buildFullPlan, formatChapterRange, todayDateString, type PlanDay } from
 
 export default function ReadingHelperArchiveScreen() {
   const theme = useTheme();
+  const { lang, t } = useI18n();
   const { session } = useAuth();
   const userId = session?.user.id;
 
@@ -65,11 +67,11 @@ export default function ReadingHelperArchiveScreen() {
           모양으로 맞춘다 — 앱 안에서 돌아가는 법이 화면마다 다르면 안 된다.
         */}
         <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backRow}>
-          <ThemedText type="smallBold">◀ 돌아가기</ThemedText>
+          <ThemedText type="smallBold">{t('cal.back')}</ThemedText>
         </Pressable>
 
         <ThemedText type="subtitle" style={styles.title}>
-          전체 아카이브
+          {t('arch.title')}
         </ThemedText>
         <FlatList
           style={styles.list}
@@ -78,7 +80,7 @@ export default function ReadingHelperArchiveScreen() {
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <ThemedText type="small" themeColor="textSecondary" style={styles.emptyText}>
-              아직 지나온 통독 기록이 없습니다.
+              {t('arch.empty')}
             </ThemedText>
           }
           renderItem={({ item }) => {
@@ -90,7 +92,7 @@ export default function ReadingHelperArchiveScreen() {
                 <View>
                   <ThemedText type="smallBold">Day {item.dayNumber}</ThemedText>
                   <ThemedText type="small" themeColor="textSecondary" style={styles.rowRange}>
-                    {formatChapterRange(item.chapters)} · {item.date}
+                    {formatChapterRange(item.chapters, lang)} · {item.date}
                   </ThemedText>
                 </View>
                 {hasRecord && <ThemedText style={{ color: theme.backgroundSelected }}>✓</ThemedText>}

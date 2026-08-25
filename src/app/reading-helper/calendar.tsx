@@ -8,6 +8,8 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { useT } from '@/lib/i18n';
+import type { StringKey } from '@/constants/strings';
 import { getCompletedDates, getStartDate } from '@/lib/readingHelper/db';
 import {
   isBeyondPreview,
@@ -16,7 +18,23 @@ import {
   todayDateString,
 } from '@/lib/readingHelper/readingPlan';
 
-const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
+// 요일 머리글. 문구가 아니라 **열쇠**를 담는다 — 문구를 모듈 상수에 담으면
+// 모듈을 읽을 때 굳어서, 언어를 바꿔도 한글 요일이 그대로 남는다.
+const WEEKDAY_KEYS: StringKey[] = [
+  'cal.sun',
+  'cal.mon',
+  'cal.tue',
+  'cal.wed',
+  'cal.thu',
+  'cal.fri',
+  'cal.sat',
+];
+
+// 영어 달 이름. 한국어는 「8월」처럼 숫자로 적으므로 이 이름이 필요 없다.
+const EN_MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
 
 function pad(n: number) {
   return String(n).padStart(2, '0');
@@ -28,6 +46,7 @@ function dateKey(year: number, month: number, day: number) {
 
 export default function ReadingHelperCalendarScreen() {
   const theme = useTheme();
+  const t = useT();
   const { session } = useAuth();
   const userId = session?.user.id;
 
@@ -128,7 +147,7 @@ export default function ReadingHelperCalendarScreen() {
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         {/* 헤더가 없는 화면이라 뒤로 갈 길이 없었다. 아카이브와 같은 모양으로 둔다. */}
         <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backRow}>
-          <ThemedText type="smallBold">◀ 돌아가기</ThemedText>
+          <ThemedText type="smallBold">{t('cal.back')}</ThemedText>
         </Pressable>
 
         <View style={styles.header}>
@@ -141,7 +160,11 @@ export default function ReadingHelperCalendarScreen() {
               setViewMonth(today.getMonth());
             }}>
             <ThemedText type="smallBold" style={styles.monthTitle}>
-              {viewYear}년 {viewMonth + 1}월
+              {t('cal.yearMonth', {
+                year: viewYear,
+                month: viewMonth + 1,
+                monthName: EN_MONTHS[viewMonth],
+              })}
             </ThemedText>
           </Pressable>
           <Pressable onPress={goNextMonth} hitSlop={12}>
@@ -150,9 +173,11 @@ export default function ReadingHelperCalendarScreen() {
         </View>
 
         <View style={styles.weekdayRow}>
-          {WEEKDAY_LABELS.map((w) => (
-            <ThemedText key={w} type="small" themeColor="textSecondary" style={styles.weekdayLabel}>
-              {w}
+          {/* key 는 자리(index)로. 영어 요일 머리글은 S·M·T·W·T·F·S 라
+              같은 글자가 두 번 나온다 — 문구를 열쇠로 쓰면 겹친다. */}
+          {WEEKDAY_KEYS.map((key, i) => (
+            <ThemedText key={i} type="small" themeColor="textSecondary" style={styles.weekdayLabel}>
+              {t(key)}
             </ThemedText>
           ))}
         </View>
@@ -196,15 +221,14 @@ export default function ReadingHelperCalendarScreen() {
         {weekDone && (
           <View style={[styles.weekDoneCard, { backgroundColor: theme.backgroundElement }]}>
             <ThemedText type="smallBold" style={styles.weekDoneText}>
-              🌿 이번주도 잘~ 했습니다. 당신 성실해요!!
+              {t('cal.wellDone')}
             </ThemedText>
           </View>
         )}
 
         <ThemedText type="small" themeColor="textSecondary" style={styles.hint}>
-          ✓ 는 그날 성경퀴즈에서 80점 이상을 맞은 날입니다.{'\n'}
-          테두리가 있는 날은 앞으로 {PREVIEW_DAYS}일 안의 미리 보기입니다. 미리 풀어 본 퀴즈와 암송은
-          기록에 남지 않으니, 그날이 되면 다시 하시면 됩니다.
+          {t('cal.legend')}{'\n'}
+          {t('cal.legendPreview', { n: PREVIEW_DAYS })}
         </ThemedText>
       </SafeAreaView>
     </ThemedView>

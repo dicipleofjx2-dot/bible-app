@@ -1,4 +1,4 @@
-import { BIBLE_BOOKS, TOTAL_CHAPTERS } from './bibleBooks';
+import { BIBLE_BOOKS, BOOK_NAMES_EN, TOTAL_CHAPTERS } from './bibleBooks';
 
 export const PLAN_TOTAL_DAYS = 365;
 
@@ -137,19 +137,32 @@ export function isBeyondPreview(dateStr: string): boolean {
   return dateStr > todayDateString() && !isPreviewDate(dateStr);
 }
 
-export function formatChapterRange(chapters: PlanChapterEntry[]): string {
+export function formatChapterRange(
+  chapters: PlanChapterEntry[],
+  lang: 'ko' | 'en' = 'ko',
+): string {
   if (chapters.length === 0) return '';
   // Group consecutive entries by book, e.g. "창세기 1~5장" or "창세기 48~50장, 출애굽기 1~2장"
-  const groups: { bookName: string; start: number; end: number }[] = [];
+  const groups: { bookId: number; bookName: string; start: number; end: number }[] = [];
   for (const c of chapters) {
     const last = groups[groups.length - 1];
-    if (last && last.bookName === c.bookName && c.chapter === last.end + 1) {
+    // 묶는 기준은 **책 번호**다. 이름으로 묶으면 언어를 바꿀 때 기준이 함께
+    // 흔들린다.
+    if (last && last.bookId === c.bookId && c.chapter === last.end + 1) {
       last.end = c.chapter;
     } else {
-      groups.push({ bookName: c.bookName, start: c.chapter, end: c.chapter });
+      groups.push({ bookId: c.bookId, bookName: c.bookName, start: c.chapter, end: c.chapter });
     }
   }
   return groups
-    .map((g) => (g.start === g.end ? `${g.bookName} ${g.start}장` : `${g.bookName} ${g.start}~${g.end}장`))
+    .map((g) => {
+      // 「창세기 1~3장」 / "Genesis 1-3". 영어는 「장」에 해당하는 말을 붙이지
+      // 않고, 물결표(~)가 아니라 붙임표(-)로 잇는다.
+      const name = lang === 'en' ? (BOOK_NAMES_EN[g.bookId] ?? g.bookName) : g.bookName;
+      if (g.start === g.end) return lang === 'en' ? `${name} ${g.start}` : `${name} ${g.start}장`;
+      return lang === 'en'
+        ? `${name} ${g.start}-${g.end}`
+        : `${name} ${g.start}~${g.end}장`;
+    })
     .join(', ');
 }

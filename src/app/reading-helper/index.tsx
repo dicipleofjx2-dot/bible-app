@@ -10,6 +10,7 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { bskoreaReadUrl } from '@/lib/bskorea';
 import { useAuth } from '@/lib/auth';
+import { useI18n } from '@/lib/i18n';
 import { getIsAdmin } from '@/db/profile';
 import { getMyLook, type MyLook } from '@/lib/readingHelper/shop';
 import {
@@ -50,6 +51,7 @@ import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
 export default function ReadingHelperHomeScreen() {
   const theme = useTheme();
   const { session } = useAuth();
+  const { lang, t } = useI18n();
   const userId = session?.user.id;
 
   const [checking, setChecking] = useState(true);
@@ -211,14 +213,14 @@ export default function ReadingHelperHomeScreen() {
   if (sessionExpired) {
     return (
       <ThemedView style={styles.loadingContainer}>
-        <ThemedText style={styles.expiredText}>로그인이 만료되었어요.</ThemedText>
+        <ThemedText style={styles.expiredText}>{t('rh.sessionExpired')}</ThemedText>
         <ThemedText type="small" themeColor="textSecondary" style={styles.expiredText}>
-          다시 로그인하시면 통독 기록이 그대로 이어집니다.
+          {t('rh.sessionExpiredNote')}
         </ThemedText>
         <Pressable
           onPress={() => router.push('/profile')}
           style={({ pressed }) => [styles.expiredButton, pressed && styles.pressed]}>
-          <ThemedText type="smallBold" style={styles.expiredButtonText}>다시 로그인하기</ThemedText>
+          <ThemedText type="smallBold" style={styles.expiredButtonText}>{t('rh.signInAgain')}</ThemedText>
         </Pressable>
       </ThemedView>
     );
@@ -227,12 +229,12 @@ export default function ReadingHelperHomeScreen() {
   if (!day) {
     return (
       <ThemedView style={styles.loadingContainer}>
-        <ThemedText>읽기 계획을 불러오지 못했습니다.</ThemedText>
+        <ThemedText>{t('rh.planLoadFailed')}</ThemedText>
       </ThemedView>
     );
   }
 
-  const range = formatChapterRange(chapters);
+  const range = formatChapterRange(chapters, lang);
   const progress = day.dayNumber / PLAN_TOTAL_DAYS;
   const hasQuizContent = dayContent !== null;
 
@@ -241,9 +243,9 @@ export default function ReadingHelperHomeScreen() {
   async function handleReset() {
     if (!userId || resetting) return;
     const ok = await confirmDestructive(
-      '처음부터 다시 시작할까요?',
-      `Day 1부터 다시 시작합니다.\n지금까지의 통독 기록·퀴즈 점수·암송 기록이 모두 지워지고, 쌓인 포인트 ${points?.total ?? 0}점도 0점이 됩니다.\n이 작업은 되돌릴 수 없습니다.`,
-      '다시 시작'
+      t('rh.resetConfirmTitle'),
+      t('rh.resetConfirmBody', { points: points?.total ?? 0 }),
+      t('rh.resetConfirmOk')
     );
     if (!ok) return;
 
@@ -253,7 +255,7 @@ export default function ReadingHelperHomeScreen() {
       // 시작일까지 지웠으므로 홈이 온보딩으로 보내 새 시작일을 잡는다.
       router.replace('/reading-helper/onboarding');
     } catch {
-      Alert.alert('처음부터 다시 시작', '초기화하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      Alert.alert(t('rh.resetButton'), t('rh.resetFailed'));
     } finally {
       setResetting(false);
     }
@@ -266,20 +268,15 @@ export default function ReadingHelperHomeScreen() {
    * 없으니 고장으로 보인다. 무엇이 필요한지 말해 주고 로그인 화면을 연다.
    */
   function askToSignIn(what: string) {
-    Alert.alert(
-      '로그인이 필요해요',
-      `${what}은 로그인해야 남길 수 있어요.
-지금 보시는 것은 그대로 보실 수 있습니다.`,
-      [
-        { text: '나중에', style: 'cancel' },
-        { text: '로그인', onPress: () => router.push('/profile') },
-      ]
-    );
+    Alert.alert(t('rh.signInTitle'), t('rh.signInBody', { what }), [
+      { text: t('rh.signInLater'), style: 'cancel' },
+      { text: t('rh.signIn'), onPress: () => router.push('/profile') },
+    ]);
   }
 
   async function toggleReadingComplete() {
     if (!userId) {
-      askToSignIn('통독 기록');
+      askToSignIn(t('rh.whatReadingRecord'));
       return;
     }
     const next = !readingComplete;
@@ -292,7 +289,7 @@ export default function ReadingHelperHomeScreen() {
       <SafeAreaView style={styles.safeAreaOuter}>
         <ScrollView style={styles.scrollOuter} contentContainerStyle={styles.scrollContent}>
           <Pressable onPress={() => router.push('/')} hitSlop={12} style={styles.backRow}>
-            <ThemedText type="smallBold">◀ 데이빗바이블 홈</ThemedText>
+            <ThemedText type="smallBold">{t('rh.homeBack')}</ThemedText>
           </Pressable>
 
           {!userId && (
@@ -306,8 +303,9 @@ export default function ReadingHelperHomeScreen() {
                 pressed && styles.pressed,
               ]}>
               <ThemedText type="small">
-                둘러보는 중입니다 — 오늘 시작하면 읽을 1일차예요.{'\n'}
-                <ThemedText type="smallBold">로그인하면</ThemedText> 내 진도와 포인트가 이어집니다.
+                {t('rh.guestBanner')}{'\n'}
+                <ThemedText type="smallBold">{t('rh.guestBannerSignIn')}</ThemedText>
+                {t('rh.guestBannerRest')}
               </ThemedText>
             </Pressable>
           )}
@@ -335,20 +333,27 @@ export default function ReadingHelperHomeScreen() {
                 보낸다. 인터넷이 없을 때를 위해 앱에서 읽는 길(오픈성경)을 함께
                 둔다 — 링크만 두면 지하철·비행기에서 통독이 막힌다.
               */}
-              <Pressable
-                onPress={() => {
-                  const url = bskoreaReadUrl(chapters[0].bookId, chapters[0].chapter, 1);
-                  if (url) openAppWindow(url, APP_WINDOW.bibleReader);
-                }}
-                style={({ pressed }) => [
-                  styles.primaryButton,
-                  { backgroundColor: theme.backgroundSelected },
-                  pressed && styles.pressed,
-                ]}>
-                <ThemedText type="smallBold" style={styles.primaryButtonText}>
-                  📖 오늘 본문 읽기 (개역개정 · 성서공회)
-                </ThemedText>
-              </Pressable>
+              {/* 대한성서공회 사이트는 **한국어 성경만** 있다. 영어로 두신
+                  분에게 이 단추를 이름만 영어로 바꿔 보여 주면, 눌렀을 때
+                  읽을 수 없는 글이 뜬다. 그래서 영어일 때는 감춘다. */}
+              {lang === 'ko' && (
+                <Pressable
+                  onPress={() => {
+                    const url = bskoreaReadUrl(chapters[0].bookId, chapters[0].chapter, 1);
+                    if (url) openAppWindow(url, APP_WINDOW.bibleReader);
+                  }}
+                  style={({ pressed }) => [
+                    styles.primaryButton,
+                    { backgroundColor: theme.backgroundSelected },
+                    pressed && styles.pressed,
+                  ]}>
+                  <ThemedText type="smallBold" style={styles.primaryButtonText}>
+                    {t('rh.readToday')}
+                  </ThemedText>
+                </Pressable>
+              )}
+              {/* 앱 안에서 읽기. 영어일 때는 이것이 유일한 길이라 으뜸 단추로
+                  올린다 — 읽기 화면이 알아서 ESV 로 연다. */}
               <Pressable
                 onPress={() =>
                   router.push({
@@ -356,9 +361,16 @@ export default function ReadingHelperHomeScreen() {
                     params: { bookId: String(chapters[0].bookId), chapter: String(chapters[0].chapter) },
                   })
                 }
-                style={({ pressed }) => [styles.secondaryLink, pressed && styles.pressed]}>
-                <ThemedText type="small" themeColor="textSecondary">
-                  앱에서 읽기 (오픈성경 · 인터넷 없어도 됩니다)
+                style={({ pressed }) => [
+                  lang === 'en' ? styles.primaryButton : styles.secondaryLink,
+                  lang === 'en' && { backgroundColor: theme.backgroundSelected },
+                  pressed && styles.pressed,
+                ]}>
+                <ThemedText
+                  type={lang === 'en' ? 'smallBold' : 'small'}
+                  themeColor={lang === 'en' ? undefined : 'textSecondary'}
+                  style={lang === 'en' ? styles.primaryButtonText : undefined}>
+                  {lang === 'en' ? t('rh.readToday') : t('rh.readInApp')}
                 </ThemedText>
               </Pressable>
             </>
@@ -382,8 +394,8 @@ export default function ReadingHelperHomeScreen() {
                 pressed && styles.pressed,
               ]}>
               <ThemedText type="small">
-                못 읽고 지나간 날이 <ThemedText type="smallBold">{missed.length}일</ThemedText> 있어요.{'\n'}
-                <ThemedText type="smallBold">{missed[0]}</ThemedText>부터 이어서 읽어 보실래요?
+                {t('rh.missedDays', { n: missed.length })}{'\n'}
+                {t('rh.missedResume', { date: missed[0] })}
               </ThemedText>
             </Pressable>
           ) : null}
@@ -396,8 +408,8 @@ export default function ReadingHelperHomeScreen() {
                아니라 찬물이다(새벽에 제일 먼저 여는 사람이 늘 있다). */
             <View style={[styles.togetherRow, { backgroundColor: theme.backgroundElement }]}>
               <ThemedText type="small">
-                🌿 오늘 <ThemedText type="smallBold">{together.readToday}명</ThemedText>이 함께 읽었어요
-                {together.joinedTotal > 0 ? ` · 함께 걷는 분 ${together.joinedTotal}명` : ''}
+                {t('rh.togetherToday', { n: together.readToday })}
+                {together.joinedTotal > 0 ? t('rh.togetherJoined', { n: together.joinedTotal }) : ''}
               </ThemedText>
             </View>
           ) : null}
@@ -413,14 +425,13 @@ export default function ReadingHelperHomeScreen() {
               ]}>
               {readingComplete && <ThemedText style={styles.checkboxMark}>✓</ThemedText>}
             </View>
-            <ThemedText type="smallBold">오늘 통독 완료</ThemedText>
+            <ThemedText type="smallBold">{t('rh.markRead')}</ThemedText>
           </Pressable>
 
           {/* 체크박스와 달력이 서로 다른 것을 본다. 그 사실을 숨기면 "체크했는데
               달력에 안 찍힌다"가 된다. 무엇이 기록되는지 그대로 적는다. */}
           <ThemedText type="small" themeColor="textSecondary" style={styles.completeNote}>
-            달력의 ✓ 는 그날 성경퀴즈에서 {WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞은 날에 찍힙니다. 위 체크는 나만
-            보는 표시예요.
+            {t('rh.markReadNote', { score: WORD_CARD_MIN_QUIZ_SCORE })}
           </ThemedText>
 
           <View style={[styles.pointsCard, { backgroundColor: theme.backgroundElement }]}>
@@ -431,34 +442,39 @@ export default function ReadingHelperHomeScreen() {
               <ThemedText type="smallBold" numberOfLines={1} style={styles.pointsWho}>
                 {myLook?.titleEmoji ? `${myLook.titleEmoji} ` : ''}
                 {myLook?.titleLabel ? `${myLook.titleLabel} ` : ''}
-                {myLook?.displayName || '내'} 포인트
+                {t('rh.myPoints', { who: myLook?.displayName || t('rh.me') })}
                 {myLook?.badgeEmoji ? ` ${myLook.badgeEmoji}` : ''}
               </ThemedText>
               <View style={styles.pointsValueRow}>
                 {todayPoints > 0 && (
                   <ThemedText type="small" style={{ color: theme.backgroundSelected }}>
-                    오늘 +{todayPoints}
+                    {t('rh.todayPlus', { n: todayPoints })}
                   </ThemedText>
                 )}
                 <ThemedText style={[styles.pointsTotal, { color: theme.backgroundSelected }]}>
-                  {points ? points.total : 0}점
+                  {t('rh.points', { n: points ? points.total : 0 })}
                 </ThemedText>
               </View>
             </View>
             {points && points.total > 0 && (
               <ThemedText type="small" themeColor="textSecondary">
-                성경퀴즈 {points.quiz}점 ({points.quizCount}회) · 암송 {points.memorization}점 (
-                {points.memorizationCount}회) · 3초 OX {points.speedQuiz}점 ({points.speedQuizCount}회)
+                {t('rh.pointsBreakdown', {
+                  quiz: points.quiz,
+                  quizCount: points.quizCount,
+                  mem: points.memorization,
+                  memCount: points.memorizationCount,
+                  speed: points.speedQuiz,
+                  speedCount: points.speedQuizCount,
+                })}
               </ThemedText>
             )}
             {/* 규칙을 화면에 그대로 적어 둔다 — 몇 점을 받으면 뭐가 열리는지
                 모르면 포인트가 쌓여도 동기가 되지 않는다. */}
             <ThemedText type="small" themeColor="textSecondary">
-              성경퀴즈 80점대 10점 · 90점대 20점 · 100점 30점, 암송 성공 {MEMORIZATION_POINTS}점, 3초 OX
-              전부 맞히면 {SPEED_QUIZ_POINTS}점
+              {t('rh.pointsRule', { mem: MEMORIZATION_POINTS, speed: SPEED_QUIZ_POINTS })}
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              오늘 성경퀴즈에서 {WORD_CARD_MIN_QUIZ_SCORE}점 이상을 맞으면 그날 말씀카드를 만들 수 있어요.
+              {t('rh.wordCardRule', { score: WORD_CARD_MIN_QUIZ_SCORE })}
             </ThemedText>
           </View>
 
@@ -470,12 +486,12 @@ export default function ReadingHelperHomeScreen() {
                위 다섯만 나온다. 꼴찌는 아무도 볼 수 없다. */
             <View style={[styles.rankCard, { backgroundColor: theme.backgroundElement }]}>
               <ThemedText type="smallBold" style={styles.rankTitle}>
-                🏅 통독 순위
+                {t('rh.rankTitle')}
               </ThemedText>
               {ranking.map((r) => (
                 <View key={r.rank} style={styles.rankRow}>
                   <ThemedText type={r.isMe ? 'smallBold' : 'small'} style={styles.rankNo}>
-                    {r.rank}등
+                    {t('rh.rankNo', { n: r.rank })}
                   </ThemedText>
                   <ThemedText
                     type={r.isMe ? 'smallBold' : 'small'}
@@ -487,18 +503,18 @@ export default function ReadingHelperHomeScreen() {
                     {r.titleLabel ? `${r.titleLabel} ` : ''}
                     {r.displayName}
                     {r.badgeEmoji ? ` ${r.badgeEmoji}` : ''}
-                    {r.isMe ? ' (나)' : ''}
+                    {r.isMe ? t('rh.rankMeSuffix') : ''}
                   </ThemedText>
                   {/* 총점을 크게, 이번 주는 곁에 작게. 순위는 총점으로 선다. */}
                   <View style={styles.rankPointsBox}>
                     <ThemedText
                       type="smallBold"
                       style={[styles.rankPoints, { color: theme.backgroundSelected }]}>
-                      {r.points}점
+                      {t('rh.points', { n: r.points })}
                     </ThemedText>
                     {r.weekPoints > 0 ? (
                       <ThemedText type="small" themeColor="textSecondary" style={styles.rankWeek}>
-                        이번 주 +{r.weekPoints}
+                        {t('rh.rankWeek', { n: r.weekPoints })}
                       </ThemedText>
                     ) : null}
                   </View>
@@ -509,11 +525,15 @@ export default function ReadingHelperHomeScreen() {
                    된다. 점수가 아예 없으면 아무 말도 하지 않는다 — 0점 꼴찌라고
                    적어 주는 것은 격려가 아니다. */
                 <ThemedText type="small" themeColor="textSecondary" style={styles.rankMine}>
-                  나는 {myRank.total}명 중 {myRank.rank}등 · 총 {myRank.points}점
+                  {t('rh.rankMine', {
+                    total: myRank.total,
+                    rank: myRank.rank,
+                    points: myRank.points,
+                  })}
                 </ThemedText>
               ) : null}
               <ThemedText type="small" themeColor="textSecondary" style={styles.rankHint}>
-                순위는 지금까지 쌓은 총점으로 매깁니다. 이름은 마이페이지에서 닉네임을 지으면 바뀝니다.
+                {t('rh.rankHint')}
               </ThemedText>
               <Pressable
                 onPress={() => router.push('/reading-helper/shop')}
@@ -523,7 +543,7 @@ export default function ReadingHelperHomeScreen() {
                   pressed && styles.pressed,
                 ]}>
                 <ThemedText type="smallBold" style={styles.primaryButtonText}>
-                  🎁 포인트 교환소 — 칭호·배지 바꾸기
+                  {t('rh.shopButton')}
                 </ThemedText>
               </Pressable>
             </View>
@@ -538,7 +558,7 @@ export default function ReadingHelperHomeScreen() {
                 { backgroundColor: theme.backgroundElement },
                 pressed && styles.pressed,
               ]}>
-              <ThemedText type="smallBold">📋 통독 현황판 (관리자)</ThemedText>
+              <ThemedText type="smallBold">{t('rh.adminBoard')}</ThemedText>
             </Pressable>
           ) : null}
 
@@ -548,11 +568,11 @@ export default function ReadingHelperHomeScreen() {
             onPress={() =>
               hasQuizContent
                 ? router.push('/reading-helper/quiz')
-                : Alert.alert('성경퀴즈', '오늘의 퀴즈 콘텐츠는 아직 준비되지 않았습니다.')
+                : Alert.alert(t('rh.quizNotReadyTitle'), t('rh.quizNotReady'))
             }
             style={({ pressed }) => [styles.primaryButton, { backgroundColor: theme.backgroundSelected }, pressed && styles.pressed]}>
             <ThemedText type="smallBold" style={styles.primaryButtonText}>
-              성경퀴즈 풀기
+              {t('rh.quizButton')}
             </ThemedText>
           </Pressable>
 
@@ -562,20 +582,20 @@ export default function ReadingHelperHomeScreen() {
             onPress={() =>
               hasQuizContent
                 ? router.push('/reading-helper/speed-quiz')
-                : Alert.alert('3초 성경 OX', '오늘의 퀴즈 콘텐츠는 아직 준비되지 않았습니다.')
+                : Alert.alert(t('rh.speedQuizButton'), t('rh.quizNotReady'))
             }
             style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
-            <ThemedText type="smallBold">⏱️ 3초 성경 OX</ThemedText>
+            <ThemedText type="smallBold">{t('rh.speedQuizButton')}</ThemedText>
           </Pressable>
 
           <Pressable
             onPress={() =>
               hasQuizContent
                 ? router.push('/reading-helper/memorize')
-                : Alert.alert('암송 퍼즐', '오늘의 암송구절이 아직 준비되지 않았습니다.')
+                : Alert.alert(t('rh.memorizeNotReadyTitle'), t('rh.memorizeNotReady'))
             }
             style={({ pressed }) => [styles.secondaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
-            <ThemedText type="smallBold">암송 퍼즐 게임</ThemedText>
+            <ThemedText type="smallBold">{t('rh.memorizeButton')}</ThemedText>
           </Pressable>
 
           {/*
@@ -584,30 +604,43 @@ export default function ReadingHelperHomeScreen() {
             앞으로 일주일치는 미리 볼 수 있는데 그런 길이 있다는 걸 아무도 몰랐다.
           */}
           <View style={styles.tileRow}>
+            {/* key 는 **문구가 아니라** 고정된 이름으로. 문구를 열쇠로 쓰면
+                언어를 바꿀 때마다 React 가 다른 타일로 보고 통째로 새로 그린다. */}
             {[
               {
+                key: 'tomorrow',
                 emoji: '🔭',
-                label: '다음 날\n미리 보기',
+                label: t('rh.tileTomorrow'),
                 go: () =>
                   router.push({
                     pathname: '/reading-helper/day-detail',
                     params: { date: tomorrowDateString() },
                   }),
               },
-              { emoji: '📅', label: '통독\n캘린더', go: () => router.push('/reading-helper/calendar') },
-              { emoji: '🗂', label: '전체\n아카이브', go: () => router.push('/reading-helper/archive') },
-            ].map((t) => (
+              {
+                key: 'calendar',
+                emoji: '📅',
+                label: t('rh.tileCalendar'),
+                go: () => router.push('/reading-helper/calendar'),
+              },
+              {
+                key: 'archive',
+                emoji: '🗂',
+                label: t('rh.tileArchive'),
+                go: () => router.push('/reading-helper/archive'),
+              },
+            ].map((tile) => (
               <Pressable
-                key={t.label}
-                onPress={t.go}
+                key={tile.key}
+                onPress={tile.go}
                 style={({ pressed }) => [
                   styles.tile,
                   { backgroundColor: theme.backgroundElement, borderColor: theme.border },
                   pressed && styles.pressed,
                 ]}>
-                <ThemedText style={styles.tileEmoji}>{t.emoji}</ThemedText>
+                <ThemedText style={styles.tileEmoji}>{tile.emoji}</ThemedText>
                 <ThemedText type="small" style={styles.tileLabel}>
-                  {t.label}
+                  {tile.label}
                 </ThemedText>
               </Pressable>
             ))}
@@ -619,8 +652,7 @@ export default function ReadingHelperHomeScreen() {
               한참 아래로 떼어 놓고 위험한 자리로 보이게 한다. */}
           <View style={styles.resetZone}>
             <ThemedText type="small" themeColor="textSecondary" style={styles.resetHint}>
-              통독을 처음부터 다시 하고 싶으실 때만 누르세요. 지금까지의 기록과 포인트가 모두
-              지워지고 되돌릴 수 없습니다.
+              {t('rh.resetHint')}
             </ThemedText>
             <Pressable
               onPress={handleReset}
@@ -631,7 +663,7 @@ export default function ReadingHelperHomeScreen() {
                 resetting && styles.pressed,
               ]}>
               <ThemedText type="small" style={styles.resetButtonText}>
-                {resetting ? '초기화하는 중…' : '처음부터 다시 시작'}
+                {resetting ? t('rh.resetting') : t('rh.resetButton')}
               </ThemedText>
             </Pressable>
           </View>

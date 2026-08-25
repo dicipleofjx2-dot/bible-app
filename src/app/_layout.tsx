@@ -7,7 +7,7 @@ import { ActivityIndicator, useColorScheme } from 'react-native';
 
 import { AuthProvider } from '@/lib/auth';
 import { SkinProvider } from '@/lib/skin';
-import { I18nProvider } from '@/lib/i18n';
+import { I18nProvider, useT } from '@/lib/i18n';
 import { SQLiteRecoveryBoundary } from '@/components/SQLiteRecoveryBoundary';
 import { AppDbLock } from '@/components/AppDbLock';
 import { DbTabGate } from '@/components/DbTabGate';
@@ -109,115 +109,7 @@ export default function RootLayout() {
               <AuthProvider>
                 <AppDbLock staleDbNames={STALE_BIBLE_DB_NAMES} />
                 {shouldShowIntro && <Redirect href="/intro" />}
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="(tabs)" />
-                  <Stack.Screen name="intro" options={{ headerShown: false, gestureEnabled: false }} />
-                  <Stack.Screen name="plans" options={{ headerShown: true, title: '읽기 계획' }} />
-                  <Stack.Screen
-                    name="plans/[slug]"
-                    options={{ headerShown: true, title: '읽기 계획' }}
-                  />
-                  <Stack.Screen name="post/[id]" options={{ headerShown: true, title: '게시글' }} />
-                  <Stack.Screen name="profile" options={{ headerShown: true, title: '마이페이지' }} />
-                  <Stack.Screen name="calendar" options={{ headerShown: true, title: '달력' }} />
-                  <Stack.Screen
-                    name="bible-study"
-                    options={{ headerShown: true, title: '성경연구' }}
-                  />
-                  <Stack.Screen name="search" options={{ headerShown: true, title: '성경검색' }} />
-                  <Stack.Screen name="commentary" options={{ headerShown: true, title: '주석' }} />
-                  <Stack.Screen
-                    name="bible-maps"
-                    options={{ headerShown: true, title: '성경지도' }}
-                  />
-                  <Stack.Screen
-                    name="spiritual-journal"
-                    options={{ headerShown: true, title: '순종일기' }}
-                  />
-                  <Stack.Screen
-                    name="priorities"
-                    options={{ headerShown: true, title: '우선순위' }}
-                  />
-                  <Stack.Screen
-                    name="kingdom-finance"
-                    options={{ headerShown: true, title: '천국재정' }}
-                  />
-                  <Stack.Screen
-                    name="prayer-group"
-                    options={{ headerShown: true, title: '샬롬기도단' }}
-                  />
-                  <Stack.Screen
-                    name="privacy-policy"
-                    options={{ headerShown: true, title: '개인정보처리방침' }}
-                  />
-                  <Stack.Screen name="meditation" options={{ headerShown: true, title: '오늘의 말씀' }} />
-                  <Stack.Screen name="word-notes" options={{ headerShown: true, title: 'Q.T묵상' }} />
-                  <Stack.Screen
-                    name="word-notes/[id]"
-                    options={{ headerShown: true, title: '묵상 노트' }}
-                  />
-                  <Stack.Screen name="notes" options={{ headerShown: true, title: '구절묵상' }} />
-                  <Stack.Screen name="community" options={{ headerShown: true, title: '커뮤니티' }} />
-                  <Stack.Screen name="read" options={{ headerShown: true, title: '성경읽기' }} />
-                  <Stack.Screen
-                    name="shepherd-letters"
-                    options={{ headerShown: true, title: '목자의 편지' }}
-                  />
-                  <Stack.Screen
-                    name="shepherd-letters/[id]"
-                    options={{ headerShown: true, title: '목자의 편지' }}
-                  />
-                  <Stack.Screen
-                    name="shepherd-letters/admin"
-                    options={{ headerShown: true, title: '목자의 편지 관리' }}
-                  />
-                  <Stack.Screen name="boards" options={{ headerShown: true, title: '게시판' }} />
-                  <Stack.Screen name="boards/[slug]" options={{ headerShown: true, title: '게시판' }} />
-                  <Stack.Screen name="boards/post/[id]" options={{ headerShown: true, title: '글' }} />
-                  <Stack.Screen name="boards/settings" options={{ headerShown: true, title: '게시판 관리' }} />
-                  <Stack.Screen name="notice-board" options={{ headerShown: true, title: '알림마당' }} />
-                  <Stack.Screen
-                    name="notice-board/[id]"
-                    options={{ headerShown: true, title: '알림마당' }}
-                  />
-                  <Stack.Screen
-                    name="notice-board/admin"
-                    options={{ headerShown: true, title: '알림마당 관리' }}
-                  />
-                  <Stack.Screen name="support" options={{ headerShown: true, title: '후원' }} />
-                  <Stack.Screen
-                    name="support/admin"
-                    options={{ headerShown: true, title: '후원정보 관리' }}
-                  />
-                  <Stack.Screen
-                    name="r2m/courses"
-                    options={{ headerShown: true, title: '훈련과정' }}
-                  />
-                  <Stack.Screen
-                    name="r2m/courses/[id]"
-                    options={{ headerShown: true, title: '훈련과정' }}
-                  />
-                  <Stack.Screen
-                    name="r2m/courses/admin"
-                    options={{ headerShown: true, title: 'R2M 훈련과정 관리' }}
-                  />
-                  <Stack.Screen
-                    name="r2m/gratitude"
-                    options={{ headerShown: true, title: '감사노트' }}
-                  />
-                  <Stack.Screen
-                    name="r2m/progress"
-                    options={{ headerShown: true, title: '성장기록' }}
-                  />
-                  <Stack.Screen
-                    name="r2m/leaders"
-                    options={{ headerShown: true, title: '리더관리' }}
-                  />
-                  <Stack.Screen
-                    name="r2m/leader-assign"
-                    options={{ headerShown: true, title: '리더 지정 · 멤버 배정' }}
-                  />
-                </Stack>
+                <AppStack />
               </AuthProvider>
             </SQLiteProvider>
           </Suspense>
@@ -226,5 +118,127 @@ export default function RootLayout() {
       </ThemeProvider>
       </I18nProvider>
     </SkinProvider>
+  );
+}
+
+/**
+ * 화면 목록.
+ *
+ * RootLayout 에서 통째로 떼어 낸 이유는 **딱 하나** — 여기 헤더 제목이
+ * useT() 를 부르는데, I18nProvider 를 그리는 그 컴포넌트 안에서 부르면
+ * 프로바이더가 아니라 기본값(한글)을 읽는다. 자식이라야 그 위의 언어가 보인다.
+ */
+function AppStack() {
+  const t = useT();
+  return (
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="intro" options={{ headerShown: false, gestureEnabled: false }} />
+        <Stack.Screen name="plans" options={{ headerShown: true, title: t('nav.plans') }} />
+        <Stack.Screen
+          name="plans/[slug]"
+          options={{ headerShown: true, title: t('nav.plans') }}
+        />
+        <Stack.Screen name="post/[id]" options={{ headerShown: true, title: t('nav.post') }} />
+        <Stack.Screen name="profile" options={{ headerShown: true, title: t('nav.profile') }} />
+        <Stack.Screen name="calendar" options={{ headerShown: true, title: t('nav.calendar') }} />
+        <Stack.Screen
+          name="bible-study"
+          options={{ headerShown: true, title: t('nav.bibleStudy') }}
+        />
+        <Stack.Screen name="search" options={{ headerShown: true, title: t('nav.search') }} />
+        <Stack.Screen name="commentary" options={{ headerShown: true, title: t('nav.commentary') }} />
+        <Stack.Screen
+          name="bible-maps"
+          options={{ headerShown: true, title: t('nav.maps') }}
+        />
+        <Stack.Screen
+          name="spiritual-journal"
+          options={{ headerShown: true, title: t('nav.obedience') }}
+        />
+        <Stack.Screen
+          name="priorities"
+          options={{ headerShown: true, title: t('nav.priority') }}
+        />
+        <Stack.Screen
+          name="kingdom-finance"
+          options={{ headerShown: true, title: t('nav.finance') }}
+        />
+        <Stack.Screen
+          name="prayer-group"
+          options={{ headerShown: true, title: t('nav.shalom') }}
+        />
+        <Stack.Screen
+          name="privacy-policy"
+          options={{ headerShown: true, title: t('nav.privacy') }}
+        />
+        <Stack.Screen name="meditation" options={{ headerShown: true, title: t('nav.todaysWord') }} />
+        <Stack.Screen name="word-notes" options={{ headerShown: true, title: t('nav.qtNotes') }} />
+        <Stack.Screen
+          name="word-notes/[id]"
+          options={{ headerShown: true, title: t('nav.note') }}
+        />
+        <Stack.Screen name="notes" options={{ headerShown: true, title: t('nav.verseNotes') }} />
+        <Stack.Screen name="community" options={{ headerShown: true, title: t('nav.community') }} />
+        <Stack.Screen name="read" options={{ headerShown: true, title: t('nav.read') }} />
+        <Stack.Screen
+          name="shepherd-letters"
+          options={{ headerShown: true, title: t('nav.letter') }}
+        />
+        <Stack.Screen
+          name="shepherd-letters/[id]"
+          options={{ headerShown: true, title: t('nav.letter') }}
+        />
+        <Stack.Screen
+          name="shepherd-letters/admin"
+          options={{ headerShown: true, title: t('nav.letterAdmin') }}
+        />
+        <Stack.Screen name="boards" options={{ headerShown: true, title: t('nav.boards') }} />
+        <Stack.Screen name="boards/[slug]" options={{ headerShown: true, title: t('nav.boards') }} />
+        <Stack.Screen name="boards/post/[id]" options={{ headerShown: true, title: t('nav.boardPost') }} />
+        <Stack.Screen name="boards/settings" options={{ headerShown: true, title: t('nav.boardsAdmin') }} />
+        <Stack.Screen name="notice-board" options={{ headerShown: true, title: t('nav.notices') }} />
+        <Stack.Screen
+          name="notice-board/[id]"
+          options={{ headerShown: true, title: t('nav.notices') }}
+        />
+        <Stack.Screen
+          name="notice-board/admin"
+          options={{ headerShown: true, title: t('nav.noticesAdmin') }}
+        />
+        <Stack.Screen name="support" options={{ headerShown: true, title: t('nav.support') }} />
+        <Stack.Screen
+          name="support/admin"
+          options={{ headerShown: true, title: t('nav.supportAdmin') }}
+        />
+        <Stack.Screen
+          name="r2m/courses"
+          options={{ headerShown: true, title: t('nav.courses') }}
+        />
+        <Stack.Screen
+          name="r2m/courses/[id]"
+          options={{ headerShown: true, title: t('nav.courses') }}
+        />
+        <Stack.Screen
+          name="r2m/courses/admin"
+          options={{ headerShown: true, title: t('nav.coursesAdmin') }}
+        />
+        <Stack.Screen
+          name="r2m/gratitude"
+          options={{ headerShown: true, title: t('nav.gratitude') }}
+        />
+        <Stack.Screen
+          name="r2m/progress"
+          options={{ headerShown: true, title: t('nav.progress') }}
+        />
+        <Stack.Screen
+          name="r2m/leaders"
+          options={{ headerShown: true, title: t('nav.leaders') }}
+        />
+        <Stack.Screen
+          name="r2m/leader-assign"
+          options={{ headerShown: true, title: t('nav.leaderAssign') }}
+        />
+      </Stack>
   );
 }
