@@ -7,6 +7,7 @@ import { ActivityIndicator, useColorScheme } from 'react-native';
 
 import { AuthProvider } from '@/lib/auth';
 import { SkinProvider } from '@/lib/skin';
+import { I18nProvider } from '@/lib/i18n';
 import { SQLiteRecoveryBoundary } from '@/components/SQLiteRecoveryBoundary';
 import { AppDbLock } from '@/components/AppDbLock';
 import { DbTabGate } from '@/components/DbTabGate';
@@ -82,15 +83,18 @@ export default function RootLayout() {
   if (yielded) {
     return (
       <SkinProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <YieldedNotice />
-        </ThemeProvider>
+        <I18nProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <YieldedNotice />
+          </ThemeProvider>
+        </I18nProvider>
       </SkinProvider>
     );
   }
 
   return (
     <SkinProvider>
+      <I18nProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <SQLiteRecoveryBoundary>
           {/* DB 를 열기 **전에** 다른 탭에게 자리를 비켜 달라고 한다. 부딪힌 뒤에
@@ -220,6 +224,7 @@ export default function RootLayout() {
           </DbTabGate>
         </SQLiteRecoveryBoundary>
       </ThemeProvider>
+      </I18nProvider>
     </SkinProvider>
   );
 }

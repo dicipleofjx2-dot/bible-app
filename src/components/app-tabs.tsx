@@ -1,6 +1,7 @@
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/lib/i18n';
 
 // NativeTabs.Trigger.Icon only accepts platform symbol names (SF Symbols on
 // iOS, named drawables on Android) — it can't render an arbitrary React
@@ -8,6 +9,7 @@ import { useTheme } from '@/hooks/use-theme';
 // screen) isn't usable here. These are the closest outline-style platform
 // equivalents for the 5-tab IA (Home/Word/R2M/Growth/More).
 export default function AppTabs() {
+  const t = useT();
   const colors = useTheme();
 
   return (
@@ -16,12 +18,12 @@ export default function AppTabs() {
       indicatorColor={colors.backgroundSelected}
       labelStyle={{ selected: { color: colors.text } }}>
       <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>홈</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>{t('tab.home')}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="house" md="home" />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="word">
-        <NativeTabs.Trigger.Label>말씀</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>{t('tab.word')}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="book" md="menu_book" />
       </NativeTabs.Trigger>
 
@@ -31,12 +33,12 @@ export default function AppTabs() {
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="growth">
-        <NativeTabs.Trigger.Label>성장</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>{t('tab.growth')}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="leaf" md="eco" />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="more">
-        <NativeTabs.Trigger.Label>더보기</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>{t('tab.more')}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="ellipsis.circle" md="more_horiz" />
       </NativeTabs.Trigger>
     </NativeTabs>

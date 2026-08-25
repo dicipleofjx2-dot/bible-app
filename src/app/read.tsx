@@ -10,6 +10,7 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { externalReadUrl, LINK_SOURCE_LABEL } from '@/lib/bskorea';
+import { useI18n } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import {
   getBooks,
@@ -20,6 +21,7 @@ import {
   type Translation,
   type Verse,
   DEFAULT_TRANSLATION,
+  defaultTranslationFor,
 } from '@/db/bible';
 import { BookChapterPicker } from '@/features/bible/BookChapterPicker';
 import {
@@ -88,7 +90,15 @@ export default function ReadScreen() {
   const [bookId, setBookId] = useState<number | null>(null);
   const [chapter, setChapter] = useState(1);
   const [chapterCount, setChapterCount] = useState(1);
+  const { lang } = useI18n();
   const [translation, setTranslation] = useState<Translation>(DEFAULT_TRANSLATION);
+  /**
+   * 저장해 둔 역본이 있었는가.
+   *
+   * 없으면 언어에 맞는 역본으로 연다(영어 → ESV). 있으면 그것이 이긴다 —
+   * 언어를 바꿨다고 애써 골라 둔 역본이 뒤집히면 안 된다.
+   */
+  const restoredTranslation = useRef(false);
   // 상단 바에 늘 펼쳐 두던 것들을 접었다. 역본 넷과 A-/A+가 항상 나와 있어
   // 좁은 화면에서는 책 이름이 밀렸고, 정작 자주 쓰는 것은 아니다.
   //
@@ -151,7 +161,10 @@ export default function ReadScreen() {
             if (saved?.bookId) {
               setBookId(saved.bookId);
               setChapter(saved.chapter ?? 1);
-              if (saved.translation) setTranslation(saved.translation);
+              if (saved.translation) {
+                setTranslation(saved.translation);
+                restoredTranslation.current = true;
+              }
               if (saved.y > 0) {
                 pendingScroll.current = { y: saved.y, contentHeight: saved.contentHeight };
               }
@@ -162,7 +175,12 @@ export default function ReadScreen() {
         }
       })
       .catch(() => {})
-      .finally(() => setResumeChecked(true));
+      .finally(() => {
+        // 고른 적이 없으면 언어에 맞는 역본으로 연다. 영어 성도가 성경을
+        // 처음 열었을 때 한글 역본을 마주하지 않게 한다.
+        if (!restoredTranslation.current) setTranslation(defaultTranslationFor(lang));
+        setResumeChecked(true);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

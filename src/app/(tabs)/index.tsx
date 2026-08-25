@@ -12,6 +12,8 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useGradient, useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { useT } from '@/lib/i18n';
+import type { StringKey } from '@/constants/strings';
 import { getFirstQtEntry, getQtEntryForDate } from '@/db/bible';
 import { getMyActiveEnrollment, getTodayChecklistCount, type ActiveEnrollment } from '@/db/r2m';
 import { getMeditationNote } from '@/db/userData';
@@ -46,8 +48,17 @@ const CHURCH_HOME_URL = 'https://newwineskin.co.kr';
  */
 type HomeTile = {
   emoji: string;
-  label: string;
+  /** 문구 열쇠(STRINGS). 화면에 그릴 때 t() 를 지난다 */
+  label: StringKey;
   href: Href;
+  /**
+   * 문구와 상관없이 이 칸을 가리키는 이름.
+   *
+   * 예전에는 `tile.label === '목자의 편지'` 로 배지를 골랐는데, 화면을 영어로
+   * 바꾸면 그 비교가 조용히 다 어긋난다. 무엇인지는 열쇠로 가르고 문구는
+   * 보여 주기만 한다.
+   */
+  key: string;
   /** 로그인해야 쓸 수 있는 곳 — 안 했으면 마이페이지로 보낸다 */
   requiresAuth?: boolean;
   /** 앱 밖으로 나가는 곳 */
@@ -57,22 +68,23 @@ type HomeTile = {
 // 공지사항은 바둑판에 넣지 않는다 — 제목이 바로 보이는 한 줄 띠가 위에 따로
 // 있고, 그게 아이콘 한 칸보다 훨씬 잘 읽힌다.
 const HOME_TILES: HomeTile[] = [
-  { emoji: '💌', label: '목자의 편지', href: '/shepherd-letters' },
-  { emoji: '🔥', label: 'R2M훈련', href: '/bible-reading' },
-  { emoji: '📆', label: '성경통독도우미', href: '/reading-helper', requiresAuth: true },
-  { emoji: '📰', label: '새부대스마트주보', href: '/' as Href, externalUrl: SMART_BULLETIN_URL },
-  { emoji: '🏠', label: '새부대홈페이지', href: '/' as Href, externalUrl: CHURCH_HOME_URL },
+  { key: 'shepherdLetter', emoji: '💌', label: 'home.shepherdLetter', href: '/shepherd-letters' },
+  { key: 'r2m', emoji: '🔥', label: 'home.r2m', href: '/bible-reading' },
+  { key: 'readingHelper', emoji: '📆', label: 'home.readingHelper', href: '/reading-helper', requiresAuth: true },
+  { key: 'bulletin', emoji: '📰', label: 'home.churchBulletin', href: '/' as Href, externalUrl: SMART_BULLETIN_URL },
+  { key: 'churchSite', emoji: '🏠', label: 'home.churchSite', href: '/' as Href, externalUrl: CHURCH_HOME_URL },
   // 데이빗북스 하나만 걸던 자리를 성장 탭으로 넓혔다. 데이빗북스는 그 안에
   // 있고, 순종일기·우선순위·천국재정·샬롬기도단도 같이 열린다.
-  { emoji: '🌱', label: '성장', href: '/growth' },
-  { emoji: '📋', label: '게시판', href: '/boards' },
-  { emoji: '🤍', label: 'David Bible 후원', href: '/support' },
-  { emoji: '💬', label: '커뮤니티', href: '/community', requiresAuth: true },
+  { key: 'growth', emoji: '🌱', label: 'tab.growth', href: '/growth' },
+  { key: 'board', emoji: '📋', label: 'home.board', href: '/boards' },
+  { key: 'support', emoji: '🤍', label: 'home.support', href: '/support' },
+  { key: 'community', emoji: '💬', label: 'home.community', href: '/community', requiresAuth: true },
 ];
 
 export default function HomeScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
+  const t = useT();
   const gradient = useGradient();
 
   // 바둑판 아이콘 받침. 밝은 모드와 어두운 모드가 서로 다른 방식으로 층을
@@ -164,9 +176,9 @@ export default function HomeScreen() {
 
   const journeySteps: JourneyStep[] = [
     { label: 'QT', href: '/meditation', done: qtDoneToday },
-    { label: '묵상', href: '/word-notes' },
-    { label: '기도', href: '/prayer-group' },
-    { label: '순종', href: '/spiritual-journal' },
+    { label: t('home.meditation'), href: '/word-notes' },
+    { label: t('home.prayer'), href: '/prayer-group' },
+    { label: t('home.obedience'), href: '/spiritual-journal' },
   ];
 
   return (
@@ -179,7 +191,7 @@ export default function HomeScreen() {
               다른 카드와 무게를 다르게 했다. Primary 버튼("QT 시작")도 여기 하나뿐이다. */}
           <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.heroCard}>
             <ThemedText type="small" style={styles.heroLabel}>
-              오늘의 말씀
+              {t('home.todaysWord')}
             </ThemedText>
             {verseRef ? (
               <>
@@ -187,7 +199,7 @@ export default function HomeScreen() {
                   {verseRef}
                 </ThemedText>
                 <ThemedText style={styles.heroExcerpt} numberOfLines={2}>
-                  본문은 QT 화면에서 대한성서공회 성경읽기로 열립니다.
+                  {t('home.qtOpensAt')}
                 </ThemedText>
               </>
             ) : (
@@ -197,7 +209,7 @@ export default function HomeScreen() {
               onPress={() => router.push('/meditation')}
               style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
               <ThemedText type="smallBold" style={[styles.primaryButtonText, { color: theme.accent }]}>
-                QT 시작하기
+                {t('home.qtStart')}
               </ThemedText>
             </Pressable>
           </LinearGradient>
@@ -234,10 +246,10 @@ export default function HomeScreen() {
               pressed && styles.pressed,
             ]}>
             <ThemedText type="small" numberOfLines={1} style={styles.noticeStripText}>
-              📢 {notice ? notice.title : '등록된 소식이 없어요'}
+              📢 {notice ? notice.title : t('home.noNews')}
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              더보기 ›
+              {t('home.more')}
             </ThemedText>
           </Pressable>
 
@@ -245,13 +257,13 @@ export default function HomeScreen() {
           <View style={styles.tileGrid}>
             {HOME_TILES.map((tile) => {
               const badge =
-                tile.label === '목자의 편지'
+                tile.key === 'shepherdLetter'
                   ? letterUnseen
                     ? 'NEW'
                     : null
-                  : tile.label === 'R2M훈련' && enrollment
-                    ? `오늘 ${checklistCount}/7`
-                    : tile.label === '커뮤니티' && communityUnread > 0
+                  : tile.key === 'r2m' && enrollment
+                    ? `${checklistCount}/7`
+                    : tile.key === 'community' && communityUnread > 0
                       ? // 99를 넘으면 「99+」로 적는다. 세 자리가 되면 아이콘을 덮는다.
                         communityUnread > 99
                         ? '99+'
@@ -259,7 +271,7 @@ export default function HomeScreen() {
                       : null;
               return (
                 <Pressable
-                  key={tile.label}
+                  key={tile.key}
                   onPress={() => {
                     if (tile.externalUrl) {
                       // 이름 붙인 창으로 연다 — 같은 곳을 여러 탭에 띄우지 않는다.
@@ -292,7 +304,7 @@ export default function HomeScreen() {
                     <ThemedText style={styles.tileEmoji}>{tile.emoji}</ThemedText>
                   </LinearGradient>
                   <ThemedText type="small" style={styles.tileLabel} numberOfLines={2}>
-                    {tile.label}
+                    {t(tile.label as StringKey)}
                   </ThemedText>
                   {badge ? (
                     <ThemedText type="small" themeColor="textSecondary" numberOfLines={1} style={styles.tileBadge}>

@@ -46,6 +46,20 @@ export const TRANSLATIONS: { code: Translation; label: string; linkOnly?: boolea
 // 화면을 열자마자 빈칸이 보인다.
 export const DEFAULT_TRANSLATION: Translation = 'open_ko';
 
+/**
+ * 그 언어로 볼 때 처음 열리는 역본.
+ *
+ * 영어로 두면 ESV 로 연다(사용자 결정). ESV 는 본문을 앱에 담지 않고 esv.org
+ * 로 보내는 역본이라, 인터넷이 없으면 본문이 안 보인다 — 그래도 영어 성도가
+ * 한글 역본을 먼저 마주하는 것보다 낫다.
+ *
+ * **이미 고른 역본이 있으면 그것이 이긴다.** 이 값은 처음 열 때만 쓴다 —
+ * 언어를 바꿨다고 애써 골라 둔 역본이 뒤집히면 안 된다.
+ */
+export function defaultTranslationFor(lang: 'ko' | 'en'): Translation {
+  return lang === 'en' ? 'esv' : DEFAULT_TRANSLATION;
+}
+
 export type Book = {
   id: number;
   abbrev: string;

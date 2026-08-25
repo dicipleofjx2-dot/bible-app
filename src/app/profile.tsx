@@ -7,6 +7,7 @@ import { PushToggle } from '@/components/PushToggle';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { useI18n } from '@/lib/i18n';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import {
@@ -21,6 +22,7 @@ import { AuthForm } from '@/features/auth/AuthForm';
 
 export default function ProfileScreen() {
   const theme = useTheme();
+  const { lang, setLang, t } = useI18n();
   const { session, signOut } = useAuth();
   const [username, setUsername] = useState('');
   const [church, setChurch] = useState<ChurchOption | null>(null);
@@ -124,6 +126,35 @@ export default function ProfileScreen() {
                 ]}>
                 <ThemedText type="smallBold">{saved ? '저장됨' : '저장'}</ThemedText>
               </Pressable>
+            </View>
+
+            {/* 화면 언어. 성경 역본과는 별개다 — 역본은 성경읽기에서 고른다.
+                영어로 두면 성경을 처음 열 때 ESV 로 열린다. */}
+            <View style={styles.section}>
+              <ThemedText type="small" themeColor="textSecondary">
+                {t('lang.title')}
+              </ThemedText>
+              <View style={styles.langRow}>
+                {(['ko', 'en'] as const).map((code) => (
+                  <Pressable
+                    key={code}
+                    onPress={() => setLang(code)}
+                    style={[
+                      styles.langButton,
+                      {
+                        backgroundColor:
+                          lang === code ? theme.backgroundSelected : theme.backgroundElement,
+                      },
+                    ]}>
+                    <ThemedText type={lang === code ? 'smallBold' : 'small'}>
+                      {code === 'ko' ? '한국어' : 'English'}
+                    </ThemedText>
+                  </Pressable>
+                ))}
+              </View>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.langNote}>
+                {t('lang.note')}
+              </ThemedText>
             </View>
 
             {/* 소속 교회 — 목자편지·공지사항·게시판이 이 값으로 갈린다.
@@ -250,6 +281,9 @@ const styles = StyleSheet.create({
     // 맨 아래 로그아웃이 화면 끝에 딱 붙지 않게 여유를 둔다.
     paddingBottom: Spacing.six,
   },
+  langRow: { flexDirection: 'row', gap: 8, marginTop: 6 },
+  langButton: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
+  langNote: { marginTop: 6, lineHeight: 18 },
   section: {
     gap: Spacing.two,
   },

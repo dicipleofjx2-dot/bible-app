@@ -17,24 +17,29 @@ import { ThemedView } from './themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useGradient, useTheme } from '@/hooks/use-theme';
 import { getTodayLabelKST } from '@/lib/hebrew-date';
+import { useT } from '@/lib/i18n';
+import type { StringKey } from '@/constants/strings';
 import type { Href } from 'expo-router';
 
-const TAB_ITEMS: { name: string; href: Href; label: string; Icon: LucideIcon }[] = [
-  { name: 'home', href: '/', label: '홈', Icon: House },
-  { name: 'word', href: '/word', label: '말씀', Icon: BookOpen },
-  { name: 'bible-reading', href: '/bible-reading', label: 'R2M', Icon: Target },
-  { name: 'growth', href: '/growth', label: '성장', Icon: Sprout },
-  { name: 'more', href: '/more', label: '더보기', Icon: MoreHorizontal },
+// label 은 문구 열쇠(STRINGS)다. 화면에 그릴 때 t() 를 지난다 — 여기서 한글을
+// 박아 두면 영어로 바꿔도 아래 칸만 한글로 남는다.
+const TAB_ITEMS: { name: string; href: Href; label: StringKey; Icon: LucideIcon }[] = [
+  { name: 'home', href: '/', label: 'tab.home', Icon: House },
+  { name: 'word', href: '/word', label: 'tab.word', Icon: BookOpen },
+  { name: 'bible-reading', href: '/bible-reading', label: 'tab.r2m', Icon: Target },
+  { name: 'growth', href: '/growth', label: 'tab.growth', Icon: Sprout },
+  { name: 'more', href: '/more', label: 'tab.more', Icon: MoreHorizontal },
 ];
 
 export default function AppTabs() {
+  const t = useT();
   return (
     <Tabs style={styles.tabs}>
       <TabList asChild>
         <CustomTabList>
           {TAB_ITEMS.map((item) => (
             <TabTrigger key={item.name} name={item.name} href={item.href} asChild>
-              <TabButton icon={item.Icon}>{item.label}</TabButton>
+              <TabButton icon={item.Icon}>{t(item.label)}</TabButton>
             </TabTrigger>
           ))}
         </CustomTabList>
