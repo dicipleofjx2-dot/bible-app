@@ -407,7 +407,10 @@ export async function getEnrolledUsersStatus(userId: string, scope: LeaderScope)
       .eq('date', date),
   ]);
 
-  const nameByUser = new Map<string, string>((profileResult.data ?? []).map((r: any) => [r.id, r.username]));
+  const nameByUser = await resolveDisplayNames(
+    userIds,
+    new Map<string, string>((profileResult.data ?? []).map((r: any) => [r.id, r.username])),
+  );
   const checkinByUser = new Map<string, any>((checkinsResult.data ?? []).map((r: any) => [r.user_id, r]));
   const prayedUsers = new Set((prayerResult.data ?? []).map((r: any) => r.user_id));
   const readingHelperByUser = new Map<string, any>((readingHelperResult.data ?? []).map((r: any) => [r.user_id, r]));
@@ -441,6 +444,34 @@ export async function getEnrolledUsersStatus(userId: string, scope: LeaderScope)
 // 리더 지정과 멤버 배정 (관리자 전용)
 // ============================================================
 
+/**
+ * 화면에 쓸 이름을 가져온다.
+ *
+ * profiles.username 은 대부분 이메일 주소라 그대로 쓰면 리더를 세우고 멤버를
+ * 배정하는 자리에서 누가 누구인지 알 수가 없다. 교적부 실명을 먼저 쓰고,
+ * 없으면 이메일 앞부분이라도 준다(0056 r2m_display_names).
+ *
+ * 실명은 교적부에 있는데 그 표는 교적 열람 권한이 있어야 읽힌다. 그래서
+ * 이름만 돌려주는 함수를 지나간다(대표관리자만 부를 수 있다).
+ *
+ * **막히면 username 으로 조용히 되돌아간다.** 리더가 이 화면을 열면 권한이
+ * 없어 함수가 거절하는데, 그때 오류를 띄우면 리더는 아무것도 못 본다.
+ * 대표관리자에게는 실명이, 리더에게는 예전처럼 닉네임이 보이면 된다.
+ */
+async function resolveDisplayNames(
+  userIds: string[],
+  fallback: Map<string, string>,
+): Promise<Map<string, string>> {
+  if (userIds.length === 0) return new Map();
+  const { data, error } = await supabase.rpc('r2m_display_names', { user_ids: userIds });
+  if (error || !data) return fallback;
+  const out = new Map<string, string>(fallback);
+  for (const row of data as Array<{ user_id: string; display_name: string }>) {
+    if (row.display_name) out.set(row.user_id, row.display_name);
+  }
+  return out;
+}
+
 /** 회원 전체를 리더 여부·소속 리더와 함께 가져온다. */
 export async function getMembersForAssignment(): Promise<AppMember[]> {
   const [profileResult, leaderResult, assignmentResult] = await Promise.all([
@@ -455,18 +486,25 @@ export async function getMembersForAssignment(): Promise<AppMember[]> {
   const leaderByMember = new Map<string, string>(
     (assignmentResult.data ?? []).map((r: any) => [r.member_id, r.leader_id]),
   );
-  const nameById = new Map<string, string>((profileResult.data ?? []).map((r: any) => [r.id, r.username]));
+  const nameById = await resolveDisplayNames(
+    (profileResult.data ?? []).map((r: any) => r.id),
+    new Map<string, string>((profileResult.data ?? []).map((r: any) => [r.id, r.username])),
+  );
 
-  return (profileResult.data ?? []).map((row: any) => {
-    const leaderId = leaderByMember.get(row.id) ?? null;
-    return {
-      userId: row.id,
-      username: row.username ?? '익명',
-      isLeader: leaderIds.has(row.id),
-      leaderId,
-      leaderName: leaderId ? (nameById.get(leaderId) ?? '익명') : null,
-    };
-  });
+  return (profileResult.data ?? [])
+    .map((row: any) => {
+      const leaderId = leaderByMember.get(row.id) ?? null;
+      return {
+        userId: row.id,
+        username: nameById.get(row.id) ?? row.username ?? '익명',
+        isLeader: leaderIds.has(row.id),
+        leaderId,
+        leaderName: leaderId ? (nameById.get(leaderId) ?? '익명') : null,
+      };
+    })
+    // 이름이 바뀌었으니 이름순 정렬도 다시 한다. profiles.username 으로 정렬해
+    // 두면 화면에는 실명이 나오는데 순서는 이메일순이라 찾기가 어렵다.
+    .sort((a, b) => a.username.localeCompare(b.username, 'ko'));
 }
 
 export async function setLeader(userId: string, on: boolean, actorId: string): Promise<{ error?: string }> {
