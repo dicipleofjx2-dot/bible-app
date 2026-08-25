@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/lib/auth';
+import { useT } from '@/lib/i18n';
 import { setStartDate } from '@/lib/readingHelper/db';
 import { todayDateString } from '@/lib/readingHelper/readingPlan';
 
@@ -36,6 +37,7 @@ const PALETTE = {
 };
 
 export default function ReadingHelperOnboardingScreen() {
+  const t = useT();
   const scheme = useColorScheme();
   const theme = PALETTE[scheme === 'dark' ? 'dark' : 'light'];
   const [step, setStep] = useState(0);
@@ -59,7 +61,7 @@ export default function ReadingHelperOnboardingScreen() {
       // 여기서 실패하는 거의 유일한 이유는 로그인이 만료된 것이다. 앱에는 아직
       // 로그인한 것처럼 보이지만 서버가 거부한다. 예전에는 아무 말 없이 이
       // 화면에 머물러서, 눌러도 안 넘어가는 것처럼만 보였다.
-      setError('로그인이 만료된 것 같아요. 마이페이지에서 다시 로그인한 뒤 시작해 주세요.');
+      setError(t('ob.sessionExpired'));
     } finally {
       setStarting(false);
     }
@@ -76,7 +78,7 @@ export default function ReadingHelperOnboardingScreen() {
             <View style={styles.errorBox}>
               <Text style={styles.errorText}>{error}</Text>
               <Pressable onPress={() => router.push('/profile')} style={styles.errorButton}>
-                <Text style={styles.errorButtonText}>마이페이지로 가기</Text>
+                <Text style={styles.errorButtonText}>{t('ob.goToMyPage')}</Text>
               </Pressable>
             </View>
           )}
@@ -93,7 +95,7 @@ export default function ReadingHelperOnboardingScreen() {
             <Pressable
               onPress={() => setStep(step + 1)}
               style={({ pressed }) => [styles.primaryButton, { backgroundColor: theme.navy }, pressed && styles.pressed]}>
-              <Text style={[styles.primaryButtonText, { color: '#fff' }]}>{step === 0 ? '시작하기' : '다음'}</Text>
+              <Text style={[styles.primaryButtonText, { color: '#fff' }]}>{step === 0 ? t('ob.start') : t('ob.next')}</Text>
             </Pressable>
           )}
         </View>
@@ -105,6 +107,7 @@ export default function ReadingHelperOnboardingScreen() {
 type Palette = (typeof PALETTE)['light'];
 
 function WelcomeStep({ theme }: { theme: Palette }) {
+  const t = useT();
   return (
     <View style={styles.centered}>
       <View style={[styles.glowOuter, { backgroundColor: theme.glow }]}>
@@ -112,26 +115,27 @@ function WelcomeStep({ theme }: { theme: Palette }) {
           <Text style={styles.welcomeEmoji}>🙏</Text>
         </View>
       </View>
-      <Text style={[styles.title, { color: theme.title }]}>환영합니다!</Text>
-      <Text style={[styles.subtitle, { color: theme.subtitle }]}>
-        1년 1독 성경통독의 여정을 시작합니다.{'\n'}매일 말씀과 함께 성장하는 시간이 되기를 소망합니다.
-      </Text>
+      <Text style={[styles.title, { color: theme.title }]}>{t('ob.welcome')}</Text>
+      <Text style={[styles.subtitle, { color: theme.subtitle }]}>{t('ob.welcomeBody')}</Text>
     </View>
   );
 }
 
 function HowItWorksStep({ theme }: { theme: Palette }) {
+  const t = useT();
+  // key 는 문구가 아니라 고정된 이름으로. 문구를 열쇠로 쓰면 말을 바꿀
+  // 때마다 목록이 통째로 새로 그려진다.
   const items = [
-    { icon: '📖', iconBg: '#fdebd3', title: '매일 진도', description: '평일 3장 / 주일 5장\n(자동 진도)' },
-    { icon: '🧩', iconBg: '#e4defa', title: '퀴즈 & 암송', description: '성경 퀴즈 20문항\n& 암송 퍼즐 게임' },
-    { icon: '⏰', iconBg: '#dbeafe', title: '오전 4시 갱신', description: '매일 오전 4시\n새로운 말씀 갱신' },
+    { icon: '📖', iconBg: '#fdebd3', key: 'daily', title: t('ob.dailyTitle'), description: t('ob.dailyDesc') },
+    { icon: '🧩', iconBg: '#e4defa', key: 'quiz', title: t('ob.quizTitle'), description: t('ob.quizDesc') },
+    { icon: '⏰', iconBg: '#dbeafe', key: 'reset', title: t('ob.resetTitle'), description: t('ob.resetDesc') },
   ];
   return (
     <View style={styles.centeredWide}>
-      <Text style={[styles.title, { color: theme.title }]}>성경통독 운영 방식</Text>
+      <Text style={[styles.title, { color: theme.title }]}>{t('ob.howTitle')}</Text>
       <View style={styles.cardList}>
         {items.map((item) => (
-          <View key={item.title} style={[styles.card, { backgroundColor: theme.card }]}>
+          <View key={item.key} style={[styles.card, { backgroundColor: theme.card }]}>
             <View style={[styles.cardIconCircle, { backgroundColor: item.iconBg }]}>
               <Text style={styles.cardIconEmoji}>{item.icon}</Text>
             </View>
@@ -147,20 +151,21 @@ function HowItWorksStep({ theme }: { theme: Palette }) {
 }
 
 function StartStep({ theme, onStart, loggedIn }: { theme: Palette; onStart: () => void; loggedIn: boolean }) {
+  const t = useT();
   return (
     <View style={styles.centered}>
-      <Text style={[styles.title, { color: theme.title }]}>통독 시작</Text>
+      <Text style={[styles.title, { color: theme.title }]}>{t('ob.beginTitle')}</Text>
 
       <Pressable
         onPress={onStart}
         style={({ pressed }) => [styles.startBadge, { backgroundColor: theme.navyDeep }, pressed && styles.pressed]}>
         <Text style={[styles.startBadgeCross, { color: '#f3d9a4' }]}>✝</Text>
-        <Text style={[styles.startBadgeText, { color: '#fff' }]}>첫째 날{'\n'}진도 시작하기</Text>
+        <Text style={[styles.startBadgeText, { color: '#fff' }]}>{t('ob.beginBadge')}</Text>
         <Text style={[styles.startBadgeSub, { color: '#cddaea' }]}>(Day 1)</Text>
       </Pressable>
 
       <Text style={[styles.subtitle, { color: theme.subtitle }]}>
-        {loggedIn ? '준비되셨나요?\n지금 바로 시작하세요!' : '로그인 후 진행도를 저장할 수 있어요.\n버튼을 누르면 마이페이지로 이동합니다.'}
+        {loggedIn ? t('ob.readyIn') : t('ob.readyOut')}
       </Text>
     </View>
   );

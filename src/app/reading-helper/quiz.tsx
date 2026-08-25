@@ -230,7 +230,7 @@ export default function ReadingHelperQuizScreen() {
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <ThemedText type="smallBold">
-            성경퀴즈 | Day {content.dayNumber}
+            {t('quiz.title')} | Day {content.dayNumber}
             {isReview ? t('quiz.headerReview') : ''}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary" style={styles.progressLabel}>

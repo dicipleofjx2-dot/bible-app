@@ -12,6 +12,7 @@ import { getStartDate } from '@/lib/readingHelper/db';
 import { currentDayNumber, dayNumberForDate } from '@/lib/readingHelper/readingPlan';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 import { useI18n } from '@/lib/i18n';
+import type { StringKey } from '@/constants/strings';
 import type { DayQuizContent, QuizQuestion } from '@/lib/readingHelper/quizTypes';
 
 function normalizeAnswer(s: string): string {
@@ -23,8 +24,12 @@ function correctAnswerLabel(q: QuizQuestion): string {
   return `${String.fromCharCode(65 + q.correctIndex)}. ${q.choices[q.correctIndex]}`;
 }
 
-function userAnswerLabel(q: QuizQuestion, userAnswer: number | string | undefined): string {
-  if (userAnswer === undefined || userAnswer === '') return '(답변 없음)';
+function userAnswerLabel(
+  q: QuizQuestion,
+  userAnswer: number | string | undefined,
+  t: (key: StringKey, params?: Record<string, string | number>) => string
+): string {
+  if (userAnswer === undefined || userAnswer === '') return t('ans.noAnswer');
   if (q.type === 'short') return String(userAnswer);
   const i = Number(userAnswer);
   return `${String.fromCharCode(65 + i)}. ${q.choices[i] ?? ''}`;
@@ -37,7 +42,7 @@ function isAnswerCorrect(q: QuizQuestion, userAnswer: number | string | undefine
 }
 
 export default function ReadingHelperQuizAnswersScreen() {
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
   const theme = useTheme();
   const { session } = useAuth();
   const userId = session?.user.id;
@@ -91,9 +96,9 @@ export default function ReadingHelperQuizAnswersScreen() {
     return (
       <ThemedView style={styles.centeredScreen}>
         <SafeAreaView style={styles.centered}>
-          <ThemedText type="subtitle">정답/해설</ThemedText>
+          <ThemedText type="subtitle">{t('ans.title')}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary" style={styles.bodyText}>
-            콘텐츠를 불러오지 못했습니다.
+            {t('ans.loadFailed')}
           </ThemedText>
           <BackButton />
         </SafeAreaView>
@@ -106,17 +111,20 @@ export default function ReadingHelperQuizAnswersScreen() {
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backRow}>
-            <ThemedText type="smallBold">◀ 돌아가기</ThemedText>
+            <ThemedText type="smallBold">{t('cal.back')}</ThemedText>
           </Pressable>
 
           <ThemedText type="smallBold" themeColor="textSecondary">
-            정답/해설 확인 | Day {content.dayNumber}
+            {t('ans.header', { day: content.dayNumber })}
           </ThemedText>
 
           {userAnswers && (
             <ThemedText type="smallBold">
-              채점 결과: {content.questions.filter((q, i) => isAnswerCorrect(q, userAnswers![i])).length} /{' '}
-              {content.questions.length} 문제 정답
+              {t('ans.score', {
+                right: content.questions.filter((q, i) => isAnswerCorrect(q, userAnswers![i]))
+                  .length,
+                total: content.questions.length,
+              })}
             </ThemedText>
           )}
 
@@ -131,15 +139,15 @@ export default function ReadingHelperQuizAnswersScreen() {
                 </ThemedText>
                 {userAnswers && (
                   <ThemedText type="small" style={correct ? styles.correctText : styles.incorrectText}>
-                    내 답변: {userAnswerLabel(q, userAnswer)}
+                    {t('ans.myAnswer', { answer: userAnswerLabel(q, userAnswer, t) })}
                   </ThemedText>
                 )}
                 <ThemedText type="smallBold" style={{ color: theme.backgroundSelected }}>
-                  정답: {correctAnswerLabel(q)}
+                  {t('ans.correctAnswer', { answer: correctAnswerLabel(q) })}
                 </ThemedText>
                 {q.explanation.length > 0 && (
                   <ThemedText type="small" themeColor="textSecondary">
-                    해설: {q.explanation}
+                    {t('ans.explanation', { text: q.explanation })}
                   </ThemedText>
                 )}
               </View>
@@ -153,11 +161,12 @@ export default function ReadingHelperQuizAnswersScreen() {
 
 function BackButton() {
   const theme = useTheme();
+  const { t } = useI18n();
   return (
     <Pressable
       onPress={() => router.back()}
       style={({ pressed }) => [styles.primaryButton, { backgroundColor: theme.backgroundElement }, pressed && styles.pressed]}>
-      <ThemedText type="smallBold">돌아가기</ThemedText>
+      <ThemedText type="smallBold">{t('quiz.back')}</ThemedText>
     </Pressable>
   );
 }

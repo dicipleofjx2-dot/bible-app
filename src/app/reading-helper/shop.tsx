@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import { buyItem, equipItem, getBalance, getShop, unequip, type Balance, type ShopItem } from '@/lib/readingHelper/shop';
 
@@ -21,6 +22,7 @@ import { buyItem, equipItem, getBalance, getShop, unequip, type Balance, type Sh
  */
 export default function ReadingHelperShopScreen() {
   const theme = useTheme();
+  const t = useT();
   const { session, loading } = useAuth();
   const userId = session?.user.id;
 
@@ -37,9 +39,9 @@ export default function ReadingHelperShopScreen() {
 
   async function handleBuy(item: ShopItem) {
     if (!userId) {
-      Alert.alert('로그인이 필요해요', '점수를 모으고 쓰려면 로그인해 주세요.', [
-        { text: '나중에', style: 'cancel' },
-        { text: '로그인', onPress: () => router.push('/profile') },
+      Alert.alert(t('shop.signInTitle'), t('shop.signInBody'), [
+        { text: t('rh.signInLater'), style: 'cancel' },
+        { text: t('rh.signIn'), onPress: () => router.push('/profile') },
       ]);
       return;
     }
@@ -48,7 +50,7 @@ export default function ReadingHelperShopScreen() {
     setBusy(null);
     if (result.error) {
       // 점수가 모자란 이유까지 서버가 담아 준다("320점이 필요한데 240점 남았어요").
-      Alert.alert('아직 살 수 없어요', result.error);
+      Alert.alert(t('shop.cannotBuy'), result.error);
       return;
     }
     load();
@@ -59,7 +61,7 @@ export default function ReadingHelperShopScreen() {
     const result = item.equipped ? await unequip(item.kind) : await equipItem(item.id);
     setBusy(null);
     if (result.error) {
-      Alert.alert('바꾸지 못했어요', result.error);
+      Alert.alert(t('shop.cannotEquip'), result.error);
       return;
     }
     load();
@@ -81,22 +83,22 @@ export default function ReadingHelperShopScreen() {
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backRow}>
-            <ThemedText type="smallBold">◀ 돌아가기</ThemedText>
+            <ThemedText type="smallBold">{t('cal.back')}</ThemedText>
           </Pressable>
 
-          <ThemedText type="subtitle">포인트 교환소</ThemedText>
+          <ThemedText type="subtitle">{t('shop.title')}</ThemedText>
 
           {userId ? (
             <View style={[styles.balanceCard, { backgroundColor: theme.backgroundElement }]}>
               <ThemedText type="smallBold" style={{ color: theme.backgroundSelected }}>
-                쓸 수 있는 점수 {balance.balance}점
+                {t('shop.balance', { n: balance.balance })}
               </ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                지금까지 {balance.earned}점을 모아 {balance.spent}점을 썼어요.
+                {t('shop.earnedSpent', { earned: balance.earned, spent: balance.spent })}
               </ThemedText>
               {/* 이 한 줄이 없으면 "샀더니 순위가 떨어졌나?" 를 걱정하게 된다. */}
               <ThemedText type="small" themeColor="textSecondary" style={styles.balanceNote}>
-                여기서 쓴 점수는 순위에서 빠지지 않아요. 마음껏 쓰셔도 됩니다.
+                {t('shop.rankNote')}
               </ThemedText>
             </View>
           ) : (
@@ -108,12 +110,14 @@ export default function ReadingHelperShopScreen() {
                 pressed && styles.pressed,
               ]}>
               <ThemedText type="small">
-                둘러보는 중입니다. <ThemedText type="smallBold">로그인하면</ThemedText> 모은 점수로 바꿀 수 있어요.
+                {t('shop.guest')}
+                <ThemedText type="smallBold">{t('shop.guestSignIn')}</ThemedText>
+                {t('shop.guestRest')}
               </ThemedText>
             </Pressable>
           )}
 
-          <Section title="칭호" hint="이름 앞에 붙어요">
+          <Section title={t('shop.titles')} hint={t('shop.titlesHint')}>
             {titles.map((item) => (
               <ItemRow
                 key={item.id}
@@ -126,7 +130,7 @@ export default function ReadingHelperShopScreen() {
             ))}
           </Section>
 
-          <Section title="배지" hint="이름 뒤에 붙어요">
+          <Section title={t('shop.badges')} hint={t('shop.badgesHint')}>
             {badges.map((item) => (
               <ItemRow
                 key={item.id}
@@ -140,8 +144,7 @@ export default function ReadingHelperShopScreen() {
           </Section>
 
           <ThemedText type="small" themeColor="textSecondary" style={styles.note}>
-            사면 바로 달립니다(이미 달고 있는 것이 없을 때). 칭호와 배지는 하나씩 달 수 있고 언제든 바꿀 수
-            있어요. 달고 있는 것은 통독 홈의 내 포인트와 순위표에 함께 나옵니다.
+            {t('shop.note')}
           </ThemedText>
         </ScrollView>
       </SafeAreaView>
@@ -174,6 +177,7 @@ function ItemRow({
   onEquip: () => void;
 }) {
   const theme = useTheme();
+  const t = useT();
   // 살 수 없는 것은 흐리게 둔다. 눌러도 되지만, 왜 안 되는지는 눌러야 알 수
   // 있으므로(서버가 이유를 준다) 아예 막지는 않는다.
   const affordable = item.owned || balance >= item.cost;
@@ -200,7 +204,7 @@ function ItemRow({
             pressed && styles.pressed,
           ]}>
           <ThemedText type="small" style={item.equipped ? styles.actionOn : undefined}>
-            {item.equipped ? '달고 있음' : '달기'}
+            {item.equipped ? t('shop.equipped') : t('shop.equip')}
           </ThemedText>
         </Pressable>
       ) : (
@@ -212,7 +216,9 @@ function ItemRow({
             { backgroundColor: theme.backgroundElement, opacity: affordable ? 1 : 0.5 },
             pressed && styles.pressed,
           ]}>
-          <ThemedText type="small">{busy ? '...' : `${item.cost}점`}</ThemedText>
+          <ThemedText type="small">
+            {busy ? '...' : t('shop.cost', { n: item.cost })}
+          </ThemedText>
         </Pressable>
       )}
     </View>

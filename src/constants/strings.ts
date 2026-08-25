@@ -488,6 +488,133 @@ export const STRINGS = {
   'nav.leaders': { ko: '리더관리', en: 'Leaders' },
   'nav.leaderAssign': { ko: '리더 지정 · 멤버 배정', en: 'Assign Leaders and Members' },
 
+  // ── 정답·해설 ────────────────────────────────────────────────
+  'ans.title': { ko: '정답/해설', en: 'Answers & Explanations' },
+  'ans.header': { ko: '정답/해설 확인 | Day {day}', en: 'Answers & Explanations | Day {day}' },
+  'ans.loadFailed': { ko: '콘텐츠를 불러오지 못했습니다.', en: 'Could not load the content.' },
+  'ans.score': { ko: '채점 결과: {right} / {total} 문제 정답', en: 'Result: {right} of {total} correct' },
+  'ans.myAnswer': { ko: '내 답변: {answer}', en: 'Your answer: {answer}' },
+  'ans.correctAnswer': { ko: '정답: {answer}', en: 'Correct answer: {answer}' },
+  'ans.explanation': { ko: '해설: {text}', en: 'Why: {text}' },
+  'ans.noAnswer': { ko: '(답변 없음)', en: '(no answer)' },
+
+  // ── 통독 시작하기(온보딩) ────────────────────────────────────
+  'ob.sessionExpired': {
+    ko: '로그인이 만료된 것 같아요. 마이페이지에서 다시 로그인한 뒤 시작해 주세요.',
+    en: 'Your session seems to have expired. Please sign in again on My Page and then start.',
+  },
+  'ob.goToMyPage': { ko: '마이페이지로 가기', en: 'Go to My Page' },
+  'ob.start': { ko: '시작하기', en: 'Get Started' },
+  'ob.next': { ko: '다음', en: 'Next' },
+  'ob.welcome': { ko: '환영합니다!', en: 'Welcome!' },
+  'ob.welcomeBody': {
+    ko: '1년 1독 성경통독의 여정을 시작합니다.\n매일 말씀과 함께 성장하는 시간이 되기를 소망합니다.',
+    en: 'You are beginning a one-year journey through the whole Bible.\nMay it be a time of growing with the Word each day.',
+  },
+  'ob.howTitle': { ko: '성경통독 운영 방식', en: 'How the Reading Plan Works' },
+  'ob.dailyTitle': { ko: '매일 진도', en: 'Daily Reading' },
+  'ob.dailyDesc': {
+    ko: '평일 3장 / 주일 5장\n(자동 진도)',
+    en: '3 chapters on weekdays\n5 on Sundays (automatic)',
+  },
+  'ob.quizTitle': { ko: '퀴즈 & 암송', en: 'Quiz & Memorization' },
+  'ob.quizDesc': {
+    ko: '성경 퀴즈 20문항\n& 암송 퍼즐 게임',
+    en: '20 quiz questions\n& a memory verse puzzle',
+  },
+  'ob.resetTitle': { ko: '오전 4시 갱신', en: 'Renews at 4 a.m.' },
+  'ob.resetDesc': {
+    ko: '매일 오전 4시\n새로운 말씀 갱신',
+    en: 'A new passage every day\nat 4 in the morning',
+  },
+  'ob.beginTitle': { ko: '통독 시작', en: 'Begin Reading' },
+  'ob.beginBadge': { ko: '첫째 날\n진도 시작하기', en: 'Day One\nStart here' },
+  'ob.readyIn': { ko: '준비되셨나요?\n지금 바로 시작하세요!', en: 'Ready?\nStart right now!' },
+  'ob.readyOut': {
+    ko: '로그인 후 진행도를 저장할 수 있어요.\n버튼을 누르면 마이페이지로 이동합니다.',
+    en: 'Sign in to save your progress.\nThe button takes you to My Page.',
+  },
+
+  // ── 포인트 교환소 ────────────────────────────────────────────
+  'shop.title': { ko: '포인트 교환소', en: 'Points Shop' },
+  'shop.signInTitle': { ko: '로그인이 필요해요', en: 'Sign-in required' },
+  'shop.signInBody': {
+    ko: '점수를 모으고 쓰려면 로그인해 주세요.',
+    en: 'Please sign in to earn and spend points.',
+  },
+  'shop.cannotBuy': { ko: '아직 살 수 없어요', en: 'Not available yet' },
+  'shop.cannotEquip': { ko: '바꾸지 못했어요', en: 'Could not change it' },
+  'shop.balance': { ko: '쓸 수 있는 점수 {n}점', en: '{n} points to spend' },
+  'shop.earnedSpent': {
+    ko: '지금까지 {earned}점을 모아 {spent}점을 썼어요.',
+    en: 'You have earned {earned} points and spent {spent}.',
+  },
+  'shop.rankNote': {
+    ko: '여기서 쓴 점수는 순위에서 빠지지 않아요. 마음껏 쓰셔도 됩니다.',
+    en: 'Points spent here do not come off your ranking. Spend them freely.',
+  },
+  'shop.guest': { ko: '둘러보는 중입니다. ', en: 'Just looking around. ' },
+  'shop.guestSignIn': { ko: '로그인하면', en: 'Sign in' },
+  'shop.guestRest': {
+    ko: ' 모은 점수로 바꿀 수 있어요.',
+    en: ' to trade the points you have earned.',
+  },
+  'shop.titles': { ko: '칭호', en: 'Titles' },
+  'shop.titlesHint': { ko: '이름 앞에 붙어요', en: 'shown before your name' },
+  'shop.badges': { ko: '배지', en: 'Badges' },
+  'shop.badgesHint': { ko: '이름 뒤에 붙어요', en: 'shown after your name' },
+  'shop.note': {
+    ko: '사면 바로 달립니다(이미 달고 있는 것이 없을 때). 칭호와 배지는 하나씩 달 수 있고 언제든 바꿀 수 있어요. 달고 있는 것은 통독 홈의 내 포인트와 순위표에 함께 나옵니다.',
+    en: 'What you buy is worn right away, if you are not wearing one already. You can wear one title and one badge, and change them any time. What you wear appears next to your points and on the leaderboard.',
+  },
+  'shop.equipped': { ko: '달고 있음', en: 'Wearing' },
+  'shop.equip': { ko: '달기', en: 'Wear' },
+  'shop.cost': { ko: '{n}점', en: '{n} pts' },
+
+  // ── 말씀카드 ─────────────────────────────────────────────────
+  'wc.locked': {
+    ko: '🔒 오늘 성경퀴즈에서 {score}점 이상을 맞으면 말씀카드를 만들 수 있어요.',
+    en: '🔒 Score {score} or higher on today’s quiz to make a Word Card.',
+  },
+  'wc.todayScore': { ko: '오늘 점수: {n}점', en: 'Today’s score: {n}' },
+  'wc.notTakenYet': {
+    ko: '오늘은 아직 퀴즈를 풀지 않으셨어요.',
+    en: 'You have not taken today’s quiz yet.',
+  },
+  'wc.goToQuiz': { ko: '성경퀴즈 풀러가기', en: 'Go to the Bible Quiz' },
+  'wc.backToHelper': { ko: '◀ 성경통독도우미', en: '◀ Bible Reading Helper' },
+  'wc.title': { ko: '말씀카드 만들기', en: 'Make a Word Card' },
+  'wc.background': { ko: '배경', en: 'Background' },
+  'wc.myPhoto': { ko: '내 사진', en: 'My photo' },
+  'wc.fontSize': {
+    ko: '글자 크기 · 카드 위 텍스트를 드래그해서 위치를 옮길 수 있어요',
+    en: 'Text size · drag the text on the card to move it',
+  },
+  'wc.resetPosition': { ko: '위치 초기화', en: 'Reset position' },
+  'wc.textColor': { ko: '글자 색', en: 'Text colour' },
+  'wc.needPhotoPermission': {
+    ko: '사진 접근 권한이 필요합니다.',
+    en: 'Permission to access photos is required.',
+  },
+  'wc.fileName': { ko: '말씀카드.png', en: 'word-card.png' },
+  'wc.shareTitle': { ko: '말씀카드', en: 'Word Card' },
+  'wc.shareDialogTitle': { ko: '말씀카드 공유하기', en: 'Share your Word Card' },
+  'wc.savedTitle': { ko: '이미지 저장 완료', en: 'Image saved' },
+  'wc.savedBody': {
+    ko: '말씀카드 이미지가 다운로드되었어요.',
+    en: 'The Word Card image has been downloaded.',
+  },
+  'wc.shareUnavailableTitle': { ko: '공유 불가', en: 'Sharing unavailable' },
+  'wc.shareUnavailable': {
+    ko: '이 기기에서는 공유 기능을 사용할 수 없습니다.',
+    en: 'Sharing is not available on this device.',
+  },
+  'wc.shareFailedTitle': { ko: '공유 실패', en: 'Sharing failed' },
+  'wc.shareFailed': {
+    ko: '잠시 후 다시 시도해주세요.',
+    en: 'Please try again in a moment.',
+  },
+
   // ── 언어 ─────────────────────────────────────────────────────
   'lang.title': { ko: '언어', en: 'Language' },
   'lang.ko': { ko: '한국어', en: 'Korean' },
