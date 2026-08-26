@@ -7,6 +7,7 @@
   "rewrites": [
     { "source": "/arena/escape/:roomId", "destination": "/arena/escape/[roomId]" },
     { "source": "/arena/duel/:duelId", "destination": "/arena/duel/[duelId]" },
+    { "source": "/arena/tournament/:tournamentId", "destination": "/arena/tournament/[tournamentId]" },
     { "source": "/library/:id/read", "destination": "/library/[id]/read" },
     { "source": "/library/:id", "destination": "/library/[id]" },
     { "source": "/notice-board/:id", "destination": "/notice-board/[id]" },

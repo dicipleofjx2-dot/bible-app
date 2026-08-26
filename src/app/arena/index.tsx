@@ -115,9 +115,10 @@ export default function ArenaHomeScreen() {
             <ThemedText type="smallBold" style={{ color: theme.accent }}>
               대회는 이렇게 올라갑니다
             </ThemedText>
+            {/* 인원과 라운드는 대회마다 관리자가 정한다. 여기에 「상위 32명」처럼
+                숫자를 박아 두면 16명짜리 대회를 열었을 때 이 줄만 거짓말이 된다. */}
             <ThemedText type="small" style={styles.stageLine}>
-              상시 훈련장 → 예선(기록전, 상위 32명) → 32강·16강·8강(1:1) → 4강(3종목 2선승)
-              → 결승
+              상시 훈련장 → 예선(기간 안의 방탈출 기록) → 본선 1:1 대진 → 준결승 → 결승
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
               1:1은 두 가지로 할 수 있습니다. 시간을 맞추기 어려우면 각자 편할 때 풀고
@@ -125,6 +126,28 @@ export default function ArenaHomeScreen() {
               누가 먼저 나오는지 겨룹니다.
             </ThemedText>
           </View>
+
+          {/* 대회는 종목이 아니라 그 위의 것이라 따로 낸다 */}
+          <Pressable
+            onPress={() => router.push('/arena/tournament' as never)}
+            style={({ pressed }) => [
+              styles.tournamentCard,
+              { backgroundColor: theme.backgroundElement, borderColor: theme.accent },
+              pressed && styles.pressed,
+            ]}>
+            <ThemedText style={styles.gameEmoji}>🏅</ThemedText>
+            <View style={styles.gameBody}>
+              <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                대회 · 대진표
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                열린 대회와 내 경기를 봅니다.
+              </ThemedText>
+            </View>
+            <ThemedText type="small" themeColor="textSecondary">
+              ›
+            </ThemedText>
+          </Pressable>
 
           <ThemedText type="subtitle" style={styles.sectionTitle}>
             종목
@@ -222,6 +245,16 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   gameEmoji: { fontSize: 24, width: 32, textAlign: 'center' },
+  tournamentCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 12,
+    borderWidth: 2,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    marginTop: Spacing.three,
+  },
   gameBody: { flex: 1, minWidth: 0, gap: 2 },
   dim: { opacity: 0.45 },
   pressed: { opacity: 0.7 },
