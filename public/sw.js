@@ -28,8 +28,14 @@ self.addEventListener("push", (event) => {
   var title = payload.title || "알림";
   var options = {
     body: payload.body || "",
-    icon: payload.icon || "/favicon.png",
-    badge: "/favicon.png",
+    // **없는 그림을 가리키면 안 된다.** 여기 `/favicon.png` 라고 적혀 있었는데
+    // 그 파일은 배포본에 없다(404). Expo 가 app.json 의 favicon 을 이름이 섞인
+    // 파일로 내보내기 때문이다. 아이콘을 못 받으면 알림에 앱 그림 대신 밋밋한
+    // 종 모양이 떠서, 알림창에 와 있어도 눈에 안 들어온다.
+    //
+    // `/icon-192.png` 는 public/ 에 그대로 있는 파일이라 확실히 나간다.
+    icon: payload.icon || "/icon-192.png",
+    badge: "/icon-192.png",
     // 같은 tag 면 새 알림이 옛것을 덮는다. 편지가 알림창에 쌓이지 않게.
     tag: payload.tag || undefined,
     data: { url: payload.url || "/" },
