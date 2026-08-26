@@ -11,15 +11,18 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { confirmDestructive } from '@/lib/readingHelper/confirm';
 import {
+  championTotal,
   closeRound,
   createTournament,
   getBracket,
   listTournaments,
+  prizeTable,
   roundName,
   startBracket,
   type BracketMatch,
   type Tournament,
 } from '@/lib/arena/tournament';
+import { firstWinLosesMoney, minSponsorFor } from '@/lib/arena/prizeMath';
 
 /** 대회 관리 — 열기 · 예선 마감 · 라운드 마감. → docs/arena/README.md
  *
@@ -53,6 +56,8 @@ export default function TournamentAdminScreen() {
   const [from, setFrom] = useState(today());
   const [to, setTo] = useState(plusDays(14));
   const [size, setSize] = useState(16);
+  const [fee, setFee] = useState('20');
+  const [sponsor, setSponsor] = useState('700');
 
   const load = useCallback(async () => {
     const rows = await listTournaments();
@@ -194,9 +199,70 @@ export default function TournamentAdminScreen() {
             ))}
           </View>
 
+          <View style={styles.row}>
+            <View style={styles.half}>
+              <ThemedText type="small" themeColor="textSecondary">
+                참가비 (본선 오를 때)
+              </ThemedText>
+              <TextInput
+                value={fee}
+                onChangeText={(t) => setFee(t.replace(/\D/g, '').slice(0, 4))}
+                keyboardType="number-pad"
+                style={[styles.input, { borderColor: theme.border, backgroundColor: theme.backgroundElement, color: theme.text }]}
+              />
+            </View>
+            <View style={styles.half}>
+              <ThemedText type="small" themeColor="textSecondary">
+                교회 출연 포인트
+              </ThemedText>
+              <TextInput
+                value={sponsor}
+                onChangeText={(t) => setSponsor(t.replace(/\D/g, '').slice(0, 6))}
+                keyboardType="number-pad"
+                style={[styles.input, { borderColor: theme.border, backgroundColor: theme.backgroundElement, color: theme.text }]}
+              />
+            </View>
+          </View>
+
+          {/* 상금 미리보기. 「1등 하면 얼마」를 열기 전에 보고 정해야 한다. */}
+          {(() => {
+            const f = Number(fee || 0);
+            const sp = Number(sponsor || 0);
+            const rows = prizeTable(size, f, sp);
+            const pool = f * size + sp;
+            const champ = championTotal(rows);
+            const risky = firstWinLosesMoney(size, f, sp);
+            return (
+              <View style={[styles.previewCard, { backgroundColor: theme.accentSoft }]}>
+                <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                  이렇게 열면 — 상금 풀 {pool}점
+                </ThemedText>
+                {rows.map((r) => (
+                  <ThemedText key={r.round} type="small" style={styles.line}>
+                    · {roundName(r.round)} 승 {r.winners}명 × {r.perWinner}점
+                  </ThemedText>
+                ))}
+                <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                  우승자 합계 {champ}점 (참가비 빼면 {champ - f}점)
+                </ThemedText>
+                {risky && (
+                  <ThemedText type="small" style={[styles.line, { color: '#C0392B' }]}>
+                    ⚠️ 지금 설정이면 첫 판을 이겨도 {rows[0]?.perWinner}점이라 참가비 {f}점을
+                    못 건집니다. 이기고도 손해 보면 아무도 안 나옵니다 — 출연 포인트를{' '}
+                    {minSponsorFor(size, f)}점 이상으로 올리거나 인원을 줄이세요.
+                  </ThemedText>
+                )}
+              </View>
+            );
+          })()}
+
           <Pressable
             disabled={busy}
-            onPress={() => run(() => createTournament(name.trim(), from.trim(), to.trim(), size))}
+            onPress={() =>
+              run(() =>
+                createTournament(name.trim(), from.trim(), to.trim(), size, Number(fee || 0), Number(sponsor || 0))
+              )
+            }
             style={({ pressed }) => [
               styles.primaryButton,
               { backgroundColor: theme.backgroundSelected },
@@ -324,7 +390,8 @@ const styles = StyleSheet.create({
   sectionTitle: { marginTop: Spacing.four },
   input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 16 },
   row: { flexDirection: 'row', gap: 8 },
-  half: { flex: 1 },
+  half: { flex: 1, gap: 4 },
+  previewCard: { borderRadius: 12, padding: 14, gap: 4, marginTop: Spacing.three },
   sizeChip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 8 },
   card: { borderRadius: 12, borderWidth: 1, padding: 14, gap: 6, marginTop: Spacing.two },
   line: { lineHeight: 20 },

@@ -16,6 +16,12 @@ export type Tournament = {
   bracket_size: number;
   current_round: number | null;
   created_at: string;
+  /** 본선에 오를 때 빠지는 포인트. 예선은 공짜다. */
+  entry_fee: number;
+  /** 교회가 상금에 보태는 포인트 */
+  sponsor_points: number;
+  /** 본선이 시작될 때 확정된 상금 총액. 시작 전에는 0 */
+  prize_pool: number;
 };
 
 export type BracketMatch = {
@@ -41,6 +47,9 @@ export function roundName(round: number): string {
   if (round === 4) return '준결승';
   return `${round}강`;
 }
+
+// 상금 셈은 prizeMath.ts 에 있다(검사 스크립트가 그 파일만 읽는다).
+export { prizeTable, championTotal, type PrizeRow } from './prizeMath';
 
 export async function listTournaments(): Promise<Tournament[]> {
   const { data, error } = await supabase
@@ -110,13 +119,17 @@ export async function createTournament(
   name: string,
   from: string,
   to: string,
-  size: number
+  size: number,
+  entryFee: number,
+  sponsor: number
 ): Promise<string> {
   const { data, error } = await supabase.rpc('arena_tournament_create', {
     p_name: name,
     p_from: from,
     p_to: to,
     p_size: size,
+    p_entry_fee: entryFee,
+    p_sponsor: sponsor,
   });
   if (error) throw error;
   return data as string;
@@ -137,6 +150,21 @@ export async function closeRound(tournamentId: string): Promise<void> {
 }
 
 export type Entrant = { user_id: string; seed: number; qualify_score: number };
+
+export type PointHistoryRow = {
+  amount: number;
+  reason: 'entry_fee' | 'prize';
+  tournament_name: string | null;
+  round: number | null;
+  created_at: string;
+};
+
+/** 내 대회 포인트 내역 — 참가비로 나간 것과 상금으로 들어온 것 */
+export async function getMyPointHistory(): Promise<PointHistoryRow[]> {
+  const { data, error } = await supabase.rpc('arena_my_point_history');
+  if (error) return [];
+  return (data as PointHistoryRow[]) ?? [];
+}
 
 export async function getEntrants(tournamentId: string): Promise<Entrant[]> {
   const { data, error } = await supabase

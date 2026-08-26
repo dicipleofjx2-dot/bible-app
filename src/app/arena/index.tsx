@@ -10,6 +10,13 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getTotalRanking, type EscapeTotalRankRow } from '@/lib/arena/db';
 import { ESCAPE_ROOMS } from '@/lib/arena/rooms';
+import {
+  championTotal,
+  listTournaments,
+  prizeTable,
+  roundName,
+  type Tournament,
+} from '@/lib/arena/tournament';
 
 /** 성경게임대전 대문. → docs/arena/README.md
  *
@@ -81,14 +88,17 @@ export default function ArenaHomeScreen() {
 
   const [loading, setLoading] = useState(true);
   const [ranking, setRanking] = useState<EscapeTotalRankRow[]>([]);
+  /** 지금 열려 있는 대회. 있으면 대문에 크게 건다 — 대회는 알려야 사람이 온다. */
+  const [live, setLive] = useState<Tournament | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
       (async () => {
-        const rows = await getTotalRanking(10);
+        const [rows, tournaments] = await Promise.all([getTotalRanking(10), listTournaments()]);
         if (cancelled) return;
         setRanking(rows);
+        setLive(tournaments.find((t) => t.status === 'qualifying' || t.status === 'bracket') ?? null);
         setLoading(false);
       })();
       return () => {
@@ -127,7 +137,9 @@ export default function ArenaHomeScreen() {
             </ThemedText>
           </View>
 
-          {/* 대회는 종목이 아니라 그 위의 것이라 따로 낸다 */}
+          {/* 대회는 종목이 아니라 그 위의 것이라 따로 낸다.
+              열려 있는 대회가 있으면 이름과 우승 상금을 크게 건다 — 대회는
+              알려야 사람이 온다. */}
           <Pressable
             onPress={() => router.push('/arena/tournament' as never)}
             style={({ pressed }) => [
@@ -137,12 +149,34 @@ export default function ArenaHomeScreen() {
             ]}>
             <ThemedText style={styles.gameEmoji}>🏅</ThemedText>
             <View style={styles.gameBody}>
-              <ThemedText type="smallBold" style={{ color: theme.accent }}>
-                대회 · 대진표
-              </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                열린 대회와 내 경기를 봅니다.
-              </ThemedText>
+              {live ? (
+                <>
+                  <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                    {live.name} 열렸습니다
+                  </ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {live.status === 'qualifying'
+                      ? `예선 ${live.qualify_from} ~ ${live.qualify_to} · 참가비 없음`
+                      : `본선 ${live.current_round ? roundName(live.current_round) : ''} 진행 중`}
+                  </ThemedText>
+                  <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                    🏆 우승 상금 최대{' '}
+                    {championTotal(
+                      prizeTable(live.bracket_size, live.entry_fee, live.sponsor_points, live.prize_pool)
+                    )}
+                    포인트
+                  </ThemedText>
+                </>
+              ) : (
+                <>
+                  <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                    대회 · 대진표
+                  </ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    열린 대회와 내 경기를 봅니다.
+                  </ThemedText>
+                </>
+              )}
             </View>
             <ThemedText type="small" themeColor="textSecondary">
               ›

@@ -9,7 +9,7 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { getIsAdmin } from '@/db/profile';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { listTournaments, roundName, type Tournament } from '@/lib/arena/tournament';
+import { championTotal, listTournaments, prizeTable, roundName, type Tournament } from '@/lib/arena/tournament';
 
 const STATUS_LABEL: Record<Tournament['status'], string> = {
   draft: '준비 중',
@@ -98,8 +98,16 @@ export default function TournamentListScreen() {
                   {t.status === 'qualifying' ? ` · ${t.qualify_from} ~ ${t.qualify_to}` : ''}
                 </ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  본선 {t.bracket_size}명
+                  본선 {t.bracket_size}명 · 참가비 {t.entry_fee}점
                 </ThemedText>
+                {/* 「1등 하면 얼마」를 목록에서부터 보여 준다 — 이게 있어야 눌러 본다 */}
+                {t.status !== 'done' && (
+                  <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                    🏆 우승 상금 최대{' '}
+                    {championTotal(prizeTable(t.bracket_size, t.entry_fee, t.sponsor_points, t.prize_pool))}
+                    포인트
+                  </ThemedText>
+                )}
               </Pressable>
             ))
           )}

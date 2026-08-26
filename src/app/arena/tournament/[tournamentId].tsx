@@ -12,10 +12,12 @@ import { useAuth } from '@/lib/auth';
 import { findRoom } from '@/lib/arena/rooms';
 import {
   findMyMatch,
+  championTotal,
   findMyPlayedMatch,
   getBracket,
   getTournament,
   playMatch,
+  prizeTable,
   roundName,
   type BracketMatch,
   type Tournament,
@@ -173,6 +175,16 @@ export default function TournamentScreen() {
   // ── 대진표 ──────────────────────────────────────────────────
   const rounds = [...new Set(bracket.map((m) => m.round))].sort((a, b) => b - a);
 
+  // 상금표. 본선이 시작되면 확정된 풀(prize_pool)로, 그 전에는 정원이 다 찬다고
+  // 보고 미리 셈한다 — 「1등 하면 얼마」를 예선 때부터 알아야 나가고 싶어진다.
+  const prizes = prizeTable(
+    tournament.bracket_size,
+    tournament.entry_fee,
+    tournament.sponsor_points,
+    tournament.prize_pool
+  );
+  const champTotal = championTotal(prizes);
+
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
@@ -192,16 +204,57 @@ export default function TournamentScreen() {
                   : '준비 중'}
           </ThemedText>
 
+          {/* 상금 안내 — 「1등 하면 얼마」를 알아야 나가고 싶어진다.
+              본선이 시작되기 전에는 정원이 다 찬다고 보고 미리 셈해 보여 준다. */}
+          {tournament.status !== 'done' && (
+            <View style={[styles.prizeCard, { backgroundColor: theme.backgroundElement, borderColor: theme.accent }]}>
+              <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                🏆 우승하면 최대 {champTotal}포인트
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.line}>
+                참가비 {tournament.entry_fee}점을 빼면 순이익 {champTotal - tournament.entry_fee}점입니다.
+                {tournament.prize_pool > 0
+                  ? ` 이번 대회 상금은 모두 ${tournament.prize_pool}점.`
+                  : ` 정원이 다 차면 상금은 모두 ${tournament.entry_fee * tournament.bracket_size + tournament.sponsor_points}점이 됩니다.`}
+              </ThemedText>
+
+              <View style={styles.prizeRows}>
+                {prizes.map((p) => (
+                  <View key={p.round} style={styles.prizeRow}>
+                    <ThemedText type="small" style={styles.prizeLabel}>
+                      {roundName(p.round)} 승
+                    </ThemedText>
+                    <ThemedText type="small" themeColor="textSecondary" style={styles.prizeWho}>
+                      {p.winners}명
+                    </ThemedText>
+                    <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                      +{p.perWinner}점
+                    </ThemedText>
+                  </View>
+                ))}
+              </View>
+
+              <ThemedText type="small" themeColor="textSecondary" style={styles.line}>
+                한 판만 이겨도 참가비보다 많이 받습니다. 이기고 올라갈수록 상금이 두 배씩
+                커져요.
+              </ThemedText>
+            </View>
+          )}
+
           {/* 예선 중 — 대진표가 아직 없다 */}
           {tournament.status === 'qualifying' && (
             <View style={[styles.card, { backgroundColor: theme.accentSoft }]}>
               <ThemedText type="smallBold" style={{ color: theme.accent }}>
-                지금은 예선입니다
+                지금은 예선입니다 · 참가비 없음
               </ThemedText>
               <ThemedText type="small" style={styles.line}>
                 이 기간에 방탈출에서 쌓은 점수로 상위 {tournament.bracket_size}명이 본선에
                 올라갑니다. 방마다 두 번까지 치고 두 판의 평균이 그 방의 점수이며, 그것을
                 방마다 합칩니다.
+              </ThemedText>
+              <ThemedText type="small" style={styles.line}>
+                예선은 누구나 공짜입니다. 참가비 {tournament.entry_fee}점은 본선에 오를 때만
+                빠집니다 — 포인트가 모자라면 그 자리는 다음 순위 사람에게 갑니다.
               </ThemedText>
               <Pressable
                 onPress={() => router.push('/arena/escape' as Href)}
@@ -349,6 +402,11 @@ const styles = StyleSheet.create({
   center: { textAlign: 'center' },
   card: { borderRadius: 12, borderWidth: 1, padding: 14, gap: 4, marginTop: Spacing.two },
   myMatchCard: { borderRadius: 12, padding: 14, gap: 4, marginTop: Spacing.two },
+  prizeCard: { borderRadius: 12, borderWidth: 2, padding: 14, gap: 6, marginTop: Spacing.two },
+  prizeRows: { marginTop: 4, gap: 2 },
+  prizeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  prizeLabel: { width: 78 },
+  prizeWho: { flex: 1, minWidth: 0 },
   line: { lineHeight: 20 },
   banner: {
     flexDirection: 'row',
