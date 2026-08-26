@@ -25,23 +25,10 @@ const fs = require('fs');
 const path = require('path');
 const { DatabaseSync } = require('node:sqlite');
 
+const { serviceKey } = require('./lib/service-key');
+
 const SUPABASE_URL = 'https://bhqbrkeoiyhnmdgvofvy.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!SERVICE_KEY) {
-  console.error('SUPABASE_SERVICE_ROLE_KEY 환경변수가 필요합니다.');
-  process.exit(1);
-}
-
-// 안내문의 「여기에키」를 실제 키로 안 바꾸고 그대로 돌리는 일이 실제로 있었다.
-// 그러면 한글이 HTTP 헤더에 실리려다 fetch 안쪽에서 ByteString 오류로 터지는데,
-// 그 오류만 봐서는 무엇이 잘못됐는지 알 수가 없다. 미리 걸러 준다.
-if (!/^[\x20-\x7E]+$/.test(SERVICE_KEY)) {
-  console.error('SUPABASE_SERVICE_ROLE_KEY 에 영문·숫자가 아닌 글자가 들어 있습니다.');
-  console.error('안내문의 「여기에키」를 실제 키로 바꾸셨는지 보세요.');
-  console.error('키는 Supabase 대시보드 → Project Settings → API Keys → service_role 에 있습니다.');
-  process.exit(1);
-}
+const { key: SERVICE_KEY } = serviceKey();
 
 const enPath = process.argv[2];
 if (!enPath) {

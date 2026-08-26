@@ -23,18 +23,10 @@
 const path = require('path');
 const { DatabaseSync } = require('node:sqlite');
 
-const SUPABASE_URL = 'https://bhqbrkeoiyhnmdgvofvy.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const { serviceKey } = require('./lib/service-key');
 
-if (!SERVICE_KEY) {
-  console.error('SUPABASE_SERVICE_ROLE_KEY 환경변수가 필요합니다.');
-  process.exit(1);
-}
-if (!/^[\x20-\x7E]+$/.test(SERVICE_KEY)) {
-  console.error('SUPABASE_SERVICE_ROLE_KEY 에 영문·숫자가 아닌 글자가 들어 있습니다.');
-  console.error('안내문의 「여기에키」를 실제 키로 바꾸셨는지 보세요.');
-  process.exit(1);
-}
+const SUPABASE_URL = 'https://bhqbrkeoiyhnmdgvofvy.supabase.co';
+const { key: SERVICE_KEY } = serviceKey();
 
 const FILES = [
   'genesis-01-12', 'genesis-13-29', 'genesis-30-40', 'genesis-41-50',
