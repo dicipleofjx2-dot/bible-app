@@ -96,6 +96,38 @@ async function main() {
     };
   });
 
+  // ── 서버에만 있는 개선을 되돌리지 않는다 ──────────────────────
+  //
+  // 서버의 한글 문항은 파일과 다를 수 있다. 단답형 169개를 객관식으로 바꾼 일이
+  // 서버에만 반영되고 파일에는 안 돌아온 적이 있다. 그 상태에서 이 스크립트를
+  // 돌리면 **아무 오류 없이** 그 개선이 통째로 되돌아간다.
+  //
+  // 그러니 올리기 전에 견주어 보고, 되돌리게 되는 문항이 있으면 멈춘다.
+  // 정말 파일 쪽으로 되돌리려는 것이면 ALLOW_QUESTION_DOWNGRADE=1 을 붙인다.
+  const regressions = [];
+  for (const r of rows) {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/reading_helper_chapter_content` +
+        `?book_id=eq.${r.book_id}&chapter=eq.${r.chapter}&select=questions`,
+      { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }
+    );
+    if (!res.ok) continue; // 조회가 안 되면 그냥 올린다 — 새 장일 수 있다
+    const [existing] = await res.json();
+    if (!existing?.questions) continue;
+    existing.questions.forEach((old, i) => {
+      const now = r.questions[i];
+      if (old?.type === 'choice' && now?.type === 'short') {
+        regressions.push(`${r.book_name} ${r.chapter}장 ${i + 1}번 — 서버는 객관식인데 파일은 단답형`);
+      }
+    });
+  }
+  if (regressions.length > 0 && process.env.ALLOW_QUESTION_DOWNGRADE !== '1') {
+    console.error('서버에 있는 개선을 되돌리게 되어 올리지 않았습니다:\n');
+    for (const m of regressions) console.error('  ·', m);
+    console.error('\n정말 파일 쪽으로 되돌리려면 ALLOW_QUESTION_DOWNGRADE=1 을 붙여 다시 돌리세요.');
+    process.exit(1);
+  }
+
   const res = await fetch(`${SUPABASE_URL}/rest/v1/reading_helper_chapter_content`, {
     method: 'POST',
     headers: {

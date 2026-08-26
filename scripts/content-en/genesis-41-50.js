@@ -13,6 +13,7 @@
  * from the app's own English Bible (open_en), so nothing is retranslated here.
  */
 
+
 module.exports = [
   {
     book: 1,
@@ -42,9 +43,10 @@ module.exports = [
           'It is word for word what he said to the two officials in prison. His position changed; his attitude did not.',
       },
       {
-        type: 'short',
-        question: 'How many years of plenty and of famine did the dream mean? (number only)',
-        acceptedAnswers: ['7', 'seven', '7 years'],
+        type: 'choice',
+        question: 'How many years of plenty and of famine did the dream mean?',
+        choices: ['Seven years', 'Three years', 'Ten years', 'Forty years'],
+        correctIndex: 0,
         explanation: 'It meant seven years of great plenty, followed by seven years of famine.',
       },
       {
@@ -61,24 +63,19 @@ module.exports = [
           'He said to appoint a discerning and wise man to store the grain of the good years for use in the famine.',
       },
       {
-        type: 'short',
-        question: 'How old was Joseph when he became ruler of Egypt? (number only)',
-        acceptedAnswers: ['30', 'thirty', '30 years old'],
+        type: 'choice',
+        question: 'How old was Joseph when he became ruler of Egypt?',
+        choices: ['Thirty', 'Seventeen', 'Forty', 'Fifty'],
+        correctIndex: 0,
         explanation:
           'Joseph was thirty when he stood before Pharaoh — thirteen years after being sold at seventeen.',
       },
       {
         type: 'choice',
         question: 'What were the names of Joseph’s two sons?',
-        choices: [
-          'Manasseh and Ephraim',
-          'Dan and Naphtali',
-          'Perez and Zerah',
-          'Shem and Ham',
-        ],
+        choices: ['Manasseh and Ephraim', 'Dan and Naphtali', 'Perez and Zerah', 'Shem and Ham'],
         correctIndex: 0,
-        explanation:
-          'Manasseh means "God has made me forget," and Ephraim means "God has made me fruitful."',
+        explanation: 'Manasseh means "God has made me forget," and Ephraim means "God has made me fruitful."',
       },
       {
         type: 'choice',
@@ -118,9 +115,10 @@ module.exports = [
           'Joseph pressed them, saying, "You are spies," and demanded that they bring their youngest brother.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which brother was kept as a hostage?',
-        acceptedAnswers: ['Simeon'],
+        choices: ['Simeon', 'Reuben', 'Judah', 'Benjamin'],
+        correctIndex: 0,
         explanation: 'Joseph took Simeon and had him bound before their eyes.',
       },
       {
@@ -158,9 +156,10 @@ module.exports = [
           'Their hearts sank and they turned trembling to one another, saying, "What is this that God has done to us?"',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which son did Jacob say he would never send?',
-        acceptedAnswers: ['Benjamin'],
+        choices: ['Benjamin', 'Simeon', 'Judah', 'Reuben'],
+        correctIndex: 0,
         explanation:
           'Jacob refused, saying Joseph was gone, Simeon was gone, and now they wanted to take Benjamin too.',
       },
@@ -177,8 +176,7 @@ module.exports = [
         question: 'Which brother offered himself as surety for Benjamin?',
         choices: ['Judah', 'Reuben', 'Simeon', 'Levi'],
         correctIndex: 0,
-        explanation:
-          'Judah said, "I will be a pledge for him; you may hold me responsible."',
+        explanation: 'Judah said, "I will be a pledge for him; you may hold me responsible."',
       },
       {
         type: 'choice',
@@ -203,8 +201,7 @@ module.exports = [
           'He sent them out',
         ],
         correctIndex: 0,
-        explanation:
-          'Joseph washed his face, came out, controlled himself and said, "Serve the food."',
+        explanation: 'Joseph washed his face, came out, controlled himself and said, "Serve the food."',
       },
       {
         type: 'choice',
@@ -216,13 +213,13 @@ module.exports = [
           'Because they got their money back',
         ],
         correctIndex: 0,
-        explanation:
-          'He knew the exact order of their ages, which nobody had ever told him.',
+        explanation: 'He knew the exact order of their ages, which nobody had ever told him.',
       },
       {
-        type: 'short',
-        question: 'How many times more was Benjamin’s portion than the others’? (number only)',
-        acceptedAnswers: ['5', 'five', 'five times'],
+        type: 'choice',
+        question: 'How many times more was Benjamin’s portion than the others’?',
+        choices: ['Five times', 'Twice', 'Three times', 'Ten times'],
+        correctIndex: 0,
         explanation: 'Benjamin’s portion was five times as much as any of theirs.',
       },
       {
@@ -281,9 +278,10 @@ module.exports = [
           'Not one of them abandoned Benjamin. They were no longer the brothers who had sold Joseph.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which brother offered to become a slave in Benjamin’s place?',
-        acceptedAnswers: ['Judah'],
+        choices: ['Judah', 'Reuben', 'Simeon', 'Levi'],
+        correctIndex: 0,
         explanation:
           'The Judah who proposed selling Joseph in chapter 37 now offers to take his brother’s place.',
       },
@@ -310,8 +308,7 @@ module.exports = [
           'All of them would be imprisoned',
         ],
         correctIndex: 0,
-        explanation:
-          'Offering to let the rest go was the test itself — and the brothers refused to take it.',
+        explanation: 'Offering to let the rest go was the test itself — and the brothers refused to take it.',
       },
       {
         type: 'choice',
@@ -327,11 +324,16 @@ module.exports = [
           'He had pledged himself before his father, and that is why he offered to stay in the boy’s place.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Why did the brothers tear their clothes in this chapter?',
-        acceptedAnswers: ['the cup was found in Benjamin’s sack', 'the cup was found', 'out of grief', 'grief'],
-        explanation:
-          'Tearing one’s clothes was how people showed deep grief and despair.',
+        choices: [
+          'The cup was found in Benjamin’s sack',
+          'They had lost all their grain',
+          'Simeon had been seized',
+          'They heard their father had died',
+        ],
+        correctIndex: 0,
+        explanation: 'Tearing one’s clothes was how people showed deep grief and despair.',
       },
     ],
   },
@@ -342,9 +344,15 @@ module.exports = [
       'Listening to Judah, Joseph can hold back no longer. He sends everyone else out, weeps aloud, and says, "I am Joseph. Is my father still alive?" The brothers are so shocked they cannot answer. He calls them close and says something astonishing: "Do not be distressed that you sold me here, for God sent me before you to preserve life." Instead of blame, he sees God’s hand. Pharaoh is glad too and sends wagons to bring the whole family. Jacob does not believe it at first, but when he sees the wagons his spirit revives.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'What were Joseph’s first words when he revealed himself?',
-        acceptedAnswers: ['I am Joseph', 'I am Joseph. Is my father still alive?'],
+        choices: [
+          'I am Joseph',
+          'Do not be afraid',
+          'Come close to me',
+          'Do not be distressed that you sold me',
+        ],
+        correctIndex: 0,
         explanation:
           '"I am Joseph. Is my father still alive?" It was one sentence, twenty-two years in coming.',
       },
@@ -358,8 +366,7 @@ module.exports = [
           'It was chance',
         ],
         correctIndex: 0,
-        explanation:
-          'His brothers’ wrong did not disappear, but Joseph saw God working above it.',
+        explanation: 'His brothers’ wrong did not disappear, but Joseph saw God working above it.',
       },
       {
         type: 'choice',
@@ -371,8 +378,7 @@ module.exports = [
           'To keep it a secret',
         ],
         correctIndex: 0,
-        explanation:
-          'He said, "Do not be distressed or angry with yourselves because you sold me here."',
+        explanation: 'He said, "Do not be distressed or angry with yourselves because you sold me here."',
       },
       {
         type: 'choice',
@@ -392,13 +398,13 @@ module.exports = [
           'He said nothing',
         ],
         correctIndex: 0,
-        explanation:
-          'Only when he saw the wagons Joseph had sent did the spirit of Jacob revive.',
+        explanation: 'Only when he saw the wagons Joseph had sent did the spirit of Jacob revive.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the land Joseph set aside for his family?',
-        acceptedAnswers: ['Goshen', 'the land of Goshen'],
+        choices: ['Goshen', 'Rameses', 'Succoth', 'Shechem'],
+        correctIndex: 0,
         explanation:
           'Joseph said he would settle his family in the land of Goshen so they would be near him.',
       },
@@ -407,8 +413,7 @@ module.exports = [
         question: 'What did Joseph tell his brothers as he sent them off?',
         choices: ['Do not quarrel on the way', 'Come quickly', 'Say nothing', 'Spend little money'],
         correctIndex: 0,
-        explanation:
-          'He said, "Do not quarrel on the way." He knew they would start blaming one another.',
+        explanation: 'He said, "Do not quarrel on the way." He knew they would start blaming one another.',
       },
     ],
   },
@@ -428,13 +433,13 @@ module.exports = [
           'Go alone',
         ],
         correctIndex: 0,
-        explanation:
-          'He promised both to go down with him and to surely bring him up again.',
+        explanation: 'He promised both to go down with him and to surely bring him up again.',
       },
       {
-        type: 'short',
-        question: 'How many people of Jacob’s household went down to Egypt? (number only)',
-        acceptedAnswers: ['70', 'seventy', '70 people'],
+        type: 'choice',
+        question: 'How many people of Jacob’s household went down to Egypt?',
+        choices: ['Seventy', 'Twelve', 'Three hundred', 'Six hundred'],
+        correctIndex: 0,
         explanation: 'Seventy people in all came to Egypt with Jacob.',
       },
       {
@@ -442,8 +447,7 @@ module.exports = [
         question: 'Where did Jacob offer sacrifices on the way to Egypt?',
         choices: ['Beersheba', 'Bethel', 'Hebron', 'Shechem'],
         correctIndex: 0,
-        explanation:
-          'Beersheba was also the place where his father Isaac had met God.',
+        explanation: 'Beersheba was also the place where his father Isaac had met God.',
       },
       {
         type: 'choice',
@@ -472,11 +476,11 @@ module.exports = [
           'Egyptians kept their distance from shepherds, so saying this would let the family settle apart in Goshen.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the land Jacob’s family settled in?',
-        acceptedAnswers: ['Goshen', 'the land of Goshen'],
-        explanation:
-          'Goshen was good land for livestock and let them live apart from the Egyptians.',
+        choices: ['Goshen', 'Rameses', 'Beersheba', 'Hebron'],
+        correctIndex: 0,
+        explanation: 'Goshen was good land for livestock and let them live apart from the Egyptians.',
       },
       {
         type: 'choice',
@@ -509,22 +513,22 @@ module.exports = [
           'I cannot say',
         ],
         correctIndex: 0,
-        explanation:
-          'Jacob called his life a "pilgrimage" and said his years had been few and hard.',
+        explanation: 'Jacob called his life a "pilgrimage" and said his years had been few and hard.',
       },
       {
         type: 'choice',
         question: 'What did Jacob do for Pharaoh?',
         choices: ['He blessed him', 'He asked for gifts', 'He asked for land', 'He said nothing'],
         correctIndex: 0,
-        explanation:
-          'Jacob blessed Pharaoh both when he came in before him and when he went out.',
+        explanation: 'Jacob blessed Pharaoh both when he came in before him and when he went out.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the good land where Jacob’s family settled?',
-        acceptedAnswers: ['Rameses', 'Goshen', 'Rameses in the land of Goshen'],
-        explanation: 'At Pharaoh’s command they were given a holding in Rameses, the best of the land of Egypt.',
+        choices: ['Rameses', 'Pithom', 'Succoth', 'Noph'],
+        correctIndex: 0,
+        explanation:
+          'At Pharaoh’s command they were given a holding in Rameses, the best of the land of Egypt.',
       },
       {
         type: 'choice',
@@ -549,8 +553,7 @@ module.exports = [
           'To go back to Canaan',
         ],
         correctIndex: 0,
-        explanation:
-          'Even dying in Egypt, Jacob wanted to be buried in the land of promise.',
+        explanation: 'Even dying in Egypt, Jacob wanted to be buried in the land of promise.',
       },
       {
         type: 'choice',
@@ -561,9 +564,10 @@ module.exports = [
           'When money and livestock ran out they gave their land and themselves, and Joseph gave them seed to farm again.',
       },
       {
-        type: 'short',
-        question: 'How many years did Jacob live in Egypt? (number only)',
-        acceptedAnswers: ['17', 'seventeen', '17 years'],
+        type: 'choice',
+        question: 'How many years did Jacob live in Egypt?',
+        choices: ['Seventeen years', 'Seven years', 'Fourteen years', 'Thirty years'],
+        correctIndex: 0,
         explanation:
           'Jacob lived seventeen years in the land of Egypt, and his years came to a hundred and forty-seven.',
       },
@@ -589,11 +593,11 @@ module.exports = [
           'It was not a mistake made by failing eyes; he did it knowingly. "I know, my son, I know," he said.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'On which grandson did Jacob lay his right hand?',
-        acceptedAnswers: ['Ephraim'],
-        explanation:
-          'He said the younger, Ephraim, would become a greater tribe than his brother Manasseh.',
+        choices: ['Ephraim', 'Manasseh', 'Benjamin', 'Joseph'],
+        correctIndex: 0,
+        explanation: 'He said the younger, Ephraim, would become a greater tribe than his brother Manasseh.',
       },
       {
         type: 'choice',
@@ -631,13 +635,13 @@ module.exports = [
           'An unknowable God',
         ],
         correctIndex: 0,
-        explanation:
-          'Jacob looked back over his whole life and named God that way.',
+        explanation: 'Jacob looked back over his whole life and named God that way.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which place, where he had met God, did Jacob speak of again in this chapter?',
-        acceptedAnswers: ['Bethel', 'Luz'],
+        choices: ['Bethel', 'Beersheba', 'Shechem', 'Hebron'],
+        correctIndex: 0,
         explanation:
           'He told his grandsons how God Almighty had appeared to him and blessed him at Luz (Bethel) in the land of Canaan.',
       },
@@ -689,9 +693,10 @@ module.exports = [
           'He was speaking of what happened at Shechem in chapter 34. He did not say only pleasant things.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which son did Jacob call "a fruitful bough"?',
-        acceptedAnswers: ['Joseph'],
+        choices: ['Joseph', 'Judah', 'Benjamin', 'Reuben'],
+        correctIndex: 0,
         explanation:
           '"Joseph is a fruitful bough, a fruitful bough by a spring," he said, and spoke of blessings of heaven and earth.',
       },
@@ -709,9 +714,10 @@ module.exports = [
           'He held the firstborn’s rank, but because he defiled his father’s bed he would not excel.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Where did Jacob ask to be buried?',
-        acceptedAnswers: ['Machpelah', 'the cave of Machpelah', 'the grave of his fathers', 'the cave at Hebron'],
+        choices: ['The cave of Machpelah', 'Bethel', 'The field at Shechem', 'By the road to Ramah'],
+        correctIndex: 0,
         explanation:
           'He named the cave of Machpelah, where Abraham and Sarah, Isaac and Rebekah, and Leah were buried.',
       },
@@ -738,8 +744,7 @@ module.exports = [
           'He died alone',
         ],
         correctIndex: 0,
-        explanation:
-          'He said everything he had to say, and it was a quiet, settled death.',
+        explanation: 'He said everything he had to say, and it was a quiet, settled death.',
       },
     ],
   },
@@ -750,9 +755,10 @@ module.exports = [
       'This is the last chapter of Genesis. Joseph falls on his father’s face and weeps, and the Egyptians mourn for seventy days. With Pharaoh’s permission he goes up to Canaan in a great procession and buries his father in the cave of Machpelah. Once their father is dead, the brothers are afraid that Joseph will now take revenge. Weeping, Joseph says, "You meant evil against me, but God meant it for good, to bring it about that many people should be kept alive, as they are today." Joseph dies at a hundred and ten, saying, "God will surely visit you and bring you up out of this land."',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: '"You meant evil against me, but God meant it for ____." Fill in the blank.',
-        acceptedAnswers: ['good'],
+        choices: ['Good', 'Blessing', 'Righteousness', 'Light'],
+        correctIndex: 0,
         explanation:
           'This one verse sums up the whole story of Joseph. It does not pretend his brothers’ evil never happened, yet it sees God’s hand.',
       },
@@ -779,13 +785,18 @@ module.exports = [
           'He said nothing',
         ],
         correctIndex: 0,
-        explanation:
-          'Joseph said, "Am I in the place of God?" and comforted them with kind words.',
+        explanation: 'Joseph said, "Am I in the place of God?" and comforted them with kind words.',
       },
       {
-        type: 'short',
-        question: 'How old was Joseph when he died? (number only)',
-        acceptedAnswers: ['110', 'a hundred ten', '110 years old'],
+        type: 'choice',
+        question: 'How old was Joseph when he died?',
+        choices: [
+          'A hundred and ten',
+          'A hundred and twenty-seven',
+          'A hundred and forty-seven',
+          'A hundred and seventy-five',
+        ],
+        correctIndex: 0,
         explanation: 'Joseph died at a hundred and ten and was put in a coffin in Egypt.',
       },
       {
@@ -811,8 +822,7 @@ module.exports = [
           'He said nothing',
         ],
         correctIndex: 0,
-        explanation:
-          'Joseph’s bones did go up at the exodus, and were buried at Shechem in Joshua’s day.',
+        explanation: 'Joseph’s bones did go up at the exodus, and were buried at Shechem in Joshua’s day.',
       },
       {
         type: 'choice',

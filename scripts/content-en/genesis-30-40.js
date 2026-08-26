@@ -13,6 +13,7 @@
  * from the app's own English Bible (open_en), so nothing is retranslated here.
  */
 
+
 module.exports = [
   {
     book: 1,
@@ -37,9 +38,10 @@ module.exports = [
           'Two wives of one husband competed over sons. Every single name carries their hurt and their longing.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of Rachel’s servant?',
-        acceptedAnswers: ['Bilhah'],
+        choices: ['Bilhah', 'Zilpah', 'Dinah', 'Leah'],
+        correctIndex: 0,
         explanation: 'Rachel gave her servant Bilhah to Jacob, and Dan and Naphtali were born.',
       },
       {
@@ -69,11 +71,11 @@ module.exports = [
           'Laban kept changing the terms. Even so, the Bible sees Jacob’s growing flocks as God’s doing.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which of Leah’s sons later became the ancestor of the tribe of Judah?',
-        acceptedAnswers: ['Judah'],
-        explanation:
-          'Judah was born back in chapter 29, and from this family come David and, later, Jesus.',
+        choices: ['Judah', 'Reuben', 'Simeon', 'Levi'],
+        correctIndex: 0,
+        explanation: 'Judah was born back in chapter 29, and from this family come David and, later, Jesus.',
       },
       {
         type: 'choice',
@@ -110,9 +112,10 @@ module.exports = [
           'The word came: "Return to the land of your fathers, and I will be with you." The change in Laban’s attitude played its part too.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did Rachel secretly take from her father’s house?',
-        acceptedAnswers: ['the household idols', 'household gods', 'teraphim', 'idols'],
+        choices: ['The household idols', 'Silver and gold', 'A flock of sheep', 'Clothing'],
+        correctIndex: 0,
         explanation:
           'Rachel stole her father’s household idols. That is what made Laban chase them all the way.',
       },
@@ -134,13 +137,14 @@ module.exports = [
         question: 'Where did Rachel hide the idols?',
         choices: ['Under the camel’s saddle', 'In her clothes', 'In the ground', 'Up a tree'],
         correctIndex: 0,
-        explanation:
-          'Rachel put them in the camel’s saddle and sat on them, so Laban could not find them.',
+        explanation: 'Rachel put them in the camel’s saddle and sat on them, so Laban could not find them.',
       },
       {
-        type: 'short',
-        question: 'What was the name of the place where Jacob and Laban piled up stones and made their promise?',
-        acceptedAnswers: ['Mizpah'],
+        type: 'choice',
+        question:
+          'What was the name of the place where Jacob and Laban piled up stones and made their promise?',
+        choices: ['Mizpah', 'Galeed', 'Bethel', 'Mahanaim'],
+        correctIndex: 0,
         explanation:
           'They called it Mizpah, saying, "May the LORD watch between you and me when we are out of one another’s sight."',
       },
@@ -187,9 +191,10 @@ module.exports = [
           'Twenty years earlier he had stolen his brother’s blessing, so news that Esau was coming with men left him greatly afraid and distressed.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the river where Jacob wrestled all night?',
-        acceptedAnswers: ['Jabbok', 'the Jabbok', 'the ford of the Jabbok'],
+        choices: ['The Jabbok', 'The Jordan', 'The Kishon', 'The Gerar'],
+        correctIndex: 0,
         explanation: 'Jacob was left alone at the ford of the Jabbok and wrestled with a man until daybreak.',
       },
       {
@@ -201,9 +206,10 @@ module.exports = [
           'The man touched Jacob’s hip socket and put it out of joint, and afterwards Jacob limped.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What new name was Jacob given?',
-        acceptedAnswers: ['Israel'],
+        choices: ['Israel', 'Abraham', 'Edom', 'Peniel'],
+        correctIndex: 0,
         explanation:
           '"Your name shall no longer be called Jacob, but Israel." It is explained as having striven with God and prevailed.',
       },
@@ -217,8 +223,7 @@ module.exports = [
           'Who are you?',
         ],
         correctIndex: 0,
-        explanation:
-          'Even when told to let go because day was breaking, Jacob held on until he was blessed.',
+        explanation: 'Even when told to let go because day was breaking, Jacob held on until he was blessed.',
       },
       {
         type: 'choice',
@@ -279,11 +284,12 @@ module.exports = [
           'Esau said, "I have enough, my brother; keep what you have." He accepted only when Jacob kept urging him.',
       },
       {
-        type: 'short',
-        question: 'What was the name of the place where Jacob built a house and shelters after parting from Esau?',
-        acceptedAnswers: ['Succoth'],
-        explanation:
-          'Jacob came to Succoth, built himself a house and made shelters for his livestock.',
+        type: 'choice',
+        question:
+          'What was the name of the place where Jacob built a house and shelters after parting from Esau?',
+        choices: ['Succoth', 'Shechem', 'Bethel', 'Mahanaim'],
+        correctIndex: 0,
+        explanation: 'Jacob came to Succoth, built himself a house and made shelters for his livestock.',
       },
       {
         type: 'choice',
@@ -312,9 +318,10 @@ module.exports = [
           'Jacob said the children were frail and the nursing animals would all die if driven hard for even one day, so he would go slowly.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did Jacob name the altar he built at Shechem?',
-        acceptedAnswers: ['El-Elohe-Israel', 'El Elohe Israel'],
+        choices: ['El-Elohe-Israel', 'The LORD Will Provide', 'The LORD is my Banner', 'El-Bethel'],
+        correctIndex: 0,
         explanation: 'The name means "God, the God of Israel."',
       },
     ],
@@ -326,9 +333,10 @@ module.exports = [
       'This is a hard chapter to read. Jacob’s daughter Dinah goes out to see the women of the land and is violated by Shechem. Shechem asks for her as his wife, and his father Hamor proposes that the two families live together and intermarry. Jacob’s sons pretend to agree, but set a condition: every male must be circumcised. On the third day, while the men of the town are still in pain, Simeon and Levi attack the city and kill every male. Jacob rebukes his sons, but this deed casts a shadow far into the future.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of Jacob’s daughter this happened to?',
-        acceptedAnswers: ['Dinah'],
+        choices: ['Dinah', 'Rebekah', 'Rachel', 'Tamar'],
+        correctIndex: 0,
         explanation: 'Dinah was the daughter Leah bore to Jacob.',
       },
       {
@@ -349,8 +357,7 @@ module.exports = [
         question: 'Which two sons of Jacob attacked the town?',
         choices: ['Simeon and Levi', 'Reuben and Judah', 'Dan and Naphtali', 'Joseph and Benjamin'],
         correctIndex: 0,
-        explanation:
-          'Simeon and Levi, Dinah’s brothers, each took his sword and killed the men of the town.',
+        explanation: 'Simeon and Levi, Dinah’s brothers, each took his sword and killed the men of the town.',
       },
       {
         type: 'choice',
@@ -379,9 +386,10 @@ module.exports = [
           'The sons answered by pointing to what their sister had suffered. Right and wrong do not fall neatly on one side here.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the man who asked for Dinah as his wife?',
-        acceptedAnswers: ['Shechem'],
+        choices: ['Shechem', 'Hamor', 'Esau', 'Laban'],
+        correctIndex: 0,
         explanation: 'He was Shechem, son of Hamor the Hivite. The town bore the same name.',
       },
       {
@@ -427,9 +435,10 @@ module.exports = [
           'Jacob gathered the foreign gods and buried them under an oak. He put things in order before going to God.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the son Rachel died giving birth to?',
-        acceptedAnswers: ['Benjamin'],
+        choices: ['Benjamin', 'Joseph', 'Dan', 'Naphtali'],
+        correctIndex: 0,
         explanation:
           'As she was dying Rachel called him Ben-oni, "son of my sorrow," but his father called him Benjamin, "son of the right hand."',
       },
@@ -455,11 +464,11 @@ module.exports = [
           'God said, "Your name shall be Israel," and carried on the promise of the land given to Abraham and Isaac.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which of Jacob’s parents died in this chapter?',
-        acceptedAnswers: ['Isaac', 'his father Isaac'],
-        explanation:
-          'Isaac died at a hundred and eighty, and his sons Esau and Jacob buried him together.',
+        choices: ['Isaac', 'Abraham', 'Laban', 'Esau'],
+        correctIndex: 0,
+        explanation: 'Isaac died at a hundred and eighty, and his sons Esau and Jacob buried him together.',
       },
       {
         type: 'choice',
@@ -478,9 +487,10 @@ module.exports = [
       'This is the genealogy of Esau. Esau is Jacob’s brother and the ancestor of the Edomites. The names and places run on for a long while, but there are things worth noticing. One is that Esau and Jacob separated because their possessions and livestock were too many for them to live in one place. They were reconciled in chapter 33, yet they went different ways. Another is that Edom had kings long before Israel ever did. Genesis settles Esau’s line like this before returning to the line of the promise.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'What is Esau’s other name?',
-        acceptedAnswers: ['Edom'],
+        choices: ['Edom', 'Seir', 'Israel', 'Ishmael'],
+        correctIndex: 0,
         explanation: 'The chapter begins, "These are the generations of Esau (that is, Edom)."',
       },
       {
@@ -525,9 +535,10 @@ module.exports = [
           'Esau married Canaanite women and Basemath, daughter of Ishmael. His parents were not pleased with those marriages.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Whose older brother was Esau?',
-        acceptedAnswers: ['Jacob'],
+        choices: ['Jacob', 'Joseph', 'Isaac', 'Laban'],
+        correctIndex: 0,
         explanation: 'Esau and Jacob were the twin sons of Isaac and Rebekah.',
       },
       {
@@ -573,9 +584,10 @@ module.exports = [
           'The first dream was of sheaves, the second of the sun, moon and eleven stars. It was bold enough that even his father rebuked him.',
       },
       {
-        type: 'short',
-        question: 'For how many pieces of silver did the brothers sell Joseph? (number only)',
-        acceptedAnswers: ['20', 'twenty', '20 pieces of silver'],
+        type: 'choice',
+        question: 'For how many pieces of silver did the brothers sell Joseph?',
+        choices: ['Twenty', 'Thirty', 'Ten', 'A hundred'],
+        correctIndex: 0,
         explanation: 'They sold Joseph to the Ishmaelites for twenty pieces of silver.',
       },
       {
@@ -608,9 +620,10 @@ module.exports = [
           'Jacob recognised the coat, believed a wild animal had torn him, and mourned for a long time.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'To which country was Joseph sold?',
-        acceptedAnswers: ['Egypt'],
+        choices: ['Egypt', 'Canaan', 'Midian', 'Haran'],
+        correctIndex: 0,
         explanation:
           'Joseph was taken down to Egypt and sold to Potiphar, an officer of Pharaoh and captain of the guard.',
       },
@@ -623,21 +636,17 @@ module.exports = [
       'Right in the middle of Joseph’s story, the account of Judah and Tamar cuts in. Judah’s eldest son marries Tamar and dies; the second, Onan, dodges his duty and dies as well. Judah promises his third son but keeps putting it off. When time passes and nothing comes of it, Tamar covers her face, sits by the road and meets Judah. He does not recognise her and leaves his seal, cord and staff as a pledge. Later, told that Tamar is pregnant, Judah angrily orders her brought out — until she produces those things, and he says, "She is more righteous than I."',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'Of whom did Judah say, "She is more righteous than I"?',
-        acceptedAnswers: ['Tamar'],
+        choices: ['Tamar', 'Rebekah', 'Rachel', 'Dinah'],
+        correctIndex: 0,
         explanation:
           'Judah admitted his own fault in not giving her his third son, and said Tamar was more righteous than he was.',
       },
       {
         type: 'choice',
         question: 'What did Tamar receive as a pledge?',
-        choices: [
-          'A seal, a cord and a staff',
-          'One sheep',
-          'A garment',
-          'Twenty pieces of silver',
-        ],
+        choices: ['A seal, a cord and a staff', 'One sheep', 'A garment', 'Twenty pieces of silver'],
         correctIndex: 0,
         explanation:
           'They were the items that proved who he was, and later they became the evidence that turned Judah around.',
@@ -664,11 +673,11 @@ module.exports = [
           'The midwife tied a scarlet thread on his hand, but the hand drew back and the other child was born first.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which of Tamar’s twins later became an ancestor of David?',
-        acceptedAnswers: ['Perez', 'Pharez'],
-        explanation:
-          'Perez, who came out first, belongs to the line that leads on to David and to Jesus.',
+        choices: ['Perez', 'Zerah', 'Onan', 'Shelah'],
+        correctIndex: 0,
+        explanation: 'Perez, who came out first, belongs to the line that leads on to David and to Jesus.',
       },
       {
         type: 'choice',
@@ -707,20 +716,16 @@ module.exports = [
       {
         type: 'choice',
         question: 'What line keeps coming up in this chapter?',
-        choices: [
-          'The LORD was with Joseph',
-          'Joseph became rich',
-          'Joseph was sad',
-          'Joseph ran away',
-        ],
+        choices: ['The LORD was with Joseph', 'Joseph became rich', 'Joseph was sad', 'Joseph ran away'],
         correctIndex: 0,
         explanation:
           'The same line comes in the house and in the prison. His circumstances changed; God’s presence did not.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the Egyptian who bought Joseph?',
-        acceptedAnswers: ['Potiphar'],
+        choices: ['Potiphar', 'Pharaoh', 'Abimelech', 'Bethuel'],
+        correctIndex: 0,
         explanation: 'Potiphar, an officer of Pharaoh and captain of the guard, bought Joseph.',
       },
       {
@@ -739,7 +744,12 @@ module.exports = [
       {
         type: 'choice',
         question: 'What did Joseph do when she seized his garment?',
-        choices: ['He left the garment behind and went outside', 'He snatched it back', 'He shouted', 'He fought'],
+        choices: [
+          'He left the garment behind and went outside',
+          'He snatched it back',
+          'He shouted',
+          'He fought',
+        ],
         correctIndex: 0,
         explanation:
           'He left the garment in her hand and fled outside. That garment was then used as evidence against him.',
@@ -771,11 +781,11 @@ module.exports = [
           'Potiphar concerned himself with nothing except the food he ate, and left all the rest to Joseph.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Who accused Joseph falsely?',
-        acceptedAnswers: ['Potiphar’s wife', 'his master’s wife', 'Potiphars wife', 'the master’s wife'],
-        explanation:
-          'His master’s wife made a false accusation, using Joseph’s garment as her evidence.',
+        choices: ['Potiphar’s wife', 'The chief cupbearer', 'The chief baker', 'The keeper of the prison'],
+        correctIndex: 0,
+        explanation: 'His master’s wife made a false accusation, using Joseph’s garment as her evidence.',
       },
     ],
   },
@@ -801,12 +811,7 @@ module.exports = [
       {
         type: 'choice',
         question: 'Who were the two men in the prison who dreamed?',
-        choices: [
-          'The chief cupbearer and the chief baker',
-          'Two soldiers',
-          'Two merchants',
-          'Two priests',
-        ],
+        choices: ['The chief cupbearer and the chief baker', 'Two soldiers', 'Two merchants', 'Two priests'],
         correctIndex: 0,
         explanation: 'They were Pharaoh’s chief cupbearer and chief baker, who had offended him.',
       },
@@ -824,11 +829,11 @@ module.exports = [
           'Just as Joseph said, in three days he went back to putting the cup into Pharaoh’s hand as before.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did the "three" in both dreams stand for, according to Joseph?',
-        acceptedAnswers: ['three days', '3 days', 'days', 'three days for the branches and baskets'],
-        explanation:
-          'He explained that the three branches and the three baskets each stood for three days.',
+        choices: ['Three days', 'Seven days', 'Three months', 'Three years'],
+        correctIndex: 0,
+        explanation: 'He explained that the three branches and the three baskets each stood for three days.',
       },
       {
         type: 'choice',
@@ -840,8 +845,7 @@ module.exports = [
           'To carry a letter',
         ],
         correctIndex: 0,
-        explanation:
-          'Joseph explained that he had been taken away unjustly and asked to be remembered.',
+        explanation: 'Joseph explained that he had been taken away unjustly and asked to be remembered.',
       },
       {
         type: 'choice',
@@ -859,7 +863,12 @@ module.exports = [
       {
         type: 'choice',
         question: 'How did Joseph notice that the two men were troubled?',
-        choices: ['By the look on their faces', 'By what they said', 'By having the same dream', 'By hearing it from the keeper'],
+        choices: [
+          'By the look on their faces',
+          'By what they said',
+          'By having the same dream',
+          'By hearing it from the keeper',
+        ],
         correctIndex: 0,
         explanation:
           'In the morning Joseph saw that they looked troubled and asked, "Why are your faces downcast today?"',

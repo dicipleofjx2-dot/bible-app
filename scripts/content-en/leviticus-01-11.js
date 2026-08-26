@@ -13,6 +13,7 @@
  * from the app's own English Bible (open_en), so nothing is retranslated here.
  */
 
+
 module.exports = [
   {
     book: 3,
@@ -23,7 +24,12 @@ module.exports = [
       {
         type: 'choice',
         question: 'What is distinctive about the burnt offering?',
-        choices: ['The animal is burned whole', 'Only part is burned', 'Nothing is burned', 'It is only eaten'],
+        choices: [
+          'The animal is burned whole',
+          'Only part is burned',
+          'Nothing is burned',
+          'It is only eaten',
+        ],
         correctIndex: 0,
         explanation:
           'It carried the meaning of giving everything, which is why it is called a whole burnt offering.',
@@ -46,8 +52,7 @@ module.exports = [
           'It meant nothing',
         ],
         correctIndex: 0,
-        explanation:
-          'It says, "it will be accepted on his behalf to make atonement for him."',
+        explanation: 'It says, "it will be accepted on his behalf to make atonement for him."',
       },
       {
         type: 'choice',
@@ -67,13 +72,13 @@ module.exports = [
           'Because the nation offered for them',
         ],
         correctIndex: 0,
-        explanation:
-          'The way was left open according to what people could afford, so no one was excluded.',
+        explanation: 'The way was left open according to what people could afford, so no one was excluded.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Where were the offerings of Leviticus presented?',
-        acceptedAnswers: ['the tent of meeting', 'tent of meeting', 'the tabernacle', 'the entrance to the tent of meeting'],
+        choices: ['The tent of meeting', 'Mount Sinai', 'The temple', 'Outside the courtyard'],
+        correctIndex: 0,
         explanation:
           'Leviticus opens with the LORD calling to Moses and speaking to him from the tent of meeting.',
       },
@@ -87,8 +92,7 @@ module.exports = [
           'To divide the land',
         ],
         correctIndex: 0,
-        explanation:
-          'How to live before a God who dwells among you is the theme of Leviticus.',
+        explanation: 'How to live before a God who dwells among you is the theme of Leviticus.',
       },
     ],
   },
@@ -111,20 +115,25 @@ module.exports = [
         question: 'Which two things were not to be put in the grain offering?',
         choices: ['Yeast and honey', 'Salt and oil', 'Incense and oil', 'Water and salt'],
         correctIndex: 0,
-        explanation:
-          'No yeast and no honey — but salt was always to be added.',
+        explanation: 'No yeast and no honey — but salt was always to be added.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What had to be added to every grain offering?',
-        acceptedAnswers: ['salt'],
+        choices: ['Salt', 'Oil', 'Incense', 'Yeast'],
+        correctIndex: 0,
         explanation:
           'It says, "Do not leave the salt of the covenant of your God out of your grain offerings."',
       },
       {
         type: 'choice',
         question: 'Who received the rest of the grain offering?',
-        choices: ['Aaron and his sons, the priests', 'The one who brought it', 'The poor', 'It was all burned'],
+        choices: [
+          'Aaron and his sons, the priests',
+          'The one who brought it',
+          'The poor',
+          'It was all burned',
+        ],
         correctIndex: 0,
         explanation:
           'A handful was burned as a memorial portion, and the rest was a most holy part belonging to the priests.',
@@ -134,8 +143,7 @@ module.exports = [
         question: 'Which way of preparing the grain offering is NOT mentioned?',
         choices: ['Boiling in water', 'Baking in an oven', 'Cooking on a griddle', 'Cooking in a pan'],
         correctIndex: 0,
-        explanation:
-          'Three ways are given — oven, griddle and pan — and all of them were made with oil.',
+        explanation: 'Three ways are given — oven, griddle and pan — and all of them were made with oil.',
       },
       {
         type: 'choice',
@@ -147,8 +155,7 @@ module.exports = [
           'It is offered only at festivals',
         ],
         correctIndex: 0,
-        explanation:
-          'It was an offering not of an animal but of what the ground had produced.',
+        explanation: 'It was an offering not of an animal but of what the ground had produced.',
       },
       {
         type: 'choice',
@@ -182,10 +189,14 @@ module.exports = [
       {
         type: 'choice',
         question: 'Which two things were not to be eaten?',
-        choices: ['The fat and the blood', 'The meat and the bones', 'The organs and the legs', 'The head and the tail'],
+        choices: [
+          'The fat and the blood',
+          'The meat and the bones',
+          'The organs and the legs',
+          'The head and the tail',
+        ],
         correctIndex: 0,
-        explanation:
-          'The fat was God’s portion, and the blood stands for life.',
+        explanation: 'The fat was God’s portion, and the blood stands for life.',
       },
       {
         type: 'choice',
@@ -210,13 +221,18 @@ module.exports = [
           'Birds only',
         ],
         correctIndex: 0,
-        explanation:
-          'Unlike the burnt offering, which had to be male, this one could be male or female.',
+        explanation: 'Unlike the burnt offering, which had to be male, this one could be male or female.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What kind of ordinance was the rule against eating fat and blood called?',
-        acceptedAnswers: ['a lasting ordinance', 'lasting ordinance', 'an everlasting ordinance', 'a lasting ordinance for the generations to come'],
+        choices: [
+          'A lasting ordinance',
+          'A rule for one year',
+          'A rule for priests only',
+          'A rule for the wilderness only',
+        ],
+        correctIndex: 0,
         explanation:
           '"You must not eat any fat or any blood" is set down as a lasting ordinance for the generations to come.',
       },
@@ -230,18 +246,12 @@ module.exports = [
           'Something to be thrown away',
         ],
         correctIndex: 0,
-        explanation:
-          'It says, "All the fat is the LORD’s."',
+        explanation: 'It says, "All the fat is the LORD’s."',
       },
       {
         type: 'choice',
         question: 'Which action is repeated in the fellowship offering too?',
-        choices: [
-          'Laying a hand on the animal’s head',
-          'Tearing one’s clothes',
-          'Fasting',
-          'Singing',
-        ],
+        choices: ['Laying a hand on the animal’s head', 'Tearing one’s clothes', 'Fasting', 'Singing'],
         correctIndex: 0,
         explanation:
           'A hand was laid on it as a sign that it stood in the worshipper’s place, and it was slaughtered at the entrance to the tent.',
@@ -275,8 +285,7 @@ module.exports = [
         question: 'What was the offering when a common person sinned?',
         choices: ['A female goat or a young female lamb', 'A young bull', 'A male goat', 'A whole herd'],
         correctIndex: 0,
-        explanation:
-          'The offering differed with a person’s position and means.',
+        explanation: 'The offering differed with a person’s position and means.',
       },
       {
         type: 'choice',
@@ -296,20 +305,25 @@ module.exports = [
           'What you do not know is not sin',
         ],
         correctIndex: 0,
-        explanation:
-          'A priest’s sin called for the same offering as the sin of the whole assembly.',
+        explanation: 'A priest’s sin called for the same offering as the sin of the whole assembly.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Where was the blood of the sin offering put?',
-        acceptedAnswers: ['the horns of the altar', 'the horns', 'on the altar horns'],
+        choices: ['The horns of the altar', 'The curtain', 'The entrance to the tent', 'The ark'],
+        correctIndex: 0,
         explanation:
           'It was sprinkled seven times before the curtain and put on the horns of the altar, and the rest was poured out at the base.',
       },
       {
         type: 'choice',
         question: 'What phrase is repeated as the result of the sin offering?',
-        choices: ['And he will be forgiven', 'And he will become rich', 'And he will live long', 'Nothing is said'],
+        choices: [
+          'And he will be forgiven',
+          'And he will become rich',
+          'And he will live long',
+          'Nothing is said',
+        ],
         correctIndex: 0,
         explanation:
           'The words "the priest will make atonement for him, and he will be forgiven" keep coming back.',
@@ -325,15 +339,9 @@ module.exports = [
       {
         type: 'choice',
         question: 'What was required with the guilt offering, besides the sacrifice?',
-        choices: [
-          'Repaying the loss with a fifth added',
-          'Fasting',
-          'A year of service',
-          'Nothing else',
-        ],
+        choices: ['Repaying the loss with a fifth added', 'Fasting', 'A year of service', 'Nothing else'],
         correctIndex: 0,
-        explanation:
-          'There was a sacrifice given to God and restitution made to people, together.',
+        explanation: 'There was a sacrifice given to God and restitution made to people, together.',
       },
       {
         type: 'choice',
@@ -353,8 +361,7 @@ module.exports = [
           'A neighbour offered for them',
         ],
         correctIndex: 0,
-        explanation:
-          'Poverty was not allowed to block anyone from coming to God.',
+        explanation: 'Poverty was not allowed to block anyone from coming to God.',
       },
       {
         type: 'choice',
@@ -366,13 +373,13 @@ module.exports = [
           'Making a thoughtless oath',
         ],
         correctIndex: 0,
-        explanation:
-          'It stands out that staying silent when you know something is treated as sin.',
+        explanation: 'It stands out that staying silent when you know something is treated as sin.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'How much had to be added to the repayment in the guilt offering?',
-        acceptedAnswers: ['a fifth', 'one fifth', '1/5', '20%'],
+        choices: ['A fifth', 'A tenth', 'Half', 'Double'],
+        correctIndex: 0,
         explanation:
           'Anyone who had caused loss to holy things had to repay it with a fifth added and give it to the priest.',
       },
@@ -394,8 +401,7 @@ module.exports = [
         question: 'What was left out of the poor person’s grain offering?',
         choices: ['Oil and incense', 'Salt', 'Flour', 'Water'],
         correctIndex: 0,
-        explanation:
-          'Because it was a sin offering, no oil was poured on it and no incense was put on it.',
+        explanation: 'Because it was a sin offering, no oil was poured on it and no incense was put on it.',
       },
     ],
   },
@@ -415,8 +421,7 @@ module.exports = [
           'No repayment is needed',
         ],
         correctIndex: 0,
-        explanation:
-          'You could not leave a debt to a person standing and bring something to God instead.',
+        explanation: 'You could not leave a debt to a person standing and bring something to God instead.',
       },
       {
         type: 'choice',
@@ -454,23 +459,26 @@ module.exports = [
           'The people removed them',
         ],
         correctIndex: 0,
-        explanation:
-          'The clothes worn in the holy place and those worn outside it were kept separate.',
+        explanation: 'The clothes worn in the holy place and those worn outside it were kept separate.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'How much had to be added when repaying a wronged neighbour?',
-        acceptedAnswers: ['a fifth', 'one fifth', '1/5', '20%'],
-        explanation:
-          'The property was returned to its owner with a fifth of its value added.',
+        choices: ['A fifth', 'A tenth', 'Half', 'Five times over'],
+        correctIndex: 0,
+        explanation: 'The property was returned to its owner with a fifth of its value added.',
       },
       {
         type: 'choice',
         question: 'Where did the priests eat what was left of the grain offering?',
-        choices: ['In a holy place, the courtyard of the tent of meeting', 'At home', 'Anywhere', 'Outside the camp'],
+        choices: [
+          'In a holy place, the courtyard of the tent of meeting',
+          'At home',
+          'Anywhere',
+          'Outside the camp',
+        ],
         correctIndex: 0,
-        explanation:
-          'It was baked without yeast and eaten in a holy place.',
+        explanation: 'It was baked without yeast and eaten in a holy place.',
       },
       {
         type: 'choice',
@@ -482,8 +490,7 @@ module.exports = [
           'That priests are exempt',
         ],
         correctIndex: 0,
-        explanation:
-          'Worship and honesty are bound together as one.',
+        explanation: 'Worship and honesty are bound together as one.',
       },
     ],
   },
@@ -504,10 +511,14 @@ module.exports = [
       {
         type: 'choice',
         question: 'What was set aside as the priests’ portion?',
-        choices: ['The breast that was waved and the thigh that was presented', 'The head and legs', 'The organs', 'Only the hide'],
+        choices: [
+          'The breast that was waved and the thigh that was presented',
+          'The head and legs',
+          'The organs',
+          'Only the hide',
+        ],
         correctIndex: 0,
-        explanation:
-          'This was given as their regular share from the Israelites for ever.',
+        explanation: 'This was given as their regular share from the Israelites for ever.',
       },
       {
         type: 'choice',
@@ -519,46 +530,34 @@ module.exports = [
           'They offered the sacrifice again',
         ],
         correctIndex: 0,
-        explanation:
-          'It was a warning against handling holy things carelessly.',
+        explanation: 'It was a warning against handling holy things carelessly.',
       },
       {
         type: 'choice',
         question: 'Which prohibition is stressed again?',
         choices: ['Do not eat fat or blood', 'Do not eat meat', 'Do not eat bread', 'Do not drink water'],
         correctIndex: 0,
-        explanation:
-          'It is repeated from chapter 3 — a sign of how seriously it was taken.',
+        explanation: 'It is repeated from chapter 3 — a sign of how seriously it was taken.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was brought along with the thanksgiving fellowship offering?',
-        acceptedAnswers: ['unleavened bread', 'bread', 'unleavened and leavened bread', 'cakes'],
+        choices: ['Unleavened bread', 'Wine', 'Salt', 'Incense'],
+        correctIndex: 0,
         explanation:
           'Unleavened cakes mixed with oil, unleavened wafers, and loaves of leavened bread as well.',
       },
       {
         type: 'choice',
         question: 'What was the priests’ portion called?',
-        choices: [
-          'The portion of the anointing',
-          'A holy tax',
-          'A gift of the people',
-          'The altar’s share',
-        ],
+        choices: ['The portion of the anointing', 'A holy tax', 'A gift of the people', 'The altar’s share'],
         correctIndex: 0,
-        explanation:
-          'It means the share they received from the day they were made priests.',
+        explanation: 'It means the share they received from the day they were made priests.',
       },
       {
         type: 'choice',
         question: 'How many offerings are summed up in this chapter?',
-        choices: [
-          'Five — burnt, grain, sin, guilt and fellowship',
-          'Two',
-          'Three',
-          'Seven',
-        ],
+        choices: ['Five — burnt, grain, sin, guilt and fellowship', 'Two', 'Three', 'Seven'],
         correctIndex: 0,
         explanation:
           'It closes by summing up the regulations for the five offerings covered in chapters 1–7.',
@@ -574,18 +573,26 @@ module.exports = [
       {
         type: 'choice',
         question: 'Which chapter of Exodus is carried out here?',
-        choices: ['Chapter 29 (the ordination of priests)', 'Chapter 20 (the Ten Commandments)', 'Chapter 25 (the tabernacle)', 'Chapter 32 (the golden calf)'],
+        choices: [
+          'Chapter 29 (the ordination of priests)',
+          'Chapter 20 (the Ten Commandments)',
+          'Chapter 25 (the tabernacle)',
+          'Chapter 32 (the golden calf)',
+        ],
         correctIndex: 0,
-        explanation:
-          'The Bible’s pattern of pairing command with execution shows up here too.',
+        explanation: 'The Bible’s pattern of pairing command with execution shows up here too.',
       },
       {
         type: 'choice',
         question: 'What came first in the ordination?',
-        choices: ['Washing with water', 'Putting on the garments', 'Anointing with oil', 'Offering sacrifices'],
+        choices: [
+          'Washing with water',
+          'Putting on the garments',
+          'Anointing with oil',
+          'Offering sacrifices',
+        ],
         correctIndex: 0,
-        explanation:
-          'The order was: wash, clothe, anoint, sacrifice.',
+        explanation: 'The order was: wash, clothe, anoint, sacrifice.',
       },
       {
         type: 'choice',
@@ -597,13 +604,13 @@ module.exports = [
           'The eyes, the ears and the mouth',
         ],
         correctIndex: 0,
-        explanation:
-          'It means setting apart what he hears, what he does and where he walks.',
+        explanation: 'It means setting apart what he hears, what he does and where he walks.',
       },
       {
-        type: 'short',
-        question: 'How many days did the ordination last? (number only)',
-        acceptedAnswers: ['7', 'seven', '7 days'],
+        type: 'choice',
+        question: 'How many days did the ordination last?',
+        choices: ['Seven days', 'Three days', 'Eight days', 'Forty days'],
+        correctIndex: 0,
         explanation:
           'They were told not to leave the entrance to the tent for seven days, and they did as they were told.',
       },
@@ -630,8 +637,7 @@ module.exports = [
           'Only the garments',
         ],
         correctIndex: 0,
-        explanation:
-          'It was the sign of being set apart as holy.',
+        explanation: 'It was the sign of being set apart as holy.',
       },
       {
         type: 'choice',
@@ -643,8 +649,7 @@ module.exports = [
           'Aaron refused',
         ],
         correctIndex: 0,
-        explanation:
-          'It ends in obedience — and then trouble comes at once in chapter 10.',
+        explanation: 'It ends in obedience — and then trouble comes at once in chapter 10.',
       },
     ],
   },
@@ -664,8 +669,7 @@ module.exports = [
           'He offered nothing for himself',
         ],
         correctIndex: 0,
-        explanation:
-          'He dealt with his own sin before serving anyone else.',
+        explanation: 'He dealt with his own sin before serving anyone else.',
       },
       {
         type: 'choice',
@@ -677,31 +681,38 @@ module.exports = [
           'There was an earthquake',
         ],
         correctIndex: 0,
-        explanation:
-          'It was not a fire people had lit; it came out from before the LORD.',
+        explanation: 'It was not a fire people had lit; it came out from before the LORD.',
       },
       {
         type: 'choice',
         question: 'How did the people react to what they saw?',
-        choices: ['They shouted for joy and fell face down', 'They ran away', 'They sang', 'They stayed silent'],
+        choices: [
+          'They shouted for joy and fell face down',
+          'They ran away',
+          'They sang',
+          'They stayed silent',
+        ],
         correctIndex: 0,
-        explanation:
-          'When all the people saw it, they shouted for joy and fell face down.',
+        explanation: 'When all the people saw it, they shouted for joy and fell face down.',
       },
       {
         type: 'choice',
         question: 'What did Aaron do when the offerings were finished?',
-        choices: ['He lifted his hands and blessed the people', 'He went home', 'He cleaned the altar', 'He took off his garments'],
+        choices: [
+          'He lifted his hands and blessed the people',
+          'He went home',
+          'He cleaned the altar',
+          'He took off his garments',
+        ],
         correctIndex: 0,
-        explanation:
-          'He went into the tent of meeting with Moses, came out, and blessed the people again.',
+        explanation: 'He went into the tent of meeting with Moses, came out, and blessed the people again.',
       },
       {
-        type: 'short',
-        question: 'On which day after the ordination began did Aaron first serve? (number only)',
-        acceptedAnswers: ['8', 'eight', 'the eighth', '8th'],
-        explanation:
-          'It was the eighth day, after the seven days of ordination were over.',
+        type: 'choice',
+        question: 'On which day after the ordination began did Aaron first serve?',
+        choices: ['The eighth day', 'The seventh day', 'The third day', 'The fortieth day'],
+        correctIndex: 0,
+        explanation: 'It was the eighth day, after the seven days of ordination were over.',
       },
       {
         type: 'choice',
@@ -713,21 +724,14 @@ module.exports = [
           'That the offerings were stopped',
         ],
         correctIndex: 0,
-        explanation:
-          'The fire that came out and consumed the offering was the sign that it was accepted.',
+        explanation: 'The fire that came out and consumed the offering was the sign that it was accepted.',
       },
       {
         type: 'choice',
         question: 'What did Moses tell the people?',
-        choices: [
-          'Today the LORD will appear to you',
-          'Wait',
-          'Leave',
-          'He said nothing',
-        ],
+        choices: ['Today the LORD will appear to you', 'Wait', 'Leave', 'He said nothing'],
         correctIndex: 0,
-        explanation:
-          'He said that if they did as commanded, the glory of the LORD would appear to them.',
+        explanation: 'He said that if they did as commanded, the glory of the LORD would appear to them.',
       },
     ],
   },
@@ -738,11 +742,11 @@ module.exports = [
       'Right after the day of joy comes a heavy day. Aaron’s two sons Nadab and Abihu each take a censer, put unauthorised fire in it and offer incense before the LORD. Fire comes out from before the LORD and consumes them. Moses says to Aaron, "This is what the LORD spoke of," and Aaron is silent. Moses tells Aaron and his remaining sons not to let their hair go unkempt or tear their clothes in mourning, and not to leave the entrance to the tent. Then a rule is given: priests are not to drink wine or other fermented drink when they go into the tent of meeting.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which two sons of Aaron offered unauthorised fire before the LORD?',
-        acceptedAnswers: ['Nadab and Abihu', 'Nadab, Abihu'],
-        explanation:
-          'Each took his censer, put unauthorised fire in it and offered incense.',
+        choices: ['Nadab and Abihu', 'Eleazar and Ithamar', 'Bezalel and Oholiab', 'Aaron and Hur'],
+        correctIndex: 0,
+        explanation: 'Each took his censer, put unauthorised fire in it and offered incense.',
       },
       {
         type: 'choice',
@@ -754,16 +758,14 @@ module.exports = [
           'Nothing happened',
         ],
         correctIndex: 0,
-        explanation:
-          'The same fire that consumed the offering in chapter 9 consumes men here.',
+        explanation: 'The same fire that consumed the offering in chapter 9 consumes men here.',
       },
       {
         type: 'choice',
         question: 'How did Aaron react to the news?',
         choices: ['He remained silent', 'He wailed', 'He argued', 'He left'],
         correctIndex: 0,
-        explanation:
-          'It says only, "Aaron remained silent." It was a place beyond words.',
+        explanation: 'It says only, "Aaron remained silent." It was a place beyond words.',
       },
       {
         type: 'choice',
@@ -788,8 +790,7 @@ module.exports = [
           'Offer sacrifices',
         ],
         correctIndex: 0,
-        explanation:
-          'As anointed men they were not to leave the entrance to the tent of meeting.',
+        explanation: 'As anointed men they were not to leave the entrance to the tent of meeting.',
       },
       {
         type: 'choice',
@@ -801,8 +802,7 @@ module.exports = [
           'That fire is dangerous',
         ],
         correctIndex: 0,
-        explanation:
-          'The heart of it is in the phrase "unauthorised fire, which he had not commanded them."',
+        explanation: 'The heart of it is in the phrase "unauthorised fire, which he had not commanded them."',
       },
       {
         type: 'choice',
@@ -814,8 +814,7 @@ module.exports = [
           'Nothing was said',
         ],
         correctIndex: 0,
-        explanation:
-          'The nearer the place of service, the more strictly holiness was treated.',
+        explanation: 'The nearer the place of service, the more strictly holiness was treated.',
       },
     ],
   },
@@ -843,20 +842,24 @@ module.exports = [
         question: 'What made a water creature fit to eat?',
         choices: ['Having fins and scales', 'Being large', 'Living in fresh water', 'There was no rule'],
         correctIndex: 0,
-        explanation:
-          'Anything without fins and scales was to be regarded as detestable.',
+        explanation: 'Anything without fins and scales was to be regarded as detestable.',
       },
       {
-        type: 'short',
-        question: 'The purpose is given at the end: "Be ____, because I am ____."',
-        acceptedAnswers: ['holy', 'be holy'],
-        explanation:
-          'What a person ate became a daily reminder of whose they were.',
+        type: 'choice',
+        question: '"Be ____, because I am ____." What belongs in the blanks?',
+        choices: ['Holy', 'Blessed', 'Clean', 'Strong'],
+        correctIndex: 0,
+        explanation: 'What a person ate became a daily reminder of whose they were.',
       },
       {
         type: 'choice',
         question: 'Which animals are given as examples of what may not be eaten?',
-        choices: ['The camel and the pig', 'The ox and the sheep', 'The goat and the deer', 'The chicken and the duck'],
+        choices: [
+          'The camel and the pig',
+          'The ox and the sheep',
+          'The goat and the deer',
+          'The chicken and the duck',
+        ],
         correctIndex: 0,
         explanation:
           'The camel, the hyrax and the rabbit chew the cud but have no divided hoof; the pig is the other way round.',
@@ -871,8 +874,7 @@ module.exports = [
           'Birds only',
         ],
         correctIndex: 0,
-        explanation:
-          'It covers every realm of living things and gives a standard for telling them apart.',
+        explanation: 'It covers every realm of living things and gives a standard for telling them apart.',
       },
       {
         type: 'choice',
@@ -884,8 +886,7 @@ module.exports = [
           'It helped their farming',
         ],
         correctIndex: 0,
-        explanation:
-          'Holiness was not a matter for special days; it started at the dinner table.',
+        explanation: 'Holiness was not a matter for special days; it started at the dinner table.',
       },
       {
         type: 'choice',
@@ -897,8 +898,7 @@ module.exports = [
           'Rules for festivals',
         ],
         correctIndex: 0,
-        explanation:
-          'The flow runs from worship at the tabernacle right through to the dinner table.',
+        explanation: 'The flow runs from worship at the tabernacle right through to the dinner table.',
       },
     ],
   },

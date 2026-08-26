@@ -13,6 +13,7 @@
  * from the app's own English Bible (open_en), so nothing is retranslated here.
  */
 
+
 module.exports = [
   {
     book: 1,
@@ -49,15 +50,26 @@ module.exports = [
       {
         type: 'choice',
         question: 'Which land did Lot choose?',
-        choices: ['The whole plain of the Jordan, toward Sodom', 'The hill country', 'The desert', 'The seashore'],
+        choices: [
+          'The whole plain of the Jordan, toward Sodom',
+          'The hill country',
+          'The desert',
+          'The seashore',
+        ],
         correctIndex: 0,
         explanation:
           'Lot chose the Jordan plain because it was well watered and looked like the garden of the LORD, and he moved as far as Sodom.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What does the Bible say in advance about the people of Sodom?',
-        acceptedAnswers: ['wicked and sinners', 'wicked and great sinners', 'they were wicked', 'wicked'],
+        choices: [
+          'They were wicked, great sinners before the LORD',
+          'It was a land with plenty of water',
+          'Abram’s relatives lived there',
+          'The famine there was severe',
+        ],
+        correctIndex: 0,
         explanation:
           'It says, "the men of Sodom were wicked and sinners before the LORD exceedingly." That is the other side of a choice that looked good to the eye.',
       },
@@ -79,13 +91,13 @@ module.exports = [
         question: 'Where did Abram move and build an altar?',
         choices: ['The oaks of Mamre at Hebron', 'Sodom', 'Bethel', 'Egypt'],
         correctIndex: 0,
-        explanation:
-          'Abram moved to the oaks of Mamre at Hebron and built an altar to the LORD there.',
+        explanation: 'Abram moved to the oaks of Mamre at Hebron and built an altar to the LORD there.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Where did Abram go back to after he came up out of Egypt?',
-        acceptedAnswers: ['Bethel', 'between Bethel and Ai', 'the place of the altar he had built before'],
+        choices: ['Bethel', 'Shechem', 'Hebron', 'Beersheba'],
+        correctIndex: 0,
         explanation:
           'Abram went back to the place between Bethel and Ai where he had first built an altar, and there he called on the name of the LORD.',
       },
@@ -100,21 +112,28 @@ module.exports = [
       {
         type: 'choice',
         question: 'Why did Abram set out with his men?',
-        choices: ['Because his nephew Lot had been carried off', 'To gain riches', 'To become king', 'To enlarge his land'],
+        choices: [
+          'Because his nephew Lot had been carried off',
+          'To gain riches',
+          'To become king',
+          'To enlarge his land',
+        ],
         correctIndex: 0,
         explanation:
           'When Abram heard that his nephew had been taken captive, he went after them with the men born and trained in his household.',
       },
       {
-        type: 'short',
-        question: 'How many men did Abram take with him? (number only)',
-        acceptedAnswers: ['318', 'three hundred eighteen', '318 men'],
+        type: 'choice',
+        question: 'How many men did Abram take with him?',
+        choices: ['318', '100', '600', '1,000'],
+        correctIndex: 0,
         explanation: 'He led out 318 trained men born in his own house.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which king of Salem came out with bread and wine and blessed Abram?',
-        acceptedAnswers: ['Melchizedek'],
+        choices: ['Melchizedek', 'Abimelech', 'Kedorlaomer', 'Bera'],
+        correctIndex: 0,
         explanation:
           'Melchizedek, king of Salem, was priest of God Most High. He appears again later, in Hebrews, to explain who Jesus is.',
       },
@@ -174,32 +193,23 @@ module.exports = [
       {
         type: 'choice',
         question: 'What did God say when He showed Abram the stars?',
-        choices: [
-          'So shall your offspring be',
-          'Leave this land',
-          'Do not count the stars',
-          'Do not wait',
-        ],
+        choices: ['So shall your offspring be', 'Leave this land', 'Do not count the stars', 'Do not wait'],
         correctIndex: 0,
         explanation:
           'He told Abram to look at the stars and count them if he could, and said his offspring would be like them.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: '"Abram believed the LORD, and He counted it to him as ____." Fill in the blank.',
-        acceptedAnswers: ['righteousness', 'righteous'],
+        choices: ['Righteousness', 'Blessing', 'A reward', 'A covenant'],
+        correctIndex: 0,
         explanation:
           'This is one of the most important verses in the whole Bible for joining faith and righteousness. Romans and Galatians both quote it.',
       },
       {
         type: 'choice',
         question: 'What passed between the pieces of the animals when the covenant was made?',
-        choices: [
-          'A smoking firepot and a blazing torch',
-          'Abram',
-          'An angel',
-          'A wind',
-        ],
+        choices: ['A smoking firepot and a blazing torch', 'Abram', 'An angel', 'A wind'],
         correctIndex: 0,
         explanation:
           'Abram was in a deep sleep, and only the firepot and torch — which stand for God — passed through. We read it to mean God took the whole responsibility of keeping the covenant on Himself.',
@@ -235,13 +245,18 @@ module.exports = [
           'Build an altar',
         ],
         correctIndex: 0,
-        explanation:
-          'The word came to him in a vision. God dealt first with the fear Abram was carrying.',
+        explanation: 'The word came to him in a vision. God dealt first with the fear Abram was carrying.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the honest question Abram brought to God about?',
-        acceptedAnswers: ['a child', 'children', 'offspring', 'an heir', 'a son'],
+        choices: [
+          'Having no child',
+          'Having nothing to eat',
+          'Having no land',
+          'Quarrelling with his brother',
+        ],
+        correctIndex: 0,
         explanation:
           'He said, "you have given me no offspring," laying his childlessness before God just as it was.',
       },
@@ -263,13 +278,13 @@ module.exports = [
           'To wait longer',
         ],
         correctIndex: 0,
-        explanation:
-          'Worn out with waiting, Sarai reached for a human solution, and Abram listened to her.',
+        explanation: 'Worn out with waiting, Sarai reached for a human solution, and Abram listened to her.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What name did Hagar call God?',
-        acceptedAnswers: ['the God who sees me', 'the God who sees', 'El Roi', 'God who sees'],
+        choices: ['The God who sees me', 'God Almighty', 'The LORD Will Provide', 'The LORD is my Banner'],
+        correctIndex: 0,
         explanation:
           'It means "the God who watches over me." In a wilderness where no one else was, she confessed that He had been looking at her.',
       },
@@ -287,11 +302,11 @@ module.exports = [
           'He told her to go back, and with it gave the promise, "I will surely multiply your offspring."',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the son Hagar bore?',
-        acceptedAnswers: ['Ishmael'],
-        explanation:
-          'God said to call him Ishmael, "because the LORD has listened to your affliction."',
+        choices: ['Ishmael', 'Isaac', 'Midian', 'Keilah'],
+        correctIndex: 0,
+        explanation: 'God said to call him Ishmael, "because the LORD has listened to your affliction."',
       },
       {
         type: 'choice',
@@ -330,9 +345,10 @@ module.exports = [
       'When Abram is ninety-nine, God appears to him again: "I am God Almighty; walk before me and be blameless." God changes their names. Abram becomes Abraham, "father of many," and Sarai becomes Sarah. Then God commands circumcision as the sign of the covenant — every male, whether born in the house or bought with money. When God says Sarah will have a son, Abraham falls on his face and laughs. How could a woman of ninety give birth? The son’s name is Isaac, which means "laughter."',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'What new name was Abram given?',
-        acceptedAnswers: ['Abraham'],
+        choices: ['Abraham', 'Israel', 'Abimelech', 'Abner'],
+        correctIndex: 0,
         explanation: 'He became Abraham, which means "father of many nations."',
       },
       {
@@ -360,9 +376,10 @@ module.exports = [
           'He laughed to himself, wondering how a man of a hundred could have a child, and how Sarah could bear one.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What name did God choose for the son who would be born?',
-        acceptedAnswers: ['Isaac'],
+        choices: ['Isaac', 'Ishmael', 'Jacob', 'Esau'],
+        correctIndex: 0,
         explanation: 'Isaac means "laughter." The name came out of the very place where he laughed.',
       },
       {
@@ -370,8 +387,7 @@ module.exports = [
         question: 'How did God introduce Himself to Abraham?',
         choices: ['God Almighty', 'The Holy God', 'A jealous God', 'The LORD of hosts'],
         correctIndex: 0,
-        explanation:
-          'He said, "I am God Almighty," and told Abraham to walk before Him and be blameless.',
+        explanation: 'He said, "I am God Almighty," and told Abraham to walk before Him and be blameless.',
       },
       {
         type: 'choice',
@@ -395,9 +411,10 @@ module.exports = [
       'In the heat of the day three men come to Abraham’s tent. He runs out to meet them and hurries to set food before them. When they say, "This time next year Sarah will have a son," Sarah, listening at the tent door, laughs to herself. God knows about that laugh and asks, "Is anything too hard for the LORD?" Then He tells Abraham what He is about to do to Sodom, and Abraham pleads for the city — six times, starting at fifty and coming down to ten.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: '"Is anything too ____ for the LORD?" Fill in the blank.',
-        acceptedAnswers: ['hard', 'difficult', 'wonderful'],
+        choices: ['Hard', 'Costly', 'Clear', 'Loud'],
+        correctIndex: 0,
         explanation:
           'God said it because He knew Sarah had laughed. It was His answer to a situation her age and body made impossible.',
       },
@@ -449,9 +466,10 @@ module.exports = [
           'He said, "Shall I hide from Abraham what I am about to do?" and spoke of how Abraham would teach his children the way of the LORD.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'When did God say Sarah would have a son?',
-        acceptedAnswers: ['this time next year', 'next year', 'at the appointed time', 'about this time next year'],
+        choices: ['This time next year', 'In seven days', 'In three years', 'In ten years'],
+        correctIndex: 0,
         explanation: 'He said, "I will surely return to you about this time next year."',
       },
       {
@@ -485,13 +503,18 @@ module.exports = [
           'They burned his house',
         ],
         correctIndex: 0,
-        explanation:
-          '"The LORD being merciful to him." Lot did not walk out on his own; he was dragged out.',
+        explanation: '"The LORD being merciful to him." Lot did not walk out on his own; he was dragged out.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What happened to Lot’s wife, who looked back?',
-        acceptedAnswers: ['a pillar of salt', 'pillar of salt', 'she became a pillar of salt'],
+        choices: [
+          'She became a pillar of salt',
+          'She turned to stone',
+          'She was burned up',
+          'She went blind',
+        ],
+        correctIndex: 0,
         explanation: 'Lot’s wife looked back, and she became a pillar of salt.',
       },
       {
@@ -516,19 +539,24 @@ module.exports = [
           'They told him not to look back and not to stop anywhere in the valley, but to flee to the hills.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the little town Lot escaped to?',
-        acceptedAnswers: ['Zoar'],
+        choices: ['Zoar', 'Sodom', 'Gomorrah', 'Shechem'],
+        correctIndex: 0,
         explanation:
           'Lot said he could not reach the hills and begged to escape to a little town, and that town was called Zoar.',
       },
       {
         type: 'choice',
         question: 'How did Lot’s sons-in-law take what he told them?',
-        choices: ['They thought he was joking', 'They fled with him', 'They believed and got ready', 'They grew angry'],
+        choices: [
+          'They thought he was joking',
+          'They fled with him',
+          'They believed and got ready',
+          'They grew angry',
+        ],
         correctIndex: 0,
-        explanation:
-          'Lot told his sons-in-law to leave the city, but to them he seemed to be joking.',
+        explanation: 'Lot told his sons-in-law to leave the city, but to them he seemed to be joking.',
       },
       {
         type: 'choice',
@@ -554,15 +582,21 @@ module.exports = [
       {
         type: 'choice',
         question: 'What did Abraham say about Sarah in Gerar?',
-        choices: ['That she was his sister', 'That she was his wife', 'He said nothing', 'That he would leave'],
+        choices: [
+          'That she was his sister',
+          'That she was his wife',
+          'He said nothing',
+          'That he would leave',
+        ],
         correctIndex: 0,
         explanation:
           'He repeated what he had done in Egypt in chapter 12 — the same mistake, made again out of fear.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the king of Gerar who took Sarah?',
-        acceptedAnswers: ['Abimelech'],
+        choices: ['Abimelech', 'Pharaoh', 'Melchizedek', 'Hamor'],
+        correctIndex: 0,
         explanation: 'Abimelech, king of Gerar, sent and took Sarah.',
       },
       {
@@ -595,8 +629,7 @@ module.exports = [
           'Only because he feared the king',
         ],
         correctIndex: 0,
-        explanation:
-          'Abraham judged by his own guess, and this chapter shows that his guess was wrong.',
+        explanation: 'Abraham judged by his own guess, and this chapter shows that his guess was wrong.',
       },
       {
         type: 'choice',
@@ -612,9 +645,10 @@ module.exports = [
           'Abimelech sent Sarah back, gave him livestock, servants and a thousand pieces of silver, and told him to settle wherever he liked.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did Abraham do for Abimelech?',
-        acceptedAnswers: ['prayed', 'he prayed', 'prayed to God', 'prayer'],
+        choices: ['He prayed', 'He offered a sacrifice', 'He sent a gift', 'He swore an oath'],
+        correctIndex: 0,
         explanation:
           'Abraham prayed, and God healed Abimelech, his wife and his servants so that they could have children again.',
       },
@@ -636,13 +670,13 @@ module.exports = [
           'I have won',
         ],
         correctIndex: 0,
-        explanation:
-          'The laughter of disbelief in chapters 17 and 18 turns here into laughter of joy.',
+        explanation: 'The laughter of disbelief in chapters 17 and 18 turns here into laughter of joy.',
       },
       {
-        type: 'short',
-        question: 'How old was Abraham when Isaac was born? (number only)',
-        acceptedAnswers: ['100', 'a hundred', 'one hundred', '100 years old'],
+        type: 'choice',
+        question: 'How old was Abraham when Isaac was born?',
+        choices: ['A hundred', 'Seventy-five', 'Ninety', 'A hundred and twenty'],
+        correctIndex: 0,
         explanation: 'Isaac was born when Abraham was a hundred years old.',
       },
       {
@@ -667,9 +701,10 @@ module.exports = [
           'Abraham was deeply distressed over his son, but God told him to listen to Sarah, and promised to make Ishmael a great nation too.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the place where Abraham and Abimelech made their covenant?',
-        acceptedAnswers: ['Beersheba', 'Beer-sheba'],
+        choices: ['Beersheba', 'Bethel', 'Hebron', 'Gerar'],
+        correctIndex: 0,
         explanation:
           'Because the two of them swore an oath there, the place was called Beersheba, "the well of the oath."',
       },
@@ -708,9 +743,10 @@ module.exports = [
       'This is the heaviest scene in Genesis. God tests Abraham: "Take your son, your only son Isaac, whom you love, and offer him as a burnt offering in the land of Moriah." Abraham gets up early in the morning and goes. After a three-day journey, climbing the mountain, Isaac asks, "Where is the lamb for the burnt offering?" Abraham answers, "God Himself will provide." When he raises the knife, the angel of the LORD calls out urgently. Behind him is a ram caught in a thicket by its horns. Abraham called that place "The LORD Will Provide."',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'What name did Abraham give that place?',
-        acceptedAnswers: ['The LORD Will Provide', 'Jehovah Jireh', 'Yahweh Yireh', 'The LORD provides'],
+        choices: ['The LORD Will Provide', 'The LORD is my Banner', 'The LORD is Peace', 'El-Elohe-Israel'],
+        correctIndex: 0,
         explanation:
           'The Bible says the saying "On the mount of the LORD it shall be provided" is still used today.',
       },
@@ -749,10 +785,12 @@ module.exports = [
           'Abraham lifted his eyes and saw a ram behind him, caught by its horns in a thicket, and offered it instead.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the land God told Abraham to go to?',
-        acceptedAnswers: ['Moriah', 'the land of Moriah'],
-        explanation: 'God told him to go to one of the mountains in the land of Moriah and offer the sacrifice there.',
+        choices: ['Moriah', 'Ararat', 'Horeb', 'Sinai'],
+        correctIndex: 0,
+        explanation:
+          'God told him to go to one of the mountains in the land of Moriah and offer the sacrifice there.',
       },
       {
         type: 'choice',
@@ -789,15 +827,21 @@ module.exports = [
       'Sarah dies at a hundred and twenty-seven. Abraham mourns and weeps for her, then rises and asks the Hittites to sell him land for a burial place. They tell him, "You are a prince of God among us — use the best we have," but Abraham insists on paying the full price. In the end he buys Ephron’s field at Machpelah and its cave for four hundred shekels of silver, deeded as his own. The first land Abraham actually owned in the land of promise was his wife’s grave. Later Abraham, Isaac, Rebekah, Leah and Jacob are all buried in this cave.',
     questions: [
       {
-        type: 'short',
-        question: 'How old was Sarah when she died? (number only)',
-        acceptedAnswers: ['127', 'a hundred twenty-seven', '127 years old'],
+        type: 'choice',
+        question: 'How old was Sarah when she died?',
+        choices: ['A hundred and twenty-seven', 'Ninety', 'A hundred', 'A hundred and thirty'],
+        correctIndex: 0,
         explanation: 'Sarah lived a hundred and twenty-seven years and died at Hebron in the land of Canaan.',
       },
       {
         type: 'choice',
         question: 'What did Abraham ask of the Hittites?',
-        choices: ['To sell him land for a burial place', 'To give him water', 'To give him a house', 'To give him livestock'],
+        choices: [
+          'To sell him land for a burial place',
+          'To give him water',
+          'To give him a house',
+          'To give him livestock',
+        ],
         correctIndex: 0,
         explanation:
           'Abraham said he was a stranger and a sojourner among them, and asked them to sell him property for a grave.',
@@ -816,30 +860,31 @@ module.exports = [
           'A gift could be disputed later. Abraham weighed out the silver so the land became legally his.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the cave Abraham bought?',
-        acceptedAnswers: ['Machpelah', 'the cave of Machpelah'],
+        choices: ['Machpelah', 'Mamre', 'Hebron', 'Beersheba'],
+        correctIndex: 0,
         explanation: 'He bought the field of Machpelah, east of Mamre, and the cave that was in it.',
       },
       {
         type: 'choice',
         question: 'How much did Abraham pay?',
-        choices: ['Four hundred shekels of silver', 'A hundred shekels of silver', 'A thousand shekels of silver', 'Four hundred shekels of gold'],
+        choices: [
+          'Four hundred shekels of silver',
+          'A hundred shekels of silver',
+          'A thousand shekels of silver',
+          'Four hundred shekels of gold',
+        ],
         correctIndex: 0,
-        explanation: 'He weighed out four hundred shekels of silver at the merchants’ current rate and gave it to Ephron.',
+        explanation:
+          'He weighed out four hundred shekels of silver at the merchants’ current rate and gave it to Ephron.',
       },
       {
         type: 'choice',
         question: 'What did the Hittites call Abraham?',
-        choices: [
-          'A prince of God',
-          'A wanderer',
-          'A guest',
-          'A foreigner',
-        ],
+        choices: ['A prince of God', 'A wanderer', 'A guest', 'A foreigner'],
         correctIndex: 0,
-        explanation:
-          'They honoured him and told him to bury his dead in the choicest of their tombs.',
+        explanation: 'They honoured him and told him to bury his dead in the choicest of their tombs.',
       },
       {
         type: 'choice',
@@ -889,19 +934,18 @@ module.exports = [
           'Drawing water for ten camels was no small labour. The sign was meant to show what kind of heart she had.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the woman he met at the well?',
-        acceptedAnswers: ['Rebekah'],
-        explanation:
-          'Rebekah was the daughter of Bethuel and the granddaughter of Nahor, Abraham’s brother.',
+        choices: ['Rebekah', 'Rachel', 'Leah', 'Milcah'],
+        correctIndex: 0,
+        explanation: 'Rebekah was the daughter of Bethuel and the granddaughter of Nahor, Abraham’s brother.',
       },
       {
         type: 'choice',
         question: 'What did Rebekah answer when her family asked her to stay a few more days?',
         choices: ['I will go', 'I will stay longer', 'I will think about it', 'I cannot go'],
         correctIndex: 0,
-        explanation:
-          'Rebekah decided in a single word. Just as Abraham had left his homeland, so did she.',
+        explanation: 'Rebekah decided in a single word. Just as Abraham had left his homeland, so did she.',
       },
       {
         type: 'choice',
@@ -919,17 +963,22 @@ module.exports = [
       {
         type: 'choice',
         question: 'What was Isaac doing when Rebekah arrived?',
-        choices: ['Meditating in the field toward evening', 'Tending sheep', 'Sleeping at home', 'Digging a well'],
+        choices: [
+          'Meditating in the field toward evening',
+          'Tending sheep',
+          'Sleeping at home',
+          'Digging a well',
+        ],
         correctIndex: 0,
         explanation:
           'Isaac had gone out to meditate in the field toward evening, and when he looked up the camels were coming.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of Rebekah’s brother?',
-        acceptedAnswers: ['Laban'],
-        explanation:
-          'Laban is the uncle Jacob will later work for over twenty years.',
+        choices: ['Laban', 'Bethuel', 'Nahor', 'Lamech'],
+        correctIndex: 0,
+        explanation: 'Laban is the uncle Jacob will later work for over twenty years.',
       },
     ],
   },
@@ -942,43 +991,46 @@ module.exports = [
       {
         type: 'choice',
         question: 'What happened inside Rebekah when she was pregnant?',
-        choices: ['The children struggled with each other', 'All was quiet', 'Only one child moved', 'Nothing happened'],
+        choices: [
+          'The children struggled with each other',
+          'All was quiet',
+          'Only one child moved',
+          'Nothing happened',
+        ],
         correctIndex: 0,
-        explanation:
-          'The children struggled together within her, so Rebekah went to enquire of the LORD.',
+        explanation: 'The children struggled together within her, so Rebekah went to enquire of the LORD.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'God said to Rebekah, "The older shall serve the ____." Fill in the blank.',
-        acceptedAnswers: ['younger', 'younger one'],
-        explanation:
-          'It turned the usual order upside down. That announcement drives the rest of Genesis.',
+        choices: ['Younger', 'Older', 'Firstborn', 'Stronger'],
+        correctIndex: 0,
+        explanation: 'It turned the usual order upside down. That announcement drives the rest of Genesis.',
       },
       {
         type: 'choice',
         question: 'What did Esau get for his birthright?',
         choices: ['Bread and lentil stew', 'Twenty pieces of silver', 'A flock of sheep', 'Land'],
         correctIndex: 0,
-        explanation:
-          'Jacob gave him bread and lentil stew, and Esau ate, drank, got up and went his way.',
+        explanation: 'Jacob gave him bread and lentil stew, and Esau ate, drank, got up and went his way.',
       },
       {
         type: 'choice',
         question: 'What verdict does the Bible give on Esau?',
-        choices: [
-          'He despised his birthright',
-          'He was wise',
-          'He was brave',
-          'He was treated unfairly',
-        ],
+        choices: ['He despised his birthright', 'He was wise', 'He was brave', 'He was treated unfairly'],
         correctIndex: 0,
-        explanation:
-          'The passage closes with the words, "Thus Esau despised his birthright."',
+        explanation: 'The passage closes with the words, "Thus Esau despised his birthright."',
       },
       {
-        type: 'short',
-        question: 'How old was Abraham when he died? (number only)',
-        acceptedAnswers: ['175', 'a hundred seventy-five', '175 years old'],
+        type: 'choice',
+        question: 'How old was Abraham when he died?',
+        choices: [
+          'A hundred and seventy-five',
+          'A hundred and twenty-seven',
+          'A hundred and eighty',
+          'A hundred and ten',
+        ],
+        correctIndex: 0,
         explanation: 'Abraham lived a hundred and seventy-five years and died at a good old age.',
       },
       {
@@ -991,8 +1043,7 @@ module.exports = [
           'Esau was a shepherd and Jacob a merchant',
         ],
         correctIndex: 0,
-        explanation:
-          'Isaac loved Esau because he had a taste for wild game, and Rebekah loved Jacob.',
+        explanation: 'Isaac loved Esau because he had a taste for wild game, and Rebekah loved Jacob.',
       },
       {
         type: 'choice',
@@ -1004,8 +1055,7 @@ module.exports = [
           'He went back home',
         ],
         correctIndex: 0,
-        explanation:
-          'Isaac prayed to the LORD for his wife, the LORD answered him, and Rebekah conceived.',
+        explanation: 'Isaac prayed to the LORD for his wife, the LORD answered him, and Rebekah conceived.',
       },
     ],
   },
@@ -1025,8 +1075,7 @@ module.exports = [
           'Go back to your homeland',
         ],
         correctIndex: 0,
-        explanation:
-          'His father Abraham had gone down to Egypt, but Isaac was told to stay.',
+        explanation: 'His father Abraham had gone down to Egypt, but Isaac was told to stay.',
       },
       {
         type: 'choice',
@@ -1037,9 +1086,10 @@ module.exports = [
           'The son repeats the mistake his father made twice. He was afraid the men there would kill him because of Rebekah.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did Isaac name the third well, the one no one quarrelled over?',
-        acceptedAnswers: ['Rehoboth'],
+        choices: ['Rehoboth', 'Esek', 'Sitnah', 'Beersheba'],
+        correctIndex: 0,
         explanation:
           'He called it Rehoboth, saying, "Now the LORD has made room for us." The first two were Esek and Sitnah.',
       },
@@ -1053,8 +1103,7 @@ module.exports = [
           'He left the country',
         ],
         correctIndex: 0,
-        explanation:
-          'Isaac gave way three times, and the giving way is what finally led him to open ground.',
+        explanation: 'Isaac gave way three times, and the giving way is what finally led him to open ground.',
       },
       {
         type: 'choice',
@@ -1067,20 +1116,16 @@ module.exports = [
       {
         type: 'choice',
         question: 'What did God say to Isaac at Beersheba?',
-        choices: [
-          'Do not be afraid, for I am with you',
-          'Leave',
-          'Fight',
-          'Wait',
-        ],
+        choices: ['Do not be afraid, for I am with you', 'Leave', 'Fight', 'Wait'],
         correctIndex: 0,
         explanation:
           'He named Himself the God of Abraham and promised to bless Isaac and multiply his offspring.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did Abimelech come to Isaac to make?',
-        acceptedAnswers: ['a covenant', 'covenant', 'an oath', 'a treaty', 'oath'],
+        choices: ['A covenant', 'A sacrifice', 'A marriage', 'A sale'],
+        correctIndex: 0,
         explanation:
           'Abimelech said, "We have seen plainly that the LORD is with you," and they swore not to harm each other.',
       },
@@ -1110,8 +1155,7 @@ module.exports = [
         question: 'What did Jacob put on his hands and neck?',
         choices: ['The skins of young goats', 'Wool', 'Cloth', 'Earth'],
         correctIndex: 0,
-        explanation:
-          'Esau was a hairy man, so the skins were meant to fool his father’s touch.',
+        explanation: 'Esau was a hairy man, so the skins were meant to fool his father’s touch.',
       },
       {
         type: 'choice',
@@ -1136,15 +1180,14 @@ module.exports = [
           'He left home',
         ],
         correctIndex: 0,
-        explanation:
-          'Esau wept bitterly and cried out, "Bless me, even me also, O my father!"',
+        explanation: 'Esau wept bitterly and cried out, "Bless me, even me also, O my father!"',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'To whose house did Rebekah send Jacob for safety?',
-        acceptedAnswers: ['Laban', 'her brother Laban', 'his uncle Laban'],
-        explanation:
-          'Rebekah told him to stay with her brother Laban in Haran until Esau’s anger cooled.',
+        choices: ['Laban', 'Ishmael', 'Abimelech', 'Bethuel'],
+        correctIndex: 0,
+        explanation: 'Rebekah told him to stay with her brother Laban in Haran until Esau’s anger cooled.',
       },
       {
         type: 'choice',
@@ -1156,8 +1199,7 @@ module.exports = [
           'To go hunting again',
         ],
         correctIndex: 0,
-        explanation:
-          'When Rebekah was told of it, she hurried Jacob away.',
+        explanation: 'When Rebekah was told of it, she hurried Jacob away.',
       },
       {
         type: 'choice',
@@ -1190,15 +1232,14 @@ module.exports = [
           'A bright star',
         ],
         correctIndex: 0,
-        explanation:
-          'It was a scene of heaven and earth joined, and God was standing above it.',
+        explanation: 'It was a scene of heaven and earth joined, and God was standing above it.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What name did Jacob give that place?',
-        acceptedAnswers: ['Bethel', 'Beth-el'],
-        explanation:
-          'Bethel means "the house of God." The town had been called Luz before that.',
+        choices: ['Bethel', 'Luz', 'Beersheba', 'Shechem'],
+        correctIndex: 0,
+        explanation: 'Bethel means "the house of God." The town had been called Luz before that.',
       },
       {
         type: 'choice',
@@ -1210,8 +1251,7 @@ module.exports = [
           'I am not afraid',
         ],
         correctIndex: 0,
-        explanation:
-          'On the run, in an empty field with nothing at all, he found that God was there.',
+        explanation: 'On the run, in an empty field with nothing at all, he found that God was there.',
       },
       {
         type: 'choice',
@@ -1223,8 +1263,7 @@ module.exports = [
           'To give him a long life',
         ],
         correctIndex: 0,
-        explanation:
-          'He said, "I will not leave you until I have done what I have promised you."',
+        explanation: 'He said, "I will not leave you until I have done what I have promised you."',
       },
       {
         type: 'choice',
@@ -1244,13 +1283,13 @@ module.exports = [
         question: 'What did Jacob promise to give in his vow?',
         choices: ['A tenth of everything', 'His flocks', 'His firstborn son', 'Land'],
         correctIndex: 0,
-        explanation:
-          'He said, "Of all that you give me I will give a full tenth to you."',
+        explanation: 'He said, "Of all that you give me I will give a full tenth to you."',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did Jacob use for a pillow?',
-        acceptedAnswers: ['a stone', 'stone', 'a rock'],
+        choices: ['A stone', 'His cloak', 'Wool', 'A bundle of straw'],
+        correctIndex: 0,
         explanation:
           'He took a stone from that place, put it under his head and lay down. It shows exactly how a man on the run was living.',
       },
@@ -1267,15 +1306,15 @@ module.exports = [
         question: 'How long did Jacob agree to work for Rachel?',
         choices: ['Seven years', 'Three years', 'Ten years', 'Twenty years'],
         correctIndex: 0,
-        explanation:
-          'He promised, "I will serve you seven years for your younger daughter Rachel."',
+        explanation: 'He promised, "I will serve you seven years for your younger daughter Rachel."',
       },
       {
-        type: 'short',
-        question: '"They seemed to him but a ____ days because of the love he had for her." Fill in the blank.',
-        acceptedAnswers: ['few', 'a few'],
-        explanation:
-          'It is a verse that shows what love does to the feel of time.',
+        type: 'choice',
+        question:
+          '"They seemed to him but a ____ days because of the love he had for her." Fill in the blank.',
+        choices: ['Few', 'Single', 'Long', 'Hard'],
+        correctIndex: 0,
+        explanation: 'It is a verse that shows what love does to the feel of time.',
       },
       {
         type: 'choice',
@@ -1300,13 +1339,13 @@ module.exports = [
           'It was a mistake',
         ],
         correctIndex: 0,
-        explanation:
-          'Laban appealed to local custom and told Jacob to work another seven years for Rachel.',
+        explanation: 'Laban appealed to local custom and told Jacob to work another seven years for Rachel.',
       },
       {
-        type: 'short',
-        question: 'How many years in all did Jacob work for his two wives? (number only)',
-        acceptedAnswers: ['14', 'fourteen', '14 years'],
+        type: 'choice',
+        question: 'How many years in all did Jacob work for his two wives?',
+        choices: ['Fourteen years', 'Seven years', 'Twenty years', 'Ten years'],
+        correctIndex: 0,
         explanation: 'Seven years for Leah and seven more for Rachel — fourteen in all.',
       },
       {
@@ -1327,8 +1366,7 @@ module.exports = [
         question: 'Where did Jacob first meet Rachel?',
         choices: ['At a well', 'In a tent', 'In a field', 'At the city gate'],
         correctIndex: 0,
-        explanation:
-          'Jacob rolled the stone from the well, watered Rachel’s flock, and then wept aloud.',
+        explanation: 'Jacob rolled the stone from the well, watered Rachel’s flock, and then wept aloud.',
       },
     ],
   },

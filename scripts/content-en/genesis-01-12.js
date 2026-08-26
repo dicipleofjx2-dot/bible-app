@@ -13,6 +13,7 @@
  * from the app's own English Bible (open_en), so nothing is retranslated here.
  */
 
+
 module.exports = [
   {
     book: 1,
@@ -31,12 +32,7 @@ module.exports = [
       {
         type: 'choice',
         question: 'What does the Bible say people were made in the likeness of?',
-        choices: [
-          'The dust of the ground',
-          'The image of God',
-          'The form of angels',
-          'The form of animals',
-        ],
+        choices: ['The dust of the ground', 'The image of God', 'The form of angels', 'The form of animals'],
         correctIndex: 1,
         explanation:
           'It says, "God created man in his own image, in the image of God he created him." It means people are special — made to be like God.',
@@ -50,9 +46,10 @@ module.exports = [
           'Each time He made something God said it was "good," and when it was all finished He said it was "very good."',
       },
       {
-        type: 'short',
-        question: 'How many days did it take God to make the world? (number only)',
-        acceptedAnswers: ['6', 'six', '6 days', 'six days'],
+        type: 'choice',
+        question: 'How many days did it take God to make the world?',
+        choices: ['Six days', 'Three days', 'Seven days', 'Ten days'],
+        correctIndex: 0,
         explanation: 'God made the world in six days and rested on the seventh.',
       },
       {
@@ -77,9 +74,15 @@ module.exports = [
           'God told people to fill the earth and rule it, caring for the fish, the birds and the animals. It does not mean doing as they please with them — it means being trusted to look after them well.',
       },
       {
-        type: 'short',
-        question: '"In the beginning God created the ○○." What belongs in the blank?',
-        acceptedAnswers: ['heavens and the earth', 'heavens and earth', 'heaven and earth'],
+        type: 'choice',
+        question: '"In the beginning God created the ____." What belongs in the blank?',
+        choices: [
+          'The heavens and the earth',
+          'The sun and the moon',
+          'Light and darkness',
+          'People and animals',
+        ],
+        correctIndex: 0,
         explanation:
           'This is the first sentence of Genesis. It declares that the sky and the land — the whole world — began with God.',
       },
@@ -115,20 +118,16 @@ module.exports = [
       {
         type: 'choice',
         question: 'What did God do on the seventh day?',
-        choices: [
-          'Made light',
-          'Rested and blessed that day',
-          'Made people',
-          'Sent rain',
-        ],
+        choices: ['Made light', 'Rested and blessed that day', 'Made people', 'Sent rain'],
         correctIndex: 1,
         explanation:
           'God finished His work and rested on the seventh day. He blessed that day and made it holy.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What is the name of the garden where God put the man?',
-        acceptedAnswers: ['Eden', 'the garden of Eden', 'garden of Eden'],
+        choices: ['Eden', 'Canaan', 'Goshen', 'Moriah'],
+        correctIndex: 0,
         explanation: 'God planted a garden in the east, in Eden, and put the man He had made there.',
       },
       {
@@ -147,20 +146,16 @@ module.exports = [
       {
         type: 'choice',
         question: 'What did God give the man to do in the garden of Eden?',
-        choices: [
-          'To tend and keep the garden',
-          'To do nothing at all',
-          'To hunt',
-          'To build a house',
-        ],
+        choices: ['To tend and keep the garden', 'To do nothing at all', 'To hunt', 'To build a house'],
         correctIndex: 0,
         explanation:
           'Work was not a punishment — it was given to people from the very start. God put the man in the garden to tend it and keep it.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did Adam call the person God brought to him?',
-        acceptedAnswers: ['woman'],
+        choices: ['Woman', 'Eve', 'A helper fit for him', 'The mother of all the living'],
+        correctIndex: 0,
         explanation:
           'Adam said, "This is now bone of my bones and flesh of my flesh," and called her woman, because she was taken out of man.',
       },
@@ -175,12 +170,7 @@ module.exports = [
       {
         type: 'choice',
         question: 'What did the serpent say to the woman?',
-        choices: [
-          'You will surely not die',
-          'The fruit tastes bad',
-          'Leave the garden',
-          'God is coming',
-        ],
+        choices: ['You will surely not die', 'The fruit tastes bad', 'Leave the garden', 'God is coming'],
         correctIndex: 0,
         explanation:
           'The serpent flatly contradicted what God had said. God said "you will die"; the serpent said "you will surely not die."',
@@ -201,20 +191,16 @@ module.exports = [
       {
         type: 'choice',
         question: 'What did Adam answer when God asked, "Where are you?"',
-        choices: [
-          'I was afraid, so I hid',
-          'I have done wrong',
-          'Here I am',
-          'He said nothing',
-        ],
+        choices: ['I was afraid, so I hid', 'I have done wrong', 'Here I am', 'He said nothing'],
         correctIndex: 0,
         explanation:
           'Adam said he was naked and afraid, so he hid. Then he immediately shifted the blame: "The woman you gave me handed it to me, and I ate."',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Whom did Adam blame for eating the fruit?',
-        acceptedAnswers: ['the woman', 'woman', 'Eve', 'his wife'],
+        choices: ['The woman', 'The snake', 'God', 'The ground'],
+        correctIndex: 0,
         explanation:
           'Adam blamed the woman and the woman blamed the serpent. Neither owned the wrong; each passed it on.',
       },
@@ -245,9 +231,10 @@ module.exports = [
           '"He shall bruise your head, and you shall bruise his heel." Many read this as the first promise of rescue in the whole Bible.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What name did Adam give his wife?',
-        acceptedAnswers: ['Eve'],
+        choices: ['Eve', 'Sarah', 'Rebekah', 'Miriam'],
+        correctIndex: 0,
         explanation: 'He called her Eve, because she would be the mother of all the living.',
       },
     ],
@@ -297,9 +284,10 @@ module.exports = [
           'Cain not only denied it — he answered back. It is the same refusal to own the wrong that Adam showed in chapter 3.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the brother Cain killed?',
-        acceptedAnswers: ['Abel'],
+        choices: ['Abel', 'Seth', 'Cain', 'Enoch'],
+        correctIndex: 0,
         explanation: 'Cain struck down his brother Abel in the field. It is the first murder in the Bible.',
       },
       {
@@ -320,14 +308,15 @@ module.exports = [
         question: 'What was the name of the son Adam and Eve had in place of Abel?',
         choices: ['Seth', 'Enoch', 'Lamech', 'Noah'],
         correctIndex: 0,
-        explanation:
-          'Eve said, "God has granted me another child in place of Abel," and named him Seth.',
+        explanation: 'Eve said, "God has granted me another child in place of Abel," and named him Seth.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the land where Cain lived away from God?',
-        acceptedAnswers: ['Nod', 'the land of Nod', 'land of Nod'],
-        explanation: 'Cain went out from the presence of the LORD and lived in the land of Nod, east of Eden.',
+        choices: ['Nod', 'Haran', 'Goshen', 'Uz'],
+        correctIndex: 0,
+        explanation:
+          'Cain went out from the presence of the LORD and lived in the land of Nod, east of Eden.',
       },
     ],
   },
@@ -346,9 +335,10 @@ module.exports = [
           '"Enoch walked with God, and he was not, for God took him." He is the only one in the list without "and he died."',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Who lived the longest of anyone in the Bible?',
-        acceptedAnswers: ['Methuselah'],
+        choices: ['Methuselah', 'Adam', 'Noah', 'Enoch'],
+        correctIndex: 0,
         explanation: 'Methuselah lived 969 years and then died.',
       },
       {
@@ -362,20 +352,16 @@ module.exports = [
       {
         type: 'choice',
         question: 'What does the Bible say twice about Enoch?',
-        choices: [
-          'He walked with God',
-          'He was the richest',
-          'He was the strongest',
-          'He lived the longest',
-        ],
+        choices: ['He walked with God', 'He was the richest', 'He was the strongest', 'He lived the longest'],
         correctIndex: 0,
         explanation:
           'Twice it says Enoch walked with God for 300 years. How he lived matters more here than how long.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Who is the last person named in this family line?',
-        acceptedAnswers: ['Noah'],
+        choices: ['Noah', 'Enoch', 'Lamech', 'Seth'],
+        correctIndex: 0,
         explanation: 'The list ends with Noah and his three sons, Shem, Ham and Japheth.',
       },
       {
@@ -433,9 +419,10 @@ module.exports = [
           'Noah was righteous and blameless in his time, and he walked with God — the same words used of Enoch in chapter 5.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did God tell Noah to build?',
-        acceptedAnswers: ['an ark', 'ark', 'a boat', 'boat'],
+        choices: ['An ark', 'An altar', 'A city', 'A tower'],
+        correctIndex: 0,
         explanation: 'God told him to make an ark of gopher wood and cover it with pitch inside and out.',
       },
       {
@@ -464,14 +451,15 @@ module.exports = [
         explanation: 'Noah, his wife, his three sons and their three wives — eight people in all.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What does the last sentence of this chapter say Noah did?',
-        acceptedAnswers: [
-          'he did all that God commanded him',
-          'he did everything God commanded',
-          'he did just as God commanded',
-          'he obeyed',
+        choices: [
+          'He did everything God commanded him',
+          'He did it after asking why',
+          'He did it after talking it over with his family',
+          'He did it after putting it off for a few days',
         ],
+        correctIndex: 0,
         explanation:
           '"Noah did this; he did all that God commanded him." No explaining, no arguing — simply doing it. That is who Noah was.',
       },
@@ -497,9 +485,10 @@ module.exports = [
       'At last the flood begins. God tells Noah to go into the ark with his family. He is to take clean animals seven pairs at a time and the others a pair at a time. In the year Noah turned 600, the springs of the great deep burst open and the windows of heaven opened, and rain poured down for forty days. The water rose until it covered the highest mountains, and every living thing outside the ark was cut off. In this scene the Bible makes one thing plain — it was God who shut the door of the ark.',
     questions: [
       {
-        type: 'short',
-        question: 'How many days did the rain fall? (number only)',
-        acceptedAnswers: ['40', 'forty', '40 days', 'forty days'],
+        type: 'choice',
+        question: 'How many days did the rain fall?',
+        choices: ['Forty days', 'Seven days', 'A hundred and fifty days', 'A year'],
+        correctIndex: 0,
         explanation: 'Rain fell on the earth for forty days and forty nights.',
       },
       {
@@ -540,9 +529,10 @@ module.exports = [
           'Clean animals were to be taken seven pairs at a time, and animals that were not clean, one pair at a time.',
       },
       {
-        type: 'short',
-        question: 'How many people went into the ark? (number only)',
-        acceptedAnswers: ['8', 'eight', '8 people', 'eight people'],
+        type: 'choice',
+        question: 'How many people went into the ark?',
+        choices: ['Eight', 'Four', 'Six', 'Twelve'],
+        correctIndex: 0,
         explanation: 'Noah and his wife, his three sons and their three wives — eight people in all.',
       },
       {
@@ -575,10 +565,12 @@ module.exports = [
           '"God remembered Noah and all the wild animals and livestock that were with him in the ark." That God remembered comes before the water going down.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'On what mountain did the ark come to rest?',
-        acceptedAnswers: ['Ararat', 'the mountains of Ararat', 'Mount Ararat'],
-        explanation: 'On the seventeenth day of the seventh month the ark came to rest on the mountains of Ararat.',
+        choices: ['Mount Ararat', 'Mount Sinai', 'Mount Moriah', 'Mount Horeb'],
+        correctIndex: 0,
+        explanation:
+          'On the seventeenth day of the seventh month the ark came to rest on the mountains of Ararat.',
       },
       {
         type: 'choice',
@@ -622,15 +614,10 @@ module.exports = [
           'God said He would never again curse the ground because of people, and never again destroy all living creatures.',
       },
       {
-        type: 'short',
-        question:
-          'Name two of the things God said would "never cease." (for example: seedtime and harvest)',
-        acceptedAnswers: [
-          'seedtime and harvest',
-          'cold and heat',
-          'summer and winter',
-          'day and night',
-        ],
+        type: 'choice',
+        question: 'Which of these did God say would "never cease"?',
+        choices: ['Seedtime and harvest', 'The sun and the moon', 'Heaven and earth', 'Light and darkness'],
+        correctIndex: 0,
         explanation:
           'God said that as long as the earth endures, seedtime and harvest, cold and heat, summer and winter, day and night will never cease.',
       },
@@ -643,10 +630,10 @@ module.exports = [
       'The flood is over, and God promises Noah a fresh start. He tells people again to "be fruitful and multiply," and He makes clear that human life must not be treated lightly, because people were made in the image of God. As a sign of His promise never again to destroy the world with water, He gives the rainbow. But the story does not end beautifully. Noah drinks wine, becomes drunk, and lies uncovered; his son Ham sees it and tells the others outside. Shem and Japheth walk in backwards and cover their father.',
     questions: [
       {
-        type: 'short',
-        question:
-          'What did God give as the sign of His promise never again to destroy the earth with water?',
-        acceptedAnswers: ['a rainbow', 'rainbow', 'the rainbow'],
+        type: 'choice',
+        question: 'What did God give as the sign of His promise never again to destroy the earth with water?',
+        choices: ['A rainbow', 'An altar', 'A pillar of cloud', 'A stone pillar'],
+        correctIndex: 0,
         explanation:
           'God set a rainbow in the clouds as the sign of the covenant. He said that whenever He sees it, He remembers that promise.',
       },
@@ -703,9 +690,10 @@ module.exports = [
           'The words God gave people in Genesis 1 are given again after the flood. He was letting them begin anew.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which son saw his father uncovered and told the others outside?',
-        acceptedAnswers: ['Ham'],
+        choices: ['Ham', 'Shem', 'Japheth', 'Canaan'],
+        correctIndex: 0,
         explanation:
           'Ham, the father of Canaan, saw his father uncovered and went out and told his two brothers.',
       },
@@ -728,20 +716,16 @@ module.exports = [
       {
         type: 'choice',
         question: 'Whose descendants does this record list?',
-        choices: [
-          'Noah’s three sons, Shem, Ham and Japheth',
-          'Adam and Eve',
-          'Abraham',
-          'Cain',
-        ],
+        choices: ['Noah’s three sons, Shem, Ham and Japheth', 'Adam and Eve', 'Abraham', 'Cain'],
         correctIndex: 0,
         explanation:
           'It is the record of Noah’s sons Shem, Ham and Japheth, and of the sons born to them after the flood.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the mighty hunter called "the first mighty man on earth"?',
-        acceptedAnswers: ['Nimrod'],
+        choices: ['Nimrod', 'Cush', 'Mizraim', 'Canaan'],
+        correctIndex: 0,
         explanation:
           'Nimrod, Ham’s grandson, is called the first mighty man on earth and a mighty hunter before the LORD.',
       },
@@ -775,9 +759,15 @@ module.exports = [
           'Canaan was a son of Ham, and his name is later given to the land Israel comes to live in.',
       },
       {
-        type: 'short',
-        question: 'Write the names of all three of Noah’s sons.',
-        acceptedAnswers: ['Shem Ham Japheth', 'Shem, Ham, Japheth', 'Shem Ham and Japheth'],
+        type: 'choice',
+        question: 'What were the names of Noah’s three sons?',
+        choices: [
+          'Shem, Ham and Japheth',
+          'Cain, Abel and Seth',
+          'Shem, Ham and Terah',
+          'Japheth, Enoch and Lamech',
+        ],
+        correctIndex: 0,
         explanation: 'Shem, Ham and Japheth. From these three the nations of the earth spread out.',
       },
       {
@@ -828,11 +818,11 @@ module.exports = [
           'God confused their language so they could not understand one another. They stopped the work and scattered.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the city they were building?',
-        acceptedAnswers: ['Babel'],
-        explanation:
-          'It was called Babel, because there the LORD confused the language of the whole earth.',
+        choices: ['Babel', 'Nineveh', 'Sodom', 'Haran'],
+        correctIndex: 0,
+        explanation: 'It was called Babel, because there the LORD confused the language of the whole earth.',
       },
       {
         type: 'choice',
@@ -851,9 +841,10 @@ module.exports = [
           'Terah was the father of Abram, Nahor and Haran. Abram is called by God in the next chapter.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of Abram’s wife?',
-        acceptedAnswers: ['Sarai', 'Sarah'],
+        choices: ['Sarai', 'Milcah', 'Hagar', 'Rebekah'],
+        correctIndex: 0,
         explanation:
           'Abram’s wife was named Sarai. This chapter notes ahead of time that Sarai had no children.',
       },
@@ -883,13 +874,13 @@ module.exports = [
           'Go to Egypt',
         ],
         correctIndex: 0,
-        explanation:
-          'God told Abram to leave everything familiar and go to the land God would show him.',
+        explanation: 'God told Abram to leave everything familiar and go to the land God would show him.',
       },
       {
-        type: 'short',
-        question: 'How old was Abram when he left Haran? (number only)',
-        acceptedAnswers: ['75', 'seventy-five', 'seventy five', '75 years old'],
+        type: 'choice',
+        question: 'How old was Abram when he left Haran?',
+        choices: ['Seventy-five', 'Sixty', 'Eighty', 'Ninety-nine'],
+        correctIndex: 0,
         explanation: 'Abram was seventy-five years old when he left Haran.',
       },
       {
@@ -915,26 +906,21 @@ module.exports = [
           'To trade',
         ],
         correctIndex: 0,
-        explanation:
-          'The famine in Canaan was severe, so Abram went down to stay in Egypt for a while.',
+        explanation: 'The famine in Canaan was severe, so Abram went down to stay in Egypt for a while.',
       },
       {
         type: 'choice',
         question: 'What did Abram say about his wife Sarai in Egypt?',
-        choices: [
-          'Say you are my sister',
-          'Say you are my wife',
-          'Say nothing at all',
-          'Leave',
-        ],
+        choices: ['Say you are my sister', 'Say you are my wife', 'Say nothing at all', 'Leave'],
         correctIndex: 0,
         explanation:
           'Fearing he would be killed, Abram had Sarai say she was his sister. Even a man who had received God’s promise wavered when afraid.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did Abram do for God when he came into Canaan?',
-        acceptedAnswers: ['built an altar', 'he built an altar', 'an altar', 'altar'],
+        choices: ['He built an altar', 'He built a city', 'He dug a well', 'He bought a field'],
+        correctIndex: 0,
         explanation:
           'Near Shechem and Bethel Abram built an altar to the LORD and called on the name of the LORD.',
       },

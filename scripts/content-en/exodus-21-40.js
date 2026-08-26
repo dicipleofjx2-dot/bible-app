@@ -13,6 +13,7 @@
  * from the app's own English Bible (open_en), so nothing is retranslated here.
  */
 
+
 module.exports = [
   {
     book: 2,
@@ -25,8 +26,7 @@ module.exports = [
         question: 'After how many years could a Hebrew servant go free?',
         choices: ['Six years', 'Three years', 'Ten years', 'Never'],
         correctIndex: 0,
-        explanation:
-          'He served six years, and in the seventh he went free, paying nothing.',
+        explanation: 'He served six years, and in the seventh he went free, paying nothing.',
       },
       {
         type: 'choice',
@@ -44,7 +44,12 @@ module.exports = [
       {
         type: 'choice',
         question: 'What had to happen if a master struck a servant and destroyed an eye?',
-        choices: ['He had to let the servant go free', 'He had to pay compensation', 'Nothing happened', 'He paid a fine'],
+        choices: [
+          'He had to let the servant go free',
+          'He had to pay compensation',
+          'Nothing happened',
+          'He paid a fine',
+        ],
         correctIndex: 0,
         explanation:
           'Destroying an eye or a tooth cost him the servant. Even a servant had a body that had to be respected.',
@@ -52,10 +57,14 @@ module.exports = [
       {
         type: 'choice',
         question: 'What was the law about kidnapping and selling a person?',
-        choices: ['He must be put to death', 'He must pay a fine', 'He must become a servant', 'He must be banished'],
+        choices: [
+          'He must be put to death',
+          'He must pay a fine',
+          'He must become a servant',
+          'He must be banished',
+        ],
         correctIndex: 0,
-        explanation:
-          'Treating a person as goods to be bought and sold was dealt with most severely of all.',
+        explanation: 'Treating a person as goods to be bought and sold was dealt with most severely of all.',
       },
       {
         type: 'choice',
@@ -66,9 +75,10 @@ module.exports = [
           'It shows how heavily the fifth commandment — honour your parents — was weighted in actual law.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'If a servant loved his master and family and would not go free, what was marked?',
-        acceptedAnswers: ['his ear', 'ear', 'the earlobe', 'his ear at the doorpost'],
+        choices: ['His ear', 'His hand', 'His forehead', 'His foot'],
+        correctIndex: 0,
         explanation:
           'His ear was pierced with an awl against the door or doorpost, and he served that household for life.',
       },
@@ -82,8 +92,7 @@ module.exports = [
           'After entering Canaan',
         ],
         correctIndex: 0,
-        explanation:
-          'The great principles come first, and then how to apply them in everyday life.',
+        explanation: 'The great principles come first, and then how to apply them in everyday life.',
       },
     ],
   },
@@ -103,16 +112,14 @@ module.exports = [
           'You may sell it',
         ],
         correctIndex: 0,
-        explanation:
-          'It is the only covering he has. God asks, "What else will he sleep in?"',
+        explanation: 'It is the only covering he has. God asks, "What else will he sleep in?"',
       },
       {
         type: 'choice',
         question: 'What was the rule about lending money to the poor?',
         choices: ['Charge no interest', 'Charge double interest', 'Take a pledge', 'Do not lend at all'],
         correctIndex: 0,
-        explanation:
-          'Lending to someone in trouble was not to be turned into a way of making money.',
+        explanation: 'Lending to someone in trouble was not to be turned into a way of making money.',
       },
       {
         type: 'choice',
@@ -128,9 +135,10 @@ module.exports = [
           'They are the people with no power to protect themselves. God says He Himself hears their cry.',
       },
       {
-        type: 'short',
-        question: 'How many oxen had to be repaid for one stolen and slaughtered? (number only)',
-        acceptedAnswers: ['5', 'five', 'five times'],
+        type: 'choice',
+        question: 'How many oxen had to be repaid for one stolen and slaughtered?',
+        choices: ['Five', 'Four', 'Two', 'Seven'],
+        correctIndex: 0,
         explanation: 'Five for an ox and four for a sheep.',
       },
       {
@@ -156,16 +164,14 @@ module.exports = [
           'He said nothing',
         ],
         correctIndex: 0,
-        explanation:
-          'He even said His anger would burn against anyone who harmed them.',
+        explanation: 'He even said His anger would burn against anyone who harmed them.',
       },
       {
         type: 'choice',
         question: 'What if a fire you started burned a neighbour’s grain?',
         choices: ['You must make full restitution', 'An apology is enough', 'No liability', 'Repay half'],
         correctIndex: 0,
-        explanation:
-          'Even without intent, the fire was yours, so the responsibility was yours.',
+        explanation: 'Even without intent, the fire was yours, so the responsibility was yours.',
       },
     ],
   },
@@ -185,8 +191,7 @@ module.exports = [
           'Side with the rich',
         ],
         correctIndex: 0,
-        explanation:
-          'Even sympathy can cloud judgement. The standard was the facts and justice.',
+        explanation: 'Even sympathy can cloud judgement. The standard was the facts and justice.',
       },
       {
         type: 'choice',
@@ -210,11 +215,11 @@ module.exports = [
           'Rest and sharing came together in this law. On the Sabbath even servants and animals rested.',
       },
       {
-        type: 'short',
-        question: 'How many festivals were to be kept each year? (number only)',
-        acceptedAnswers: ['3', 'three'],
-        explanation:
-          'Unleavened Bread, Harvest (Weeks) and Ingathering — three festivals every year.',
+        type: 'choice',
+        question: 'How many festivals were to be kept each year?',
+        choices: ['Three', 'One', 'Two', 'Seven'],
+        correctIndex: 0,
+        explanation: 'Unleavened Bread, Harvest (Weeks) and Ingathering — three festivals every year.',
       },
       {
         type: 'choice',
@@ -234,8 +239,7 @@ module.exports = [
           'There is no rule',
         ],
         correctIndex: 0,
-        explanation:
-          'It points to words as the first place where justice breaks down.',
+        explanation: 'It points to words as the first place where justice breaks down.',
       },
       {
         type: 'choice',
@@ -268,8 +272,7 @@ module.exports = [
           'They gave no answer',
         ],
         correctIndex: 0,
-        explanation:
-          'They answered with one voice, and Moses wrote down everything the LORD had said.',
+        explanation: 'They answered with one voice, and Moses wrote down everything the LORD had said.',
       },
       {
         type: 'choice',
@@ -285,9 +288,10 @@ module.exports = [
           'Half went on the altar and half on the people, showing that both sides were bound together.',
       },
       {
-        type: 'short',
-        question: 'How many days did Moses stay on the mountain? (number only)',
-        acceptedAnswers: ['40', 'forty', '40 days'],
+        type: 'choice',
+        question: 'How many days did Moses stay on the mountain?',
+        choices: ['Forty days', 'Seven days', 'Three days', 'Three months'],
+        correctIndex: 0,
         explanation: 'Moses entered the cloud and stayed on the mountain forty days and forty nights.',
       },
       {
@@ -314,20 +318,16 @@ module.exports = [
       {
         type: 'choice',
         question: 'How did the glory of the LORD look on the mountain?',
-        choices: [
-          'Like a consuming fire',
-          'Only like a bright light',
-          'It could not be seen',
-          'Like water',
-        ],
+        choices: ['Like a consuming fire', 'Only like a bright light', 'It could not be seen', 'Like water'],
         correctIndex: 0,
         explanation:
           'To the Israelites the glory of the LORD looked like a consuming fire on top of the mountain.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which two men did Moses leave in charge when he went up?',
-        acceptedAnswers: ['Aaron and Hur', 'Aaron, Hur'],
+        choices: ['Aaron and Hur', 'Aaron and Joshua', 'Hur and Caleb', 'Nadab and Abihu'],
+        correctIndex: 0,
         explanation:
           'He said, "Anyone involved in a dispute can go to them," and left matters with Aaron and Hur.',
       },
@@ -340,13 +340,15 @@ module.exports = [
       'The instructions for the tabernacle begin. First the offering, with one condition: "Receive it from everyone whose heart prompts them to give." Nothing was to be collected by force. Then the purpose of the whole project is put in one sentence: "Have them make a sanctuary for me, and I will dwell among them." God living among His people is the reason for the tabernacle. Then come the ark of the covenant, the table for the bread of the Presence, and the lampstand. Two cherubim are made at the two ends of the atonement cover, wings spread over it, and God says He will meet and speak there.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the purpose of building the tabernacle?',
-        acceptedAnswers: [
-          'so that God would dwell among them',
-          'a sanctuary for God to dwell among them',
-          'that God might live among them',
+        choices: [
+          'So that God would dwell among them',
+          'So that He could receive offerings',
+          'So that the law could be kept there',
+          'So that the people could gather',
         ],
+        correctIndex: 0,
         explanation:
           '"Have them make a sanctuary for me, and I will dwell among them." The building was not the point; His presence was.',
       },
@@ -368,8 +370,7 @@ module.exports = [
         question: 'What was to be put inside the ark?',
         choices: ['The tablets of the covenant law', 'Manna', 'A staff', 'Oil'],
         correctIndex: 0,
-        explanation:
-          'God said, "Put in the ark the tablets of the covenant law, which I will give you."',
+        explanation: 'God said, "Put in the ark the tablets of the covenant law, which I will give you."',
       },
       {
         type: 'choice',
@@ -393,9 +394,10 @@ module.exports = [
           '"There, above the cover between the two cherubim, I will meet with you and give you my commands."',
       },
       {
-        type: 'short',
-        question: 'How many lamps did the lampstand hold? (number only)',
-        acceptedAnswers: ['7', 'seven'],
+        type: 'choice',
+        question: 'How many lamps did the lampstand hold?',
+        choices: ['Seven', 'Three', 'Twelve', 'Five'],
+        correctIndex: 0,
         explanation:
           'The lampstand was hammered out of pure gold, with seven lamps set up to light the space in front of it.',
       },
@@ -431,7 +433,12 @@ module.exports = [
       {
         type: 'choice',
         question: 'What was placed behind the curtain, in the Most Holy Place?',
-        choices: ['The ark of the covenant law', 'The lampstand', 'The table of the bread', 'The altar of incense'],
+        choices: [
+          'The ark of the covenant law',
+          'The lampstand',
+          'The table of the bread',
+          'The altar of incense',
+        ],
         correctIndex: 0,
         explanation:
           'The ark was placed behind the curtain, which separated the Holy Place from the Most Holy Place.',
@@ -445,9 +452,10 @@ module.exports = [
           'Fine linen curtains, goat-hair curtains, ram skins dyed red, and durable leather — beautiful inside, plain outside.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What wood were the frames made of?',
-        acceptedAnswers: ['acacia', 'acacia wood'],
+        choices: ['Acacia', 'Cypress', 'Cedar', 'Olive wood'],
+        correctIndex: 0,
         explanation: 'The frames were made of acacia wood, overlaid with gold and set into silver bases.',
       },
       {
@@ -473,8 +481,7 @@ module.exports = [
           'Nothing at all',
         ],
         correctIndex: 0,
-        explanation:
-          'A curtain hung at the entrance, on five posts set into bronze bases.',
+        explanation: 'A curtain hung at the entrance, on five posts set into bronze bases.',
       },
       {
         type: 'choice',
@@ -516,15 +523,9 @@ module.exports = [
       {
         type: 'choice',
         question: 'What kind of oil was to be used for the lamps?',
-        choices: [
-          'Pure oil of pressed olives',
-          'Any oil at all',
-          'Animal fat',
-          'Imported oil',
-        ],
+        choices: ['Pure oil of pressed olives', 'Any oil at all', 'Animal fat', 'Imported oil'],
         correctIndex: 0,
-        explanation:
-          'They were to bring clear oil of pressed olives for the light.',
+        explanation: 'They were to bring clear oil of pressed olives for the light.',
       },
       {
         type: 'choice',
@@ -539,13 +540,13 @@ module.exports = [
         question: 'What did a person meet first on entering the courtyard?',
         choices: ['The altar of burnt offering', 'The lampstand', 'The ark', 'The table of the bread'],
         correctIndex: 0,
-        explanation:
-          'The first thing on the way to God was sacrifice.',
+        explanation: 'The first thing on the way to God was sacrifice.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was hung at the entrance to the courtyard?',
-        acceptedAnswers: ['a curtain', 'an embroidered curtain', 'curtain'],
+        choices: ['A curtain', 'A bronze grating', 'Tabernacle frames', 'The altar of burnt offering'],
+        correctIndex: 0,
         explanation:
           'A curtain embroidered with blue, purple and scarlet yarn and fine linen hung at the courtyard entrance.',
       },
@@ -559,8 +560,7 @@ module.exports = [
           'An ordinance known only to priests',
         ],
         correctIndex: 0,
-        explanation:
-          'It was to be "a lasting ordinance among the Israelites for the generations to come."',
+        explanation: 'It was to be "a lasting ordinance among the Israelites for the generations to come."',
       },
     ],
   },
@@ -575,8 +575,7 @@ module.exports = [
         question: 'How were the priest’s garments to be made?',
         choices: ['For glory and beauty', 'Plainly', 'Lightly', 'As cheaply as possible'],
         correctIndex: 0,
-        explanation:
-          'Holy garments were to be made for Aaron, to give him dignity and honour.',
+        explanation: 'Holy garments were to be made for Aaron, to give him dignity and honour.',
       },
       {
         type: 'choice',
@@ -592,9 +591,10 @@ module.exports = [
           'They were memorial stones, so that Aaron bore those names on his two shoulders as a memorial before the LORD.',
       },
       {
-        type: 'short',
-        question: 'How many stones were set in the breastpiece? (number only)',
-        acceptedAnswers: ['12', 'twelve'],
+        type: 'choice',
+        question: 'How many stones were set in the breastpiece?',
+        choices: ['Twelve', 'Seven', 'Four', 'Ten'],
+        correctIndex: 0,
         explanation:
           'Twelve stones were set in four rows, each engraved with the name of one of the twelve tribes.',
       },
@@ -620,16 +620,22 @@ module.exports = [
           'The sound would be heard as he entered and left the sanctuary, so that he would not die.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was engraved on the gold plate on the turban?',
-        acceptedAnswers: ['Holy to the LORD', 'HOLY TO THE LORD'],
+        choices: ['Holy to the LORD', 'The LORD is my Banner', 'The LORD Will Provide', 'A holy people'],
+        correctIndex: 0,
         explanation:
           'It was on Aaron’s forehead so that he might bear the guilt of the sacred gifts the Israelites brought.',
       },
       {
         type: 'choice',
         question: 'Where did the priest carry the names of the twelve tribes?',
-        choices: ['On his shoulders and over his heart', 'On his hands and feet', 'On his head', 'At his waist'],
+        choices: [
+          'On his shoulders and over his heart',
+          'On his hands and feet',
+          'On his head',
+          'At his waist',
+        ],
         correctIndex: 0,
         explanation:
           'The onyx on the shoulder pieces and the breastpiece over the heart — he stood before God carrying the people.',
@@ -652,13 +658,13 @@ module.exports = [
           'The eyes, the nose and the mouth',
         ],
         correctIndex: 0,
-        explanation:
-          'It is read as setting apart what he hears, what he does and where he walks.',
+        explanation: 'It is read as setting apart what he hears, what he does and where he walks.',
       },
       {
-        type: 'short',
-        question: 'How many days did the ordination last? (number only)',
-        acceptedAnswers: ['7', 'seven', '7 days'],
+        type: 'choice',
+        question: 'How many days did the ordination last?',
+        choices: ['Seven days', 'Three days', 'Forty days', 'Eight days'],
+        correctIndex: 0,
         explanation: 'The ordination was carried out for seven days, and the altar was consecrated.',
       },
       {
@@ -666,8 +672,7 @@ module.exports = [
         question: 'What was poured on Aaron’s head?',
         choices: ['Anointing oil', 'Water', 'Blood', 'Incense'],
         correctIndex: 0,
-        explanation:
-          'The anointing oil was poured on his head to set him apart as holy.',
+        explanation: 'The anointing oil was poured on his head to set him apart as holy.',
       },
       {
         type: 'choice',
@@ -685,10 +690,14 @@ module.exports = [
       {
         type: 'choice',
         question: 'What was the first step of the ordination?',
-        choices: ['Washing with water at the entrance to the tent', 'Putting on the garments', 'Anointing with oil', 'Offering sacrifices'],
+        choices: [
+          'Washing with water at the entrance to the tent',
+          'Putting on the garments',
+          'Anointing with oil',
+          'Offering sacrifices',
+        ],
         correctIndex: 0,
-        explanation:
-          'The order was: wash, clothe, anoint, and then sacrifice.',
+        explanation: 'The order was: wash, clothe, anoint, and then sacrifice.',
       },
       {
         type: 'choice',
@@ -704,11 +713,11 @@ module.exports = [
           'It was a regular burnt offering at the entrance to the tent of meeting, for the generations to come.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Besides Aaron, who was made a priest?',
-        acceptedAnswers: ['his sons', 'Aaron’s sons', 'sons'],
-        explanation:
-          'Aaron and his sons were set apart from among the Israelites to serve as priests.',
+        choices: ['His sons', 'All the Levites', 'The elders', 'Bezalel and Oholiab'],
+        correctIndex: 0,
+        explanation: 'Aaron and his sons were set apart from among the Israelites to serve as priests.',
       },
     ],
   },
@@ -728,8 +737,7 @@ module.exports = [
           'Give whatever you wish',
         ],
         correctIndex: 0,
-        explanation:
-          'Everyone paid half a shekel. A life is worth the same before God.',
+        explanation: 'Everyone paid half a shekel. A life is worth the same before God.',
       },
       {
         type: 'choice',
@@ -754,8 +762,7 @@ module.exports = [
           'Only at the festivals',
         ],
         correctIndex: 0,
-        explanation:
-          'It was regular incense before the LORD for the generations to come.',
+        explanation: 'It was regular incense before the LORD for the generations to come.',
       },
       {
         type: 'choice',
@@ -767,13 +774,13 @@ module.exports = [
           'There was no rule',
         ],
         correctIndex: 0,
-        explanation:
-          'What was set apart as holy was not to be pulled down into ordinary use.',
+        explanation: 'What was set apart as holy was not to be pulled down into ordinary use.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'How much did each person pay as a ransom at the census?',
-        acceptedAnswers: ['half a shekel', 'a half shekel', '1/2 shekel'],
+        choices: ['Half a shekel', 'One shekel', 'A tenth of a shekel', 'Two shekels'],
+        correctIndex: 0,
         explanation:
           'Everyone counted, twenty years old or more, paid half a shekel by the sanctuary shekel.',
       },
@@ -807,11 +814,11 @@ module.exports = [
       'Who is going to make all this? God answers by calling Bezalel of the tribe of Judah by name, and says He has filled him "with the Spirit of God, with wisdom, with understanding, with knowledge and with all kinds of skills." Craftsmanship too is God’s gift. He appoints Oholiab of the tribe of Dan to help him, and gives skill to all who are skilled. Then He stresses the Sabbath again: however holy the work of building the tabernacle was, it could not push rest aside. At the end God gives Moses the two stone tablets, written by His own finger.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'Whom did God call by name to make the tabernacle?',
-        acceptedAnswers: ['Bezalel'],
-        explanation:
-          'He called Bezalel son of Uri, the son of Hur, of the tribe of Judah.',
+        choices: ['Bezalel', 'Oholiab', 'Aaron', 'Hur'],
+        correctIndex: 0,
+        explanation: 'He called Bezalel son of Uri, the son of Hur, of the tribe of Judah.',
       },
       {
         type: 'choice',
@@ -827,9 +834,10 @@ module.exports = [
           'It stands out that the first person in the Bible described as filled with the Spirit of God is a craftsman.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Whom did God appoint to help Bezalel?',
-        acceptedAnswers: ['Oholiab'],
+        choices: ['Oholiab', 'Bezalel', 'Ithamar', 'Eleazar'],
+        correctIndex: 0,
         explanation: 'He appointed Oholiab son of Ahisamak, of the tribe of Dan.',
       },
       {
@@ -837,8 +845,7 @@ module.exports = [
         question: 'What did God stress again in the middle of the tabernacle work?',
         choices: ['The Sabbath', 'The offering', 'Sacrifice', 'Prayer'],
         correctIndex: 0,
-        explanation:
-          'Not even holy work was a reason to skip rest. God called the Sabbath a sign.',
+        explanation: 'Not even holy work was a reason to skip rest. God called the Sabbath a sign.',
       },
       {
         type: 'choice',
@@ -850,8 +857,7 @@ module.exports = [
           'A sign of the land',
         ],
         correctIndex: 0,
-        explanation:
-          'He called it a lasting covenant for the generations to come.',
+        explanation: 'He called it a lasting covenant for the generations to come.',
       },
       {
         type: 'choice',
@@ -918,8 +924,7 @@ module.exports = [
           'He killed Aaron',
         ],
         correctIndex: 0,
-        explanation:
-          'It is read as making visible what had already happened: the covenant was broken.',
+        explanation: 'It is read as making visible what had already happened: the covenant was broken.',
       },
       {
         type: 'choice',
@@ -931,8 +936,7 @@ module.exports = [
           'The people made me do it, that is all',
         ],
         correctIndex: 0,
-        explanation:
-          'He had shaped it with his own tool, yet spoke as if it had come out by itself.',
+        explanation: 'He had shaped it with his own tool, yet spoke as if it had come out by itself.',
       },
       {
         type: 'choice',
@@ -944,15 +948,14 @@ module.exports = [
           'Wait a while',
         ],
         correctIndex: 0,
-        explanation:
-          'He stood between God and the people, putting himself on the line for them.',
+        explanation: 'He stood between God and the people, putting himself on the line for them.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Moses asked the people, "Whoever is for the ____, come to me."',
-        acceptedAnswers: ['LORD', 'the LORD'],
-        explanation:
-          'All the Levites rallied to him, and about three thousand died that day.',
+        choices: ['LORD', 'Moses', 'Aaron', 'Israel'],
+        correctIndex: 0,
+        explanation: 'All the Levites rallied to him, and about three thousand died that day.',
       },
       {
         type: 'choice',
@@ -964,8 +967,7 @@ module.exports = [
           'He left it alone',
         ],
         correctIndex: 0,
-        explanation:
-          'It made them learn in their own bodies that what they had made was nothing at all.',
+        explanation: 'It made them learn in their own bodies that what they had made was nothing at all.',
       },
     ],
   },
@@ -976,9 +978,10 @@ module.exports = [
       'God says, "I will not go with you, because you are a stiff-necked people and I might destroy you on the way." He will give them the land, but He will not go along. When the people hear it they mourn and take off their ornaments. Moses spoke with God at the tent of meeting face to face — the Bible says, "as one speaks to a friend." Moses pleads, "If your Presence does not go with us, do not send us up from here." God answers, "My Presence will go with you, and I will give you rest." Then Moses goes further and asks to see God’s glory.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: '"My Presence will go with you, and I will give you ____."',
-        acceptedAnswers: ['rest'],
+        choices: ['Rest', 'Victory', 'A way through', 'Life'],
+        correctIndex: 0,
         explanation:
           'Moses clung to God after being told He would not go along, and this was the answer God gave.',
       },
@@ -992,8 +995,7 @@ module.exports = [
           'Stay here',
         ],
         correctIndex: 0,
-        explanation:
-          'He would send an angel and give them the land, but He would not go with them Himself.',
+        explanation: 'He would send an angel and give them the land, but He would not go with them Himself.',
       },
       {
         type: 'choice',
@@ -1005,8 +1007,7 @@ module.exports = [
           'Only in writing',
         ],
         correctIndex: 0,
-        explanation:
-          'It says, "The LORD would speak to Moses face to face."',
+        explanation: 'It says, "The LORD would speak to Moses face to face."',
       },
       {
         type: 'choice',
@@ -1018,8 +1019,7 @@ module.exports = [
           'Give us food',
         ],
         correctIndex: 0,
-        explanation:
-          'It is a confession that His presence matters more than the promised land.',
+        explanation: 'It is a confession that His presence matters more than the promised land.',
       },
       {
         type: 'choice',
@@ -1031,16 +1031,19 @@ module.exports = [
           'He appeared as fire',
         ],
         correctIndex: 0,
-        explanation:
-          'He said, "You cannot see my face, for no one may see me and live."',
+        explanation: 'He said, "You cannot see my face, for no one may see me and live."',
       },
       {
         type: 'choice',
         question: 'What did the people do when they heard God’s words?',
-        choices: ['They mourned and took off their ornaments', 'They rejoiced', 'They left', 'They did nothing'],
+        choices: [
+          'They mourned and took off their ornaments',
+          'They rejoiced',
+          'They left',
+          'They did nothing',
+        ],
         correctIndex: 0,
-        explanation:
-          'That He would not go with them was the heaviest news they could hear.',
+        explanation: 'That He would not go with them was the heaviest news they could hear.',
       },
       {
         type: 'choice',
@@ -1052,8 +1055,7 @@ module.exports = [
           'Because the people wanted it',
         ],
         correctIndex: 0,
-        explanation:
-          'His presence itself is what makes this people who they are.',
+        explanation: 'His presence itself is what makes this people who they are.',
       },
     ],
   },
@@ -1064,9 +1066,10 @@ module.exports = [
       'God tells Moses to chisel two stone tablets like the first ones and come up the mountain. Then He comes down in the cloud and proclaims Himself: "The LORD, the LORD, the compassionate and gracious God, slow to anger, abounding in love and faithfulness." Along with this comes the word that He forgives sin yet does not leave the guilty unpunished. Moses bows down at once, worships, asks again that God go with them, and God renews the covenant. After forty days and forty nights Moses comes down with his face shining, and because the people are afraid he covers his face with a veil.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'God proclaimed Himself "compassionate and gracious, slow to ____."',
-        acceptedAnswers: ['anger', 'be angry'],
+        choices: ['Anger', 'Speak', 'Judge', 'Forget'],
+        correctIndex: 0,
         explanation:
           'He said He abounds in love and faithfulness. It is a verse quoted many times in the Bible.',
       },
@@ -1096,8 +1099,7 @@ module.exports = [
           'He sent the people away',
         ],
         correctIndex: 0,
-        explanation:
-          'He removed the veil whenever he went in to speak before the LORD.',
+        explanation: 'He removed the veil whenever he went in to speak before the LORD.',
       },
       {
         type: 'choice',
@@ -1113,11 +1115,11 @@ module.exports = [
           'They were to cut down the idols and Asherah poles, in case they came to serve those gods.',
       },
       {
-        type: 'short',
-        question: 'How many days did Moses stay on the mountain? (number only)',
-        acceptedAnswers: ['40', 'forty', '40 days'],
-        explanation:
-          'He was there forty days and forty nights without eating bread or drinking water.',
+        type: 'choice',
+        question: 'How many days did Moses stay on the mountain?',
+        choices: ['Forty days', 'Seven days', 'Three days', 'Three months'],
+        correctIndex: 0,
+        explanation: 'He was there forty days and forty nights without eating bread or drinking water.',
       },
       {
         type: 'choice',
@@ -1150,8 +1152,7 @@ module.exports = [
           'Only the rich',
         ],
         correctIndex: 0,
-        explanation:
-          'Everyone whose heart was moved and who was willing brought an offering.',
+        explanation: 'Everyone whose heart was moved and who was willing brought an offering.',
       },
       {
         type: 'choice',
@@ -1163,8 +1164,7 @@ module.exports = [
           'They prepared food',
         ],
         correctIndex: 0,
-        explanation:
-          'Some of them spun goat hair as well. Each took part with what she could do.',
+        explanation: 'Some of them spun goat hair as well. Each took part with what she could do.',
       },
       {
         type: 'choice',
@@ -1175,21 +1175,16 @@ module.exports = [
           'However busy the building work, the seventh day was still for rest. It is stressed again after chapter 31.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which two men were named to take charge of the work?',
-        acceptedAnswers: ['Bezalel and Oholiab', 'Bezalel, Oholiab'],
-        explanation:
-          'God filled them with skill and gave them the ability to teach others as well.',
+        choices: ['Bezalel and Oholiab', 'Aaron and Hur', 'Nadab and Abihu', 'Ithamar and Eleazar'],
+        correctIndex: 0,
+        explanation: 'God filled them with skill and gave them the ability to teach others as well.',
       },
       {
         type: 'choice',
         question: 'What did the leaders bring?',
-        choices: [
-          'Onyx and other gemstones, oil and spices',
-          'Grain',
-          'Livestock',
-          'Weapons',
-        ],
+        choices: ['Onyx and other gemstones, oil and spices', 'Grain', 'Livestock', 'Weapons'],
         correctIndex: 0,
         explanation:
           'They brought stones to be mounted on the ephod and breastpiece, and oil and spices for the light, the anointing oil and the incense.',
@@ -1204,16 +1199,14 @@ module.exports = [
           'No one taking part',
         ],
         correctIndex: 0,
-        explanation:
-          'Some gave gold, some spun yarn, some brought wood.',
+        explanation: 'Some gave gold, some spun yarn, some brought wood.',
       },
       {
         type: 'choice',
         question: 'What was specifically forbidden on the Sabbath?',
         choices: ['Lighting a fire', 'Walking', 'Speaking', 'Eating'],
         correctIndex: 0,
-        explanation:
-          'It says, "Do not light a fire in any of your dwellings on the Sabbath day."',
+        explanation: 'It says, "Do not light a fire in any of your dwellings on the Sabbath day."',
       },
     ],
   },
@@ -1272,13 +1265,13 @@ module.exports = [
           'They were priests',
         ],
         correctIndex: 0,
-        explanation:
-          'Everyone whose heart moved them to come and do the work joined in.',
+        explanation: 'Everyone whose heart moved them to come and do the work joined in.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was worked into the curtain dividing the Holy Place from the Most Holy Place?',
-        acceptedAnswers: ['cherubim', 'cherubs'],
+        choices: ['Cherubim', 'Palm trees', 'Pomegranates', 'Lilies'],
+        correctIndex: 0,
         explanation:
           'It was made of blue, purple and scarlet yarn and fine linen, with cherubim skilfully worked into it.',
       },
@@ -1317,9 +1310,10 @@ module.exports = [
       'Bezalel makes the furnishings that go inside the sanctuary. He makes the ark of acacia wood and overlays it inside and out with pure gold, then makes the atonement cover and two cherubim of pure gold, wings spread over the cover and faces turned toward each other. Then the table for the bread and its utensils, the lampstand hammered out of pure gold with its seven lamps, and the altar of incense. The anointing oil and the incense are blended as a perfumer would. This chapter is not new instruction but a record of doing exactly what chapters 25 and 30 commanded. The Bible writes it twice to show it was done just so.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'Who made the furnishings in this chapter?',
-        acceptedAnswers: ['Bezalel'],
+        choices: ['Bezalel', 'Oholiab', 'Aaron', 'Ithamar'],
+        correctIndex: 0,
         explanation: 'It begins with Bezalel making the ark of acacia wood.',
       },
       {
@@ -1327,8 +1321,7 @@ module.exports = [
         question: 'What was the ark overlaid with?',
         choices: ['Pure gold, inside and out', 'Bronze', 'Silver', 'Leather'],
         correctIndex: 0,
-        explanation:
-          'He overlaid it inside and out with pure gold and made a gold moulding round it.',
+        explanation: 'He overlaid it inside and out with pure gold and made a gold moulding round it.',
       },
       {
         type: 'choice',
@@ -1353,8 +1346,7 @@ module.exports = [
           'Of bronze',
         ],
         correctIndex: 0,
-        explanation:
-          'Its base, shaft, cups, buds and blossoms were all of one piece with it.',
+        explanation: 'Its base, shaft, cups, buds and blossoms were all of one piece with it.',
       },
       {
         type: 'choice',
@@ -1370,9 +1362,10 @@ module.exports = [
           'The same content is written twice — once as command, once as execution. That is how it shows full obedience.',
       },
       {
-        type: 'short',
-        question: 'How many lamps did the lampstand have? (number only)',
-        acceptedAnswers: ['7', 'seven'],
+        type: 'choice',
+        question: 'How many lamps did the lampstand have?',
+        choices: ['Seven', 'Three', 'Twelve', 'Five'],
+        correctIndex: 0,
         explanation: 'He made its seven lamps, its wick trimmers and its trays of pure gold.',
       },
       {
@@ -1406,8 +1399,7 @@ module.exports = [
           'Stone',
         ],
         correctIndex: 0,
-        explanation:
-          'They gave up the mirrors they looked at themselves in, to make a vessel for washing.',
+        explanation: 'They gave up the mirrors they looked at themselves in, to make a vessel for washing.',
       },
       {
         type: 'choice',
@@ -1419,8 +1411,7 @@ module.exports = [
           'A record of war',
         ],
         correctIndex: 0,
-        explanation:
-          'Each weight is written down, showing what was used and where.',
+        explanation: 'Each weight is written down, showing what was used and where.',
       },
       {
         type: 'choice',
@@ -1436,11 +1427,11 @@ module.exports = [
           'The half shekel from everyone counted, twenty years old or more, was used to cast the bases of the sanctuary.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the Levite who supervised the accounting?',
-        acceptedAnswers: ['Ithamar'],
-        explanation:
-          'Ithamar son of Aaron the priest had the Levites do the reckoning at Moses’ command.',
+        choices: ['Ithamar', 'Eleazar', 'Bezalel', 'Oholiab'],
+        correctIndex: 0,
+        explanation: 'Ithamar son of Aaron the priest had the Levites do the reckoning at Moses’ command.',
       },
       {
         type: 'choice',
@@ -1460,16 +1451,14 @@ module.exports = [
           'Being sparing',
         ],
         correctIndex: 0,
-        explanation:
-          'The Bible itself shows that the holier the work, the more open the accounting must be.',
+        explanation: 'The Bible itself shows that the holier the work, the more open the accounting must be.',
       },
       {
         type: 'choice',
         question: 'What were the bases of the courtyard posts made of?',
         choices: ['Bronze', 'Gold', 'Silver', 'Wood'],
         correctIndex: 0,
-        explanation:
-          'The bases were bronze, while the hooks and bands were silver.',
+        explanation: 'The bases were bronze, while the hooks and bands were silver.',
       },
     ],
   },
@@ -1489,8 +1478,7 @@ module.exports = [
           'As circumstances allowed',
         ],
         correctIndex: 0,
-        explanation:
-          'Repeated over and over, it stresses that command and execution never came apart.',
+        explanation: 'Repeated over and over, it stresses that command and execution never came apart.',
       },
       {
         type: 'choice',
@@ -1506,9 +1494,10 @@ module.exports = [
           'They hammered out thin sheets of gold, cut them into threads, and worked them into the yarn and fine linen.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was engraved on the plate of pure gold?',
-        acceptedAnswers: ['Holy to the LORD', 'HOLY TO THE LORD'],
+        choices: ['Holy to the LORD', 'The LORD is my Banner', 'A holy people', 'A kingdom of priests'],
+        correctIndex: 0,
         explanation: 'They made the sacred emblem and tied it to the turban with a blue cord.',
       },
       {
@@ -1527,23 +1516,21 @@ module.exports = [
       {
         type: 'choice',
         question: 'What was engraved on the stones set in the breastpiece?',
-        choices: ['The names of the twelve tribes of Israel', 'The Ten Commandments', 'The priest’s name', 'Nothing'],
+        choices: [
+          'The names of the twelve tribes of Israel',
+          'The Ten Commandments',
+          'The priest’s name',
+          'Nothing',
+        ],
         correctIndex: 0,
-        explanation:
-          'They were engraved like a seal with the names of the twelve tribes.',
+        explanation: 'They were engraved like a seal with the names of the twelve tribes.',
       },
       {
         type: 'choice',
         question: 'What was fastened round the hem of the robe?',
-        choices: [
-          'Gold bells alternating with pomegranates',
-          'Gemstones',
-          'Tassels',
-          'Nothing at all',
-        ],
+        choices: ['Gold bells alternating with pomegranates', 'Gemstones', 'Tassels', 'Nothing at all'],
         correctIndex: 0,
-        explanation:
-          'Bells and pomegranates alternated, exactly as chapter 28 instructed.',
+        explanation: 'Bells and pomegranates alternated, exactly as chapter 28 instructed.',
       },
       {
         type: 'choice',
@@ -1555,8 +1542,7 @@ module.exports = [
           'The people have left',
         ],
         correctIndex: 0,
-        explanation:
-          'Setting it up belongs to the next chapter. Here all the parts are completed.',
+        explanation: 'Setting it up belongs to the next chapter. Here all the parts are completed.',
       },
     ],
   },
@@ -1567,9 +1553,15 @@ module.exports = [
       'The last chapter of Exodus. God tells Moses to set up the tabernacle on the first day of the first month. Moses raises the frames, hangs the curtain, brings in the ark, places the table, the lampstand and the altar of incense, sets the altar of burnt offering and the basin, and puts up the courtyard. Here too "as the LORD commanded Moses" keeps coming back. Aaron and his sons are washed, clothed and anointed. Then comes the final scene: the cloud covers the tent of meeting and the glory of the LORD fills the tabernacle, so that Moses cannot enter. From then on, when the cloud lifted they set out; when it stayed, they stayed.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'What filled the tabernacle when it was finished?',
-        acceptedAnswers: ['the glory of the LORD', 'the glory of God', 'glory'],
+        choices: [
+          'The glory of the LORD',
+          'A pillar of fire',
+          'The smoke of the incense',
+          'The blood of the offerings',
+        ],
+        correctIndex: 0,
         explanation:
           '"The cloud covered the tent of meeting, and the glory of the LORD filled the tabernacle." The promise to dwell with them became visible.',
       },
@@ -1583,8 +1575,7 @@ module.exports = [
           'Nothing happened',
         ],
         correctIndex: 0,
-        explanation:
-          'The cloud settled on the tent and the glory filled it, so not even Moses could go in.',
+        explanation: 'The cloud settled on the tent and the glory filled it, so not even Moses could go in.',
       },
       {
         type: 'choice',
@@ -1596,8 +1587,7 @@ module.exports = [
           'The people’s decision',
         ],
         correctIndex: 0,
-        explanation:
-          'The cloud was over it by day and fire by night, in the sight of all Israel.',
+        explanation: 'The cloud was over it by day and fire by night, in the sight of all Israel.',
       },
       {
         type: 'choice',
@@ -1622,8 +1612,7 @@ module.exports = [
           'As it looked best',
         ],
         correctIndex: 0,
-        explanation:
-          'It is attached to each step of the setting up.',
+        explanation: 'It is attached to each step of the setting up.',
       },
       {
         type: 'choice',
@@ -1635,8 +1624,7 @@ module.exports = [
           'They were told to teach the people',
         ],
         correctIndex: 0,
-        explanation:
-          'That anointing made them priests for all generations to come.',
+        explanation: 'That anointing made them priests for all generations to come.',
       },
       {
         type: 'choice',
@@ -1648,8 +1636,7 @@ module.exports = [
           'With a king being crowned',
         ],
         correctIndex: 0,
-        explanation:
-          'Exodus ends with a people who had been slaves becoming a people God lives among.',
+        explanation: 'Exodus ends with a people who had been slaves becoming a people God lives among.',
       },
     ],
   },

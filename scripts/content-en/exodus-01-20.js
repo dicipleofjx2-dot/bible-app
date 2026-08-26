@@ -13,6 +13,7 @@
  * from the app's own English Bible (open_en), so nothing is retranslated here.
  */
 
+
 module.exports = [
   {
     book: 2,
@@ -36,15 +37,21 @@ module.exports = [
       {
         type: 'choice',
         question: 'What happened to the Israelites under the harsh treatment?',
-        choices: ['They multiplied and spread out all the more', 'Their numbers fell', 'They scattered', 'They surrendered'],
+        choices: [
+          'They multiplied and spread out all the more',
+          'Their numbers fell',
+          'They scattered',
+          'They surrendered',
+        ],
         correctIndex: 0,
         explanation:
           '"The more they were oppressed, the more they multiplied and spread." Human plans could not stop God’s purpose.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What were the names of the two midwives who disobeyed Pharaoh?',
-        acceptedAnswers: ['Shiphrah and Puah', 'Shiphrah, Puah', 'Shiphrah Puah'],
+        choices: ['Shiphrah and Puah', 'Miriam and Jochebed', 'Zipporah and Miriam', 'Jochebed and Puah'],
+        correctIndex: 0,
         explanation: 'Shiphrah and Puah feared God and let the baby boys live.',
       },
       {
@@ -57,8 +64,7 @@ module.exports = [
           'Nothing happened',
         ],
         correctIndex: 0,
-        explanation:
-          'God was good to the midwives and gave them households of their own.',
+        explanation: 'God was good to the midwives and gave them households of their own.',
       },
       {
         type: 'choice',
@@ -82,9 +88,10 @@ module.exports = [
           'Taskmasters were set over them to afflict them with heavy burdens, and they built Pithom and Rameses.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'The chapter begins with a new king who did not know whom?',
-        acceptedAnswers: ['Joseph'],
+        choices: ['Joseph', 'Jacob', 'Moses', 'Abraham'],
+        correctIndex: 0,
         explanation:
           '"There arose a new king over Egypt, who did not know Joseph." The suffering begins when the man who saved Egypt is forgotten.',
       },
@@ -121,9 +128,15 @@ module.exports = [
           'His sister offered to call a Hebrew woman, and the woman she brought was his own mother — who was even paid to nurse her own son.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What meaning does the Bible give for the name "Moses"?',
-        acceptedAnswers: ['drawn out of the water', 'drawn out', 'I drew him out of the water'],
+        choices: [
+          'Drawn out of the water',
+          'Raised in the wilderness',
+          'Brought up as a prince',
+          'Born after his brother',
+        ],
+        correctIndex: 0,
         explanation: 'She called him Moses, saying, "Because I drew him out of the water."',
       },
       {
@@ -140,9 +153,10 @@ module.exports = [
           'When a Hebrew said, "Who made you a ruler over us?" Moses realised the deed was known and ran.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the woman Moses married in Midian?',
-        acceptedAnswers: ['Zipporah'],
+        choices: ['Zipporah', 'Miriam', 'Jochebed', 'Elisheba'],
+        correctIndex: 0,
         explanation:
           'He married Zipporah, daughter of the priest of Midian, and she bore him a son, Gershom.',
       },
@@ -156,8 +170,7 @@ module.exports = [
           'He did nothing',
         ],
         correctIndex: 0,
-        explanation:
-          'God heard their groaning and remembered His covenant with Abraham, Isaac and Jacob.',
+        explanation: 'God heard their groaning and remembered His covenant with Abraham, Isaac and Jacob.',
       },
     ],
   },
@@ -177,25 +190,24 @@ module.exports = [
           'Water turning to blood',
         ],
         correctIndex: 0,
-        explanation:
-          'God called to him when he turned aside, saying, "Why is the bush not burnt up?"',
+        explanation: 'God called to him when he turned aside, saying, "Why is the bush not burnt up?"',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did God answer when Moses asked His name?',
-        acceptedAnswers: ['I AM WHO I AM', 'I AM', 'I am who I am'],
-        explanation:
-          '"I AM WHO I AM." It means He depends on no one — He simply is.',
+        choices: [
+          'I AM WHO I AM',
+          'I am God Almighty',
+          'I am the God of your father',
+          'I am the LORD Will Provide',
+        ],
+        correctIndex: 0,
+        explanation: '"I AM WHO I AM." It means He depends on no one — He simply is.',
       },
       {
         type: 'choice',
         question: 'What was the first thing God told Moses to do?',
-        choices: [
-          'Take off your sandals',
-          'Come closer',
-          'Bow down',
-          'Close your eyes',
-        ],
+        choices: ['Take off your sandals', 'Come closer', 'Bow down', 'Close your eyes'],
         correctIndex: 0,
         explanation:
           'He said, "The place where you are standing is holy ground," and had him take off his sandals.',
@@ -210,8 +222,7 @@ module.exports = [
           'He said nothing',
         ],
         correctIndex: 0,
-        explanation:
-          'Moses drew back, and God answered, "I will certainly be with you."',
+        explanation: 'Moses drew back, and God answered, "I will certainly be with you."',
       },
       {
         type: 'choice',
@@ -227,9 +238,10 @@ module.exports = [
           'He promised to bring them to a good and spacious land, a land flowing with milk and honey.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the mountain where Moses met God?',
-        acceptedAnswers: ['Horeb', 'Mount Horeb', 'Horeb, the mountain of God'],
+        choices: ['Horeb', 'Sinai', 'Moriah', 'Ararat'],
+        correctIndex: 0,
         explanation: 'Horeb is the same mountain that is later called Sinai.',
       },
       {
@@ -256,7 +268,12 @@ module.exports = [
       {
         type: 'choice',
         question: 'What was the first sign God gave Moses?',
-        choices: ['A staff that became a snake', 'Water turning to blood', 'A hand turning white', 'Fire falling'],
+        choices: [
+          'A staff that became a snake',
+          'Water turning to blood',
+          'A hand turning white',
+          'Fire falling',
+        ],
         correctIndex: 0,
         explanation:
           'When he threw the staff on the ground it became a snake, and when he caught it by the tail it became a staff again.',
@@ -275,9 +292,10 @@ module.exports = [
           'God said, "Who made man’s mouth?" and promised to be with his mouth and teach him what to say.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the brother God gave Moses to help him?',
-        acceptedAnswers: ['Aaron'],
+        choices: ['Aaron', 'Hur', 'Joshua', 'Caleb'],
+        correctIndex: 0,
         explanation:
           'Aaron would speak to the people for Moses. God was angry when Moses still kept refusing.',
       },
@@ -321,9 +339,10 @@ module.exports = [
           'He said plainly that it would not come easily, and He called Israel "my son, my firstborn."',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'In the third sign, what did the water of the Nile become?',
-        acceptedAnswers: ['blood'],
+        choices: ['Blood', 'Bitter water', 'Fire', 'Sand'],
+        correctIndex: 0,
         explanation:
           'If they would not believe the first two signs, Moses was to pour Nile water on the ground and it would become blood.',
       },
@@ -345,8 +364,7 @@ module.exports = [
           'Get out',
         ],
         correctIndex: 0,
-        explanation:
-          'He said, "I do not know the LORD, and I will not let Israel go."',
+        explanation: 'He said, "I do not know the LORD, and I will not let Israel go."',
       },
       {
         type: 'choice',
@@ -364,12 +382,7 @@ module.exports = [
       {
         type: 'choice',
         question: 'What did the people say to Moses and Aaron?',
-        choices: [
-          'May the LORD look on you and judge',
-          'Thank you',
-          'Keep going',
-          'We will come with you',
-        ],
+        choices: ['May the LORD look on you and judge', 'Thank you', 'Keep going', 'We will come with you'],
         correctIndex: 0,
         explanation:
           'They blamed them for making them a stench to Pharaoh and putting a sword in his hand to kill them.',
@@ -384,25 +397,20 @@ module.exports = [
           'He said nothing',
         ],
         correctIndex: 0,
-        explanation:
-          'He asked, "Why did you ever send me?" Obedience had made things worse, not better.',
+        explanation: 'He asked, "Why did you ever send me?" Obedience had made things worse, not better.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What material ran short when the Israelites made bricks?',
-        acceptedAnswers: ['straw'],
+        choices: ['Straw', 'Water', 'Clay', 'Wood'],
+        correctIndex: 0,
         explanation:
           'They had to make bricks without straw and produce the same quota, so the people scattered over the land to gather stubble.',
       },
       {
         type: 'choice',
         question: 'Who were the ones who were beaten?',
-        choices: [
-          'The Israelite foremen',
-          'The taskmasters',
-          'Moses and Aaron',
-          'The midwives',
-        ],
+        choices: ['The Israelite foremen', 'The taskmasters', 'Moses and Aaron', 'The midwives'],
         correctIndex: 0,
         explanation:
           'The Israelite foremen were beaten for not meeting the quota, and they appealed to Pharaoh.',
@@ -417,8 +425,7 @@ module.exports = [
           'That Moses was in the wrong',
         ],
         correctIndex: 0,
-        explanation:
-          'They did what God said and the situation got worse. God speaks again in chapter 6.',
+        explanation: 'They did what God said and the situation got worse. God speaks again in chapter 6.',
       },
     ],
   },
@@ -464,13 +471,13 @@ module.exports = [
           'Pharaoh stopped them',
         ],
         correctIndex: 0,
-        explanation:
-          'They had no strength left even to hear good news.',
+        explanation: 'They had no strength left even to hear good news.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which tribe did Moses and Aaron belong to?',
-        acceptedAnswers: ['Levi', 'the tribe of Levi', 'Levite'],
+        choices: ['Levi', 'Judah', 'Benjamin', 'Reuben'],
+        correctIndex: 0,
         explanation:
           'The genealogy in this chapter shows that Moses and Aaron were the sons of Amram and Jochebed of the tribe of Levi.',
       },
@@ -492,13 +499,13 @@ module.exports = [
           'He said nothing',
         ],
         correctIndex: 0,
-        explanation:
-          'His point was that if his own people would not listen, Pharaoh certainly would not.',
+        explanation: 'His point was that if his own people would not listen, Pharaoh certainly would not.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What were the names of Moses’ parents?',
-        acceptedAnswers: ['Amram and Jochebed', 'Amram, Jochebed', 'Amram Jochebed'],
+        choices: ['Amram and Jochebed', 'Aaron and Miriam', 'Kohath and Jochebed', 'Amram and Elisheba'],
+        correctIndex: 0,
         explanation: 'Amram married Jochebed, his father’s sister, and she bore him Aaron and Moses.',
       },
     ],
@@ -519,13 +526,13 @@ module.exports = [
           'Nothing happened',
         ],
         correctIndex: 0,
-        explanation:
-          'The magicians did the same thing, but Aaron’s staff swallowed up theirs.',
+        explanation: 'The magicians did the same thing, but Aaron’s staff swallowed up theirs.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the first plague?',
-        acceptedAnswers: ['blood', 'water turned to blood', 'the Nile turned to blood'],
+        choices: ['The water of the Nile turned to blood', 'Frogs', 'Gnats', 'Swarms of flies'],
+        correctIndex: 0,
         explanation:
           'The water of the Nile turned to blood, the fish died and the river stank, so no one could drink from it.',
       },
@@ -545,10 +552,14 @@ module.exports = [
       {
         type: 'choice',
         question: 'What did the Egyptians do to get drinking water?',
-        choices: ['They dug along the riverbank', 'They waited for rain', 'They went to the sea', 'They did nothing'],
+        choices: [
+          'They dug along the riverbank',
+          'They waited for rain',
+          'They went to the sea',
+          'They did nothing',
+        ],
         correctIndex: 0,
-        explanation:
-          'They could not drink from the river, so they dug around it looking for water.',
+        explanation: 'They could not drink from the river, so they dug around it looking for water.',
       },
       {
         type: 'choice',
@@ -564,11 +575,11 @@ module.exports = [
           'When his magicians did the same thing, he paid no attention to it and went into his house.',
       },
       {
-        type: 'short',
-        question: 'How old was Moses when all this happened? (number only)',
-        acceptedAnswers: ['80', 'eighty', '80 years old'],
-        explanation:
-          'When they spoke to Pharaoh, Moses was eighty years old and Aaron eighty-three.',
+        type: 'choice',
+        question: 'How old was Moses when all this happened?',
+        choices: ['Eighty', 'Forty', 'Sixty', 'A hundred and twenty'],
+        correctIndex: 0,
+        explanation: 'When they spoke to Pharaoh, Moses was eighty years old and Aaron eighty-three.',
       },
       {
         type: 'choice',
@@ -604,20 +615,16 @@ module.exports = [
       {
         type: 'choice',
         question: 'What did the magicians say when they could not copy it?',
-        choices: [
-          'This is the finger of God',
-          'We can do it too',
-          'Let us try again',
-          'They said nothing',
-        ],
+        choices: ['This is the finger of God', 'We can do it too', 'Let us try again', 'They said nothing'],
         correctIndex: 0,
         explanation:
           'At the third plague, the gnats, the magicians gave up. Even so, Pharaoh’s heart stayed hard.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'From the fourth plague on, which land was set apart?',
-        acceptedAnswers: ['Goshen', 'the land of Goshen'],
+        choices: ['Goshen', 'Rameses', 'Succoth', 'Pithom'],
+        correctIndex: 0,
         explanation:
           'God said He would set apart the land of Goshen, where His people lived, so that no swarms of flies would be there.',
       },
@@ -644,8 +651,7 @@ module.exports = [
           'He called Moses and thanked him',
         ],
         correctIndex: 0,
-        explanation:
-          'It is written, "When Pharaoh saw that there was relief, he hardened his heart."',
+        explanation: 'It is written, "When Pharaoh saw that there was relief, he hardened his heart."',
       },
       {
         type: 'choice',
@@ -668,8 +674,7 @@ module.exports = [
         question: 'What happened to Israel’s livestock in the fifth plague?',
         choices: ['Not one of them died', 'Half of them died', 'All of them died', 'They fell ill'],
         correctIndex: 0,
-        explanation:
-          'The livestock of Egypt died, but not one animal belonging to the Israelites died.',
+        explanation: 'The livestock of Egypt died, but not one animal belonging to the Israelites died.',
       },
       {
         type: 'choice',
@@ -702,21 +707,20 @@ module.exports = [
           'No reason at all',
         ],
         correctIndex: 0,
-        explanation:
-          'Romans 9 quotes this verse. Even in judgement there was a purpose.',
+        explanation: 'Romans 9 quotes this verse. Even in judgement there was a purpose.',
       },
       {
         type: 'choice',
         question: 'Where did the hail not fall?',
         choices: ['The land of Goshen', 'The banks of the Nile', 'The palace', 'The wilderness'],
         correctIndex: 0,
-        explanation:
-          'There was no hail in the land of Goshen, where the Israelites were.',
+        explanation: 'There was no hail in the land of Goshen, where the Israelites were.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Which two crops were not ruined by the hail?',
-        acceptedAnswers: ['wheat and spelt', 'wheat, spelt', 'wheat and emmer', 'the late crops'],
+        choices: ['Wheat and spelt', 'Barley and flax', 'Grapes and figs', 'Beans and lentils'],
+        correctIndex: 0,
         explanation:
           'The barley and the flax were ruined, but the wheat and spelt were not, because they ripen later.',
       },
@@ -730,8 +734,7 @@ module.exports = [
           'He said nothing',
         ],
         correctIndex: 0,
-        explanation:
-          'But when the hail stopped he sinned again and hardened his heart.',
+        explanation: 'But when the hail stopped he sinned again and hardened his heart.',
       },
     ],
   },
@@ -746,8 +749,7 @@ module.exports = [
         question: 'What was the eighth plague?',
         choices: ['Locusts', 'Darkness', 'Hail', 'Frogs'],
         correctIndex: 0,
-        explanation:
-          'An east wind brought the locusts, and they ate everything the hail had left.',
+        explanation: 'An east wind brought the locusts, and they ate everything the hail had left.',
       },
       {
         type: 'choice',
@@ -759,8 +761,7 @@ module.exports = [
           'They said nothing',
         ],
         correctIndex: 0,
-        explanation:
-          'His own officials were the first to urge him to let the people go and serve the LORD.',
+        explanation: 'His own officials were the first to urge him to let the people go and serve the LORD.',
       },
       {
         type: 'choice',
@@ -797,9 +798,10 @@ module.exports = [
           'Moses refused: not a hoof could be left, because they did not yet know what they would need to offer.',
       },
       {
-        type: 'short',
-        question: 'How many days did the darkness last? (number only)',
-        acceptedAnswers: ['3', 'three', '3 days'],
+        type: 'choice',
+        question: 'How many days did the darkness last?',
+        choices: ['Three days', 'Seven days', 'One day', 'Forty days'],
+        correctIndex: 0,
         explanation: 'For three days no one could see anyone else or get up from where they were.',
       },
       {
@@ -812,8 +814,7 @@ module.exports = [
           'I forgive you',
         ],
         correctIndex: 0,
-        explanation:
-          'Moses answered, "As you say — I will never appear before you again."',
+        explanation: 'Moses answered, "As you say — I will never appear before you again."',
       },
     ],
   },
@@ -826,12 +827,7 @@ module.exports = [
       {
         type: 'choice',
         question: 'What was the last plague that was announced?',
-        choices: [
-          'The death of every firstborn in Egypt',
-          'A great earthquake',
-          'A flood',
-          'A disease',
-        ],
+        choices: ['The death of every firstborn in Egypt', 'A great earthquake', 'A flood', 'A disease'],
         correctIndex: 0,
         explanation:
           'Every firstborn would die, from Pharaoh’s son to the slave girl’s son, and the firstborn of the livestock too.',
@@ -846,8 +842,7 @@ module.exports = [
           'It was not said',
         ],
         correctIndex: 0,
-        explanation:
-          'It was so they would know that the LORD makes a distinction between Egypt and Israel.',
+        explanation: 'It was so they would know that the LORD makes a distinction between Egypt and Israel.',
       },
       {
         type: 'choice',
@@ -869,8 +864,7 @@ module.exports = [
         question: 'How did Moses leave Pharaoh?',
         choices: ['In hot anger', 'Rejoicing', 'Quietly', 'Weeping'],
         correctIndex: 0,
-        explanation:
-          'After saying this, Moses went out from Pharaoh in hot anger.',
+        explanation: 'After saying this, Moses went out from Pharaoh in hot anger.',
       },
       {
         type: 'choice',
@@ -886,11 +880,16 @@ module.exports = [
           'It says Moses himself was highly regarded in Egypt by Pharaoh’s officials and by the people.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did God say Pharaoh would do after this plague?',
-        acceptedAnswers: ['let them go', 'he will surely let them go', 'drive them out', 'send them away'],
-        explanation:
-          'God said, "He will let you go from here, and will drive you out completely."',
+        choices: [
+          'He would let them go, and even drive them out completely',
+          'He would never let them go',
+          'He would let only half of them go',
+          'He would let them go in three days',
+        ],
+        correctIndex: 0,
+        explanation: 'God said, "He will let you go from here, and will drive you out completely."',
       },
     ],
   },
@@ -911,12 +910,7 @@ module.exports = [
       {
         type: 'choice',
         question: 'What kind of animal did the Passover lamb have to be?',
-        choices: [
-          'A year-old male without defect',
-          'The biggest one',
-          'Any animal at all',
-          'An old sheep',
-        ],
+        choices: ['A year-old male without defect', 'The biggest one', 'Any animal at all', 'An old sheep'],
         correctIndex: 0,
         explanation:
           'It could be taken from the sheep or the goats, but had to be a year-old male without defect.',
@@ -931,14 +925,20 @@ module.exports = [
           'It did not matter',
         ],
         correctIndex: 0,
-        explanation:
-          'They were dressed to leave at any moment. This, God said, is the LORD’s Passover.',
+        explanation: 'They were dressed to leave at any moment. This, God said, is the LORD’s Passover.',
       },
       {
-        type: 'short',
-        question: 'How many years did the Israelites live in Egypt? (number only)',
-        acceptedAnswers: ['430', 'four hundred thirty', '430 years'],
-        explanation: 'On the very day the four hundred and thirty years ended, the LORD’s divisions left Egypt.',
+        type: 'choice',
+        question: 'How many years did the Israelites live in Egypt?',
+        choices: [
+          'Four hundred and thirty years',
+          'Four hundred years',
+          'Forty years',
+          'Two hundred and ten years',
+        ],
+        correctIndex: 0,
+        explanation:
+          'On the very day the four hundred and thirty years ended, the LORD’s divisions left Egypt.',
       },
       {
         type: 'choice',
@@ -950,8 +950,7 @@ module.exports = [
           'It kept longer',
         ],
         correctIndex: 0,
-        explanation:
-          'They were driven out of Egypt and could not delay, so they baked bread without yeast.',
+        explanation: 'They were driven out of Egypt and could not delay, so they baked bread without yeast.',
       },
       {
         type: 'choice',
@@ -963,8 +962,7 @@ module.exports = [
           'Nothing happened',
         ],
         correctIndex: 0,
-        explanation:
-          'There was loud wailing in Egypt, for there was not a house without someone dead.',
+        explanation: 'There was loud wailing in Egypt, for there was not a house without someone dead.',
       },
       {
         type: 'choice',
@@ -1010,15 +1008,14 @@ module.exports = [
           'Only because there were many enemies',
         ],
         correctIndex: 0,
-        explanation:
-          'It is a place that shows the fastest road is not always the best one.',
+        explanation: 'It is a place that shows the fastest road is not always the best one.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Whose bones did Moses carry out of Egypt?',
-        acceptedAnswers: ['Joseph', 'Joseph’s bones', 'Josephs'],
-        explanation:
-          'The oath Joseph made them swear in Genesis 50 is kept here.',
+        choices: ['Joseph', 'Jacob', 'Aaron', 'Levi'],
+        correctIndex: 0,
+        explanation: 'The oath Joseph made them swear in Genesis 50 is kept here.',
       },
       {
         type: 'choice',
@@ -1055,11 +1052,11 @@ module.exports = [
           'They were to eat unleavened bread for seven days and hold a festival to the LORD on the seventh.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'By the wilderness road toward which sea did Israel go out?',
-        acceptedAnswers: ['the Red Sea', 'Red Sea', 'the Sea of Reeds'],
-        explanation:
-          'God led the people around by the desert road toward the Red Sea.',
+        choices: ['The Red Sea', 'The Great Sea', 'The Jordan', 'The Sea of Galilee'],
+        correctIndex: 0,
+        explanation: 'God led the people around by the desert road toward the Red Sea.',
       },
     ],
   },
@@ -1070,9 +1067,10 @@ module.exports = [
       'Pharaoh changes his mind and comes after them with his chariots. The sea is in front of them and the Egyptian army behind. The people are terrified and blame Moses: "Was it because there were no graves in Egypt that you brought us out here to die?" Moses answers, "Do not be afraid. Stand firm and you will see the deliverance the LORD will bring you today. The LORD will fight for you; you need only be still." Moses stretches out his hand, an east wind blows all night and the sea divides. Israel crosses on dry ground, and the pursuing army is covered by the sea.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: '"The LORD will fight for you; you need only be ____." Fill in the blank.',
-        acceptedAnswers: ['still', 'be still', 'silent'],
+        choices: ['Still', 'Standing firm', 'Silent', 'Waiting'],
+        correctIndex: 0,
         explanation:
           'He said it with the sea in front and an army behind — a place where people could do nothing.',
       },
@@ -1125,8 +1123,7 @@ module.exports = [
           'They said nothing',
         ],
         correctIndex: 0,
-        explanation:
-          'They realised it when their chariot wheels came off and driving became difficult.',
+        explanation: 'They realised it when their chariot wheels came off and driving became difficult.',
       },
       {
         type: 'choice',
@@ -1142,9 +1139,10 @@ module.exports = [
           'When Israel saw the great power the LORD used against the Egyptians, they feared the LORD.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the ground like where Israel crossed the sea?',
-        acceptedAnswers: ['dry ground', 'dry land', 'dry'],
+        choices: ['Dry ground', 'Mud', 'Sand', 'Shallow water'],
+        correctIndex: 0,
         explanation:
           'The waters were a wall on their right and on their left, and the Israelites went through the sea on dry ground.',
       },
@@ -1157,9 +1155,10 @@ module.exports = [
       'Safe on the far side, Israel sings: "The LORD is my strength and my song; he has become my salvation." What God did at the sea is set down as a song. Miriam, Aaron’s sister, takes a tambourine and answers with the women, dancing. But three days later they reach Marah and the water is too bitter to drink, and the people grumble at once. Moses cries out, God shows him a piece of wood, and when he throws it in the water turns sweet. There God makes a decree and says, "I am the LORD, who heals you." Then they come to Elim, with twelve springs and seventy palm trees.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: '"The LORD is my strength and my ____; he has become my salvation."',
-        acceptedAnswers: ['song'],
+        choices: ['Song', 'Shield', 'Stronghold', 'Light'],
+        correctIndex: 0,
         explanation:
           'It is a line from the song they sang after crossing the Red Sea. The first response of rescued people was a song.',
       },
@@ -1172,11 +1171,11 @@ module.exports = [
           'Miriam the prophet, Aaron’s sister, took a tambourine, and all the women followed her with dancing.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the place where the water was too bitter to drink?',
-        acceptedAnswers: ['Marah'],
-        explanation:
-          'It was called Marah, which means "bitter," because the water there was bitter.',
+        choices: ['Marah', 'Elim', 'The Desert of Sin', 'Rephidim'],
+        correctIndex: 0,
+        explanation: 'It was called Marah, which means "bitter," because the water there was bitter.',
       },
       {
         type: 'choice',
@@ -1207,12 +1206,7 @@ module.exports = [
       {
         type: 'choice',
         question: 'What was at Elim?',
-        choices: [
-          'Twelve springs and seventy palm trees',
-          'A great city',
-          'Wide fields',
-          'Nothing at all',
-        ],
+        choices: ['Twelve springs and seventy palm trees', 'A great city', 'Wide fields', 'Nothing at all'],
         correctIndex: 0,
         explanation: 'They camped there beside the water.',
       },
@@ -1221,8 +1215,7 @@ module.exports = [
         question: 'How long after crossing the Red Sea did the water trouble come?',
         choices: ['Three days', 'One day', 'Seven days', 'A month'],
         correctIndex: 0,
-        explanation:
-          'They went into the Desert of Shur and travelled three days without finding water.',
+        explanation: 'They went into the Desert of Shur and travelled three days without finding water.',
       },
     ],
   },
@@ -1233,11 +1226,11 @@ module.exports = [
       'In the Desert of Sin the people grumble again: "If only we had died in Egypt, where we sat round pots of meat and ate all the bread we wanted." God says He will rain bread from heaven. In the evening quail cover the camp, and in the morning, when the dew is gone, thin flakes are left on the ground. The people ask, "What is it?" — so it is called manna. They were to gather only what they needed for the day, and twice as much on the sixth day. Some kept it anyway and it bred worms, and some went out to gather on the Sabbath. The manna fell for forty years.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the food called, from the question "What is it?"',
-        acceptedAnswers: ['manna'],
-        explanation:
-          'It was white like coriander seed and tasted like wafers made with honey.',
+        choices: ['Manna', 'Quail', 'Unleavened bread', 'Loaves'],
+        correctIndex: 0,
+        explanation: 'It was white like coriander seed and tasted like wafers made with honey.',
       },
       {
         type: 'choice',
@@ -1282,15 +1275,14 @@ module.exports = [
           'Everyone had leftovers',
         ],
         correctIndex: 0,
-        explanation:
-          'Each one gathered as much as he needed. That was how their needs were met.',
+        explanation: 'Each one gathered as much as he needed. That was how their needs were met.',
       },
       {
-        type: 'short',
-        question: 'For how many years did the manna fall? (number only)',
-        acceptedAnswers: ['40', 'forty', '40 years'],
-        explanation:
-          'They ate manna forty years, until they came to a land that was settled.',
+        type: 'choice',
+        question: 'For how many years did the manna fall?',
+        choices: ['Forty years', 'Seven years', 'Three years', 'Ten years'],
+        correctIndex: 0,
+        explanation: 'They ate manna forty years, until they came to a land that was settled.',
       },
       {
         type: 'choice',
@@ -1327,9 +1319,10 @@ module.exports = [
           'God said He would stand on the rock; Moses struck it, water came out and the people drank.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What did Moses name the altar he built?',
-        acceptedAnswers: ['The LORD is my Banner', 'Jehovah Nissi', 'Yahweh Nissi'],
+        choices: ['The LORD is my Banner', 'The LORD Will Provide', 'The LORD is Peace', 'El-Elohe-Israel'],
+        correctIndex: 0,
         explanation: 'The name means "the LORD is my banner."',
       },
       {
@@ -1342,8 +1335,7 @@ module.exports = [
           'The weather',
         ],
         correctIndex: 0,
-        explanation:
-          'When his hands were up Israel prevailed; when they came down Amalek prevailed.',
+        explanation: 'When his hands were up Israel prevailed; when they came down Amalek prevailed.',
       },
       {
         type: 'choice',
@@ -1354,9 +1346,10 @@ module.exports = [
           'The two of them held his hands up, one on each side, so that they stayed steady till sunset.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'Who led Israel in the fight against Amalek?',
-        acceptedAnswers: ['Joshua'],
+        choices: ['Joshua', 'Aaron', 'Hur', 'Caleb'],
+        correctIndex: 0,
         explanation:
           'Moses told Joshua to choose men and go out to fight. It is the first time Joshua appears.',
       },
@@ -1370,21 +1363,14 @@ module.exports = [
           'Because the road was hard',
         ],
         correctIndex: 0,
-        explanation:
-          'It was because they tested Him, saying, "Is the LORD among us or not?"',
+        explanation: 'It was because they tested Him, saying, "Is the LORD among us or not?"',
       },
       {
         type: 'choice',
         question: 'What did Moses cry out?',
-        choices: [
-          'They are almost ready to stone me',
-          'Give us water',
-          'Show us the way',
-          'Let us rest',
-        ],
+        choices: ['They are almost ready to stone me', 'Give us water', 'Show us the way', 'Let us rest'],
         correctIndex: 0,
-        explanation:
-          'The mood was rough enough that the leader himself felt threatened.',
+        explanation: 'The mood was rough enough that the leader himself felt threatened.',
       },
     ],
   },
@@ -1395,9 +1381,10 @@ module.exports = [
       'Jethro, Moses’ father-in-law, comes bringing Zipporah and her two sons. When Moses tells him everything God has done, Jethro rejoices, says, "Now I know that the LORD is greater than all other gods," and offers sacrifices. The next day Jethro watches Moses judge the people alone from morning till evening, and says, "The work is too heavy for you; you cannot handle it alone." Then he gives him a plan: appoint men who fear God, are trustworthy and hate dishonest gain, as officials over thousands, hundreds, fifties and tens, and let only the hard cases come to Moses. Moses listened to him.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of the father-in-law who came to Moses?',
-        acceptedAnswers: ['Jethro'],
+        choices: ['Jethro', 'Aaron', 'Hur', 'Bethuel'],
+        correctIndex: 0,
         explanation: 'Jethro, the priest of Midian, brought Moses’ wife and his two sons.',
       },
       {
@@ -1423,8 +1410,7 @@ module.exports = [
           'The strongest men',
         ],
         correctIndex: 0,
-        explanation:
-          'The standard looks first at what kind of person a man is, not only at what he can do.',
+        explanation: 'The standard looks first at what kind of person a man is, not only at what he can do.',
       },
       {
         type: 'choice',
@@ -1436,8 +1422,7 @@ module.exports = [
           'Elders and people',
         ],
         correctIndex: 0,
-        explanation:
-          'They judged the simple cases themselves, and only the hard ones went to Moses.',
+        explanation: 'They judged the simple cases themselves, and only the hard ones went to Moses.',
       },
       {
         type: 'choice',
@@ -1449,21 +1434,20 @@ module.exports = [
           'That is hard to believe',
         ],
         correctIndex: 0,
-        explanation:
-          'Jethro was delighted, praised God, and brought a burnt offering and sacrifices.',
+        explanation: 'Jethro was delighted, praised God, and brought a burnt offering and sacrifices.',
       },
       {
         type: 'choice',
         question: 'What did Moses do with his father-in-law’s advice?',
         choices: ['He listened and did everything he said', 'He refused', 'He put it off', 'He was angry'],
         correctIndex: 0,
-        explanation:
-          'It is a scene of a leader taking advice. Moses appointed the men just as Jethro said.',
+        explanation: 'It is a scene of a leader taking advice. Moses appointed the men just as Jethro said.',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What was the name of Moses’ elder son?',
-        acceptedAnswers: ['Gershom'],
+        choices: ['Gershom', 'Eliezer', 'Nadab', 'Abihu'],
+        correctIndex: 0,
         explanation:
           'He was called Gershom, "I have become a foreigner in a foreign land," and the second was Eliezer, "my father’s God was my helper."',
       },
@@ -1485,13 +1469,13 @@ module.exports = [
           'Opening a road',
         ],
         correctIndex: 0,
-        explanation:
-          '"I carried you on eagles’ wings and brought you to myself."',
+        explanation: '"I carried you on eagles’ wings and brought you to myself."',
       },
       {
-        type: 'short',
+        type: 'choice',
         question: 'What kind of nation did God say they would be if they kept the covenant?',
-        acceptedAnswers: ['a kingdom of priests', 'kingdom of priests', 'a holy nation', 'a kingdom of priests and a holy nation'],
+        choices: ['A kingdom of priests', 'A strong nation', 'A great people', 'A blessed city'],
+        correctIndex: 0,
         explanation:
           'The whole earth is God’s, yet Israel would be His treasured possession, a kingdom of priests and a holy nation.',
       },
@@ -1531,13 +1515,13 @@ module.exports = [
           'The sun shone brightly',
         ],
         correctIndex: 0,
-        explanation:
-          'Everyone in the camp trembled, and Mount Sinai was covered with smoke.',
+        explanation: 'Everyone in the camp trembled, and Mount Sinai was covered with smoke.',
       },
       {
-        type: 'short',
-        question: 'How many months after leaving Egypt did Israel reach the Desert of Sinai? (number only)',
-        acceptedAnswers: ['3', 'three', '3 months'],
+        type: 'choice',
+        question: 'How many months after leaving Egypt did Israel reach the Desert of Sinai?',
+        choices: ['Three months', 'One month', 'Seven months', 'A year'],
+        correctIndex: 0,
         explanation: 'They came to the Desert of Sinai three months to the day after leaving Egypt.',
       },
       {
@@ -1550,8 +1534,7 @@ module.exports = [
           'To divide the camp',
         ],
         correctIndex: 0,
-        explanation:
-          'Holiness was stressed so strongly that anyone who crossed it was to be put to death.',
+        explanation: 'Holiness was stressed so strongly that anyone who crossed it was to be put to death.',
       },
     ],
   },
@@ -1562,13 +1545,15 @@ module.exports = [
       'The Ten Commandments are given. God first says who He is: "I am the LORD your God, who brought you out of Egypt, out of the land of slavery." Relationship comes before rules. The first four commandments face God — no other gods, no idols, do not misuse His name, keep the Sabbath holy. The last six face people — honour your parents, do not murder, commit adultery, steal or give false testimony, and do not covet what belongs to your neighbour. The people tremble at the thunder and the trumpet, stand far off, and ask Moses to speak to them instead.',
     questions: [
       {
-        type: 'short',
+        type: 'choice',
         question: 'What is the first commandment?',
-        acceptedAnswers: [
+        choices: [
           'You shall have no other gods before me',
-          'no other gods',
-          'You shall have no other gods',
+          'You shall not make an idol',
+          'Remember the Sabbath day',
+          'Honour your father and mother',
         ],
+        correctIndex: 0,
         explanation: 'The relationship with God stands in first place among the ten.',
       },
       {
@@ -1581,8 +1566,7 @@ module.exports = [
           'Be afraid',
         ],
         correctIndex: 0,
-        explanation:
-          'Who is speaking comes before what to do. Rescue first, commandments after.',
+        explanation: 'Who is speaking comes before what to do. Rescue first, commandments after.',
       },
       {
         type: 'choice',
@@ -1632,11 +1616,11 @@ module.exports = [
           'Moses answered, "Do not be afraid. God has come to test you, so that the fear of God will be with you."',
       },
       {
-        type: 'short',
-        question: 'How many commandments are there? (number only)',
-        acceptedAnswers: ['10', 'ten'],
-        explanation:
-          'The first four face God and the last six face other people.',
+        type: 'choice',
+        question: 'How many commandments are there?',
+        choices: ['Ten', 'Seven', 'Twelve', 'Five'],
+        correctIndex: 0,
+        explanation: 'The first four face God and the last six face other people.',
       },
     ],
   },
