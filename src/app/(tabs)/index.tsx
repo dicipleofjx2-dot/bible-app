@@ -71,6 +71,13 @@ const HOME_TILES: HomeTile[] = [
   { key: 'shepherdLetter', emoji: '💌', label: 'home.shepherdLetter', href: '/shepherd-letters' },
   { key: 'r2m', emoji: '🔥', label: 'home.r2m', href: '/bible-reading' },
   { key: 'readingHelper', emoji: '📆', label: 'home.readingHelper', href: '/reading-helper', requiresAuth: true },
+  // 성경게임대전 — 로그인 없이도 방에 들어가 볼 수 있게 두었다. 기록 저장만
+  // 로그인이 필요하다(→ docs/arena/README.md). 문 앞에서 막으면 「무슨 게임인지
+  // 보지도 못하고」 돌아간다.
+  // `as Href` 인 이유: expo-router 의 라우트 타입(.expo/types/router.d.ts)은 개발
+  // 서버가 돌 때 다시 만들어진다. 새 화면을 더한 직후에는 아직 그 목록에 없어서
+  // 타입 검사가 막힌다. 서버가 한 번 돌면 캐스팅 없이도 통과한다.
+  { key: 'arena', emoji: '🏆', label: 'home.arena', href: '/arena' as Href },
   { key: 'bulletin', emoji: '📰', label: 'home.churchBulletin', href: '/' as Href, externalUrl: SMART_BULLETIN_URL },
   { key: 'churchSite', emoji: '🏠', label: 'home.churchSite', href: '/' as Href, externalUrl: CHURCH_HOME_URL },
   // 데이빗북스 하나만 걸던 자리를 성장 탭으로 넓혔다. 데이빗북스는 그 안에

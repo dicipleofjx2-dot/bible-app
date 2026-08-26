@@ -44,6 +44,7 @@ export const STRINGS = {
   'home.shepherdLetter': { ko: '목자의 편지', en: "Pastor's Letter" },
   'home.readingHelper': { ko: '성경통독도우미', en: 'Bible Reading Helper' },
   'home.r2m': { ko: 'R2M훈련', en: 'R2M Training' },
+  'home.arena': { ko: '성경게임대전', en: 'Bible Arena' },
   'home.churchBulletin': { ko: '새부대스마트주보', en: 'Church Bulletin' },
   'home.churchSite': { ko: '새부대홈페이지', en: 'Church Website' },
   'home.support': { ko: 'David Bible 후원', en: 'Support David Bible' },
