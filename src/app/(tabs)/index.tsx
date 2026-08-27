@@ -17,6 +17,7 @@ import type { StringKey } from '@/constants/strings';
 import { getFirstQtEntry, getQtEntryForDate } from '@/db/bible';
 import { getMyActiveEnrollment, getTodayChecklistCount, type ActiveEnrollment } from '@/db/r2m';
 import { getMeditationNote } from '@/db/userData';
+import { hasQtRecordFor } from '@/db/qtApp';
 import { getLatestLetter, type ShepherdLetter } from '@/db/shepherdLetters';
 import { getLatestNotice, type Notice } from '@/db/notices';
 import { getCommunityUnread } from '@/db/community';
@@ -126,10 +127,14 @@ export default function HomeScreen() {
           // 않고 그 사이트로 보낸다(큐티 화면도 같다). 여기서는 범위만 알린다.
           setVerseRef(qt.label);
         }
+        // ✓ 는 두 곳을 본다. 큐티가 데이빗 큐티 앱으로 옮겨졌으므로 그쪽 기록이
+        // 먼저이고, 옛 화면으로 쓴 메모도 여전히 인정한다 — 어제까지 쓰던 사람의
+        // ✓ 가 하루아침에 사라지면 "내 기록이 날아갔다"가 된다.
         const note = await getMeditationNote(today).catch(() => null);
-        setQtDoneToday(!!note);
+        const doneInQtApp = session ? await hasQtRecordFor(session.user.id, today).catch(() => false) : false;
+        setQtDoneToday(!!note || doneInQtApp);
       })();
-    }, [db]),
+    }, [db, session]),
   );
 
   useFocusEffect(

@@ -1,7 +1,7 @@
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { Linking, Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 
@@ -28,6 +28,7 @@ import { getPublicShepherdQt, getShepherdQtForAdmin, upsertShepherdQt, type Shep
 import { pingCheckin } from '@/db/r2m';
 import { EMPTY_QT_ANSWERS, QUESTION_GROUPS, parseQtAnswers } from '@/constants/qt-questions';
 import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
+import { qtAppUrl } from '@/lib/qtApp';
 
 function todayDateString() {
   const d = new Date();
@@ -37,7 +38,69 @@ function todayDateString() {
   return `${y}-${m}-${day}`;
 }
 
+/**
+ * 큐티를 **데이빗 큐티 앱**으로 보낸다.
+ *
+ * 본문 이해 자료·영어 단어카드·30포인트가 그쪽에 있다. 아래 옛 화면(관찰/해석/적용
+ * 여섯 문항과 목자 큐티 공개)은 지우지 않고 그대로 두었다 — 목자 큐티를 새 앱으로
+ * 옮기기 전에 되돌려야 할 수도 있어서다. 되돌리려면 이 값 하나만 false 로 바꾸면
+ * 옛 화면이 그대로 돌아온다.
+ */
+const USE_QT_APP = true;
+
 export default function MeditationScreen() {
+  const params = useLocalSearchParams<{ date?: string }>();
+
+  if (USE_QT_APP) return <QtAppRedirect date={params.date} />;
+  return <ClassicMeditationScreen />;
+}
+
+/**
+ * 새 창이 아니라 **같은 창**으로 넘긴다.
+ *
+ * 데이빗바이블 웹은 브라우저 저장소를 한 탭만 잡을 수 있어, 탭이 늘면 나중 탭이
+ * 저장소 오류를 낸다. 큐티 앱은 다 마치면 여기로 되돌려 보내 준다.
+ * 폰 앱에서는 창이 없으니 기본 브라우저로 넘기고 이 화면은 물러난다.
+ */
+function QtAppRedirect({ date }: { date?: string }) {
+  const theme = useTheme();
+  const url = qtAppUrl(date);
+
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.location.replace(url);
+      return;
+    }
+    void Linking.openURL(url);
+    // 폰에서는 브라우저로 넘긴 뒤 이 빈 화면이 남지 않도록 물러난다.
+    const timer = setTimeout(() => {
+      if (router.canGoBack()) router.back();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [url]);
+
+  // 팝업 차단이나 느린 연결로 곧바로 안 넘어갈 때를 위한 자리.
+  return (
+    <ThemedView style={styles.redirectWrap}>
+      <ThemedText type="title" style={styles.redirectTitle}>
+        오늘의 큐티를 여는 중…
+      </ThemedText>
+      <ThemedText themeColor="textSecondary" style={styles.redirectText}>
+        잠시 뒤에도 열리지 않으면 아래를 눌러 주세요.
+      </ThemedText>
+      <Pressable
+        onPress={() => {
+          if (Platform.OS === 'web' && typeof window !== 'undefined') window.location.href = url;
+          else void Linking.openURL(url);
+        }}
+        style={[styles.redirectButton, { backgroundColor: theme.backgroundSelected }]}>
+        <ThemedText type="smallBold">오늘의 큐티 열기</ThemedText>
+      </Pressable>
+    </ThemedView>
+  );
+}
+
+function ClassicMeditationScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
   const params = useLocalSearchParams<{ date?: string }>();
@@ -366,6 +429,10 @@ export default function MeditationScreen() {
 }
 
 const styles = StyleSheet.create({
+  redirectWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.four, gap: Spacing.two },
+  redirectTitle: { textAlign: 'center' },
+  redirectText: { textAlign: 'center' },
+  redirectButton: { marginTop: Spacing.three, paddingVertical: 14, paddingHorizontal: 24, borderRadius: 14 },
   safeArea: {
     flex: 1,
   },
