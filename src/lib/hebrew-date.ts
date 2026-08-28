@@ -18,19 +18,60 @@ const HEBREW_MONTH_KO: Record<string, string> = {
   Elul: '엘룰월',
 };
 
-function getHebrewParts(date: Date) {
-  const parts = new Intl.DateTimeFormat('en-u-ca-hebrew', {
+// 달력 한 면이 42칸이고 칸마다 여러 번 부르게 되므로 포맷터를 한 번만 만든다
+// (Intl.DateTimeFormat 생성이 formatToParts 자체보다 훨씬 비싸다).
+let hebrewFormatter: Intl.DateTimeFormat | null = null;
+
+function getRawParts(date: Date) {
+  hebrewFormatter ??= new Intl.DateTimeFormat('en-u-ca-hebrew', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     timeZone: 'Asia/Seoul',
-  }).formatToParts(date);
+  });
+  const parts = hebrewFormatter.formatToParts(date);
 
-  const day = parts.find((p) => p.type === 'day')?.value ?? '';
-  const month = parts.find((p) => p.type === 'month')?.value ?? '';
-  const year = parts.find((p) => p.type === 'year')?.value ?? '';
+  return {
+    day: parts.find((p) => p.type === 'day')?.value ?? '',
+    month: parts.find((p) => p.type === 'month')?.value ?? '',
+    year: parts.find((p) => p.type === 'year')?.value ?? '',
+  };
+}
 
+function getHebrewParts(date: Date) {
+  const { day, month, year } = getRawParts(date);
   return { day, month: HEBREW_MONTH_KO[month] ?? month, year };
+}
+
+/**
+ * 사건 표에서 쓰는 정규화된 월 키. 윤년의 'Adar II' 는 평년 'Adar' 로 합친다 —
+ * 부림절과 아달월의 사건들은 윤년에 뒤쪽 아달에서 지키기 때문이다. 윤달인
+ * 'Adar I' 만 'AdarI' 로 따로 둔다.
+ */
+function normalizeMonthKey(month: string): string {
+  if (month === 'Adar II') return 'Adar';
+  if (month === 'Adar I') return 'AdarI';
+  return month;
+}
+
+export type HebrewFields = {
+  /** 사건 표 조회용 영문 월 키 (예: 'Nisan', 'Adar', 'AdarI'). */
+  monthKey: string;
+  /** 화면에 쓰는 한글 월 이름 (예: '니산월'). */
+  monthKo: string;
+  day: number;
+  year: number;
+};
+
+/** 히브리력 월·일을 숫자로 뽑는다. 한국 시간 자정 기준. */
+export function getHebrewFields(date: Date = new Date()): HebrewFields {
+  const { day, month, year } = getRawParts(date);
+  return {
+    monthKey: normalizeMonthKey(month),
+    monthKo: HEBREW_MONTH_KO[month] ?? month,
+    day: Number(day),
+    year: Number(year),
+  };
 }
 
 /** Today's date on the Hebrew calendar, computed in Korea Standard Time. */

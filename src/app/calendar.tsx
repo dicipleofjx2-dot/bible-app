@@ -1,11 +1,16 @@
 import { useMemo, useState } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import {
+  getHebrewDayInfoForDate,
+  hebrewDateHasContent,
+  type HebrewDayEntry,
+} from '@/lib/hebrew-calendar-events';
 import { getHebrewDateKST, getHebrewDayLabelKST, getKoreanDateKST } from '@/lib/hebrew-date';
 import { getHoliday } from '@/lib/korea-holidays';
 
@@ -70,6 +75,39 @@ export default function CalendarScreen() {
   }
 
   const selectedHoliday = selected ? getHoliday(selected.dateString) : undefined;
+  const selectedInfo = useMemo(
+    () => (selected ? getHebrewDayInfoForDate(selected.date) : null),
+    [selected],
+  );
+  const selectedIsEmpty =
+    selectedInfo != null &&
+    selectedInfo.festivals.length === 0 &&
+    selectedInfo.bible.length === 0 &&
+    selectedInfo.history.length === 0;
+
+  function renderEntries(title: string, entries: HebrewDayEntry[]) {
+    if (entries.length === 0) return null;
+    return (
+      <View style={styles.section}>
+        <ThemedText type="smallBold" themeColor="accent">
+          {title}
+        </ThemedText>
+        {entries.map((entry) => (
+          <View key={entry.title} style={styles.entry}>
+            <ThemedText type="smallBold">{entry.title}</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {entry.body}
+            </ThemedText>
+            {entry.ref && (
+              <ThemedText type="small" themeColor="accent">
+                {entry.ref}
+              </ThemedText>
+            )}
+          </View>
+        ))}
+      </View>
+    );
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -106,6 +144,9 @@ export default function CalendarScreen() {
             const holiday = getHoliday(cell.dateString);
             const weekday = cell.date.getDay();
             const dateColor = holiday || weekday === 0 ? SUNDAY_COLOR : weekday === 6 ? SATURDAY_COLOR : theme.text;
+            // 절기나 성경·역사 기록이 붙은 날은 히브리 날짜를 강조색으로 —
+            // 칸 높이를 건드리지 않으면서 "누를 것이 있다"를 알린다.
+            const hasEvents = hebrewDateHasContent(cell.date);
 
             return (
               <Pressable
@@ -124,7 +165,12 @@ export default function CalendarScreen() {
                   type="small"
                   themeColor="textSecondary"
                   numberOfLines={1}
-                  style={[styles.hebrewLabel, cell.isToday && { color: '#ffffff' }, !cell.inMonth && styles.dimmed]}>
+                  style={[
+                    styles.hebrewLabel,
+                    hasEvents && { color: theme.accent, fontWeight: '700' },
+                    cell.isToday && { color: '#ffffff' },
+                    !cell.inMonth && styles.dimmed,
+                  ]}>
                   {getHebrewDayLabelKST(cell.date)}
                 </ThemedText>
                 {holiday && (
@@ -150,17 +196,57 @@ export default function CalendarScreen() {
             type="background"
             style={[styles.sheet, { borderColor: theme.backgroundElement }]}
             onStartShouldSetResponder={() => true}>
-            {selected && (
+            {selected && selectedInfo && (
               <>
-                <ThemedText type="subtitle">{getKoreanDateKST(selected.date)}</ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
-                  {getHebrewDateKST(selected.date)}
-                </ThemedText>
-                {selectedHoliday && (
-                  <ThemedText type="smallBold" style={{ color: SUNDAY_COLOR }}>
-                    {selectedHoliday}
+                <ScrollView
+                  style={styles.sheetScroll}
+                  contentContainerStyle={styles.sheetContent}
+                  showsVerticalScrollIndicator={false}>
+                  <ThemedText type="subtitle">{getKoreanDateKST(selected.date)}</ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {getHebrewDateKST(selected.date)}
                   </ThemedText>
-                )}
+                  {selectedHoliday && (
+                    <ThemedText type="smallBold" style={{ color: SUNDAY_COLOR }}>
+                      {selectedHoliday}
+                    </ThemedText>
+                  )}
+
+                  {selectedInfo.festivals.length > 0 && (
+                    <View style={styles.badgeRow}>
+                      {selectedInfo.festivals.map((festival) => (
+                        <View
+                          key={festival}
+                          style={[styles.badge, { backgroundColor: theme.accentSoft }]}>
+                          <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                            {festival}
+                          </ThemedText>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+
+                  {renderEntries('성경에서 이 날', selectedInfo.bible)}
+                  {renderEntries('역사에서 이 날', selectedInfo.history)}
+
+                  {selectedIsEmpty && (
+                    <ThemedText type="small" themeColor="textSecondary" style={styles.section}>
+                      이 히브리 날짜에 매인 기록은 없습니다.
+                    </ThemedText>
+                  )}
+
+                  {selectedInfo.monthNote && (
+                    <View style={[styles.monthNote, { borderTopColor: theme.backgroundElement }]}>
+                      <ThemedText type="small" themeColor="textSecondary">
+                        {selectedInfo.monthNote}
+                      </ThemedText>
+                    </View>
+                  )}
+
+                  <ThemedText type="small" themeColor="textSecondary" style={styles.footnote}>
+                    유대력의 하루는 전날 해 질 때 시작합니다. 절기를 지킬 때는 하루 앞당겨 보세요.
+                  </ThemedText>
+                </ScrollView>
 
                 <Pressable onPress={() => setSelected(null)} style={styles.closeButton}>
                   <ThemedText type="link" themeColor="textSecondary">
@@ -233,10 +319,46 @@ const styles = StyleSheet.create({
   sheet: {
     width: '100%',
     maxWidth: 360,
+    maxHeight: '85%',
     borderRadius: Spacing.four,
     borderWidth: 1,
     padding: Spacing.four,
     gap: Spacing.two,
+  },
+  sheetScroll: {
+    flexGrow: 0,
+  },
+  sheetContent: {
+    gap: Spacing.two,
+    paddingBottom: Spacing.two,
+  },
+  section: {
+    marginTop: Spacing.two,
+    gap: Spacing.two,
+  },
+  entry: {
+    gap: 2,
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.one,
+    marginTop: Spacing.one,
+  },
+  badge: {
+    paddingHorizontal: Spacing.two,
+    paddingVertical: 2,
+    borderRadius: Spacing.two,
+  },
+  monthNote: {
+    marginTop: Spacing.three,
+    paddingTop: Spacing.two,
+    borderTopWidth: 1,
+  },
+  footnote: {
+    marginTop: Spacing.two,
+    fontSize: 12,
+    lineHeight: 18,
   },
   closeButton: {
     alignSelf: 'center',
