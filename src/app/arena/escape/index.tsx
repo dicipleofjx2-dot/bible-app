@@ -144,7 +144,9 @@ export default function EscapeRoomListScreen() {
             </>
           )}
 
-          {!userId && (
+          {/* 문이 닫혀 있을 때는 로그인 안내를 띄우지 않는다 — 「지금은 연습만
+              됩니다」가 함께 보이면 들어갈 수 있다는 말로 읽힌다. */}
+          {!userId && gate?.is_open !== false && (
             <Pressable
               onPress={() => router.push('/profile')}
               style={({ pressed }) => [

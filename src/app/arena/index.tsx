@@ -9,6 +9,7 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getTotalRanking, type EscapeTotalRankRow } from '@/lib/arena/db';
+import { getGateState, type GateState } from '@/lib/arena/gate';
 import { ESCAPE_ROOMS } from '@/lib/arena/rooms';
 import {
   championTotal,
@@ -90,14 +91,20 @@ export default function ArenaHomeScreen() {
   const [ranking, setRanking] = useState<EscapeTotalRankRow[]>([]);
   /** 지금 열려 있는 대회. 있으면 대문에 크게 건다 — 대회는 알려야 사람이 온다. */
   const [live, setLive] = useState<Tournament | null>(null);
+  const [gate, setGate] = useState<GateState | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
       (async () => {
-        const [rows, tournaments] = await Promise.all([getTotalRanking(10), listTournaments()]);
+        const [rows, tournaments, g] = await Promise.all([
+          getTotalRanking(10),
+          listTournaments(),
+          getGateState(),
+        ]);
         if (cancelled) return;
         setRanking(rows);
+        setGate(g);
         setLive(tournaments.find((t) => t.status === 'qualifying' || t.status === 'bracket') ?? null);
         setLoading(false);
       })();
@@ -116,9 +123,12 @@ export default function ArenaHomeScreen() {
           </Pressable>
 
           <ThemedText type="title">🏆 성경게임대전</ThemedText>
+          {/* 문이 잠겼는데 「열려 있어요」라고 하면 안 된다 — 눌러 보고서야
+              막힌 걸 알게 되면 고장으로 보인다. */}
           <ThemedText type="small" themeColor="textSecondary" style={styles.lead}>
-            여러 종목으로 겨루어 마지막에 한 사람, 성경 왕중왕을 뽑습니다. 지금은 상시
-            훈련장이 열려 있어요. 여기서 쌓은 기록이 그대로 예선 점수가 됩니다.
+            {gate?.is_open === false
+              ? '여러 종목으로 겨루어 마지막에 한 사람, 성경 왕중왕을 뽑습니다. 지금은 방탈출 문이 잠겨 있어요 — 대회 예선이 시작되면 함께 열립니다.'
+              : '여러 종목으로 겨루어 마지막에 한 사람, 성경 왕중왕을 뽑습니다. 지금은 상시 훈련장이 열려 있어요. 여기서 쌓은 기록이 그대로 예선 점수가 됩니다.'}
           </ThemedText>
 
           <View style={[styles.stageCard, { backgroundColor: theme.accentSoft }]}>
@@ -187,7 +197,10 @@ export default function ArenaHomeScreen() {
             종목
           </ThemedText>
 
-          {GAMES.map((g) => (
+          {GAMES.map((g) => {
+            // 방탈출과 겨루기는 같은 방을 쓴다. 문이 잠기면 둘 다 잠긴다.
+            const locked = gate?.is_open === false && (g.key === 'escape' || g.key === 'duel');
+            return (
             <Pressable
               key={g.key}
               disabled={!g.ready}
@@ -198,16 +211,17 @@ export default function ArenaHomeScreen() {
                 !g.ready && styles.dim,
                 pressed && styles.pressed,
               ]}>
-              <ThemedText style={styles.gameEmoji}>{g.emoji}</ThemedText>
+              <ThemedText style={styles.gameEmoji}>{locked ? '🔒' : g.emoji}</ThemedText>
               <View style={styles.gameBody}>
                 <ThemedText type="smallBold">{g.title}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  {g.desc}
+                  {locked ? '아직 문이 열리지 않았습니다' : g.desc}
                 </ThemedText>
               </View>
               {g.ready && <ThemedText type="small" themeColor="textSecondary">›</ThemedText>}
             </Pressable>
-          ))}
+            );
+          })}
 
           <ThemedText type="subtitle" style={styles.sectionTitle}>
             방탈출 종합 순위
