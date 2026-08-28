@@ -23,6 +23,7 @@ import {
   type Tournament,
 } from '@/lib/arena/tournament';
 import { firstWinLosesMoney, minSponsorFor } from '@/lib/arena/prizeMath';
+import { getGateState, setRoomsOpen, type GateState } from '@/lib/arena/gate';
 
 /** 대회 관리 — 열기 · 예선 마감 · 라운드 마감. → docs/arena/README.md
  *
@@ -59,9 +60,12 @@ export default function TournamentAdminScreen() {
   const [fee, setFee] = useState('20');
   const [sponsor, setSponsor] = useState('700');
 
+  const [gate, setGate] = useState<GateState | null>(null);
+
   const load = useCallback(async () => {
-    const rows = await listTournaments();
+    const [rows, g] = await Promise.all([listTournaments(), getGateState()]);
     setList(rows);
+    setGate(g);
     const bs: Record<string, BracketMatch[]> = {};
     for (const t of rows.filter((x) => x.status === 'bracket')) {
       bs[t.id] = await getBracket(t.id);
@@ -141,6 +145,49 @@ export default function TournamentAdminScreen() {
             </View>
           )}
           {busy && <ActivityIndicator style={styles.loading} />}
+
+          {/* ── 방탈출 문 여닫기 ──
+              대회를 시작하기도 전에 사람들이 들어와 문제를 다 풀어 버린 일이
+              있었다. 미리 본 사람이 유리해지면 대회가 대회가 아니다. */}
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            방탈출 문
+          </ThemedText>
+          <View style={[styles.card, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
+            <ThemedText type="smallBold" style={{ color: gate?.is_open ? theme.done : theme.accent }}>
+              {gate?.opened_by_admin
+                ? '🔓 열어 두었습니다 — 누구나 들어갈 수 있습니다'
+                : gate?.is_open
+                  ? '🔓 예선 기간이라 열려 있습니다'
+                  : '🔒 잠겨 있습니다 — 관리자만 들어갈 수 있습니다'}
+            </ThemedText>
+            <ThemedText type="small" themeColor="textSecondary" style={styles.line}>
+              잠가 두면 예선이 시작되기 전에 문제가 새어 나가지 않습니다. 예선이 있는
+              대회를 열면 그 기간에는 저절로 열립니다. 관리자는 잠겨 있어도 언제나
+              들어가 확인할 수 있어요.
+            </ThemedText>
+            <Pressable
+              disabled={busy}
+              onPress={async () => {
+                const opening = !gate?.opened_by_admin;
+                const ok = await confirmDestructive(
+                  opening ? '문을 열까요?' : '문을 잠글까요?',
+                  opening
+                    ? '누구나 방탈출에 들어가 문제를 볼 수 있게 됩니다.'
+                    : '관리자를 뺀 모두가 못 들어가게 됩니다. 예선이 진행 중인 대회가 있으면 그 기간에는 그래도 열립니다.',
+                  opening ? '열기' : '잠그기'
+                );
+                if (ok) void run(() => setRoomsOpen(opening));
+              }}
+              style={({ pressed }) => [
+                styles.actionButton,
+                { backgroundColor: theme.backgroundSelected },
+                pressed && styles.pressed,
+              ]}>
+              <ThemedText type="smallBold" style={styles.onAccent}>
+                {gate?.opened_by_admin ? '문 잠그기' : '문 열기'}
+              </ThemedText>
+            </Pressable>
+          </View>
 
           {/* ── 새 대회 ── */}
           <ThemedText type="subtitle" style={styles.sectionTitle}>

@@ -19,6 +19,8 @@ import {
   type RoomProgress,
 } from '@/lib/arena/db';
 import { HINT_PENALTY_SEC, WRONG_PENALTY_SEC } from '@/lib/arena/escapeTypes';
+import { DEFAULT_CLOSED_MESSAGE, getGateState, type GateState } from '@/lib/arena/gate';
+import { randomSeed } from '@/lib/arena/draw';
 import { findRoom } from '@/lib/arena/rooms';
 
 /** 혼자 치는 방탈출. 들어가기 전 안내와 끝난 뒤 결과만 여기 있고,
@@ -38,17 +40,25 @@ export default function EscapeRoomScreen() {
   const [progress, setProgress] = useState<RoomProgress | null>(null);
   const [result, setResult] = useState<RunResult | null>(null);
   const [ranking, setRanking] = useState<EscapeRankRow[]>([]);
-  /** EscapeRun 을 새로 시작시키기 위한 열쇠. 바뀌면 처음부터 다시 그려진다. */
+  const [gate, setGate] = useState<GateState | null>(null);
+  /** EscapeRun 을 새로 시작시키기 위한 열쇠. 바뀌면 처음부터 다시 그려진다.
+   * 씨앗도 함께 새로 만들어 1차와 2차가 **다른 문제**를 만나게 한다. */
   const [runKey, setRunKey] = useState(0);
+  const [seed, setSeed] = useState(() => randomSeed());
 
-  // 몇 번째 판인지 먼저 알아야 들어갈 수 있다.
+  // 문이 열렸는지, 몇 번째 판인지 먼저 알아야 들어갈 수 있다.
+  // 목록에서만 막으면 주소를 직접 쳐서 들어올 수 있다.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       // 로그인 없이도 들어가 볼 수 있다. 그때는 기록이 없으니 늘 1차다.
-      const p = userId && room ? await getRoomProgress(userId, room.id) : null;
+      const [p, g] = await Promise.all([
+        userId && room ? getRoomProgress(userId, room.id) : Promise.resolve(null),
+        getGateState(),
+      ]);
       if (cancelled) return;
       setProgress(p);
+      setGate(g);
       setPhase('intro');
     })();
     return () => {
@@ -109,6 +119,36 @@ export default function EscapeRoomScreen() {
     );
   }
 
+  // 문이 닫혀 있으면 방 안내조차 보여 주지 않는다 — 소개 글만 봐도 어느
+  // 사건인지 알 수 있어서 그것만으로 미리 준비가 된다.
+  if (gate && !gate.is_open) {
+    return (
+      <ThemedView style={styles.container}>
+        <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backRow}>
+              <ThemedText type="smallBold">← 뒤로</ThemedText>
+            </Pressable>
+            <ThemedText style={styles.bigEmoji}>🔒</ThemedText>
+            <ThemedText type="title" style={styles.center}>
+              아직 문이 열리지 않았습니다
+            </ThemedText>
+            <View style={[styles.rulesCard, { backgroundColor: theme.accentSoft }]}>
+              <ThemedText type="small" style={styles.line}>
+                {gate.closed_message || DEFAULT_CLOSED_MESSAGE}
+              </ThemedText>
+              {gate.next_open_from && (
+                <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                  {gate.next_tournament} · {gate.next_open_from} 부터
+                </ThemedText>
+              )}
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </ThemedView>
+    );
+  }
+
   /** 이번이 몇 번째 판인가 (1 또는 2). 기록이 없으면 1차. */
   const attemptNo = (progress?.attempts.length ?? 0) + 1;
 
@@ -117,6 +157,7 @@ export default function EscapeRoomScreen() {
       <EscapeRun
         key={runKey}
         room={room}
+        seed={seed}
         sideLabel={userId ? `${attemptNo}차` : '연습'}
         onFinish={handleFinish}
         onQuit={() => router.back()}
@@ -202,6 +243,7 @@ export default function EscapeRoomScreen() {
               <Pressable
                 onPress={() => {
                   setRunKey((k) => k + 1);
+                  setSeed(randomSeed());
                   setResult(null);
                   setRanking([]);
                   setPhase('playing');

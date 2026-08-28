@@ -1,7 +1,8 @@
 import type { EscapeRoom } from './escapeTypes';
 
-/** 방탈출 두 번째 묶음 (2026-08-26 추가). 규칙은 rooms.ts 머리말과 같다 —
- * 모든 정답에 장·절, 본문에 적힌 것만, 표기 갈리는 답은 다 적기, 개역개정 기준.
+/** 방탈출 두 번째 묶음. 규칙은 rooms.ts 머리말과 같다 —
+ * 모든 정답에 장·절, 본문에 적힌 것만, 표기 갈리는 답은 다 적기, 개역개정 기준,
+ * 그리고 **방마다 자물쇠 후보를 넉넉히** 둘 것.
  *
  * 파일을 나눈 이유는 하나뿐이다 — 한 파일이 길어지면 방을 더할 때 남의 방을
  * 잘못 건드리기 쉽다. 목록은 rooms.ts 가 합쳐서 내보낸다. */
@@ -15,49 +16,104 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
     intro:
       '억울하게 갇혔다. 함께 갇힌 두 관원이 간밤에 꾼 꿈 이야기를 한다. 이 꿈들을 풀어야 이 방에서 나갈 실마리가 잡힌다.',
     seconds: 300,
-    locks: [
+    lockPool: [
       {
-        id: 'joseph-1',
-        fixture: '문에 걸린 고발장',
-        question: '요셉을 모함하여 옥에 넣게 만든 여자는 누구의 아내인가?',
-        hint: '요셉을 사서 자기 집 총무로 삼았던 바로의 신하.',
-        reveal: '보디발. "요셉의 주인이 그를 잡아 옥에 넣으니" — 그 주인이 보디발이다 (창세기 39:1, 20)',
-        spec: { type: 'word', firstLetter: '보', accepted: ['보디발'] },
+        id: 'joseph-a',
+        fixture: '문에 걸린 매매 문서',
+        question: '요셉을 사서 자기 집에 둔 보디발은 바로의 무슨 벼슬아치였는가?',
+        hint: '왕의 몸을 지키는 군대의 우두머리.',
+        reveal: '친위대장. "바로의 신하 친위대장 애굽 사람 보디발이" (창세기 39:1)',
+        spec: {
+          type: 'choice',
+          choices: ['친위대장', '술 맡은 관원장', '떡 굽는 관원장', '나라의 총리'],
+          correctIndex: 0,
+        },
       },
       {
-        id: 'joseph-2',
+        id: 'joseph-b',
+        fixture: '간수장의 열쇠 꾸러미',
+        question: '옥에 갇힌 요셉에게 간수장이 맡긴 것은 무엇인가?',
+        hint: '간수장은 그가 하는 일을 살피지도 않았다.',
+        reveal: '옥에 갇힌 모든 죄수를 맡겼다. "옥중 죄수를 다 요셉의 손에 맡기므로" (창세기 39:22)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '옥의 열쇠만 맡겼다',
+            '옥에 갇힌 모든 죄수를 맡겼다',
+            '바깥 심부름만 맡겼다',
+            '아무것도 맡기지 않았다',
+          ],
+          correctIndex: 1,
+        },
+      },
+      {
+        id: 'joseph-c',
         fixture: '포도나무가 새겨진 잔',
-        question: '술 맡은 관원장이 요셉의 해몽대로 복직한 뒤, 요셉을 잊고 지낸 세월은 몇 해인가?',
-        hint: '바로가 꿈을 꾸기까지 걸린 시간이다.',
-        reveal: '만 이 년. "만 이 년 후에 바로가 꿈을 꾼즉" (창세기 41:1)',
-        spec: { type: 'number', unit: '년', answer: 2, digits: 1 },
+        question: '술 맡은 관원장의 꿈에 나온 포도나무 가지는 몇 개인가?',
+        hint: '요셉은 이것을 사흘로 풀었다.',
+        reveal: '세 가지. "그 나무에 세 가지가 있고" (창세기 40:10)',
+        spec: { type: 'number', unit: '가지', answer: 3, digits: 1 },
       },
       {
-        id: 'joseph-3',
+        id: 'joseph-d',
+        fixture: '머리에 인 광주리',
+        question: '떡 굽는 관원장의 꿈에 나온 흰 떡 광주리는 몇 개인가?',
+        hint: '술 맡은 관원장의 가지 수와 같다.',
+        reveal: '세 광주리. "내가 꿈에 보니 흰 떡 세 광주리가 내 머리에 있고" (창세기 40:16)',
+        spec: { type: 'number', unit: '광주리', answer: 3, digits: 1 },
+      },
+      {
+        id: 'joseph-e',
         fixture: '소가 그려진 벽화',
         question: '바로의 꿈에 나온 살진 소와 흉악한 소는 각각 몇 마리인가?',
         hint: '이삭도 같은 수로 나왔다.',
         reveal: '일곱 마리씩. "아름답고 살진 일곱 암소가 강 가에서 올라와" (창세기 41:2~3)',
         spec: { type: 'number', unit: '마리', answer: 7, digits: 1 },
       },
-    ],
-    finalLock: {
-      id: 'joseph-final',
-      fixture: '옥문',
-      question: '요셉이 이 옥에서 불려 나간 까닭은 무엇인가?',
-      hint: '왕이 밤에 꾼 것 때문이다.',
-      reveal: '바로의 꿈을 풀기 위해서. "바로가 사람을 보내어 요셉을 부르매 그들이 급히 그를 옥에서 내놓은지라" (창세기 41:14)',
-      spec: {
-        type: 'choice',
-        choices: [
-          '형들이 찾아와 몸값을 냈기 때문에',
-          '바로의 꿈을 풀기 위해 불려 나갔다',
-          '형기를 다 채웠기 때문에',
-          '보디발이 잘못을 뉘우쳤기 때문에',
-        ],
-        correctIndex: 1,
+      {
+        id: 'joseph-f',
+        fixture: '나이를 새긴 문설주',
+        question: '요셉이 애굽 왕 바로 앞에 설 때 몇 세였는가?',
+        hint: '두 자리 수.',
+        reveal: '삼십 세. "요셉이 애굽 왕 바로 앞에 설 때에 삼십 세라" (창세기 41:46)',
+        spec: { type: 'number', unit: '세', answer: 30, digits: 2 },
       },
-    },
+      {
+        id: 'joseph-g',
+        fixture: '곳간 문에 적힌 햇수',
+        question: '요셉이 푼 꿈에서 풍년과 흉년은 각각 몇 해씩인가?',
+        hint: '소와 이삭의 수와 같다.',
+        reveal: '일곱 해씩. "온 애굽 땅에 일곱 해 큰 풍년이 있겠고 후에 일곱 해 흉년이 들므로" (창세기 41:29~30)',
+        spec: { type: 'number', unit: '해', answer: 7, digits: 1 },
+      },
+    ],
+    finalPool: [
+      {
+        id: 'joseph-final-a',
+        fixture: '옥문',
+        question: '바로가 요셉에게 새로 지어 준 이름은?',
+        hint: '애굽식 이름이다.',
+        reveal: '사브낫바네아. "요셉의 이름을 사브낫바네아라 하고" (창세기 41:45)',
+        spec: { type: 'word', firstLetter: '사', accepted: ['사브낫바네아'] },
+      },
+      {
+        id: 'joseph-final-b',
+        fixture: '옥문',
+        question: '꿈을 풀 수 있느냐는 바로의 물음에 요셉이 한 대답은?',
+        hint: '자기 능력이라 하지 않았다.',
+        reveal: '"내가 아니라 하나님께서 바로에게 편안한 대답을 하시리이다" (창세기 41:16)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '내가 아니라 하나님께서 바로에게 편안한 대답을 하시리이다',
+            '내가 애굽의 모든 술객보다 지혜로우니이다',
+            '먼저 나를 옥에서 내어 주소서',
+            '꿈은 다 헛것이니이다',
+          ],
+          correctIndex: 0,
+        },
+      },
+    ],
     outro: '옥에서 나와 수염을 깎고 옷을 갈아입는다. 곧 애굽의 총리가 될 사람이다.',
   },
 
@@ -70,9 +126,9 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
     intro:
       '풍악이 울리면 모두 엎드려야 한다. 엎드리지 않은 사람은 풀무 불에 던져진다. 열기가 문틈으로 밀려 들어온다.',
     seconds: 300,
-    locks: [
+    lockPool: [
       {
-        id: 'furnace-1',
+        id: 'furnace-a',
         fixture: '신상의 받침돌',
         question: '느부갓네살이 세운 금 신상의 높이는 몇 규빗인가?',
         hint: '너비는 여섯 규빗이었다. 높이는 그 열 배.',
@@ -80,7 +136,15 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
         spec: { type: 'number', unit: '규빗', answer: 60, digits: 2 },
       },
       {
-        id: 'furnace-2',
+        id: 'furnace-b',
+        fixture: '평지를 그린 지도',
+        question: '금 신상을 세운 곳은 바벨론 지방의 어느 평지인가?',
+        hint: '성경에 이름이 적혀 있다.',
+        reveal: '두라 평지. "바벨론 지방의 두라 평지에 세웠더라" (다니엘 3:1)',
+        spec: { type: 'word', firstLetter: '두', accepted: ['두라', '두라평지'] },
+      },
+      {
+        id: 'furnace-c',
         fixture: '풀무의 화력 조절판',
         question: '왕은 풀무를 평소보다 몇 배나 뜨겁게 하라고 명하였는가?',
         hint: '성경에서 되풀이되는 그 수.',
@@ -88,22 +152,89 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
         spec: { type: 'number', unit: '배', answer: 7, digits: 1 },
       },
       {
-        id: 'furnace-3',
-        fixture: '세 사람의 이름이 적힌 명패',
-        question: '사드락, 메삭과 함께 고발당한 세 번째 사람의 이름은?',
-        hint: '히브리 이름은 아사랴였다.',
-        reveal: '아벳느고. "유다 사람 사드락과 메삭과 아벳느고이니이다" (다니엘 3:12)',
-        spec: { type: 'word', firstLetter: '아', accepted: ['아벳느고', '아벳느고요'] },
+        id: 'furnace-d',
+        fixture: '세 사람의 이름패',
+        question: '고발당한 세 사람의 이름을 성경에 적힌 차례대로 세워라.',
+        hint: '다니엘 3장이 늘 이 차례로 부른다.',
+        reveal: '"유다 사람 사드락과 메삭과 아벳느고이니이다" (다니엘 3:12)',
+        spec: { type: 'order', items: ['사드락', '메삭', '아벳느고'] },
+      },
+      {
+        id: 'furnace-e',
+        fixture: '악기가 걸린 벽',
+        question: '무엇을 신호로 모두 엎드려 절하라고 했는가?',
+        hint: '여러 악기가 한꺼번에 울렸다.',
+        reveal:
+          '나팔과 피리와 수금 등 모든 악기 소리. "나팔과 피리와 수금과 삼현금과 양금과 생황과 및 모든 악기 소리를 들을 때에" (다니엘 3:5)',
+        spec: {
+          type: 'choice',
+          choices: ['왕의 외침', '북소리 세 번', '모든 악기 소리', '해가 지는 것'],
+          correctIndex: 2,
+        },
+      },
+      {
+        id: 'furnace-f',
+        fixture: '풀무 앞에 남은 재',
+        question: '세 사람을 붙들어 던진 자들에게 일어난 일은?',
+        hint: '불이 너무 뜨거웠다.',
+        reveal: '불꽃에 타 죽었다. "불꽃이 그 사람들을 태워 죽였고" (다니엘 3:22)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '아무 일도 없었다',
+            '불꽃에 타 죽었다',
+            '왕에게 상을 받았다',
+            '함께 풀무에 빠졌다가 살아났다',
+          ],
+          correctIndex: 1,
+        },
+      },
+      {
+        id: 'furnace-g',
+        fixture: '불에서 나온 옷자락',
+        question: '불에서 나온 세 사람의 몸에서 사람들이 확인한 것은?',
+        hint: '냄새까지 살폈다.',
+        reveal:
+          '머리털도 그을리지 않고 불 탄 냄새도 없었다. "머리털도 그을리지 아니하였고 겉옷 빛도 변하지 아니하였고 불 탄 냄새도 없었더라" (다니엘 3:27)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '옷만 조금 탔다',
+            '머리털도 그을리지 않고 불 탄 냄새도 없었다',
+            '손에 화상이 남았다',
+            '얼굴이 검게 그을렸다',
+          ],
+          correctIndex: 1,
+        },
       },
     ],
-    finalLock: {
-      id: 'furnace-final',
-      fixture: '풀무의 아귀',
-      question: '왕이 불 가운데를 들여다보았을 때 그 안에 있던 사람은 모두 몇 명인가?',
-      hint: '셋을 던졌는데 하나가 더 있었다.',
-      reveal: '네 사람. "내가 보니 결박되지 아니한 네 사람이 불 가운데로 다니는데" (다니엘 3:25)',
-      spec: { type: 'number', unit: '명', answer: 4, digits: 1 },
-    },
+    finalPool: [
+      {
+        id: 'furnace-final-a',
+        fixture: '풀무의 아귀',
+        question: '왕이 불 가운데를 들여다보았을 때 그 안에 있던 사람은 모두 몇 명인가?',
+        hint: '셋을 던졌는데 하나가 더 있었다.',
+        reveal: '네 사람. "내가 보니 결박되지 아니한 네 사람이 불 가운데로 다니는데" (다니엘 3:25)',
+        spec: { type: 'number', unit: '명', answer: 4, digits: 1 },
+      },
+      {
+        id: 'furnace-final-b',
+        fixture: '풀무의 아귀',
+        question: '왕이 불 가운데 넷째 사람을 보고 한 말은?',
+        hint: '사람이 아닌 것 같다고 했다.',
+        reveal: '"넷째의 모양은 신들의 아들과 같도다" (다니엘 3:25)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '넷째는 내 신하로다',
+            '넷째의 모양은 신들의 아들과 같도다',
+            '넷째는 그림자일 뿐이로다',
+            '넷째를 당장 끌어내라',
+          ],
+          correctIndex: 1,
+        },
+      },
+    ],
     outro: '불에서 나온 세 사람의 머리털 하나 그을리지 않았다. 불 탄 냄새조차 나지 않는다.',
   },
 
@@ -116,17 +247,59 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
     intro:
       '진영이 마흔 날째 얼어붙어 있다. 골짜기 건너에서 거인이 아침저녁으로 외친다. 아무도 나서지 않는다.',
     seconds: 300,
-    locks: [
+    lockPool: [
       {
-        id: 'goliath-1',
-        fixture: '두 진영이 그려진 지도',
-        question: '블레셋과 이스라엘이 진을 치고 마주한 골짜기의 이름은?',
-        hint: '소고와 아세가 사이다.',
-        reveal: '엘라 골짜기. "엘라 골짜기에 진 치고 블레셋 사람들과 대치하였더니" (사무엘상 17:2)',
-        spec: { type: 'word', firstLetter: '엘', accepted: ['엘라', '엘라골짜기'] },
+        id: 'goliath-a',
+        fixture: '적장의 출신이 적힌 방패',
+        question: '골리앗은 블레셋의 어느 성읍 사람인가?',
+        hint: '블레셋 다섯 성읍 가운데 하나.',
+        reveal: '가드. "블레셋 사람들의 진영에서 싸움을 돋우는 자가 나왔으니 그는 가드 사람 골리앗이요" (사무엘상 17:4)',
+        spec: { type: 'word', firstLetter: '가', accepted: ['가드'] },
       },
       {
-        id: 'goliath-2',
+        id: 'goliath-b',
+        fixture: '창날의 무게를 잰 저울',
+        question: '골리앗의 창날은 철 몇 세겔이었는가?',
+        hint: '세 자리 수.',
+        reveal: '육백 세겔. "그 창날은 철 육백 세겔이며" (사무엘상 17:7)',
+        spec: { type: 'number', unit: '세겔', answer: 600, digits: 3 },
+      },
+      {
+        id: 'goliath-c',
+        fixture: '벽에 그은 날짜 금',
+        question: '골리앗이 아침저녁으로 나와 몸을 나타낸 것은 며칠 동안인가?',
+        hint: '두 자리 수. 성경에서 되풀이되는 그 수.',
+        reveal: '사십 일. "그 블레셋 사람이 사십 일을 조석으로 나와서 몸을 나타내었더라" (사무엘상 17:16)',
+        spec: { type: 'number', unit: '일', answer: 40, digits: 2 },
+      },
+      {
+        id: 'goliath-d',
+        fixture: '형들에게 보낼 짐',
+        question: '이새가 다윗에게 형들에게 가져다주라고 들려 보낸 것은?',
+        hint: '볶은 곡식과 떡, 그리고 천부장에게 줄 것도 있었다.',
+        reveal:
+          '볶은 곡식과 떡, 그리고 천부장에게 줄 치즈 열 덩이. "이 치즈 열 덩이를 가져다가 그들의 천부장에게 주고" (사무엘상 17:17~18)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '무기와 갑옷',
+            '볶은 곡식과 떡, 치즈 열 덩이',
+            '포도주 열 병',
+            '양 다섯 마리',
+          ],
+          correctIndex: 1,
+        },
+      },
+      {
+        id: 'goliath-e',
+        fixture: '형들의 이름이 적힌 명단',
+        question: '싸움에 나간 다윗의 형들 가운데 맏형의 이름은?',
+        hint: '뒷날 사무엘이 기름 부으러 왔을 때 처음 지나간 사람이기도 하다.',
+        reveal: '엘리압. "싸움에 나간 세 아들의 이름은 장자 엘리압이요" (사무엘상 17:13)',
+        spec: { type: 'word', firstLetter: '엘', accepted: ['엘리압'] },
+      },
+      {
+        id: 'goliath-f',
         fixture: '시냇가의 자갈 무더기',
         question: '다윗이 시내에서 골라 주머니에 넣은 매끄러운 돌은 몇 개인가?',
         hint: '한 개로 끝났지만, 고른 것은 그보다 많았다.',
@@ -134,31 +307,47 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
         spec: { type: 'number', unit: '개', answer: 5, digits: 1 },
       },
       {
-        id: 'goliath-3',
-        fixture: '벗어 놓은 갑옷',
-        question: '사울이 입혀 준 갑옷을 다윗은 어떻게 하였는가?',
-        hint: '입어 보기는 했다.',
-        reveal: '익숙하지 못하여 벗었다. "내가 익숙하지 못하니 이것을 입고 가지 못하겠나이다 하고 곧 벗고" (사무엘상 17:39)',
+        id: 'goliath-g',
+        fixture: '땅에 떨어진 큰 칼',
+        question: '쓰러진 골리앗의 목을 다윗은 무엇으로 베었는가?',
+        hint: '다윗에게는 칼이 없었다.',
+        reveal:
+          '골리앗 자신의 칼로. "블레셋 사람에게로 달려가서 그를 밟고 그의 칼을 그 칼 집에서 빼내어 그를 죽이고 그의 머리를 베니" (사무엘상 17:51)',
         spec: {
           type: 'choice',
-          choices: [
-            '그대로 입고 나갔다',
-            '익숙하지 못하여 벗어 놓았다',
-            '무거워서 갑옷만 벗고 투구는 썼다',
-            '사울에게 돌려주고 다른 갑옷을 빌렸다',
-          ],
-          correctIndex: 1,
+          choices: ['자기 물매로', '사울에게 빌린 칼로', '골리앗 자신의 칼로', '형 엘리압의 칼로'],
+          correctIndex: 2,
         },
       },
     ],
-    finalLock: {
-      id: 'goliath-final',
-      fixture: '거인의 키를 새긴 기둥',
-      question: '골리앗의 키는 몇 규빗 한 뼘이었는가?',
-      hint: '한 자리 수다.',
-      reveal: '여섯 규빗 한 뼘. "그의 키는 여섯 규빗 한 뼘이요" (사무엘상 17:4)',
-      spec: { type: 'number', unit: '규빗 한 뼘', answer: 6, digits: 1 },
-    },
+    finalPool: [
+      {
+        id: 'goliath-final-a',
+        fixture: '거인의 키를 새긴 기둥',
+        question: '골리앗의 키는 몇 규빗 한 뼘이었는가?',
+        hint: '한 자리 수다.',
+        reveal: '여섯 규빗 한 뼘. "그의 키는 여섯 규빗 한 뼘이요" (사무엘상 17:4)',
+        spec: { type: 'number', unit: '규빗 한 뼘', answer: 6, digits: 1 },
+      },
+      {
+        id: 'goliath-final-b',
+        fixture: '골짜기를 건너는 길',
+        question: '다윗이 골리앗 앞에 나아가며 외친 말은?',
+        hint: '무기를 견주지 않고 이름을 견주었다.',
+        reveal:
+          '"너는 칼과 창과 단창으로 내게 나아 오거니와 나는 만군의 여호와의 이름 곧 네가 모욕하는 이스라엘 군대의 하나님의 이름으로 네게 나아가노라" (사무엘상 17:45)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '나는 만군의 여호와의 이름으로 네게 나아가노라',
+            '내 물매가 네 창보다 빠르니라',
+            '왕이 내게 상을 약속하였느니라',
+            '내 형들이 뒤를 따르리라',
+          ],
+          correctIndex: 0,
+        },
+      },
+    ],
     outro: '물맷돌 하나가 이마에 박힌다. 마흔 날 얼어붙었던 골짜기가 한순간에 움직인다.',
   },
 
@@ -171,9 +360,9 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
     intro:
       '가뭄이 삼 년째다. 산 위에 두 제단이 놓였고 온 백성이 지켜본다. 불로 응답하는 신이 참 하나님이다.',
     seconds: 330,
-    locks: [
+    lockPool: [
       {
-        id: 'carmel-1',
+        id: 'carmel-a',
         fixture: '선지자들의 명부',
         question: '엘리야 홀로 맞선 바알의 선지자는 몇 명인가?',
         hint: '아세라 선지자 사백 명은 여기 세지 않는다.',
@@ -181,7 +370,23 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
         spec: { type: 'number', unit: '명', answer: 450, digits: 3 },
       },
       {
-        id: 'carmel-2',
+        id: 'carmel-b',
+        fixture: '굴을 표시한 지도',
+        question: '오바댜가 굴에 숨겨 먹인 여호와의 선지자는 몇 명인가?',
+        hint: '오십 명씩 두 굴에 나누어 숨겼다.',
+        reveal: '백 명. "선지자 백 명을 가져다가 오십 명씩 굴에 숨기고 떡과 물을 먹였더라" (열왕기상 18:4)',
+        spec: { type: 'number', unit: '명', answer: 100, digits: 3 },
+      },
+      {
+        id: 'carmel-c',
+        fixture: '제단에 쌓인 돌',
+        question: '엘리야가 제단을 쌓을 때 취한 돌은 몇 개인가?',
+        hint: '이스라엘 지파의 수효를 따랐다.',
+        reveal: '열두 돌. "야곱의 아들들의 지파의 수효를 따라 돌 열두 개를 취하고" (열왕기상 18:31)',
+        spec: { type: 'number', unit: '개', answer: 12, digits: 2 },
+      },
+      {
+        id: 'carmel-d',
         fixture: '물통이 놓인 자리',
         question: '엘리야는 제물과 나무 위에 물을 한 번에 몇 통씩 부으라고 했는가?',
         hint: '통은 넷이었다.',
@@ -189,22 +394,77 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
         spec: { type: 'number', unit: '통', answer: 4, digits: 1 },
       },
       {
-        id: 'carmel-3',
+        id: 'carmel-e',
         fixture: '도랑에 남은 물자국',
         question: '그렇게 물을 붓기를 모두 몇 번 되풀이했는가?',
         hint: '두 번째, 세 번째까지 이어졌다.',
         reveal: '세 번. "또 이르되 세 번째로 그리하라 하여 세 번째로 그리하니" (열왕기상 18:34)',
         spec: { type: 'number', unit: '번', answer: 3, digits: 1 },
       },
+      {
+        id: 'carmel-f',
+        fixture: '피가 마른 제단가',
+        question: '바알의 선지자들이 응답이 없자 한 일은 무엇인가?',
+        hint: '자기 몸을 상하게 했다.',
+        reveal:
+          '칼과 창으로 피가 흐르기까지 몸을 상하게 했다. "그들의 규례를 따라 피가 흐르기까지 칼과 창으로 그들의 몸을 상하게 하더라" (열왕기상 18:28)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '제단을 무너뜨렸다',
+            '칼과 창으로 피가 흐르기까지 몸을 상하게 했다',
+            '엘리야를 붙잡으려 했다',
+            '아합에게 도움을 청했다',
+          ],
+          correctIndex: 1,
+        },
+      },
+      {
+        id: 'carmel-g',
+        fixture: '엘리야가 놀린 말이 적힌 판',
+        question: '엘리야가 바알 선지자들을 조롱하며 한 말은?',
+        hint: '그들의 신이 자고 있을지 모른다고 했다.',
+        reveal:
+          '"그가 묵상하고 있는지 혹은 그가 잠깐 나갔는지 혹은 그가 길을 행하는지 혹은 그가 잠이 들어서 깨워야 할 것인지" (열왕기상 18:27)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '그가 잠이 들었는지 깨워야 할 것이라',
+            '그가 이미 죽었느니라',
+            '그가 너희를 미워하느니라',
+            '그가 다른 산에 있느니라',
+          ],
+          correctIndex: 0,
+        },
+      },
     ],
-    finalLock: {
-      id: 'carmel-final',
-      fixture: '산 이름이 새겨진 표석',
-      question: '이 대결이 벌어진 산의 이름은?',
-      hint: '엘리야가 온 이스라엘을 이 산으로 모았다.',
-      reveal: '갈멜산. "아합이 이스라엘의 모든 자손에게로 사람을 보내 선지자들을 갈멜 산으로 모으니라" (열왕기상 18:20)',
-      spec: { type: 'word', firstLetter: '갈', accepted: ['갈멜', '갈멜산'] },
-    },
+    finalPool: [
+      {
+        id: 'carmel-final-a',
+        fixture: '산 이름이 새겨진 표석',
+        question: '이 대결이 벌어진 산의 이름은?',
+        hint: '엘리야가 온 이스라엘을 이 산으로 모았다.',
+        reveal: '갈멜산. "아합이 이스라엘의 모든 자손에게로 사람을 보내 선지자들을 갈멜 산으로 모으니라" (열왕기상 18:20)',
+        spec: { type: 'word', firstLetter: '갈', accepted: ['갈멜', '갈멜산'] },
+      },
+      {
+        id: 'carmel-final-b',
+        fixture: '불이 지나간 자리',
+        question: '불이 내린 것을 본 백성이 엎드려 한 말은?',
+        hint: '두 번 되풀이해 외쳤다.',
+        reveal: '"여호와 그는 하나님이시로다 여호와 그는 하나님이시로다" (열왕기상 18:39)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '엘리야가 큰 선지자로다',
+            '여호와 그는 하나님이시로다',
+            '바알도 신이로다',
+            '비를 내려 주소서',
+          ],
+          correctIndex: 1,
+        },
+      },
+    ],
     outro: '여호와의 불이 내려 제물과 나무와 돌과 흙을 태우고 도랑의 물까지 핥는다.',
   },
 
@@ -217,9 +477,17 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
     intro:
       '모래와 돌뿐이다. 사십 일을 굶었고 몸에 힘이 없다. 이때 시험하는 자가 다가와 말을 건다.',
     seconds: 300,
-    locks: [
+    lockPool: [
       {
-        id: 'temptation-1',
+        id: 'temptation-a',
+        fixture: '광야로 난 발자국',
+        question: '예수를 광야로 이끄신 이는 누구인가?',
+        hint: '마귀가 이끈 것이 아니다.',
+        reveal: '성령. "그 때에 예수께서 성령에게 이끌리어 마귀에게 시험을 받으러 광야로 가사" (마태복음 4:1)',
+        spec: { type: 'word', firstLetter: '성', accepted: ['성령'] },
+      },
+      {
+        id: 'temptation-b',
         fixture: '모래에 그은 날짜',
         question: '광야에서 몇 날 몇 밤을 금식하셨는가?',
         hint: '모세가 시내산에서 지낸 그 날수와 같다.',
@@ -227,24 +495,7 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
         spec: { type: 'number', unit: '일', answer: 40, digits: 2 },
       },
       {
-        id: 'temptation-2',
-        fixture: '발치에 구르는 돌',
-        question: '시험하는 자가 맨 처음 건넨 말은?',
-        hint: '굶주림을 파고들었다.',
-        reveal: '"이 돌들로 떡덩이가 되게 하라" (마태복음 4:3)',
-        spec: {
-          type: 'choice',
-          choices: [
-            '이 돌들로 떡덩이가 되게 하라',
-            '성전 꼭대기에서 뛰어내리라',
-            '내게 엎드려 경배하라',
-            '이 광야를 떠나 성으로 들어가라',
-          ],
-          correctIndex: 0,
-        },
-      },
-      {
-        id: 'temptation-3',
+        id: 'temptation-c',
         fixture: '세 갈래로 갈라진 길',
         question: '세 시험이 온 차례대로 세워라.',
         hint: '마지막은 천하만국을 보이며 한 말이다.',
@@ -258,15 +509,99 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
           ],
         },
       },
+      {
+        id: 'temptation-d',
+        fixture: '성전 꼭대기의 난간',
+        question: '두 번째 시험에서 마귀가 끌어다 쓴 것은 무엇인가?',
+        hint: '마귀도 성경을 인용했다.',
+        reveal:
+          '기록된 말씀(시편 91편). "그가 너를 위하여 그의 사자들을 명하시리니 그들이 손으로 너를 받들어" (마태복음 4:6)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '기록된 말씀을 인용했다',
+            '천사를 데려와 보였다',
+            '왕들의 이름을 들었다',
+            '광야의 짐승을 불렀다',
+          ],
+          correctIndex: 0,
+        },
+      },
+      {
+        id: 'temptation-e',
+        fixture: '두 번째 대답이 적힌 돌판',
+        question: '성전 꼭대기의 시험에 예수께서 하신 대답은?',
+        hint: '신명기에서 인용하셨다.',
+        reveal: '"주 너의 하나님을 시험하지 말라 하였느니라" (마태복음 4:7)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '사탄아 물러가라',
+            '주 너의 하나님을 시험하지 말라 하였느니라',
+            '사람이 떡으로만 살 것이 아니니라',
+            '주 너의 하나님께 경배하고 다만 그를 섬기라',
+          ],
+          correctIndex: 1,
+        },
+      },
+      {
+        id: 'temptation-f',
+        fixture: '높은 산에서 내려다본 풍경',
+        question: '세 번째 시험에서 마귀가 예수께 보인 것은?',
+        hint: '지극히 높은 산으로 데려갔다.',
+        reveal: '천하만국과 그 영광. "마귀가 또 그를 데리고 지극히 높은 산으로 가서 천하만국과 그 영광을 보여" (마태복음 4:8)',
+        spec: {
+          type: 'choice',
+          choices: ['천하만국과 그 영광', '온 바다와 배들', '예루살렘 성전', '광야의 모든 짐승'],
+          correctIndex: 0,
+        },
+      },
+      {
+        id: 'temptation-g',
+        fixture: '광야를 떠나는 발자국',
+        question: '마귀가 떠난 뒤 무슨 일이 있었는가?',
+        hint: '혼자 남겨지지 않으셨다.',
+        reveal: '천사들이 나아와 수종들었다. "이에 마귀는 예수를 떠나고 천사들이 나아와서 수종드니라" (마태복음 4:11)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '비가 내려 목을 축이셨다',
+            '천사들이 나아와 수종들었다',
+            '제자들이 찾아왔다',
+            '곧바로 예루살렘으로 가셨다',
+          ],
+          correctIndex: 1,
+        },
+      },
     ],
-    finalLock: {
-      id: 'temptation-final',
-      fixture: '광야를 벗어나는 길목',
-      question: '"사람이 ○으로만 살 것이 아니요 하나님의 입으로부터 나오는 모든 말씀으로 살 것이라" — 빈칸의 한 글자는?',
-      hint: '첫 번째 시험이 겨눈 바로 그것.',
-      reveal: '떡. "사람이 떡으로만 살 것이 아니요 하나님의 입으로부터 나오는 모든 말씀으로 살 것이라" (마태복음 4:4)',
-      spec: { type: 'word', accepted: ['떡'] },
-    },
+    finalPool: [
+      {
+        id: 'temptation-final-a',
+        fixture: '광야를 벗어나는 길목',
+        question: '"사람이 ○으로만 살 것이 아니요 하나님의 입으로부터 나오는 모든 말씀으로 살 것이라" — 빈칸의 한 글자는?',
+        hint: '첫 번째 시험이 겨눈 바로 그것.',
+        reveal: '떡. "사람이 떡으로만 살 것이 아니요 하나님의 입으로부터 나오는 모든 말씀으로 살 것이라" (마태복음 4:4)',
+        spec: { type: 'word', accepted: ['떡'] },
+      },
+      {
+        id: 'temptation-final-b',
+        fixture: '광야를 벗어나는 길목',
+        question: '마지막 시험에 예수께서 하신 대답은?',
+        hint: '마귀를 물리치며 섬김에 대해 말씀하셨다.',
+        reveal:
+          '"사탄아 물러가라 기록되었으되 주 너의 하나님께 경배하고 다만 그를 섬기라 하였느니라" (마태복음 4:10)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '주 너의 하나님을 시험하지 말라',
+            '사탄아 물러가라, 주 너의 하나님께 경배하고 다만 그를 섬기라',
+            '사람이 떡으로만 살 것이 아니니라',
+            '네가 하나님의 아들이거든 뛰어내리라',
+          ],
+          correctIndex: 1,
+        },
+      },
+    ],
     outro: '마귀가 떠나고 천사들이 나아와 수종든다.',
   },
 
@@ -279,9 +614,33 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
     intro:
       '큰 광풍이 일고 물결이 배에 부딪쳐 물이 가득 찬다. 노를 저어도 소용이 없다. 배 안에서 답을 찾아야 한다.',
     seconds: 300,
-    locks: [
+    lockPool: [
       {
-        id: 'storm-1',
+        id: 'storm-a',
+        fixture: '저물녘의 뱃머리',
+        question: '예수께서 제자들에게 하신 말씀 "우리가 ○○○으로 건너가자"의 빈칸은?',
+        hint: '호수 저쪽을 가리키는 말이다.',
+        reveal: '건너편. "그 날 저물 때에 제자들에게 이르시되 우리가 저편으로 건너가자 하시니" (마가복음 4:35)',
+        spec: {
+          type: 'choice',
+          choices: ['건너편(저편)', '갈릴리 성', '예루살렘', '가버나움'],
+          correctIndex: 0,
+        },
+      },
+      {
+        id: 'storm-b',
+        fixture: '뒤따르는 배들',
+        question: '예수를 태운 배 말고 그 밤에 함께 있던 것은 무엇인가?',
+        hint: '한 척만 떠난 것이 아니었다.',
+        reveal: '다른 배들도 함께 있었다. "다른 배들도 함께 하더니" (마가복음 4:36)',
+        spec: {
+          type: 'choice',
+          choices: ['다른 배들도 함께 있었다', '고기 떼가 따라왔다', '아무도 없었다', '군인들이 뒤따랐다'],
+          correctIndex: 0,
+        },
+      },
+      {
+        id: 'storm-c',
         fixture: '배 뒤편의 베개',
         question: '광풍이 일어났을 때 예수님은 어디서 무엇을 하고 계셨는가?',
         hint: '제자들이 흔들어 깨워야 했다.',
@@ -298,7 +657,24 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
         },
       },
       {
-        id: 'storm-2',
+        id: 'storm-d',
+        fixture: '흔들리는 어깨',
+        question: '제자들이 예수를 깨우며 한 말은?',
+        hint: '돌보지 않으시느냐고 물었다.',
+        reveal: '"선생님이여 우리가 죽게 된 것을 돌보지 아니하시나이까" (마가복음 4:38)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '선생님이여 우리가 죽게 된 것을 돌보지 아니하시나이까',
+            '선생님이여 이 배를 버리고 헤엄쳐 가사이다',
+            '선생님이여 어디로 가시나이까',
+            '선생님이여 바람을 잠재워 주소서',
+          ],
+          correctIndex: 0,
+        },
+      },
+      {
+        id: 'storm-e',
         fixture: '뱃전에 새겨진 말',
         question: '바람을 꾸짖고 바다더러 "잠잠하라 ○○○라" 하셨다. 빈칸은?',
         hint: '네 글자다. 잔잔해지라는 말.',
@@ -306,7 +682,7 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
         spec: { type: 'word', firstLetter: '고', accepted: ['고요하라', '고요'] },
       },
       {
-        id: 'storm-3',
+        id: 'storm-f',
         fixture: '여섯 조각 난 노',
         question: '그날 밤 일어난 일을 순서대로 세워라.',
         hint: '제자들이 깨운 것은 배에 물이 가득 찬 다음이다.',
@@ -323,24 +699,51 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
           ],
         },
       },
-    ],
-    finalLock: {
-      id: 'storm-final',
-      fixture: '잔잔해진 물 위의 배',
-      question: '바다가 잔잔해진 뒤 제자들이 서로 주고받은 말은?',
-      hint: '두려움이 광풍에서 다른 것으로 옮겨 갔다.',
-      reveal: '"그가 누구이기에 바람과 바다도 순종하는가" (마가복음 4:41)',
-      spec: {
-        type: 'choice',
-        choices: [
-          '이제야 우리가 살았구나',
-          '그가 누구이기에 바람과 바다도 순종하는가',
-          '우리가 노를 잘 저었구나',
-          '다시는 이 바다를 건너지 말자',
-        ],
-        correctIndex: 1,
+      {
+        id: 'storm-g',
+        fixture: '잔잔해진 물 위의 배',
+        question: '바다가 잔잔해진 뒤 예수께서 제자들에게 하신 말씀은?',
+        hint: '두려움과 믿음을 함께 물으셨다.',
+        reveal: '"어찌하여 이렇게 무서워하느냐 너희가 어찌 믿음이 없느냐" (마가복음 4:40)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '어찌하여 이렇게 무서워하느냐 너희가 어찌 믿음이 없느냐',
+            '어찌하여 나를 깨웠느냐',
+            '너희가 노를 잘 저었도다',
+            '이제 건너편으로 가자',
+          ],
+          correctIndex: 0,
+        },
       },
-    },
+    ],
+    finalPool: [
+      {
+        id: 'storm-final-a',
+        fixture: '잔잔해진 물 위의 배',
+        question: '바다가 잔잔해진 뒤 제자들이 서로 주고받은 말은?',
+        hint: '두려움이 광풍에서 다른 것으로 옮겨 갔다.',
+        reveal: '"그가 누구이기에 바람과 바다도 순종하는가" (마가복음 4:41)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '이제야 우리가 살았구나',
+            '그가 누구이기에 바람과 바다도 순종하는가',
+            '우리가 노를 잘 저었구나',
+            '다시는 이 바다를 건너지 말자',
+          ],
+          correctIndex: 1,
+        },
+      },
+      {
+        id: 'storm-final-b',
+        fixture: '건너편에 닿은 뱃머리',
+        question: '이 배가 건너가 닿은 곳은 어디인가?',
+        hint: '거기서 군대 귀신 들린 사람을 만나신다.',
+        reveal: '거라사인의 지방. "예수께서 바다 건너편 거라사인의 지방에 이르러" (마가복음 5:1)',
+        spec: { type: 'word', firstLetter: '거', accepted: ['거라사', '거라사인의지방', '거라사인'] },
+      },
+    ],
     outro: '바람이 그치고 아주 잔잔해진다. 두려움이 광풍에서 그분께로 옮겨 간다.',
   },
 
@@ -353,9 +756,9 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
     intro:
       '큰 돌이 입구를 막았고 인봉까지 되었다. 밖에는 지키는 자들이 서 있다. 이 무덤에서 나가는 길은 사람의 힘으로 열리지 않는다.',
     seconds: 330,
-    locks: [
+    lockPool: [
       {
-        id: 'tomb-1',
+        id: 'tomb-a',
         fixture: '새로 판 무덤의 표지',
         question: '빌라도에게 예수의 시체를 달라 하여 자기 새 무덤에 모신 사람은 누구인가?',
         hint: '부자였고, 그 자신도 예수의 제자였다.',
@@ -367,11 +770,20 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
         },
       },
       {
-        id: 'tomb-2',
+        id: 'tomb-b',
+        fixture: '입구를 막은 것',
+        question: '무덤 문에 굴려 놓은 것은 무엇인가?',
+        hint: '사람 여럿이 있어야 옮길 수 있는 것이다.',
+        reveal: '큰 돌. "큰 돌을 굴려 무덤 문에 놓고 가니" (마태복음 27:60)',
+        spec: { type: 'choice', choices: ['큰 돌', '쇠문', '나무 문짝', '흙더미'], correctIndex: 0 },
+      },
+      {
+        id: 'tomb-c',
         fixture: '인봉이 찍힌 밀랍',
         question: '대제사장들이 무덤을 인봉하고 지키게 해 달라고 청한 까닭은?',
         hint: '사흘 후에 살아나리라 한 말을 그들도 기억했다.',
-        reveal: '제자들이 시체를 훔쳐 가고 살아났다 할까 봐. "그의 제자들이 와서 시체를 도둑질하여 가고 백성에게 말하되 그가 죽은 자 가운데서 살아나셨다 할까 하나이다" (마태복음 27:64)',
+        reveal:
+          '제자들이 시체를 훔쳐 가고 살아났다 할까 봐. "그의 제자들이 와서 시체를 도둑질하여 가고 백성에게 말하되 그가 죽은 자 가운데서 살아나셨다 할까 하나이다" (마태복음 27:64)',
         spec: {
           type: 'choice',
           choices: [
@@ -384,7 +796,7 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
         },
       },
       {
-        id: 'tomb-3',
+        id: 'tomb-d',
         fixture: '여섯 칸으로 나뉜 돌판',
         question: '무덤에서 일어난 일을 순서대로 세워라.',
         hint: '인봉은 시체를 넣은 다음의 일이다.',
@@ -401,19 +813,89 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
           ],
         },
       },
-    ],
-    finalLock: {
-      id: 'tomb-final',
-      fixture: '굴려진 돌 위의 자리',
-      question: '무덤을 막았던 돌을 굴려 낸 이는 누구인가?',
-      hint: '지키던 자들은 그를 보고 죽은 사람같이 되었다.',
-      reveal: '주의 천사. "주의 천사가 하늘로부터 내려와 돌을 굴려 내고 그 위에 앉았는데" (마태복음 28:2)',
-      spec: {
-        type: 'choice',
-        choices: ['지키던 군인들', '아리마대 요셉', '주의 천사', '무덤에 온 여자들'],
-        correctIndex: 2,
+      {
+        id: 'tomb-e',
+        fixture: '새벽길의 발자국',
+        question: '안식 후 첫날 새벽에 무덤을 보러 온 사람은 누구인가?',
+        hint: '두 사람이었고 이름이 같았다.',
+        reveal: '막달라 마리아와 다른 마리아. "막달라 마리아와 다른 마리아가 무덤을 보려고 갔더니" (마태복음 28:1)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '베드로와 요한',
+            '막달라 마리아와 다른 마리아',
+            '아리마대 요셉과 니고데모',
+            '예수의 어머니 마리아 혼자',
+          ],
+          correctIndex: 1,
+        },
       },
-    },
+      {
+        id: 'tomb-f',
+        fixture: '눈부신 옷자락',
+        question: '천사의 모습을 성경은 어떻게 적었는가?',
+        hint: '형상과 옷을 각각 무엇에 견주었다.',
+        reveal: '"그 형상이 번개 같고 그 옷은 눈같이 희거늘" (마태복음 28:3)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '형상이 번개 같고 옷은 눈같이 희었다',
+            '형상이 사람 같고 옷은 붉었다',
+            '형상이 불 같고 옷은 금빛이었다',
+            '아무 모습도 보이지 않았다',
+          ],
+          correctIndex: 0,
+        },
+      },
+      {
+        id: 'tomb-g',
+        fixture: '쓰러진 파수꾼',
+        question: '천사가 나타났을 때 지키던 자들에게 일어난 일은?',
+        hint: '무서워 떨었다.',
+        reveal: '무서워 떨며 죽은 사람과 같이 되었다. "지키던 자들이 그를 무서워하여 떨며 죽은 사람과 같이 되었더라" (마태복음 28:4)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '달아나 성으로 들어갔다',
+            '무서워 떨며 죽은 사람과 같이 되었다',
+            '천사를 붙잡으려 했다',
+            '아무것도 보지 못했다',
+          ],
+          correctIndex: 1,
+        },
+      },
+    ],
+    finalPool: [
+      {
+        id: 'tomb-final-a',
+        fixture: '굴려진 돌 위의 자리',
+        question: '무덤을 막았던 돌을 굴려 낸 이는 누구인가?',
+        hint: '지키던 자들은 그를 보고 죽은 사람같이 되었다.',
+        reveal: '주의 천사. "주의 천사가 하늘로부터 내려와 돌을 굴려 내고 그 위에 앉았는데" (마태복음 28:2)',
+        spec: {
+          type: 'choice',
+          choices: ['지키던 군인들', '아리마대 요셉', '주의 천사', '무덤에 온 여자들'],
+          correctIndex: 2,
+        },
+      },
+      {
+        id: 'tomb-final-b',
+        fixture: '빈 무덤의 입구',
+        question: '천사가 여자들에게 이른 말은?',
+        hint: '여기 계시지 않다고 했다.',
+        reveal: '"그가 여기 계시지 않고 그가 말씀하시던 대로 살아나셨느니라" (마태복음 28:6)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '그가 여기 계시지 않고 말씀하시던 대로 살아나셨느니라',
+            '그의 시체를 제자들이 가져갔느니라',
+            '너희는 이 일을 아무에게도 말하지 말라',
+            '사흘을 더 기다리라',
+          ],
+          correctIndex: 0,
+        },
+      },
+    ],
     outro: '무덤이 비었다. "그가 여기 계시지 않고 그가 말씀하시던 대로 살아나셨느니라."',
   },
 
@@ -426,9 +908,17 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
     intro:
       '유월절 다음 날이면 끌려 나간다. 두 군인 사이에서 쇠사슬에 매인 채 잠이 들었다. 그런데 방 안이 갑자기 환해진다.',
     seconds: 330,
-    locks: [
+    lockPool: [
       {
-        id: 'peter-1',
+        id: 'peter-a',
+        fixture: '먼저 죽은 이의 이름패',
+        question: '헤롯이 칼로 죽인 사도는 누구인가?',
+        hint: '요한의 형제다.',
+        reveal: '요한의 형제 야고보. "요한의 형제 야고보를 칼로 죽이니" (사도행전 12:2)',
+        spec: { type: 'word', firstLetter: '야', accepted: ['야고보'] },
+      },
+      {
+        id: 'peter-b',
         fixture: '경비 근무표',
         question: '헤롯이 베드로를 지키게 한 군인은 넷씩 몇 패인가?',
         hint: '모두 열여섯 명이 된다.',
@@ -436,7 +926,7 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
         spec: { type: 'number', unit: '패', answer: 4, digits: 1 },
       },
       {
-        id: 'peter-2',
+        id: 'peter-c',
         fixture: '손목에 감긴 쇠',
         question: '베드로는 몇 개의 쇠사슬에 매여 있었는가?',
         hint: '두 군인 틈에서 자고 있었다.',
@@ -444,7 +934,24 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
         spec: { type: 'number', unit: '개', answer: 2, digits: 1 },
       },
       {
-        id: 'peter-3',
+        id: 'peter-d',
+        fixture: '옆구리를 친 손',
+        question: '천사가 베드로를 깨우며 이른 말은?',
+        hint: '떠날 채비를 시켰다.',
+        reveal: '"띠를 띠고 신을 신으라 … 겉옷을 입고 나를 따라오라" (사도행전 12:8)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '띠를 띠고 신을 신으라',
+            '소리를 내지 말고 엎드리라',
+            '이 쇠사슬을 네가 풀라',
+            '군인들을 깨우라',
+          ],
+          correctIndex: 0,
+        },
+      },
+      {
+        id: 'peter-e',
         fixture: '성으로 통한 쇠문',
         question: '첫째와 둘째 파수를 지나 성으로 통한 쇠문에 이르렀을 때, 그 문은 어떻게 열렸는가?',
         hint: '아무도 손대지 않았다.',
@@ -460,15 +967,62 @@ export const ESCAPE_ROOMS_2: EscapeRoom[] = [
           correctIndex: 1,
         },
       },
+      {
+        id: 'peter-f',
+        fixture: '정신이 든 자리',
+        question: '정신이 든 베드로가 한 말은?',
+        hint: '이제야 알겠다고 했다.',
+        reveal:
+          '"이제야 참으로 주께서 그의 천사를 보내어 나를 헤롯의 손과 유대 백성의 모든 기대에서 벗어나게 하신 줄 알겠노라" (사도행전 12:11)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '이제야 참으로 주께서 그의 천사를 보내신 줄 알겠노라',
+            '내가 꿈을 꾸었도다',
+            '군인들이 잠들었구나',
+            '어서 배를 타고 떠나야겠다',
+          ],
+          correctIndex: 0,
+        },
+      },
+      {
+        id: 'peter-g',
+        fixture: '문 안에서 들리는 말',
+        question: '베드로가 왔다는 로데의 말에 기도하던 사람들이 한 대답은?',
+        hint: '믿지 않았다.',
+        reveal: '"네가 미쳤다" 하였다. "그들이 말하되 네가 미쳤다 하나" (사도행전 12:15)',
+        spec: {
+          type: 'choice',
+          choices: [
+            '어서 문을 열라',
+            '네가 미쳤다',
+            '그를 안으로 들이지 말라',
+            '우리가 이미 알고 있었다',
+          ],
+          correctIndex: 1,
+        },
+      },
     ],
-    finalLock: {
-      id: 'peter-final',
-      fixture: '두드려도 열리지 않는 대문',
-      question: '베드로의 목소리를 알아듣고도 기뻐서 문을 열지 않고 달려 들어간 여종의 이름은?',
-      hint: '마리아의 집 대문에서 있었던 일이다.',
-      reveal: '로데. "로데라 하는 여자아이가 영접하러 나왔다가 베드로의 음성인 줄 알고 기뻐하여 문을 열지 아니하고 달려 들어가" (사도행전 12:13~14)',
-      spec: { type: 'word', firstLetter: '로', accepted: ['로데'] },
-    },
+    finalPool: [
+      {
+        id: 'peter-final-a',
+        fixture: '두드려도 열리지 않는 대문',
+        question: '베드로의 목소리를 알아듣고도 기뻐서 문을 열지 않고 달려 들어간 여종의 이름은?',
+        hint: '마리아의 집 대문에서 있었던 일이다.',
+        reveal:
+          '로데. "로데라 하는 여자아이가 영접하러 나왔다가 베드로의 음성인 줄 알고 기뻐하여 문을 열지 아니하고 달려 들어가" (사도행전 12:13~14)',
+        spec: { type: 'word', firstLetter: '로', accepted: ['로데'] },
+      },
+      {
+        id: 'peter-final-b',
+        fixture: '불이 켜진 창',
+        question: '옥에서 나온 베드로가 찾아간 집은 누구의 집인가?',
+        hint: '마가라 하는 요한의 어머니다.',
+        reveal:
+          '마가라 하는 요한의 어머니 마리아의 집. "마가라 하는 요한의 어머니 마리아의 집에 갔으니 여러 사람이 거기에 모여 기도하고 있더라" (사도행전 12:12)',
+        spec: { type: 'word', firstLetter: '마', accepted: ['마리아', '마리아의집'] },
+      },
+    ],
     outro: '기도하던 사람들이 문을 열고 그를 보고 놀란다. 그들이 구하던 바로 그 일이었다.',
   },
 ];

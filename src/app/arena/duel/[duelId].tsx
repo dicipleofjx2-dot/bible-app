@@ -18,6 +18,7 @@ import {
   stepLabel,
   type DuelState,
 } from '@/lib/arena/duel';
+import { seedFrom } from '@/lib/arena/draw';
 import { findRoom } from '@/lib/arena/rooms';
 
 /** 둘이 겨루는 한 판. 대기실 → 함께 시작 → 겨루기 → 승패.
@@ -236,6 +237,8 @@ export default function DuelScreen() {
         room={room}
         banner={banner}
         startedAt={beginAt ?? undefined}
+        // 둘에게 같은 씨앗을 준다 — 대결 번호가 같으니 같은 문제가 나온다
+        seed={seedFrom(state.id)}
         sideLabel="겨루기"
         onStep={handleStep}
         onFinish={handleFinish}

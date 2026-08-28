@@ -9,6 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { seedFrom } from '@/lib/arena/draw';
 import { findRoom } from '@/lib/arena/rooms';
 import {
   findMyMatch,
@@ -109,6 +110,8 @@ export default function TournamentScreen() {
       <EscapeRun
         room={room}
         sideLabel={roundName(myMatch.round)}
+        // 같은 경기의 두 선수는 같은 문제를 봐야 한다
+        seed={seedFrom(myMatch.match_id)}
         banner={
           <View style={[styles.banner, { backgroundColor: theme.accentSoft }]}>
             <ThemedText type="smallBold" style={{ color: theme.accent }}>

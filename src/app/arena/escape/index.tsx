@@ -9,6 +9,7 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { getMyProgress, MAX_ATTEMPTS, type RoomProgress } from '@/lib/arena/db';
+import { DEFAULT_CLOSED_MESSAGE, getGateState, type GateState } from '@/lib/arena/gate';
 import { ESCAPE_ROOMS } from '@/lib/arena/rooms';
 
 const LEVEL_LABEL = ['', '쉬움', '보통', '어려움'];
@@ -26,6 +27,7 @@ export default function EscapeRoomListScreen() {
 
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState<Map<string, RoomProgress>>(new Map());
+  const [gate, setGate] = useState<GateState | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -33,9 +35,13 @@ export default function EscapeRoomListScreen() {
       (async () => {
         // 로그인 없이도 방에 들어가 볼 수 있다. 기록 저장만 로그인이 필요하다 —
         // 통독도우미에서 배운 것: 여기서 그냥 돌아가 버리면 화면이 영원히 돈다.
-        const map = userId ? await getMyProgress(userId) : new Map<string, RoomProgress>();
+        const [map, g] = await Promise.all([
+          userId ? getMyProgress(userId) : Promise.resolve(new Map<string, RoomProgress>()),
+          getGateState(),
+        ]);
         if (cancelled) return;
         setProgress(map);
+        setGate(g);
         setLoading(false);
       })();
       return () => {
@@ -63,6 +69,27 @@ export default function EscapeRoomListScreen() {
 
           {loading ? (
             <ActivityIndicator style={styles.loading} />
+          ) : gate && !gate.is_open ? (
+            /* 문이 닫혀 있다 — 방 목록을 아예 보여 주지 않는다.
+               제목만 봐도 어느 사건인지 알 수 있어서 그것만으로 미리 준비가 된다. */
+            <View style={[styles.closedCard, { backgroundColor: theme.accentSoft }]}>
+              <ThemedText style={styles.lockEmoji}>🔒</ThemedText>
+              <ThemedText type="subtitle" style={styles.center}>
+                아직 문이 열리지 않았습니다
+              </ThemedText>
+              <ThemedText type="small" style={[styles.center, styles.lead]}>
+                {gate.closed_message || DEFAULT_CLOSED_MESSAGE}
+              </ThemedText>
+              {gate.next_open_from && (
+                <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                  {gate.next_tournament} · {gate.next_open_from} 부터
+                </ThemedText>
+              )}
+              <ThemedText type="small" themeColor="textSecondary" style={[styles.center, styles.lead]}>
+                모두 같은 날 같은 문제로 시작해야 겨루기가 됩니다. 그때까지 성경을
+                읽어 두시면 그게 그대로 준비예요.
+              </ThemedText>
+            </View>
           ) : (
             <>
               {userId && (
@@ -150,6 +177,9 @@ const styles = StyleSheet.create({
   lead: { lineHeight: 20 },
   loading: { marginTop: Spacing.three },
   summaryCard: { borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, marginTop: Spacing.two },
+  closedCard: { borderRadius: 12, padding: 20, gap: 8, alignItems: 'center', marginTop: Spacing.three },
+  lockEmoji: { fontSize: 44 },
+  center: { textAlign: 'center' },
   roomCard: { borderRadius: 12, borderWidth: 1, padding: 14, gap: 8 },
   roomHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   roomEmoji: { fontSize: 26, width: 34, textAlign: 'center' },

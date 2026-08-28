@@ -1,5 +1,5 @@
 import { router, type Href } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,6 +9,7 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { createDuel, joinDuel } from '@/lib/arena/duel';
+import { DEFAULT_CLOSED_MESSAGE, getGateState, type GateState } from '@/lib/arena/gate';
 import { ESCAPE_ROOMS } from '@/lib/arena/rooms';
 
 const LEVEL_LABEL = ['', '쉬움', '보통', '어려움'];
@@ -23,6 +24,19 @@ export default function DuelHomeScreen() {
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
+  const [gate, setGate] = useState<GateState | null>(null);
+
+  // 겨루기도 같은 방을 쓴다. 방탈출이 잠겨 있으면 여기도 잠긴다.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const g = await getGateState();
+      if (!cancelled) setGate(g);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function make(roomId: string) {
     setBusy(true);
@@ -76,6 +90,34 @@ export default function DuelHomeScreen() {
                 로그인하러 가기
               </ThemedText>
             </Pressable>
+          </ScrollView>
+        </SafeAreaView>
+      </ThemedView>
+    );
+  }
+
+  if (gate && !gate.is_open) {
+    return (
+      <ThemedView style={styles.container}>
+        <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backRow}>
+              <ThemedText type="smallBold">← 뒤로</ThemedText>
+            </Pressable>
+            <ThemedText type="title">⚔️ 둘이 겨루기</ThemedText>
+            <View style={[styles.errorCard, { backgroundColor: theme.accentSoft }]}>
+              <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                🔒 아직 문이 열리지 않았습니다
+              </ThemedText>
+              <ThemedText type="small" style={styles.lead}>
+                {gate.closed_message || DEFAULT_CLOSED_MESSAGE}
+              </ThemedText>
+              {gate.next_open_from && (
+                <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                  {gate.next_tournament} · {gate.next_open_from} 부터
+                </ThemedText>
+              )}
+            </View>
           </ScrollView>
         </SafeAreaView>
       </ThemedView>

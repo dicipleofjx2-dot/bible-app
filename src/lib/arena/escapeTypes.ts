@@ -62,13 +62,23 @@ export type EscapeRoom = {
   intro: string;
   /** 제한 시간(초) */
   seconds: number;
-  /** 자물쇠 3개 */
-  locks: [Lock, Lock, Lock];
-  /** 마지막 문 */
-  finalLock: Lock;
+  /**
+   * 자물쇠 **후보**. 매 판 여기서 셋을 뽑아 순서까지 섞어 낸다.
+   *
+   * 처음에는 방마다 자물쇠를 딱 셋만 두었는데, 대회를 시작하기도 전에 사람들이
+   * 들어와 다 풀어 버려 **문제가 통째로 노출됐다.** 후보를 넉넉히 두면 미리
+   * 풀어 본 사람도 어느 셋이 나올지 모르고, 두 판을 칠 때도 서로 다른 문제를
+   * 만난다. 여섯 개면 셋을 뽑는 조합이 20가지, 순서까지 하면 120가지다.
+   */
+  lockPool: Lock[];
+  /** 마지막 문 후보. 매 판 하나를 뽑는다. */
+  finalPool: Lock[];
   /** 탈출했을 때 읽는 한 문장 */
   outro: string;
 };
+
+/** 한 판에 실제로 쓰이는 자물쇠 넷 */
+export type DrawnLocks = { locks: [Lock, Lock, Lock]; final: Lock };
 
 /** 힌트 한 번에 깎이는 시간(초) */
 export const HINT_PENALTY_SEC = 30;

@@ -1,6 +1,6 @@
 import { useAudioPlayer } from 'expo-audio';
 import type { ReactNode } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,6 +9,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { drawLocks } from '@/lib/arena/draw';
 import { HINT_PENALTY_SEC, WRONG_PENALTY_SEC, type EscapeRoom, type Lock } from '@/lib/arena/escapeTypes';
 
 const unlockSound = require('@/assets/sounds/unlock.wav');
@@ -40,6 +41,11 @@ type Props = {
   sideLabel?: string;
   /** 나가기를 눌렀을 때. 없으면 나가기 단추가 안 보인다. */
   onQuit?: () => void;
+  /** 이번 판에 낼 자물쇠를 고르는 씨앗.
+   *
+   * **겨루는 두 사람에게는 같은 씨앗을 줘야 한다** — 안 그러면 서로 다른 문제를
+   * 보게 되어 겨루기가 아니다. 혼자 칠 때는 판마다 새로 만든다. */
+  seed: number;
   /** 겨루기에서 쓴다 — 둘의 시작 시각(ms). 주면 남은 시간을 여기서부터 잰다.
    *
    * 화면이 2초마다 상태를 물어보는 구조라 두 사람이 「시작됐다」를 아는 시점이
@@ -56,8 +62,11 @@ export function mmss(sec: number): string {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
-export function EscapeRun({ room, banner, onStep, onFinish, sideLabel, onQuit, startedAt }: Props) {
+export function EscapeRun({ room, banner, onStep, onFinish, sideLabel, onQuit, startedAt, seed }: Props) {
   const theme = useTheme();
+
+  // 이번 판에 낼 자물쇠 넷. 씨앗이 같으면 언제나 같은 넷이 나온다.
+  const drawn = useMemo(() => drawLocks(room, seed), [room, seed]);
 
   /** 0~2 는 자물쇠, 3 은 마지막 문 */
   const [step, setStep] = useState(0);
@@ -141,7 +150,7 @@ export function EscapeRun({ room, banner, onStep, onFinish, sideLabel, onQuit, s
     play('tick');
   }, [secondsLeft, opened, play]);
 
-  const currentLock: Lock = step < 3 ? room.locks[step] : room.finalLock;
+  const currentLock: Lock = step < 3 ? drawn.locks[step] : drawn.final;
   const isFinal = step === 3;
 
   function penalize(sec: number, message: string) {
