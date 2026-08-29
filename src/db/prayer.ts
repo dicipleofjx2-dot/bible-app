@@ -20,6 +20,24 @@ export type PrayerComment = {
   author: string;
 };
 
+/**
+ * 글쓴이 이름표.
+ *
+ * profiles.username 에는 이메일이 그대로 들어 있는 계정이 많아서(82명 중 65명),
+ * 그것만 쓰면 목록에 `hong9885@naver.com` 같은 것이 늘어선다. 실제로 그 때문에
+ * 자기가 올린 기도제목을 못 알아보고 "안 올라간다"고 하신 일이 있었다.
+ *
+ * 교적 실명은 members 에 있지만 그 표는 교적 열람 권한이 있어야 읽힌다. 그래서
+ * **글을 올린 사람의 이름만** 돌려주는 함수를 지난다(0066).
+ */
+async function authorNames(): Promise<Map<string, string>> {
+  const { data, error } = await supabase.rpc('prayer_author_names');
+  if (error || !Array.isArray(data)) return new Map();
+  return new Map(
+    (data as { user_id: string; display_name: string }[]).map((r) => [r.user_id, r.display_name]),
+  );
+}
+
 export async function getPrayerRequests(): Promise<PrayerRequest[]> {
   const { data, error } = await supabase
     .from('prayer_requests')
@@ -27,9 +45,11 @@ export async function getPrayerRequests(): Promise<PrayerRequest[]> {
     .order('created_at', { ascending: false })
     .limit(50);
   if (error) throw error;
+  // 이름표를 못 받아도 목록은 뜬다 — 예전처럼 username 으로 내려간다.
+  const names = await authorNames();
   return (data ?? []).map((row: any) => ({
     ...row,
-    author: row.profiles?.username ?? '익명',
+    author: names.get(row.user_id) ?? row.profiles?.username ?? '익명',
   }));
 }
 
@@ -66,9 +86,10 @@ export async function getPrayerComments(prayerRequestId: string): Promise<Prayer
     .eq('prayer_request_id', prayerRequestId)
     .order('created_at', { ascending: true });
   if (error) throw error;
+  const names = await authorNames();
   return (data ?? []).map((row: any) => ({
     ...row,
-    author: row.profiles?.username ?? '익명',
+    author: names.get(row.user_id) ?? row.profiles?.username ?? '익명',
   }));
 }
 
