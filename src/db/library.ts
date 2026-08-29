@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { STORAGE_CACHE_SECONDS } from '@/lib/storageCache';
 
 export type BookCategory = '저서' | '성경공부교재';
 export type BookAccessTier = 'free' | 'purchase_only' | 'subscription_included' | 'both';
@@ -278,7 +279,10 @@ export async function uploadBookCover(uri: string, mimeType?: string): Promise<{
 
     const { error: uploadError } = await supabase.storage
       .from('book-covers')
-      .upload(filePath, arrayBuffer, { contentType: mimeType ?? 'image/jpeg' });
+      .upload(filePath, arrayBuffer, {
+        contentType: mimeType ?? 'image/jpeg',
+        cacheControl: STORAGE_CACHE_SECONDS,
+      });
     if (uploadError) return { error: uploadError.message };
 
     const { data } = supabase.storage.from('book-covers').getPublicUrl(filePath);
@@ -305,6 +309,9 @@ export async function uploadBookFile(
 
     const { error: uploadError } = await supabase.storage.from('book-files').upload(filePath, arrayBuffer, {
       contentType: mimeType ?? (format === 'pdf' ? 'application/pdf' : 'application/epub+zip'),
+      // 책 본문이 가장 무겁다. 캐시가 짧으면 같은 책을 읽을 때마다 통째로
+      // 다시 내려받는다 — 전송량이 터진 주된 원인이다.
+      cacheControl: STORAGE_CACHE_SECONDS,
     });
     if (uploadError) return { error: uploadError.message };
 

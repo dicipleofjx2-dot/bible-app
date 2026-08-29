@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { STORAGE_CACHE_SECONDS } from '@/lib/storageCache';
 
 /**
  * 알림 팝업.
@@ -134,7 +135,10 @@ export async function uploadPopupImage(
 
     const { error: uploadError } = await supabase.storage
       .from('popup-images')
-      .upload(filePath, arrayBuffer, { contentType: mimeType ?? 'image/jpeg' });
+      .upload(filePath, arrayBuffer, {
+        contentType: mimeType ?? 'image/jpeg',
+        cacheControl: STORAGE_CACHE_SECONDS,
+      });
     if (uploadError) return { error: uploadError.message };
 
     const { data } = supabase.storage.from('popup-images').getPublicUrl(filePath);

@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { queuePush } from '@/db/push';
+import { STORAGE_CACHE_SECONDS } from '@/lib/storageCache';
 
 export type ShepherdLetter = {
   id: string;
@@ -125,7 +126,10 @@ async function uploadImage(
 
     const { error: uploadError } = await supabase.storage
       .from('shepherd-letter-images')
-      .upload(filePath, arrayBuffer, { contentType: mimeType ?? 'image/jpeg' });
+      .upload(filePath, arrayBuffer, {
+        contentType: mimeType ?? 'image/jpeg',
+        cacheControl: STORAGE_CACHE_SECONDS,
+      });
     if (uploadError) return { error: uploadError.message };
 
     const { data } = supabase.storage.from('shepherd-letter-images').getPublicUrl(filePath);
