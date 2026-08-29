@@ -15,6 +15,7 @@ import {
   closeRound,
   createTournament,
   getBracket,
+  deleteTournament,
   listTournaments,
   prizeTable,
   roundName,
@@ -350,6 +351,26 @@ export default function TournamentAdminScreen() {
                         : '준비 중'}
                 </ThemedText>
 
+                {/* 잘못 만든 대회 지우기.
+                    비어 있는 대회만 지워진다 — 참가비가 오간 대회를 지우면
+                    성도들이 낸 20점이 기록째 사라지기 때문이다(0069가 막는다).
+                    막힌 경우에는 왜 안 되는지가 오류 문구로 뜬다. */}
+                <Pressable
+                  disabled={busy}
+                  onPress={async () => {
+                    const ok = await confirmDestructive(
+                      `«${t.name}» 을 지울까요?`,
+                      '잘못 만든 대회를 없앱니다. 참가비가 오갔거나 경기를 치른 대회는 지워지지 않습니다.',
+                      '지우기'
+                    );
+                    if (ok) void run(() => deleteTournament(t.id));
+                  }}
+                  style={({ pressed }) => [styles.deleteRow, pressed && styles.pressed]}>
+                  <ThemedText type="small" style={{ color: theme.accent }}>
+                    이 대회 지우기
+                  </ThemedText>
+                </Pressable>
+
                 {t.status === 'qualifying' && (
                   <Pressable
                     disabled={busy}
@@ -423,6 +444,7 @@ export default function TournamentAdminScreen() {
 }
 
 const styles = StyleSheet.create({
+  deleteRow: { alignSelf: "flex-end", paddingVertical: 4, paddingHorizontal: 6 },
   container: { flex: 1 },
   safeArea: { flex: 1 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.two },

@@ -175,3 +175,17 @@ export async function getEntrants(tournamentId: string): Promise<Entrant[]> {
   if (error) return [];
   return (data as Entrant[]) ?? [];
 }
+
+/**
+ * 잘못 만든 대회를 지운다.
+ *
+ * **비어 있는 대회만 지워진다.** 참가비·상금이 오갔거나, 치른 경기가 있거나,
+ * 예선 통과자가 있으면 DB 가 거절한다(0069). 지우게 두면 arena_point_ledger 가
+ * 함께 딸려 지워져 성도들이 낸 참가비가 기록째 사라지기 때문이다.
+ */
+export async function deleteTournament(tournamentId: string): Promise<void> {
+  const { error } = await supabase.rpc('arena_delete_tournament', {
+    p_tournament_id: tournamentId,
+  });
+  if (error) throw error;
+}
