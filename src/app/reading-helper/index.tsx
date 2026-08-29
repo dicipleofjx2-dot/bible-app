@@ -466,6 +466,9 @@ export default function ReadingHelperHomeScreen() {
                   speed: points.speedQuiz,
                   speedCount: points.speedQuizCount,
                 })}
+                {/* 큐티는 따로 도는 앱이라 한 줄을 더 붙인다. 0이면 아예 안
+                    보여 준다 — 큐티를 안 쓰는 분에게 «큐티 0점»은 잔소리다. */}
+                {points.qt > 0 ? ` · 큐티 ${points.qt}점(${points.qtCount}일)` : ''}
               </ThemedText>
             )}
             {/* 규칙을 화면에 그대로 적어 둔다 — 몇 점을 받으면 뭐가 열리는지

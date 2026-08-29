@@ -166,6 +166,17 @@ export type PointsSummary = {
   quiz: number;
   memorization: number;
   speedQuiz: number;
+  /**
+   * 데이빗 큐티에서 번 점수.
+   *
+   * 큐티는 따로 도는 앱이지만 같은 Supabase 를 쓰고, 점수는 하나로 합친다.
+   * DB 쪽 셈(순위표·내 순위·상점 잔액·현황판)은 이미 합치고 있었는데
+   * **이 함수만 빠져 있었다.** 그래서 순위표에는 큐티 30점이 들어가는데
+   * 통독도우미 화면의 「내 포인트」에는 안 들어왔다.
+   */
+  qt: number;
+  /** 큐티를 마친 날 수 */
+  qtCount: number;
   /** 포인트를 받은 퀴즈 횟수 (80점 이상만) */
   quizCount: number;
   /** 암송 성공 횟수 */
@@ -184,11 +195,22 @@ export type PointsSummary = {
  * POINTS_START_DATE 이후 기록만 센다. 통독 진척(마친 날 수 등)은 자르지 않는다 —
  * 그건 포인트가 아니라 얼마나 걸어왔는가다. */
 export async function getPointsSummary(userId: string): Promise<PointsSummary> {
-  const { data, error } = await supabase
-    .from('reading_helper_day_records')
-    .select('date, quiz_score, memorization_success, speed_quiz_success')
-    .eq('user_id', userId)
-    .gte('date', POINTS_START_DATE);
+  const [{ data, error }, qtResult] = await Promise.all([
+    supabase
+      .from('reading_helper_day_records')
+      .select('date, quiz_score, memorization_success, speed_quiz_success')
+      .eq('user_id', userId)
+      .gte('date', POINTS_START_DATE),
+    // 큐티는 따로 도는 앱이지만 같은 데이터베이스를 쓴다. qt_records 는 본인
+    // 행만 읽히므로(그 앱의 0001) 그대로 물어보면 된다. 큐티 앱이 아직 안
+    // 깔린 교회에서는 표가 없어 오류가 나므로 조용히 0으로 둔다.
+    supabase
+      .from('qt_records')
+      .select('date, granted_point')
+      .eq('user_id', userId)
+      .eq('completed', true)
+      .gte('date', POINTS_START_DATE),
+  ]);
   if (error) throw error;
 
   const summary: PointsSummary = {
@@ -196,6 +218,8 @@ export async function getPointsSummary(userId: string): Promise<PointsSummary> {
     quiz: 0,
     memorization: 0,
     speedQuiz: 0,
+    qt: 0,
+    qtCount: 0,
     quizCount: 0,
     memorizationCount: 0,
     speedQuizCount: 0,
@@ -215,6 +239,15 @@ export async function getPointsSummary(userId: string): Promise<PointsSummary> {
     if (row.speed_quiz_success) {
       summary.speedQuiz += SPEED_QUIZ_POINTS;
       summary.speedQuizCount += 1;
+    }
+  }
+  // 큐티. 표가 없거나 못 읽으면 조용히 0으로 둔다 — 큐티를 안 쓰는 교회에서
+  // 통독 점수가 통째로 안 보이면 안 된다.
+  for (const row of qtResult.error ? [] : (qtResult.data ?? [])) {
+    const earned = Number((row as { granted_point?: number }).granted_point ?? 0);
+    if (earned > 0) {
+      summary.qt += earned;
+      summary.qtCount += 1;
     }
   }
   // 빠진 날 벌점. DB 의 reading_helper_penalties() 와 **같은 규칙**이어야 한다 —
@@ -250,7 +283,7 @@ export async function getPointsSummary(userId: string): Promise<PointsSummary> {
 
   // 0 에서 막는다. 음수를 보면 다시 시작할 엄두가 안 난다.
   summary.total = Math.max(
-    summary.quiz + summary.memorization + summary.speedQuiz - summary.penalty,
+    summary.quiz + summary.memorization + summary.speedQuiz + summary.qt - summary.penalty,
     0,
   );
   return summary;
