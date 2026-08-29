@@ -270,3 +270,132 @@ export async function getMyVisitRequests(cellId: string): Promise<VisitRequest[]
     handlerNote: (r.handler_note as string | null) ?? null,
   }));
 }
+
+// ── 소통창 ─────────────────────────────────────────────────────────
+
+export type CellMessage = {
+  id: string;
+  authorId: string;
+  authorName: string;
+  body: string;
+  createdAt: string;
+  cheers: number;
+  iCheered: boolean;
+};
+
+/** 목장 사람들의 이름표. 이메일이 아니라 교적 실명이 나온다(0068). */
+export async function getCellMemberNames(cellId: string): Promise<Map<string, string>> {
+  const { data, error } = await supabase.rpc('cell_member_names', { target_cell_id: cellId });
+  if (error || !Array.isArray(data)) return new Map();
+  return new Map(
+    (data as { user_id: string; display_name: string }[]).map((r) => [r.user_id, r.display_name]),
+  );
+}
+
+export async function getCellMessages(cellId: string, myId: string): Promise<CellMessage[]> {
+  const [{ data, error }, names] = await Promise.all([
+    supabase
+      .from('cell_messages')
+      .select('id, author_id, body, created_at, cell_message_cheers(user_id)')
+      .eq('cell_id', cellId)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false })
+      .limit(50),
+    getCellMemberNames(cellId),
+  ]);
+  if (error) return [];
+  return (data ?? []).map((r: Record<string, unknown>) => {
+    const cheers = (r.cell_message_cheers as { user_id: string }[] | null) ?? [];
+    return {
+      id: String(r.id),
+      authorId: String(r.author_id),
+      authorName: names.get(String(r.author_id)) ?? '이름 없음',
+      body: String(r.body ?? ''),
+      createdAt: String(r.created_at),
+      cheers: cheers.length,
+      iCheered: cheers.some((c) => c.user_id === myId),
+    };
+  });
+}
+
+export async function postCellMessage(
+  cellId: string,
+  authorId: string,
+  body: string,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('cell_messages')
+    .insert({ cell_id: cellId, author_id: authorId, body });
+  return { error: error?.message ?? null };
+}
+
+export async function removeCellMessage(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('cell_messages')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+/** 격려 누르기. 두 번 누르면 취소된다. */
+export async function toggleCheer(
+  messageId: string,
+  userId: string,
+  on: boolean,
+): Promise<void> {
+  if (on) {
+    await supabase.from('cell_message_cheers').insert({ message_id: messageId, user_id: userId });
+  } else {
+    await supabase
+      .from('cell_message_cheers')
+      .delete()
+      .eq('message_id', messageId)
+      .eq('user_id', userId);
+  }
+}
+
+// ── 목자가 보는 경건생활 상황표 ────────────────────────────────────
+
+export type DevotionRow = {
+  userId: string;
+  name: string;
+  phone: string | null;
+  qt: number;
+  reading: number;
+  meditation: number;
+  obedience: number;
+  gratitude: number;
+  bibleReading: number;
+  memorization: number;
+  lastActive: string | null;
+};
+
+/** 내가 목자인 목장. 목자가 아니면 null. */
+export async function getMyLedCellId(): Promise<string | null> {
+  const { data, error } = await supabase.rpc('my_led_cell_id');
+  if (error) return null;
+  return (data as string | null) ?? null;
+}
+
+/**
+ * 이번 주 목원들의 경건생활. **목자와 관리자만** 부를 수 있다(DB가 막는다).
+ * 날짜별로 펼치지 않고 항목별 일수만 준다 — 격려하려고 보는 것이지
+ * 감시하려고 보는 것이 아니다.
+ */
+export async function getDevotionBoard(cellId: string): Promise<DevotionRow[]> {
+  const { data, error } = await supabase.rpc('cell_leader_board', { target_cell_id: cellId });
+  if (error || !Array.isArray(data)) return [];
+  return (data as Record<string, unknown>[]).map((r) => ({
+    userId: String(r.user_id),
+    name: String(r.display_name ?? ''),
+    phone: (r.phone as string | null) ?? null,
+    qt: Number(r.qt ?? 0),
+    reading: Number(r.reading ?? 0),
+    meditation: Number(r.meditation ?? 0),
+    obedience: Number(r.obedience ?? 0),
+    gratitude: Number(r.gratitude ?? 0),
+    bibleReading: Number(r.bible_reading ?? 0),
+    memorization: Number(r.memorization ?? 0),
+    lastActive: (r.last_active as string | null) ?? null,
+  }));
+}

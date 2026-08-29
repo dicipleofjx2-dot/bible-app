@@ -14,14 +14,19 @@ import {
   createCellReport,
   getCellContext,
   getCellMeeting,
+  getCellMessages,
   getCellNotices,
   getCellReports,
   getMyVisitRequests,
+  postCellMessage,
+  removeCellMessage,
   removeCellNotice,
   removeCellReport,
   requestVisit,
+  toggleCheer,
   type Cell,
   type CellMeeting,
+  type CellMessage,
   type CellNotice,
   type CellReport,
   type VisitRequest,
@@ -54,6 +59,8 @@ export default function CellRoomScreen() {
   const [notices, setNotices] = useState<CellNotice[]>([]);
   const [reports, setReports] = useState<CellReport[]>([]);
   const [visits, setVisits] = useState<VisitRequest[]>([]);
+  const [messages, setMessages] = useState<CellMessage[]>([]);
+  const [talkBody, setTalkBody] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,18 +73,23 @@ export default function CellRoomScreen() {
   const [visitWhen, setVisitWhen] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const loadRoom = useCallback(async (target: Cell) => {
-    const [m, n, r, v] = await Promise.all([
-      getCellMeeting(target.id),
-      getCellNotices(target.id).catch(() => []),
-      getCellReports(target.id).catch(() => []),
-      getMyVisitRequests(target.id).catch(() => []),
-    ]);
-    setMeeting(m);
-    setNotices(n);
-    setReports(r);
-    setVisits(v);
-  }, []);
+  const loadRoom = useCallback(
+    async (target: Cell) => {
+      const [m, n, r, v, t] = await Promise.all([
+        getCellMeeting(target.id),
+        getCellNotices(target.id).catch(() => []),
+        getCellReports(target.id).catch(() => []),
+        getMyVisitRequests(target.id).catch(() => []),
+        getCellMessages(target.id, userId).catch(() => []),
+      ]);
+      setMeeting(m);
+      setNotices(n);
+      setReports(r);
+      setVisits(v);
+      setMessages(t);
+    },
+    [userId],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -428,6 +440,76 @@ export default function CellRoomScreen() {
               ))}
             </>
           )}
+
+          {/* ── 소통창 ── */}
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            서로 격려하기
+          </ThemedText>
+          <ThemedView type="backgroundElement" style={styles.card}>
+            <TextInput
+              value={talkBody}
+              onChangeText={setTalkBody}
+              placeholder="목장 식구들에게 한마디"
+              placeholderTextColor={theme.textSecondary}
+              multiline
+              style={[styles.inputTall, { color: theme.text, backgroundColor: theme.background }]}
+            />
+            <Pressable
+              onPress={async () => {
+                if (!talkBody.trim() || !cell) return;
+                setBusy(true);
+                const { error: e } = await postCellMessage(cell.id, userId, talkBody.trim());
+                setBusy(false);
+                if (e) return setError(e);
+                setTalkBody('');
+                await loadRoom(cell);
+              }}
+              disabled={busy || !talkBody.trim()}
+              style={[
+                styles.button,
+                { backgroundColor: theme.accent, opacity: busy || !talkBody.trim() ? 0.5 : 1 },
+              ]}>
+              <ThemedText type="smallBold" style={{ color: '#ffffff' }}>
+                올리기
+              </ThemedText>
+            </Pressable>
+          </ThemedView>
+          {messages.map((t) => (
+            <ThemedView key={t.id} type="backgroundElement" style={styles.card}>
+              <View style={styles.rowBetween}>
+                <ThemedText type="smallBold">{t.authorName}</ThemedText>
+                {t.authorId === userId && (
+                  <Pressable
+                    onPress={async () => {
+                      await removeCellMessage(t.id);
+                      await loadRoom(cell);
+                    }}
+                    hitSlop={8}>
+                    <ThemedText type="small" themeColor="textSecondary">
+                      삭제
+                    </ThemedText>
+                  </Pressable>
+                )}
+              </View>
+              <ThemedText type="small">{t.body}</ThemedText>
+              <View style={styles.rowBetween}>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {shortDate(t.createdAt)}
+                </ThemedText>
+                {/* 격려는 한 사람이 한 번. 다시 누르면 취소된다. */}
+                <Pressable
+                  onPress={async () => {
+                    await toggleCheer(t.id, userId, !t.iCheered);
+                    await loadRoom(cell);
+                  }}
+                  hitSlop={8}>
+                  <ThemedText type="small" themeColor={t.iCheered ? 'accent' : 'textSecondary'}>
+                    {t.iCheered ? '♥' : '♡'} {t.cheers > 0 ? t.cheers : ''}
+                  </ThemedText>
+                </Pressable>
+              </View>
+            </ThemedView>
+          ))}
 
           {/* 기도제목은 여기 두지 않는다 — 샬롬기도단이 따로 있다. */}
           <Pressable onPress={() => router.push('/prayer-group')} style={styles.linkRow}>

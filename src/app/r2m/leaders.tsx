@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -10,6 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
 import type { StringKey } from '@/constants/strings';
+import { getDevotionBoard, getMyLedCellId, type DevotionRow } from '@/db/cell';
 import {
   getEnrolledUsersStatus,
   getLeaderScope,
@@ -40,12 +41,25 @@ export default function R2MLeadersScreen() {
   const [scope, setScope] = useState<LeaderScope | null>(null);
   const [users, setUsers] = useState<EnrolledUserStatus[]>([]);
   const [error, setError] = useState<string | null>(null);
+  // 내가 목자인 목장과 그 목장의 이번 주 경건생활. 목자가 아니면 비어 있다.
+  const [ledCellId, setLedCellId] = useState<string | null>(null);
+  const [devotion, setDevotion] = useState<DevotionRow[]>([]);
 
   useFocusEffect(
     useCallback(() => {
       if (!session) return;
       const userId = session.user.id;
       // 명단은 자격에 따라 범위가 달라지므로 자격을 먼저 확인하고 나서 부른다.
+      // 목장의 목자면 리더관리를 볼 수 있다. 예전에는 r2m_leaders 라는 별개
+      // 표에 이름이 있어야 했고, 실제로 목자 열두 분 중 한 분이 빠져 있었다.
+      // 목장이 정본이므로 목자를 바꿀 때 그 표를 따로 손볼 필요가 없어야 한다.
+      getMyLedCellId()
+        .then((cellId) => {
+          setLedCellId(cellId);
+          if (cellId) return getDevotionBoard(cellId).then(setDevotion);
+        })
+        .catch(() => setLedCellId(null));
+
       getLeaderScope(userId)
         .then((s) => {
           setScope(s);
@@ -68,7 +82,8 @@ export default function R2MLeadersScreen() {
     );
   }
 
-  if (scope && !scope.isAdmin && !scope.isLeader) {
+  // 목장의 목자도 들어온다 — 옛 리더 표에 이름이 없어도.
+  if (scope && !scope.isAdmin && !scope.isLeader && !ledCellId) {
     return (
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.safeAreaCentered}>
@@ -105,6 +120,52 @@ export default function R2MLeadersScreen() {
             <ThemedText type="small" style={styles.errorText}>
               {error}
             </ThemedText>
+          )}
+
+          {/* ── 우리 목장 경건생활 (목자에게만) ──
+              옛 배정표(r2m_leader_members)가 아니라 교적의 목장을 본다. 둘이
+              어긋나 있어서(24건 중 7건) 목자가 남의 목원을 보고 있었다. */}
+          {ledCellId && devotion.length > 0 && (
+            <>
+              <ThemedText type="subtitle" style={styles.sectionTitle}>
+                우리 목장 이번 주
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                지난 7일 동안 며칠 했는지입니다. 뜸한 분에게 문자로 안부를 물어 주세요.
+              </ThemedText>
+              {devotion.map((d) => {
+                const total = d.qt + d.reading + d.meditation + d.obedience + d.gratitude;
+                return (
+                  <ThemedView key={d.userId} type="backgroundElement" style={styles.devotionCard}>
+                    <View style={styles.devotionHeader}>
+                      <ThemedText type="smallBold">{d.name}</ThemedText>
+                      {d.phone ? (
+                        <Pressable
+                          onPress={() => Linking.openURL(`sms:${d.phone}`)}
+                          hitSlop={8}
+                          style={[styles.smsButton, { borderColor: theme.accent }]}>
+                          <ThemedText type="small" themeColor="accent">
+                            문자로 격려
+                          </ThemedText>
+                        </Pressable>
+                      ) : (
+                        <ThemedText type="small" themeColor="textSecondary">
+                          연락처 없음
+                        </ThemedText>
+                      )}
+                    </View>
+                    <ThemedText type="small" themeColor={total === 0 ? 'textSecondary' : 'text'}>
+                      큐티 {d.qt} · 통독 {d.reading} · 묵상 {d.meditation} · 순종 {d.obedience} ·
+                      감사 {d.gratitude}
+                    </ThemedText>
+                    <ThemedText type="small" themeColor="textSecondary">
+                      성경읽기 {d.bibleReading} · 암송 {d.memorization}
+                      {d.lastActive ? ` · 마지막 ${d.lastActive}` : ' · 이번 주 기록 없음'}
+                    </ThemedText>
+                  </ThemedView>
+                );
+              })}
+            </>
           )}
 
           {users.map((u) => {
@@ -153,6 +214,10 @@ export default function R2MLeadersScreen() {
 }
 
 const styles = StyleSheet.create({
+  sectionTitle: { marginTop: Spacing.four },
+  devotionCard: { padding: Spacing.three, borderRadius: Spacing.three, gap: 2 },
+  devotionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: Spacing.two },
+  smsButton: { paddingHorizontal: Spacing.two, paddingVertical: 2, borderRadius: Spacing.two, borderWidth: 1 },
   container: {
     flex: 1,
     alignItems: 'center',
