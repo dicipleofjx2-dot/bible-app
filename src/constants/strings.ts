@@ -488,6 +488,7 @@ export const STRINGS = {
   'nav.progress': { ko: '성장기록', en: 'Growth Record' },
   'nav.leaders': { ko: '리더관리', en: 'Leaders' },
   'nav.leaderAssign': { ko: '리더 지정 · 멤버 배정', en: 'Assign Leaders and Members' },
+  'nav.cellRoom': { ko: '우리 목장', en: 'My Cell Group' },
 
   // ── 정답·해설 ────────────────────────────────────────────────
   'ans.title': { ko: '정답/해설', en: 'Answers & Explanations' },

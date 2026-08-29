@@ -174,6 +174,13 @@ export default function R2MDashboardScreen() {
           )}
 
           <View style={styles.linksRow}>
+            {/* 목장방은 누구에게나 보인다. 교적에 목장이 없는 사람에게는 화면이
+                왜 비어 있는지 안내한다 — 단추를 감추면 물어볼 곳이 없어진다. */}
+            <Pressable onPress={() => router.push('/r2m/cell')}>
+              <ThemedText type="link" themeColor="accent">
+                {t('nav.cellRoom')}
+              </ThemedText>
+            </Pressable>
             <Pressable onPress={() => router.push('/r2m/courses')}>
               <ThemedText type="link" themeColor="textSecondary">
                 {t('nav.courses')}

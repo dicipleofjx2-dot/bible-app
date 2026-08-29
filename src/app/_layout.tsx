@@ -239,6 +239,10 @@ function AppStack() {
           name="r2m/leader-assign"
           options={{ headerShown: true, title: t('nav.leaderAssign') }}
         />
+        <Stack.Screen
+          name="r2m/cell"
+          options={{ headerShown: true, title: t('nav.cellRoom') }}
+        />
       </Stack>
   );
 }
