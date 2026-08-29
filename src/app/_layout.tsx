@@ -172,6 +172,10 @@ function AppStack() {
           name="privacy-policy"
           options={{ headerShown: true, title: t('nav.privacy') }}
         />
+        <Stack.Screen
+          name="claim-account"
+          options={{ headerShown: true, title: '예전 기록 이어받기' }}
+        />
         <Stack.Screen name="meditation" options={{ headerShown: true, title: t('nav.todaysWord') }} />
         <Stack.Screen name="word-notes" options={{ headerShown: true, title: t('nav.qtNotes') }} />
         <Stack.Screen

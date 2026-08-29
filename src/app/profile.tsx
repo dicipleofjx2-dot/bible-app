@@ -249,6 +249,14 @@ export default function ProfileScreen() {
               </View>
             )}
 
+            {/* 이메일로 가입했다가 카카오로 옮겨 오신 분의 기록이 갈라지는 일이
+                있었다. 로그아웃 바로 위에 둔다 — 이어받으려면 로그아웃이 필요하다. */}
+            <Pressable onPress={() => router.push('/claim-account')} style={styles.signOutButton}>
+              <ThemedText type="link" themeColor="textSecondary">
+                예전 기록 이어받기
+              </ThemedText>
+            </Pressable>
+
             <Pressable onPress={handleSignOut} style={styles.signOutButton}>
               <ThemedText type="link" style={styles.signOutText}>
                 로그아웃
