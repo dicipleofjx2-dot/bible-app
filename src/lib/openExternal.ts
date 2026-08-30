@@ -31,4 +31,6 @@ export const APP_WINDOW = {
    *  모은다 — 성경을 읽다 보면 장을 여러 번 넘기게 되는데, 그때마다 탭이 하나씩
    *  늘면 금세 스무 개가 된다. */
   bibleReader: 'biblereader',
+  /** 목회동행 실시간 화면. 걷는 동안 여러 번 열게 되므로 한 창에 모은다. */
+  ministryLive: 'ministrylive',
 } as const;

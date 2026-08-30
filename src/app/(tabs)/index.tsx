@@ -19,6 +19,7 @@ import { getMyActiveEnrollment, getTodayChecklistCount, type ActiveEnrollment } 
 import { getMeditationNote } from '@/db/userData';
 import { hasQtRecordFor } from '@/db/qtApp';
 import { getLatestLetter, type ShepherdLetter } from '@/db/shepherdLetters';
+import { getMinistryLive, type MinistryLive } from '@/db/ministryLive';
 import { getLatestNotice, type Notice } from '@/db/notices';
 import { getCommunityUnread } from '@/db/community';
 import { hasUnseenLetter } from '@/lib/shepherdLetterBadge';
@@ -113,6 +114,8 @@ export default function HomeScreen() {
   const [enrollment, setEnrollment] = useState<ActiveEnrollment | null>(null);
   const [checklistCount, setChecklistCount] = useState(0);
   const [letter, setLetter] = useState<ShepherdLetter | null>(null);
+  // 목사님이 「성도와 함께 보기」를 켜 두신 동안에만 값이 들어온다. 평소에는 null.
+  const [live, setLive] = useState<MinistryLive | null>(null);
   const [letterUnseen, setLetterUnseen] = useState(false);
   const [communityUnread, setCommunityUnread] = useState(0);
 
@@ -157,6 +160,14 @@ export default function HomeScreen() {
         .then(setCommunityUnread)
         .catch(() => setCommunityUnread(0));
     }, [session]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      getMinistryLive()
+        .then(setLive)
+        .catch(() => setLive(null));
+    }, []),
   );
 
   useFocusEffect(
@@ -248,6 +259,24 @@ export default function HomeScreen() {
               </View>
             ))}
           </View>
+
+          {/* 2.5 목회동행 — 목사님이 사역 중이신 동안에만 뜬다. 끝나면 사라진다. */}
+          {live && (
+            <Pressable
+              onPress={() => openAppWindow(live.url, APP_WINDOW.ministryLive)}
+              style={({ pressed }) => [
+                styles.noticeStrip,
+                { backgroundColor: theme.accentSoft, borderColor: theme.accent },
+                pressed && styles.pressed,
+              ]}>
+              <ThemedText type="small" numberOfLines={1} style={styles.noticeStripText}>
+                🚶 지금 목회동행 중 — {live.title}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                함께 보기
+              </ThemedText>
+            </Pressable>
+          )}
 
           {/* 3. 알림마당 — 제목만 노출되는 한 줄 스트립 */}
           <Pressable
