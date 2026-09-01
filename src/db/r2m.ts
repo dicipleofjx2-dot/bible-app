@@ -342,7 +342,7 @@ export async function getTodayChecklistCount(userId: string): Promise<number> {
 // ============================================================
 
 export async function getProgressCounts(userId: string): Promise<ProgressCounts> {
-  const [qtNotes, marks, diaryEntries, gratitudeEntries, readingResult, prayerResult, memoResult] = await Promise.all([
+  const [qtNotes, marks, diaryEntries, gratitudeEntries, readingResult, prayerResult, memoResult, qtAppResult] = await Promise.all([
     getAllMeditationNotes(),
     getAllMarks(),
     getAllDiaryEntries(),
@@ -358,10 +358,18 @@ export async function getProgressCounts(userId: string): Promise<ProgressCounts>
       .select('date', { count: 'exact', head: true })
       .eq('user_id', userId)
       .eq('memorization_success', true),
+    // 큐티는 따로 도는 앱(데이빗 큐티)으로 옮겨졌다. 이 앱 안의 메모는 더 안
+    // 생기므로, 옮겨 간 뒤의 큐티는 qt_records 에서 센다. 둘은 시기가 겹치지
+    // 않으므로 더한다.
+    supabase
+      .from('qt_records')
+      .select('date', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('completed', true),
   ]);
 
   return {
-    qt: qtNotes.length,
+    qt: qtNotes.length + (qtAppResult.count ?? 0),
     meditation: marks.length,
     obedience: diaryEntries.length,
     gratitude: gratitudeEntries.length,
