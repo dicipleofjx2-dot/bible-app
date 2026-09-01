@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +14,7 @@ import {
 } from '@/lib/hebrew-calendar-events';
 import { getHebrewDateKST, getHebrewDayLabelKST, getKoreanDateKST } from '@/lib/hebrew-date';
 import { getHoliday } from '@/lib/korea-holidays';
+import { getPortionOfWeek, getPortionOnDate, type TorahPortionOfWeek } from '@/lib/torah-portions';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 const SUNDAY_COLOR = '#e03131';
@@ -24,6 +26,12 @@ function pad(n: number) {
 
 function toDateString(year: number, month: number, day: number) {
   return `${year}-${pad(month + 1)}-${pad(day)}`;
+}
+
+/** "2026-10-17" → "10월 17일". 어느 안식일에 읽는지 짚어 준다. */
+function formatShabbatLabel(dateString: string) {
+  const [, month, day] = dateString.split('-').map(Number);
+  return `${month}월 ${day}일`;
 }
 
 type DayCell = {
@@ -79,11 +87,74 @@ export default function CalendarScreen() {
     () => (selected ? getHebrewDayInfoForDate(selected.date) : null),
     [selected],
   );
+  // 토라포션은 두 가지를 따로 보여 준다.
+  //  · 오늘 읽는 것 — 안식일, 그리고 심핫 토라(안식일이 아닌 날에 읽는다).
+  //  · 이번 주에 읽을 것 — 히브리력의 한 주는 안식일에 끝나므로 **다가오는 토요일**.
+  // 하나로 합치면 심핫 토라 같은 날에 "오늘 읽는 것"이 사라진다.
+  const portionToday = useMemo(
+    () => (selected ? getPortionOnDate(selected.date) : null),
+    [selected],
+  );
+  const portionThisWeek = useMemo(
+    () => (selected ? getPortionOfWeek(selected.date) : null),
+    [selected],
+  );
+  const selectedPortion = portionToday ?? portionThisWeek;
+
   const selectedIsEmpty =
     selectedInfo != null &&
     selectedInfo.festivals.length === 0 &&
     selectedInfo.bible.length === 0 &&
-    selectedInfo.history.length === 0;
+    selectedInfo.history.length === 0 &&
+    selectedPortion == null;
+
+  function renderPortion(title: string, portion: TorahPortionOfWeek, showShabbatLine: boolean) {
+    return (
+      <View style={styles.section} key={title}>
+        <ThemedText type="smallBold" themeColor="accent">
+          {title}
+        </ThemedText>
+        <View style={[styles.portionCard, { backgroundColor: theme.accentSoft }]}>
+          <ThemedText type="smallBold">
+            {portion.name}
+            <ThemedText type="small" themeColor="textSecondary">
+              {'  '}
+              {portion.parts.map((p) => p.meaning).join(' · ')}
+            </ThemedText>
+          </ThemedText>
+          <ThemedText type="smallBold" themeColor="accent" style={styles.portionRange}>
+            {portion.range}
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {portion.isSimchatTorah
+              ? '토라를 다 읽고 다시 창세기로 돌아가는 날입니다.'
+              : showShabbatLine
+                ? `${formatShabbatLabel(portion.shabbat)} 안식일에 회당에서 읽습니다.`
+                : '안식일에 회당에서 읽습니다.'}
+          </ThemedText>
+          {portion.parts.map(
+            (p) =>
+              p.hebrewNote && (
+                <ThemedText key={p.en} type="small" themeColor="textSecondary">
+                  ※ {p.hebrewNote}
+                </ThemedText>
+              ),
+          )}
+          <Pressable
+            onPress={() => {
+              const first = portion.parts[0];
+              setSelected(null);
+              router.push(`/read?bookId=${first.book}&chapter=${first.startChapter}`);
+            }}
+            style={[styles.portionButton, { backgroundColor: theme.accent }]}>
+            <ThemedText type="smallBold" style={{ color: '#ffffff' }}>
+              본문 펴기
+            </ThemedText>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
 
   function renderEntries(title: string, entries: HebrewDayEntry[]) {
     if (entries.length === 0) return null;
@@ -147,6 +218,9 @@ export default function CalendarScreen() {
             // 절기나 성경·역사 기록이 붙은 날은 히브리 날짜를 강조색으로 —
             // 칸 높이를 건드리지 않으면서 "누를 것이 있다"를 알린다.
             const hasEvents = hebrewDateHasContent(cell.date);
+            // 그 날 **바로** 읽는 편이 있는 날(안식일·심핫 토라)에만 두루마리를
+            // 붙인다. 한국 공휴일과 자리를 다투므로 공휴일이 있으면 그쪽을 살린다.
+            const readsTorahToday = !holiday && getPortionOnDate(cell.date) != null;
 
             return (
               <Pressable
@@ -182,6 +256,13 @@ export default function CalendarScreen() {
                       !cell.inMonth && styles.dimmed,
                     ]}>
                     {holiday}
+                  </ThemedText>
+                )}
+                {readsTorahToday && (
+                  <ThemedText
+                    numberOfLines={1}
+                    style={[styles.holidayLabel, !cell.inMonth && styles.dimmed]}>
+                    📜
                   </ThemedText>
                 )}
               </Pressable>
@@ -225,6 +306,14 @@ export default function CalendarScreen() {
                       ))}
                     </View>
                   )}
+
+                  {portionToday && renderPortion(
+                    portionToday.isSimchatTorah ? '토라포션 · 심핫 토라' : '토라포션 · 오늘 읽습니다',
+                    portionToday,
+                    false,
+                  )}
+                  {portionThisWeek && portionThisWeek.shabbat !== portionToday?.shabbat &&
+                    renderPortion('이번 주 토라포션', portionThisWeek, true)}
 
                   {renderEntries('성경에서 이 날', selectedInfo.bible)}
                   {renderEntries('역사에서 이 날', selectedInfo.history)}
@@ -280,6 +369,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.five,
+  },
+  portionCard: {
+    borderRadius: Spacing.three,
+    padding: Spacing.three,
+    gap: Spacing.one,
+    marginTop: Spacing.half,
+  },
+  portionRange: {
+    fontSize: 16,
+  },
+  portionButton: {
+    alignSelf: 'flex-start',
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.four,
+    borderRadius: Spacing.five,
+    marginTop: Spacing.two,
   },
   weekdayRow: {
     flexDirection: 'row',
