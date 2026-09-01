@@ -155,7 +155,13 @@ console.log(log.join('\n'));
 
 if (APPLY) {
   fs.mkdirSync(BACKUP_DIR, { recursive: true });
-  const file = path.join(BACKUP_DIR, `merge-accounts-rollback-${new Date().toISOString().slice(0, 10)}.json`);
+  // **덮어쓰면 안 된다.** 처음에는 날짜만 붙였다가, 같은 날 두 번째로 돌렸을 때
+  // 첫 번째 되돌리기 자료(213행)를 30행짜리로 통째로 덮어 버렸다. 되돌릴 자료를
+  // 되돌릴 수 없게 만드는 것이 이 스크립트가 할 수 있는 가장 나쁜 짓이다.
+  const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  let file = path.join(BACKUP_DIR, `merge-accounts-rollback-${stamp}.json`);
+  for (let n = 2; fs.existsSync(file); n++)
+    file = path.join(BACKUP_DIR, `merge-accounts-rollback-${stamp}-${n}.json`);
   fs.writeFileSync(file, JSON.stringify(snapshot, null, 1), 'utf8');
   console.log(`\n되돌리기 자료: ${file} (행 ${snapshot.length}개)`);
 } else {
