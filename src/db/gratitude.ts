@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 import { supabase } from '@/lib/supabase';
 import { STORAGE_CACHE_SECONDS } from '@/lib/storageCache';
@@ -180,13 +181,26 @@ export async function uploadGratitudePhoto(
   mimeType?: string,
 ): Promise<{ path?: string; error?: string }> {
   try {
-    const response = await fetch(uri);
+    // **줄여서 올린다.** 휴대폰 사진 한 장이 그대로 2MB 를 넘는다(처음 올려 본
+    // 것이 2.2MB PNG 였다). 감사일기는 목록으로 죽 훑는 화면이라 그런 장이
+    // 몇 장만 쌓여도 데이터를 심하게 먹고, 무엇보다 **전송량 한도에 걸리면
+    // 앱 전체가 멎는다** — 2026-08-29 에 실제로 그렇게 두 프로젝트가 막혔다.
+    // 가로 1600px · JPEG 0.8 이면 대개 300KB 안쪽인데 눈으로는 차이가 없다.
+    const shrunk = await ImageManipulator.manipulateAsync(uri, [{ resize: { width: 1600 } }], {
+      compress: 0.8,
+      format: ImageManipulator.SaveFormat.JPEG,
+    }).catch(() => null);
+
+    const source = shrunk?.uri ?? uri;
+    const response = await fetch(source);
     const arrayBuffer = await response.arrayBuffer();
-    const ext = (mimeType?.split('/')[1] ?? 'jpg').replace(/[^a-z0-9]/gi, '') || 'jpg';
+    // 줄이기가 실패하면 원본 그대로 올린다 — 사진을 못 올리는 것보다 낫다.
+    const type = shrunk ? 'image/jpeg' : mimeType ?? 'image/jpeg';
+    const ext = (type.split('/')[1] ?? 'jpg').replace(/[^a-z0-9]/gi, '') || 'jpg';
     const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
     const { error } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
-      contentType: mimeType ?? 'image/jpeg',
+      contentType: type,
       cacheControl: STORAGE_CACHE_SECONDS,
     });
     if (error) return { error: error.message };
