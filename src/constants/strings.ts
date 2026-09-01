@@ -484,7 +484,7 @@ export const STRINGS = {
   'nav.supportAdmin': { ko: '후원정보 관리', en: 'Manage Support Info' },
   'nav.courses': { ko: '훈련과정', en: 'Training Courses' },
   'nav.coursesAdmin': { ko: 'R2M 훈련과정 관리', en: 'Manage R2M Courses' },
-  'nav.gratitude': { ko: '감사노트', en: 'Gratitude Notes' },
+  'nav.gratitude': { ko: '감사일기장', en: 'Gratitude Journal' },
   'nav.progress': { ko: '성장기록', en: 'Growth Record' },
   'nav.leaders': { ko: '리더관리', en: 'Leaders' },
   'nav.leaderAssign': { ko: '리더 지정 · 멤버 배정', en: 'Assign Leaders and Members' },
@@ -698,15 +698,39 @@ export const STRINGS = {
   'r2m.unit.times': { ko: '회', en: 'times' },
   'r2m.unit.count': { ko: '개', en: 'entries' },
 
-  'r2m.gratitude.title': { ko: '감사노트', en: 'Gratitude Notes' },
+  'r2m.gratitude.title': { ko: '감사일기장', en: 'Gratitude Journal' },
   'r2m.gratitude.subtitle': {
-    ko: '오늘 감사한 일 세 가지를 적어보세요.',
-    en: 'Write down three things you are thankful for today.',
+    ko: '오늘 감사한 일 세 가지를 적어 보세요. 사진도 함께 남길 수 있어요.',
+    en: 'Write down three things you are thankful for today. You can add photos too.',
   },
+  'r2m.gratitude.tabMine': { ko: '내 일기장', en: 'My journal' },
+  'r2m.gratitude.tabShared': { ko: '함께 나눈 감사', en: 'Shared' },
+  'r2m.gratitude.notePlaceholder': {
+    ko: '오늘 하루를 일기처럼 적어 보세요 (안 써도 괜찮아요)',
+    en: 'Write about your day, journal style (optional)',
+  },
+  'r2m.gratitude.addPhoto': { ko: '사진 넣기', en: 'Add photo' },
+  'r2m.gratitude.photoLimit': { ko: '사진은 {n}장까지 넣을 수 있어요.', en: 'Up to {n} photos.' },
+  'r2m.gratitude.photoFailed': { ko: '사진을 올리지 못했어요.', en: 'Could not upload the photo.' },
+  'r2m.gratitude.share': { ko: '함께 나누기', en: 'Share with others' },
+  'r2m.gratitude.shareHint': {
+    ko: '켜면 교회 식구들이 볼 수 있어요. 끄면 나만 봅니다.',
+    en: 'On: your church family can read it. Off: only you.',
+  },
+  'r2m.gratitude.sharedBadge': { ko: '나눔', en: 'Shared' },
+  'r2m.gratitude.sharedHint': {
+    ko: '「함께 나누기」를 켠 감사만 보입니다.',
+    en: 'Only entries shared on purpose appear here.',
+  },
+  'r2m.gratitude.sharedEmpty': {
+    ko: '아직 나눈 감사가 없어요. 먼저 나눠 보시겠어요?',
+    en: 'No shared gratitude yet. Care to be the first?',
+  },
+  'r2m.gratitude.delete': { ko: '지우기', en: 'Delete' },
   'r2m.gratitude.placeholder': { ko: '감사한 일 {n}', en: 'Thankful for… {n}' },
   'r2m.gratitude.saved': { ko: '저장됨', en: 'Saved' },
   'r2m.gratitude.save': { ko: '저장', en: 'Save' },
-  'r2m.gratitude.past': { ko: '지난 감사노트', en: 'Earlier notes' },
+  'r2m.gratitude.past': { ko: '지난 감사일기', en: 'Earlier entries' },
   'r2m.gratitude.empty': { ko: '아직 기록이 없어요.', en: 'Nothing written down yet.' },
 
   'r2m.needLogin': {

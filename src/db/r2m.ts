@@ -159,7 +159,13 @@ function startOfTodayISO(): string {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).toISOString();
 }
 
-const READING_QUIZ_PASS_SCORE = 70;
+// 성경통독 「그날 다 읽었다」의 기준 — 통독도우미 퀴즈 80점.
+//
+// **DB 가 이미 80을 쓰고 있었다.** 함께읽기(0044)·읽기 알림(0045)·관리자 현황판의
+// 완료일수(0047)·순위표 점수(0046·0049)가 모두 `quiz_score >= 80` 이다. 그런데
+// 여기만 70이어서, R2M 경건훈련에는 체크가 서는데 통독 현황판에는 안 한 날로
+// 잡히는 날(70~79점)이 있었다. 같은 규칙이 두 군데 있으면 반드시 이렇게 갈린다.
+const READING_QUIZ_PASS_SCORE = 80;
 
 // 등록일 + 총 주차로 현재 주차를 파생한다 — 별도 컬럼 없음.
 function computeCurrentWeek(startedAt: string, totalWeeks: number): number {
