@@ -1,0 +1,1888 @@
+{
+ "readings": {
+  "Shabbat Shekalim": {
+   "ko": "샤밧 셰칼림 — 반 세겔의 안식일",
+   "haftarah": [
+    {
+     "book": 12,
+     "startChapter": 11,
+     "startVerse": 21,
+     "endChapter": 12,
+     "endVerse": 16
+    }
+   ],
+   "sephardi": [
+    {
+     "book": 12,
+     "startChapter": 11,
+     "startVerse": 17,
+     "endChapter": 12,
+     "endVerse": 16
+    }
+   ]
+  },
+  "Shabbat Zachor": {
+   "ko": "샤밧 자코르 — 아말렉을 기억하라",
+   "haftarah": [
+    {
+     "book": 9,
+     "startChapter": 15,
+     "startVerse": 2,
+     "endChapter": 15,
+     "endVerse": 34
+    }
+   ],
+   "sephardi": [
+    {
+     "book": 9,
+     "startChapter": 15,
+     "startVerse": 1,
+     "endChapter": 15,
+     "endVerse": 34
+    }
+   ]
+  },
+  "Shabbat Parah": {
+   "ko": "샤밧 파라 — 붉은 암송아지",
+   "haftarah": [
+    {
+     "book": 26,
+     "startChapter": 36,
+     "startVerse": 16,
+     "endChapter": 36,
+     "endVerse": 38
+    }
+   ],
+   "sephardi": [
+    {
+     "book": 26,
+     "startChapter": 36,
+     "startVerse": 16,
+     "endChapter": 36,
+     "endVerse": 36
+    }
+   ]
+  },
+  "Shabbat HaChodesh (on Rosh Chodesh)": {
+   "ko": "샤밧 하호데쉬 (초하루와 겹침)",
+   "haftarah": [
+    {
+     "book": 26,
+     "startChapter": 45,
+     "startVerse": 16,
+     "endChapter": 46,
+     "endVerse": 18
+    }
+   ],
+   "sephardi": [
+    {
+     "book": 26,
+     "startChapter": 45,
+     "startVerse": 18,
+     "endChapter": 46,
+     "endVerse": 15
+    }
+   ]
+  },
+  "Shabbat Rosh Chodesh": {
+   "ko": "초하루 안식일",
+   "haftarah": [
+    {
+     "book": 23,
+     "startChapter": 66,
+     "startVerse": 1,
+     "endChapter": 66,
+     "endVerse": 24
+    }
+   ]
+  },
+  "Shabbat HaGadol": {
+   "ko": "샤밧 하가돌 — 유월절 앞 큰 안식일",
+   "haftarah": [
+    {
+     "book": 39,
+     "startChapter": 3,
+     "startVerse": 4,
+     "endChapter": 4,
+     "endVerse": 6
+    }
+   ]
+  },
+  "Pesach I (on Shabbat)": {
+   "ko": "유월절 첫날",
+   "haftarah": [
+    {
+     "book": 6,
+     "startChapter": 3,
+     "startVerse": 5,
+     "endChapter": 3,
+     "endVerse": 7
+    },
+    {
+     "book": 6,
+     "startChapter": 5,
+     "startVerse": 2,
+     "endChapter": 6,
+     "endVerse": 1
+    },
+    {
+     "book": 6,
+     "startChapter": 6,
+     "startVerse": 27,
+     "endChapter": 6,
+     "endVerse": 27
+    }
+   ],
+   "torah": [
+    {
+     "book": 2,
+     "startChapter": 12,
+     "startVerse": 21,
+     "endChapter": 12,
+     "endVerse": 51
+    },
+    {
+     "book": 4,
+     "startChapter": 28,
+     "startVerse": 16,
+     "endChapter": 28,
+     "endVerse": 25
+    }
+   ],
+   "sephardi": [
+    {
+     "book": 6,
+     "startChapter": 5,
+     "startVerse": 2,
+     "endChapter": 6,
+     "endVerse": 1
+    },
+    {
+     "book": 6,
+     "startChapter": 6,
+     "startVerse": 27,
+     "endChapter": 6,
+     "endVerse": 27
+    }
+   ]
+  },
+  "Pesach II": {
+   "ko": "유월절 둘째 날",
+   "haftarah": [
+    {
+     "book": 12,
+     "startChapter": 23,
+     "startVerse": 1,
+     "endChapter": 23,
+     "endVerse": 9
+    },
+    {
+     "book": 12,
+     "startChapter": 23,
+     "startVerse": 21,
+     "endChapter": 23,
+     "endVerse": 25
+    }
+   ],
+   "torah": [
+    {
+     "book": 3,
+     "startChapter": 22,
+     "startVerse": 26,
+     "endChapter": 23,
+     "endVerse": 44
+    },
+    {
+     "book": 4,
+     "startChapter": 28,
+     "startVerse": 16,
+     "endChapter": 28,
+     "endVerse": 25
+    }
+   ]
+  },
+  "Pesach VII": {
+   "ko": "유월절 일곱째 날",
+   "haftarah": [
+    {
+     "book": 10,
+     "startChapter": 22,
+     "startVerse": 1,
+     "endChapter": 22,
+     "endVerse": 51
+    }
+   ],
+   "torah": [
+    {
+     "book": 2,
+     "startChapter": 13,
+     "startVerse": 17,
+     "endChapter": 15,
+     "endVerse": 26
+    },
+    {
+     "book": 4,
+     "startChapter": 28,
+     "startVerse": 19,
+     "endChapter": 28,
+     "endVerse": 25
+    }
+   ]
+  },
+  "Pesach VIII (on Shabbat)": {
+   "ko": "유월절 여덟째 날",
+   "haftarah": [
+    {
+     "book": 23,
+     "startChapter": 10,
+     "startVerse": 32,
+     "endChapter": 12,
+     "endVerse": 6
+    }
+   ],
+   "torah": [
+    {
+     "book": 5,
+     "startChapter": 14,
+     "startVerse": 22,
+     "endChapter": 16,
+     "endVerse": 17
+    },
+    {
+     "book": 4,
+     "startChapter": 28,
+     "startVerse": 19,
+     "endChapter": 28,
+     "endVerse": 25
+    },
+    {
+     "book": 22,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 8,
+     "endVerse": 14
+    }
+   ]
+  },
+  "Yom HaAtzma'ut": {
+   "ko": "이스라엘 독립기념일",
+   "haftarah": [
+    {
+     "book": 23,
+     "startChapter": 10,
+     "startVerse": 32,
+     "endChapter": 12,
+     "endVerse": 6
+    }
+   ],
+   "torah": [
+    {
+     "book": 5,
+     "startChapter": 7,
+     "startVerse": 12,
+     "endChapter": 8,
+     "endVerse": 18
+    }
+   ]
+  },
+  "Shavuot I": {
+   "ko": "칠칠절 첫날 (오순절)",
+   "haftarah": [
+    {
+     "book": 26,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 1,
+     "endVerse": 28
+    },
+    {
+     "book": 26,
+     "startChapter": 3,
+     "startVerse": 12,
+     "endChapter": 3,
+     "endVerse": 12
+    }
+   ],
+   "torah": [
+    {
+     "book": 2,
+     "startChapter": 19,
+     "startVerse": 1,
+     "endChapter": 20,
+     "endVerse": 23
+    },
+    {
+     "book": 4,
+     "startChapter": 28,
+     "startVerse": 26,
+     "endChapter": 28,
+     "endVerse": 31
+    }
+   ]
+  },
+  "Shavuot II": {
+   "ko": "칠칠절 둘째 날",
+   "haftarah": [
+    {
+     "book": 35,
+     "startChapter": 3,
+     "startVerse": 1,
+     "endChapter": 3,
+     "endVerse": 19
+    }
+   ],
+   "torah": [
+    {
+     "book": 5,
+     "startChapter": 15,
+     "startVerse": 19,
+     "endChapter": 16,
+     "endVerse": 17
+    },
+    {
+     "book": 4,
+     "startChapter": 28,
+     "startVerse": 26,
+     "endChapter": 28,
+     "endVerse": 31
+    },
+    {
+     "book": 8,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 4,
+     "endVerse": 22
+    }
+   ],
+   "sephardi": [
+    {
+     "book": 35,
+     "startChapter": 2,
+     "startVerse": 20,
+     "endChapter": 3,
+     "endVerse": 19
+    }
+   ]
+  },
+  "Tish'a B'Av": {
+   "ko": "금식일 — 성전이 무너진 날 (티샤 베아브)",
+   "haftarah": [
+    {
+     "book": 24,
+     "startChapter": 8,
+     "startVerse": 13,
+     "endChapter": 9,
+     "endVerse": 24
+    }
+   ],
+   "torah": [
+    {
+     "book": 5,
+     "startChapter": 4,
+     "startVerse": 25,
+     "endChapter": 4,
+     "endVerse": 40
+    },
+    {
+     "book": 25,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 5,
+     "endVerse": 22
+    }
+   ]
+  },
+  "Rosh Hashana I": {
+   "ko": "나팔절 첫날 (로쉬 하샤나)",
+   "haftarah": [
+    {
+     "book": 9,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 2,
+     "endVerse": 10
+    }
+   ],
+   "torah": [
+    {
+     "book": 1,
+     "startChapter": 21,
+     "startVerse": 1,
+     "endChapter": 21,
+     "endVerse": 34
+    },
+    {
+     "book": 4,
+     "startChapter": 29,
+     "startVerse": 1,
+     "endChapter": 29,
+     "endVerse": 6
+    }
+   ]
+  },
+  "Rosh Hashana II": {
+   "ko": "나팔절 둘째 날",
+   "haftarah": [
+    {
+     "book": 24,
+     "startChapter": 31,
+     "startVerse": 2,
+     "endChapter": 31,
+     "endVerse": 20
+    }
+   ],
+   "torah": [
+    {
+     "book": 1,
+     "startChapter": 22,
+     "startVerse": 1,
+     "endChapter": 22,
+     "endVerse": 24
+    },
+    {
+     "book": 4,
+     "startChapter": 29,
+     "startVerse": 1,
+     "endChapter": 29,
+     "endVerse": 6
+    }
+   ]
+  },
+  "Shabbat Shuva": {
+   "ko": "샤밧 슈바 — 회개의 안식일",
+   "haftarah": [
+    {
+     "book": 28,
+     "startChapter": 14,
+     "startVerse": 1,
+     "endChapter": 14,
+     "endVerse": 9
+    },
+    {
+     "book": 33,
+     "startChapter": 7,
+     "startVerse": 18,
+     "endChapter": 7,
+     "endVerse": 20
+    },
+    {
+     "book": 29,
+     "startChapter": 2,
+     "startVerse": 15,
+     "endChapter": 2,
+     "endVerse": 27
+    }
+   ]
+  },
+  "Yom Kippur": {
+   "ko": "속죄일 (욤 키푸르)",
+   "haftarah": [
+    {
+     "book": 23,
+     "startChapter": 57,
+     "startVerse": 14,
+     "endChapter": 58,
+     "endVerse": 14
+    }
+   ],
+   "torah": [
+    {
+     "book": 3,
+     "startChapter": 16,
+     "startVerse": 1,
+     "endChapter": 16,
+     "endVerse": 34
+    },
+    {
+     "book": 4,
+     "startChapter": 29,
+     "startVerse": 7,
+     "endChapter": 29,
+     "endVerse": 11
+    }
+   ]
+  },
+  "Sukkot I": {
+   "ko": "초막절 첫날",
+   "haftarah": [
+    {
+     "book": 38,
+     "startChapter": 14,
+     "startVerse": 1,
+     "endChapter": 14,
+     "endVerse": 21
+    }
+   ],
+   "torah": [
+    {
+     "book": 3,
+     "startChapter": 22,
+     "startVerse": 26,
+     "endChapter": 23,
+     "endVerse": 44
+    },
+    {
+     "book": 4,
+     "startChapter": 29,
+     "startVerse": 12,
+     "endChapter": 29,
+     "endVerse": 16
+    }
+   ]
+  },
+  "Sukkot II": {
+   "ko": "초막절 둘째 날",
+   "haftarah": [
+    {
+     "book": 11,
+     "startChapter": 8,
+     "startVerse": 2,
+     "endChapter": 8,
+     "endVerse": 21
+    }
+   ],
+   "torah": [
+    {
+     "book": 3,
+     "startChapter": 22,
+     "startVerse": 26,
+     "endChapter": 23,
+     "endVerse": 44
+    },
+    {
+     "book": 4,
+     "startChapter": 29,
+     "startVerse": 12,
+     "endChapter": 29,
+     "endVerse": 16
+    }
+   ]
+  },
+  "Sukkot Shabbat Chol ha-Moed": {
+   "ko": "초막절 중간 안식일",
+   "haftarah": [
+    {
+     "book": 26,
+     "startChapter": 38,
+     "startVerse": 18,
+     "endChapter": 39,
+     "endVerse": 16
+    }
+   ],
+   "torah": [
+    {
+     "book": 2,
+     "startChapter": 33,
+     "startVerse": 12,
+     "endChapter": 34,
+     "endVerse": 26
+    },
+    {
+     "book": 4,
+     "startChapter": 29,
+     "startVerse": 26,
+     "endChapter": 29,
+     "endVerse": 31
+    },
+    {
+     "book": 21,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 12,
+     "endVerse": 14
+    }
+   ]
+  },
+  "Shmini Atzeret": {
+   "ko": "여덟째 날 성회",
+   "haftarah": [
+    {
+     "book": 11,
+     "startChapter": 8,
+     "startVerse": 54,
+     "endChapter": 8,
+     "endVerse": 66
+    }
+   ],
+   "torah": [
+    {
+     "book": 5,
+     "startChapter": 14,
+     "startVerse": 22,
+     "endChapter": 16,
+     "endVerse": 17
+    },
+    {
+     "book": 4,
+     "startChapter": 29,
+     "startVerse": 35,
+     "endChapter": 30,
+     "endVerse": 1
+    }
+   ]
+  },
+  "Simchat Torah": {
+   "ko": "심핫 토라 — 토라를 다 읽은 날",
+   "haftarah": [
+    {
+     "book": 6,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 1,
+     "endVerse": 18
+    }
+   ],
+   "torah": [
+    {
+     "book": 5,
+     "startChapter": 33,
+     "startVerse": 1,
+     "endChapter": 34,
+     "endVerse": 12
+    },
+    {
+     "book": 1,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 2,
+     "endVerse": 3
+    },
+    {
+     "book": 4,
+     "startChapter": 29,
+     "startVerse": 35,
+     "endChapter": 30,
+     "endVerse": 1
+    }
+   ]
+  },
+  "Shabbat Rosh Chodesh Chanukah": {
+   "ko": "초하루와 겹친 수전절 안식일",
+   "haftarah": [
+    {
+     "book": 38,
+     "startChapter": 2,
+     "startVerse": 10,
+     "endChapter": 4,
+     "endVerse": 7
+    }
+   ]
+  },
+  "Chanukah Day 7 (on Shabbat)": {
+   "ko": "수전절 안식일",
+   "haftarah": [
+    {
+     "book": 38,
+     "startChapter": 2,
+     "startVerse": 10,
+     "endChapter": 4,
+     "endVerse": 7
+    }
+   ]
+  },
+  "Shabbat HaChodesh": {
+   "ko": "샤밧 하호데쉬 — 첫 달의 안식일",
+   "haftarah": [
+    {
+     "book": 26,
+     "startChapter": 45,
+     "startVerse": 16,
+     "endChapter": 46,
+     "endVerse": 18
+    }
+   ],
+   "sephardi": [
+    {
+     "book": 26,
+     "startChapter": 45,
+     "startVerse": 18,
+     "endChapter": 46,
+     "endVerse": 15
+    }
+   ]
+  },
+  "Pesach I": {
+   "ko": "유월절 첫날",
+   "haftarah": [
+    {
+     "book": 6,
+     "startChapter": 3,
+     "startVerse": 5,
+     "endChapter": 3,
+     "endVerse": 7
+    },
+    {
+     "book": 6,
+     "startChapter": 5,
+     "startVerse": 2,
+     "endChapter": 6,
+     "endVerse": 1
+    },
+    {
+     "book": 6,
+     "startChapter": 6,
+     "startVerse": 27,
+     "endChapter": 6,
+     "endVerse": 27
+    }
+   ],
+   "torah": [
+    {
+     "book": 2,
+     "startChapter": 12,
+     "startVerse": 21,
+     "endChapter": 12,
+     "endVerse": 51
+    },
+    {
+     "book": 4,
+     "startChapter": 28,
+     "startVerse": 16,
+     "endChapter": 28,
+     "endVerse": 25
+    }
+   ],
+   "sephardi": [
+    {
+     "book": 6,
+     "startChapter": 5,
+     "startVerse": 2,
+     "endChapter": 6,
+     "endVerse": 1
+    },
+    {
+     "book": 6,
+     "startChapter": 6,
+     "startVerse": 27,
+     "endChapter": 6,
+     "endVerse": 27
+    }
+   ]
+  },
+  "Pesach Shabbat Chol ha-Moed": {
+   "ko": "유월절 중간 안식일",
+   "haftarah": [
+    {
+     "book": 26,
+     "startChapter": 37,
+     "startVerse": 1,
+     "endChapter": 37,
+     "endVerse": 14
+    }
+   ],
+   "torah": [
+    {
+     "book": 2,
+     "startChapter": 33,
+     "startVerse": 12,
+     "endChapter": 34,
+     "endVerse": 26
+    },
+    {
+     "book": 4,
+     "startChapter": 28,
+     "startVerse": 19,
+     "endChapter": 28,
+     "endVerse": 25
+    },
+    {
+     "book": 22,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 8,
+     "endVerse": 14
+    }
+   ]
+  },
+  "Pesach VIII": {
+   "ko": "유월절 여덟째 날",
+   "haftarah": [
+    {
+     "book": 23,
+     "startChapter": 10,
+     "startVerse": 32,
+     "endChapter": 12,
+     "endVerse": 6
+    }
+   ],
+   "torah": [
+    {
+     "book": 5,
+     "startChapter": 15,
+     "startVerse": 19,
+     "endChapter": 16,
+     "endVerse": 17
+    },
+    {
+     "book": 4,
+     "startChapter": 28,
+     "startVerse": 19,
+     "endChapter": 28,
+     "endVerse": 25
+    }
+   ]
+  },
+  "Yom Kippur (on Shabbat)": {
+   "ko": "속죄일 (욤 키푸르)",
+   "haftarah": [
+    {
+     "book": 23,
+     "startChapter": 57,
+     "startVerse": 14,
+     "endChapter": 58,
+     "endVerse": 14
+    }
+   ],
+   "torah": [
+    {
+     "book": 3,
+     "startChapter": 16,
+     "startVerse": 1,
+     "endChapter": 16,
+     "endVerse": 34
+    },
+    {
+     "book": 4,
+     "startChapter": 29,
+     "startVerse": 7,
+     "endChapter": 29,
+     "endVerse": 11
+    }
+   ]
+  },
+  "Chanukah Day 4 (on Shabbat)": {
+   "ko": "수전절 안식일",
+   "haftarah": [
+    {
+     "book": 38,
+     "startChapter": 2,
+     "startVerse": 10,
+     "endChapter": 4,
+     "endVerse": 7
+    }
+   ]
+  },
+  "Shavuot II (on Shabbat)": {
+   "ko": "칠칠절 둘째 날",
+   "haftarah": [
+    {
+     "book": 35,
+     "startChapter": 3,
+     "startVerse": 1,
+     "endChapter": 3,
+     "endVerse": 19
+    }
+   ],
+   "torah": [
+    {
+     "book": 5,
+     "startChapter": 14,
+     "startVerse": 22,
+     "endChapter": 16,
+     "endVerse": 17
+    },
+    {
+     "book": 4,
+     "startChapter": 28,
+     "startVerse": 26,
+     "endChapter": 28,
+     "endVerse": 31
+    },
+    {
+     "book": 8,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 4,
+     "endVerse": 22
+    }
+   ],
+   "sephardi": [
+    {
+     "book": 35,
+     "startChapter": 2,
+     "startVerse": 20,
+     "endChapter": 3,
+     "endVerse": 19
+    }
+   ]
+  },
+  "Rosh Hashana I (on Shabbat)": {
+   "ko": "나팔절 첫날 (로쉬 하샤나)",
+   "haftarah": [
+    {
+     "book": 9,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 2,
+     "endVerse": 10
+    }
+   ],
+   "torah": [
+    {
+     "book": 1,
+     "startChapter": 21,
+     "startVerse": 1,
+     "endChapter": 21,
+     "endVerse": 34
+    },
+    {
+     "book": 4,
+     "startChapter": 29,
+     "startVerse": 1,
+     "endChapter": 29,
+     "endVerse": 6
+    }
+   ]
+  },
+  "Sukkot I (on Shabbat)": {
+   "ko": "초막절 첫날",
+   "haftarah": [
+    {
+     "book": 38,
+     "startChapter": 14,
+     "startVerse": 1,
+     "endChapter": 14,
+     "endVerse": 21
+    }
+   ],
+   "torah": [
+    {
+     "book": 3,
+     "startChapter": 22,
+     "startVerse": 26,
+     "endChapter": 23,
+     "endVerse": 44
+    },
+    {
+     "book": 4,
+     "startChapter": 29,
+     "startVerse": 12,
+     "endChapter": 29,
+     "endVerse": 16
+    }
+   ]
+  },
+  "Shmini Atzeret (on Shabbat)": {
+   "ko": "여덟째 날 성회",
+   "haftarah": [
+    {
+     "book": 11,
+     "startChapter": 8,
+     "startVerse": 54,
+     "endChapter": 8,
+     "endVerse": 66
+    }
+   ],
+   "torah": [
+    {
+     "book": 5,
+     "startChapter": 14,
+     "startVerse": 22,
+     "endChapter": 16,
+     "endVerse": 17
+    },
+    {
+     "book": 4,
+     "startChapter": 29,
+     "startVerse": 35,
+     "endChapter": 30,
+     "endVerse": 1
+    },
+    {
+     "book": 21,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 12,
+     "endVerse": 14
+    }
+   ]
+  },
+  "Chanukah Day 2 (on Shabbat)": {
+   "ko": "수전절 안식일",
+   "haftarah": [
+    {
+     "book": 38,
+     "startChapter": 2,
+     "startVerse": 10,
+     "endChapter": 4,
+     "endVerse": 7
+    }
+   ]
+  },
+  "Shabbat Shekalim (on Rosh Chodesh)": {
+   "ko": "샤밧 셰칼림 (초하루와 겹침)",
+   "haftarah": [
+    {
+     "book": 12,
+     "startChapter": 11,
+     "startVerse": 21,
+     "endChapter": 12,
+     "endVerse": 16
+    }
+   ],
+   "sephardi": [
+    {
+     "book": 12,
+     "startChapter": 11,
+     "startVerse": 17,
+     "endChapter": 12,
+     "endVerse": 16
+    }
+   ]
+  },
+  "Pesach VII (on Shabbat)": {
+   "ko": "유월절 일곱째 날",
+   "haftarah": [
+    {
+     "book": 10,
+     "startChapter": 22,
+     "startVerse": 1,
+     "endChapter": 22,
+     "endVerse": 51
+    }
+   ],
+   "torah": [
+    {
+     "book": 2,
+     "startChapter": 13,
+     "startVerse": 17,
+     "endChapter": 15,
+     "endVerse": 26
+    },
+    {
+     "book": 4,
+     "startChapter": 28,
+     "startVerse": 19,
+     "endChapter": 28,
+     "endVerse": 25
+    },
+    {
+     "book": 22,
+     "startChapter": 1,
+     "startVerse": 1,
+     "endChapter": 8,
+     "endVerse": 14
+    }
+   ]
+  },
+  "Chanukah Day 3 (on Shabbat)": {
+   "ko": "수전절 안식일",
+   "haftarah": [
+    {
+     "book": 38,
+     "startChapter": 2,
+     "startVerse": 10,
+     "endChapter": 4,
+     "endVerse": 7
+    }
+   ]
+  },
+  "Chanukah Day 1 (on Shabbat)": {
+   "ko": "수전절 안식일",
+   "haftarah": [
+    {
+     "book": 38,
+     "startChapter": 2,
+     "startVerse": 10,
+     "endChapter": 4,
+     "endVerse": 7
+    }
+   ]
+  },
+  "Chanukah Day 8 (on Shabbat)": {
+   "ko": "수전절 여덟째 날 안식일",
+   "haftarah": [
+    {
+     "book": 11,
+     "startChapter": 7,
+     "startVerse": 40,
+     "endChapter": 7,
+     "endVerse": 50
+    }
+   ]
+  }
+ },
+ "dates": {
+  "2015-02-14": "Shabbat Shekalim",
+  "2015-02-28": "Shabbat Zachor",
+  "2015-03-14": "Shabbat Parah",
+  "2015-03-21": "Shabbat HaChodesh (on Rosh Chodesh)",
+  "2015-03-28": "Shabbat HaGadol",
+  "2015-04-04": "Pesach I (on Shabbat)",
+  "2015-04-05": "Pesach II",
+  "2015-04-10": "Pesach VII",
+  "2015-04-11": "Pesach VIII (on Shabbat)",
+  "2015-04-23": "Yom HaAtzma'ut",
+  "2015-05-24": "Shavuot I",
+  "2015-05-25": "Shavuot II",
+  "2015-07-26": "Tish'a B'Av",
+  "2015-08-15": "Shabbat Rosh Chodesh",
+  "2015-09-14": "Rosh Hashana I",
+  "2015-09-15": "Rosh Hashana II",
+  "2015-09-19": "Shabbat Shuva",
+  "2015-09-23": "Yom Kippur",
+  "2015-09-28": "Sukkot I",
+  "2015-09-29": "Sukkot II",
+  "2015-10-03": "Sukkot Shabbat Chol ha-Moed",
+  "2015-10-05": "Shmini Atzeret",
+  "2015-10-06": "Simchat Torah",
+  "2015-12-12": "Shabbat Rosh Chodesh Chanukah",
+  "2016-03-05": "Shabbat Shekalim",
+  "2016-03-19": "Shabbat Zachor",
+  "2016-04-02": "Shabbat Parah",
+  "2016-04-09": "Shabbat HaChodesh (on Rosh Chodesh)",
+  "2016-04-16": "Shabbat HaGadol",
+  "2016-04-23": "Pesach I (on Shabbat)",
+  "2016-04-24": "Pesach II",
+  "2016-04-29": "Pesach VII",
+  "2016-04-30": "Pesach VIII (on Shabbat)",
+  "2016-05-12": "Yom HaAtzma'ut",
+  "2016-06-12": "Shavuot I",
+  "2016-06-13": "Shavuot II",
+  "2016-08-14": "Tish'a B'Av",
+  "2016-09-03": "Shabbat Rosh Chodesh",
+  "2016-10-03": "Rosh Hashana I",
+  "2016-10-04": "Rosh Hashana II",
+  "2016-10-08": "Shabbat Shuva",
+  "2016-10-12": "Yom Kippur",
+  "2016-10-17": "Sukkot I",
+  "2016-10-18": "Sukkot II",
+  "2016-10-22": "Sukkot Shabbat Chol ha-Moed",
+  "2016-10-24": "Shmini Atzeret",
+  "2016-10-25": "Simchat Torah",
+  "2016-12-31": "Chanukah Day 7 (on Shabbat)",
+  "2017-01-28": "Shabbat Rosh Chodesh",
+  "2017-02-25": "Shabbat Shekalim",
+  "2017-03-11": "Shabbat Zachor",
+  "2017-03-18": "Shabbat Parah",
+  "2017-03-25": "Shabbat HaChodesh",
+  "2017-04-08": "Shabbat HaGadol",
+  "2017-04-11": "Pesach I",
+  "2017-04-12": "Pesach II",
+  "2017-04-15": "Pesach Shabbat Chol ha-Moed",
+  "2017-04-17": "Pesach VII",
+  "2017-04-18": "Pesach VIII",
+  "2017-05-02": "Yom HaAtzma'ut",
+  "2017-05-31": "Shavuot I",
+  "2017-06-01": "Shavuot II",
+  "2017-06-24": "Shabbat Rosh Chodesh",
+  "2017-08-01": "Tish'a B'Av",
+  "2017-09-21": "Rosh Hashana I",
+  "2017-09-22": "Rosh Hashana II",
+  "2017-09-23": "Shabbat Shuva",
+  "2017-09-30": "Yom Kippur (on Shabbat)",
+  "2017-10-05": "Sukkot I",
+  "2017-10-06": "Sukkot II",
+  "2017-10-07": "Sukkot Shabbat Chol ha-Moed",
+  "2017-10-12": "Shmini Atzeret",
+  "2017-10-13": "Simchat Torah",
+  "2017-10-21": "Shabbat Rosh Chodesh",
+  "2017-12-16": "Chanukah Day 4 (on Shabbat)",
+  "2018-02-10": "Shabbat Shekalim",
+  "2018-02-24": "Shabbat Zachor",
+  "2018-03-10": "Shabbat Parah",
+  "2018-03-17": "Shabbat HaChodesh (on Rosh Chodesh)",
+  "2018-03-24": "Shabbat HaGadol",
+  "2018-03-31": "Pesach I (on Shabbat)",
+  "2018-04-01": "Pesach II",
+  "2018-04-06": "Pesach VII",
+  "2018-04-07": "Pesach VIII (on Shabbat)",
+  "2018-04-19": "Yom HaAtzma'ut",
+  "2018-05-20": "Shavuot I",
+  "2018-05-21": "Shavuot II",
+  "2018-07-22": "Tish'a B'Av",
+  "2018-08-11": "Shabbat Rosh Chodesh",
+  "2018-09-10": "Rosh Hashana I",
+  "2018-09-11": "Rosh Hashana II",
+  "2018-09-15": "Shabbat Shuva",
+  "2018-09-19": "Yom Kippur",
+  "2018-09-24": "Sukkot I",
+  "2018-09-25": "Sukkot II",
+  "2018-09-29": "Sukkot Shabbat Chol ha-Moed",
+  "2018-10-01": "Shmini Atzeret",
+  "2018-10-02": "Simchat Torah",
+  "2018-12-08": "Shabbat Rosh Chodesh Chanukah",
+  "2019-03-02": "Shabbat Shekalim",
+  "2019-03-16": "Shabbat Zachor",
+  "2019-03-30": "Shabbat Parah",
+  "2019-04-06": "Shabbat HaChodesh (on Rosh Chodesh)",
+  "2019-04-13": "Shabbat HaGadol",
+  "2019-04-20": "Pesach I (on Shabbat)",
+  "2019-04-21": "Pesach II",
+  "2019-04-26": "Pesach VII",
+  "2019-04-27": "Pesach VIII (on Shabbat)",
+  "2019-05-09": "Yom HaAtzma'ut",
+  "2019-06-09": "Shavuot I",
+  "2019-06-10": "Shavuot II",
+  "2019-08-11": "Tish'a B'Av",
+  "2019-08-31": "Shabbat Rosh Chodesh",
+  "2019-09-30": "Rosh Hashana I",
+  "2019-10-01": "Rosh Hashana II",
+  "2019-10-05": "Shabbat Shuva",
+  "2019-10-09": "Yom Kippur",
+  "2019-10-14": "Sukkot I",
+  "2019-10-15": "Sukkot II",
+  "2019-10-19": "Sukkot Shabbat Chol ha-Moed",
+  "2019-10-21": "Shmini Atzeret",
+  "2019-10-22": "Simchat Torah",
+  "2019-12-28": "Shabbat Rosh Chodesh Chanukah",
+  "2020-02-22": "Shabbat Shekalim",
+  "2020-03-07": "Shabbat Zachor",
+  "2020-03-14": "Shabbat Parah",
+  "2020-03-21": "Shabbat HaChodesh",
+  "2020-04-04": "Shabbat HaGadol",
+  "2020-04-09": "Pesach I",
+  "2020-04-10": "Pesach II",
+  "2020-04-11": "Pesach Shabbat Chol ha-Moed",
+  "2020-04-15": "Pesach VII",
+  "2020-04-16": "Pesach VIII",
+  "2020-04-25": "Shabbat Rosh Chodesh",
+  "2020-04-29": "Yom HaAtzma'ut",
+  "2020-05-29": "Shavuot I",
+  "2020-05-30": "Shavuot II (on Shabbat)",
+  "2020-07-30": "Tish'a B'Av",
+  "2020-09-19": "Rosh Hashana I (on Shabbat)",
+  "2020-09-20": "Rosh Hashana II",
+  "2020-09-26": "Shabbat Shuva",
+  "2020-09-28": "Yom Kippur",
+  "2020-10-03": "Sukkot I (on Shabbat)",
+  "2020-10-04": "Sukkot II",
+  "2020-10-10": "Shmini Atzeret (on Shabbat)",
+  "2020-10-11": "Simchat Torah",
+  "2020-12-12": "Chanukah Day 2 (on Shabbat)",
+  "2021-02-13": "Shabbat Shekalim (on Rosh Chodesh)",
+  "2021-02-20": "Shabbat Zachor",
+  "2021-03-06": "Shabbat Parah",
+  "2021-03-13": "Shabbat HaChodesh",
+  "2021-03-27": "Shabbat HaGadol",
+  "2021-03-28": "Pesach I",
+  "2021-03-29": "Pesach II",
+  "2021-04-03": "Pesach VII (on Shabbat)",
+  "2021-04-04": "Pesach VIII",
+  "2021-04-15": "Yom HaAtzma'ut",
+  "2021-05-17": "Shavuot I",
+  "2021-05-18": "Shavuot II",
+  "2021-07-10": "Shabbat Rosh Chodesh",
+  "2021-07-18": "Tish'a B'Av",
+  "2021-09-07": "Rosh Hashana I",
+  "2021-09-08": "Rosh Hashana II",
+  "2021-09-11": "Shabbat Shuva",
+  "2021-09-16": "Yom Kippur",
+  "2021-09-21": "Sukkot I",
+  "2021-09-22": "Sukkot II",
+  "2021-09-25": "Sukkot Shabbat Chol ha-Moed",
+  "2021-09-28": "Shmini Atzeret",
+  "2021-09-29": "Simchat Torah",
+  "2021-12-04": "Shabbat Rosh Chodesh Chanukah",
+  "2022-02-26": "Shabbat Shekalim",
+  "2022-03-12": "Shabbat Zachor",
+  "2022-03-26": "Shabbat Parah",
+  "2022-04-02": "Shabbat HaChodesh (on Rosh Chodesh)",
+  "2022-04-09": "Shabbat HaGadol",
+  "2022-04-16": "Pesach I (on Shabbat)",
+  "2022-04-17": "Pesach II",
+  "2022-04-22": "Pesach VII",
+  "2022-04-23": "Pesach VIII (on Shabbat)",
+  "2022-05-05": "Yom HaAtzma'ut",
+  "2022-06-05": "Shavuot I",
+  "2022-06-06": "Shavuot II",
+  "2022-08-07": "Tish'a B'Av",
+  "2022-08-27": "Shabbat Rosh Chodesh",
+  "2022-09-26": "Rosh Hashana I",
+  "2022-09-27": "Rosh Hashana II",
+  "2022-10-01": "Shabbat Shuva",
+  "2022-10-05": "Yom Kippur",
+  "2022-10-10": "Sukkot I",
+  "2022-10-11": "Sukkot II",
+  "2022-10-15": "Sukkot Shabbat Chol ha-Moed",
+  "2022-10-17": "Shmini Atzeret",
+  "2022-10-18": "Simchat Torah",
+  "2022-12-24": "Shabbat Rosh Chodesh Chanukah",
+  "2023-02-18": "Shabbat Shekalim",
+  "2023-03-04": "Shabbat Zachor",
+  "2023-03-11": "Shabbat Parah",
+  "2023-03-18": "Shabbat HaChodesh",
+  "2023-04-01": "Shabbat HaGadol",
+  "2023-04-06": "Pesach I",
+  "2023-04-07": "Pesach II",
+  "2023-04-08": "Pesach Shabbat Chol ha-Moed",
+  "2023-04-12": "Pesach VII",
+  "2023-04-13": "Pesach VIII",
+  "2023-04-22": "Shabbat Rosh Chodesh",
+  "2023-04-26": "Yom HaAtzma'ut",
+  "2023-05-26": "Shavuot I",
+  "2023-05-27": "Shavuot II (on Shabbat)",
+  "2023-07-27": "Tish'a B'Av",
+  "2023-09-16": "Rosh Hashana I (on Shabbat)",
+  "2023-09-17": "Rosh Hashana II",
+  "2023-09-23": "Shabbat Shuva",
+  "2023-09-25": "Yom Kippur",
+  "2023-09-30": "Sukkot I (on Shabbat)",
+  "2023-10-01": "Sukkot II",
+  "2023-10-07": "Shmini Atzeret (on Shabbat)",
+  "2023-10-08": "Simchat Torah",
+  "2023-12-09": "Chanukah Day 2 (on Shabbat)",
+  "2024-02-10": "Shabbat Rosh Chodesh",
+  "2024-03-09": "Shabbat Shekalim",
+  "2024-03-23": "Shabbat Zachor",
+  "2024-03-30": "Shabbat Parah",
+  "2024-04-06": "Shabbat HaChodesh",
+  "2024-04-20": "Shabbat HaGadol",
+  "2024-04-23": "Pesach I",
+  "2024-04-24": "Pesach II",
+  "2024-04-27": "Pesach Shabbat Chol ha-Moed",
+  "2024-04-29": "Pesach VII",
+  "2024-04-30": "Pesach VIII",
+  "2024-05-14": "Yom HaAtzma'ut",
+  "2024-06-12": "Shavuot I",
+  "2024-06-13": "Shavuot II",
+  "2024-07-06": "Shabbat Rosh Chodesh",
+  "2024-08-13": "Tish'a B'Av",
+  "2024-10-03": "Rosh Hashana I",
+  "2024-10-04": "Rosh Hashana II",
+  "2024-10-05": "Shabbat Shuva",
+  "2024-10-12": "Yom Kippur (on Shabbat)",
+  "2024-10-17": "Sukkot I",
+  "2024-10-18": "Sukkot II",
+  "2024-10-19": "Sukkot Shabbat Chol ha-Moed",
+  "2024-10-24": "Shmini Atzeret",
+  "2024-10-25": "Simchat Torah",
+  "2024-11-02": "Shabbat Rosh Chodesh",
+  "2024-12-28": "Chanukah Day 3 (on Shabbat)",
+  "2025-03-01": "Shabbat Shekalim (on Rosh Chodesh)",
+  "2025-03-08": "Shabbat Zachor",
+  "2025-03-22": "Shabbat Parah",
+  "2025-03-29": "Shabbat HaChodesh",
+  "2025-04-12": "Shabbat HaGadol",
+  "2025-04-13": "Pesach I",
+  "2025-04-14": "Pesach II",
+  "2025-04-19": "Pesach VII (on Shabbat)",
+  "2025-04-20": "Pesach VIII",
+  "2025-05-01": "Yom HaAtzma'ut",
+  "2025-06-02": "Shavuot I",
+  "2025-06-03": "Shavuot II",
+  "2025-07-26": "Shabbat Rosh Chodesh",
+  "2025-08-03": "Tish'a B'Av",
+  "2025-09-23": "Rosh Hashana I",
+  "2025-09-24": "Rosh Hashana II",
+  "2025-09-27": "Shabbat Shuva",
+  "2025-10-02": "Yom Kippur",
+  "2025-10-07": "Sukkot I",
+  "2025-10-08": "Sukkot II",
+  "2025-10-11": "Sukkot Shabbat Chol ha-Moed",
+  "2025-10-14": "Shmini Atzeret",
+  "2025-10-15": "Simchat Torah",
+  "2025-12-20": "Shabbat Rosh Chodesh Chanukah",
+  "2026-02-14": "Shabbat Shekalim",
+  "2026-02-28": "Shabbat Zachor",
+  "2026-03-07": "Shabbat Parah",
+  "2026-03-14": "Shabbat HaChodesh",
+  "2026-03-28": "Shabbat HaGadol",
+  "2026-04-02": "Pesach I",
+  "2026-04-03": "Pesach II",
+  "2026-04-04": "Pesach Shabbat Chol ha-Moed",
+  "2026-04-08": "Pesach VII",
+  "2026-04-09": "Pesach VIII",
+  "2026-04-18": "Shabbat Rosh Chodesh",
+  "2026-04-22": "Yom HaAtzma'ut",
+  "2026-05-22": "Shavuot I",
+  "2026-05-23": "Shavuot II (on Shabbat)",
+  "2026-07-23": "Tish'a B'Av",
+  "2026-09-12": "Rosh Hashana I (on Shabbat)",
+  "2026-09-13": "Rosh Hashana II",
+  "2026-09-19": "Shabbat Shuva",
+  "2026-09-21": "Yom Kippur",
+  "2026-09-26": "Sukkot I (on Shabbat)",
+  "2026-09-27": "Sukkot II",
+  "2026-10-03": "Shmini Atzeret (on Shabbat)",
+  "2026-10-04": "Simchat Torah",
+  "2026-12-05": "Chanukah Day 1 (on Shabbat)",
+  "2026-12-12": "Chanukah Day 8 (on Shabbat)",
+  "2027-01-09": "Shabbat Rosh Chodesh",
+  "2027-03-06": "Shabbat Shekalim",
+  "2027-03-20": "Shabbat Zachor",
+  "2027-03-27": "Shabbat Parah",
+  "2027-04-03": "Shabbat HaChodesh",
+  "2027-04-17": "Shabbat HaGadol",
+  "2027-04-22": "Pesach I",
+  "2027-04-23": "Pesach II",
+  "2027-04-24": "Pesach Shabbat Chol ha-Moed",
+  "2027-04-28": "Pesach VII",
+  "2027-04-29": "Pesach VIII",
+  "2027-05-08": "Shabbat Rosh Chodesh",
+  "2027-05-12": "Yom HaAtzma'ut",
+  "2027-06-11": "Shavuot I",
+  "2027-06-12": "Shavuot II (on Shabbat)",
+  "2027-08-12": "Tish'a B'Av",
+  "2027-10-02": "Rosh Hashana I (on Shabbat)",
+  "2027-10-03": "Rosh Hashana II",
+  "2027-10-09": "Shabbat Shuva",
+  "2027-10-11": "Yom Kippur",
+  "2027-10-16": "Sukkot I (on Shabbat)",
+  "2027-10-17": "Sukkot II",
+  "2027-10-23": "Shmini Atzeret (on Shabbat)",
+  "2027-10-24": "Simchat Torah",
+  "2027-12-25": "Chanukah Day 1 (on Shabbat)",
+  "2028-01-01": "Chanukah Day 8 (on Shabbat)",
+  "2028-01-29": "Shabbat Rosh Chodesh",
+  "2028-02-26": "Shabbat Shekalim",
+  "2028-03-11": "Shabbat Zachor",
+  "2028-03-18": "Shabbat Parah",
+  "2028-03-25": "Shabbat HaChodesh",
+  "2028-04-08": "Shabbat HaGadol",
+  "2028-04-11": "Pesach I",
+  "2028-04-12": "Pesach II",
+  "2028-04-15": "Pesach Shabbat Chol ha-Moed",
+  "2028-04-17": "Pesach VII",
+  "2028-04-18": "Pesach VIII",
+  "2028-05-02": "Yom HaAtzma'ut",
+  "2028-05-31": "Shavuot I",
+  "2028-06-01": "Shavuot II",
+  "2028-06-24": "Shabbat Rosh Chodesh",
+  "2028-08-01": "Tish'a B'Av",
+  "2028-09-21": "Rosh Hashana I",
+  "2028-09-22": "Rosh Hashana II",
+  "2028-09-23": "Shabbat Shuva",
+  "2028-09-30": "Yom Kippur (on Shabbat)",
+  "2028-10-05": "Sukkot I",
+  "2028-10-06": "Sukkot II",
+  "2028-10-07": "Sukkot Shabbat Chol ha-Moed",
+  "2028-10-12": "Shmini Atzeret",
+  "2028-10-13": "Simchat Torah",
+  "2028-10-21": "Shabbat Rosh Chodesh",
+  "2028-12-16": "Chanukah Day 4 (on Shabbat)",
+  "2029-02-10": "Shabbat Shekalim",
+  "2029-02-24": "Shabbat Zachor",
+  "2029-03-10": "Shabbat Parah",
+  "2029-03-17": "Shabbat HaChodesh (on Rosh Chodesh)",
+  "2029-03-24": "Shabbat HaGadol",
+  "2029-03-31": "Pesach I (on Shabbat)",
+  "2029-04-01": "Pesach II",
+  "2029-04-06": "Pesach VII",
+  "2029-04-07": "Pesach VIII (on Shabbat)",
+  "2029-04-19": "Yom HaAtzma'ut",
+  "2029-05-20": "Shavuot I",
+  "2029-05-21": "Shavuot II",
+  "2029-07-22": "Tish'a B'Av",
+  "2029-08-11": "Shabbat Rosh Chodesh",
+  "2029-09-10": "Rosh Hashana I",
+  "2029-09-11": "Rosh Hashana II",
+  "2029-09-15": "Shabbat Shuva",
+  "2029-09-19": "Yom Kippur",
+  "2029-09-24": "Sukkot I",
+  "2029-09-25": "Sukkot II",
+  "2029-09-29": "Sukkot Shabbat Chol ha-Moed",
+  "2029-10-01": "Shmini Atzeret",
+  "2029-10-02": "Simchat Torah",
+  "2029-12-08": "Chanukah Day 7 (on Shabbat)",
+  "2030-01-05": "Shabbat Rosh Chodesh",
+  "2030-03-02": "Shabbat Shekalim",
+  "2030-03-16": "Shabbat Zachor",
+  "2030-03-23": "Shabbat Parah",
+  "2030-03-30": "Shabbat HaChodesh",
+  "2030-04-13": "Shabbat HaGadol",
+  "2030-04-18": "Pesach I",
+  "2030-04-19": "Pesach II",
+  "2030-04-20": "Pesach Shabbat Chol ha-Moed",
+  "2030-04-24": "Pesach VII",
+  "2030-04-25": "Pesach VIII",
+  "2030-05-04": "Shabbat Rosh Chodesh",
+  "2030-05-08": "Yom HaAtzma'ut",
+  "2030-06-07": "Shavuot I",
+  "2030-06-08": "Shavuot II (on Shabbat)",
+  "2030-08-08": "Tish'a B'Av",
+  "2030-09-28": "Rosh Hashana I (on Shabbat)",
+  "2030-09-29": "Rosh Hashana II",
+  "2030-10-05": "Shabbat Shuva",
+  "2030-10-07": "Yom Kippur",
+  "2030-10-12": "Sukkot I (on Shabbat)",
+  "2030-10-13": "Sukkot II",
+  "2030-10-19": "Shmini Atzeret (on Shabbat)",
+  "2030-10-20": "Simchat Torah",
+  "2030-12-21": "Chanukah Day 1 (on Shabbat)",
+  "2030-12-28": "Chanukah Day 8 (on Shabbat)",
+  "2031-01-25": "Shabbat Rosh Chodesh",
+  "2031-02-22": "Shabbat Shekalim",
+  "2031-03-08": "Shabbat Zachor",
+  "2031-03-15": "Shabbat Parah",
+  "2031-03-22": "Shabbat HaChodesh",
+  "2031-04-05": "Shabbat HaGadol",
+  "2031-04-08": "Pesach I",
+  "2031-04-09": "Pesach II",
+  "2031-04-12": "Pesach Shabbat Chol ha-Moed",
+  "2031-04-14": "Pesach VII",
+  "2031-04-15": "Pesach VIII",
+  "2031-04-29": "Yom HaAtzma'ut",
+  "2031-05-28": "Shavuot I",
+  "2031-05-29": "Shavuot II",
+  "2031-06-21": "Shabbat Rosh Chodesh",
+  "2031-07-29": "Tish'a B'Av",
+  "2031-09-18": "Rosh Hashana I",
+  "2031-09-19": "Rosh Hashana II",
+  "2031-09-20": "Shabbat Shuva",
+  "2031-09-27": "Yom Kippur (on Shabbat)",
+  "2031-10-02": "Sukkot I",
+  "2031-10-03": "Sukkot II",
+  "2031-10-04": "Sukkot Shabbat Chol ha-Moed",
+  "2031-10-09": "Shmini Atzeret",
+  "2031-10-10": "Simchat Torah",
+  "2031-10-18": "Shabbat Rosh Chodesh",
+  "2031-12-13": "Chanukah Day 4 (on Shabbat)",
+  "2032-02-07": "Shabbat Shekalim",
+  "2032-02-21": "Shabbat Zachor",
+  "2032-03-06": "Shabbat Parah",
+  "2032-03-13": "Shabbat HaChodesh (on Rosh Chodesh)",
+  "2032-03-20": "Shabbat HaGadol",
+  "2032-03-27": "Pesach I (on Shabbat)",
+  "2032-03-28": "Pesach II",
+  "2032-04-02": "Pesach VII",
+  "2032-04-03": "Pesach VIII (on Shabbat)",
+  "2032-04-15": "Yom HaAtzma'ut",
+  "2032-05-16": "Shavuot I",
+  "2032-05-17": "Shavuot II",
+  "2032-07-18": "Tish'a B'Av",
+  "2032-08-07": "Shabbat Rosh Chodesh",
+  "2032-09-06": "Rosh Hashana I",
+  "2032-09-07": "Rosh Hashana II",
+  "2032-09-11": "Shabbat Shuva",
+  "2032-09-15": "Yom Kippur",
+  "2032-09-20": "Sukkot I",
+  "2032-09-21": "Sukkot II",
+  "2032-09-25": "Sukkot Shabbat Chol ha-Moed",
+  "2032-09-27": "Shmini Atzeret",
+  "2032-09-28": "Simchat Torah",
+  "2032-12-04": "Chanukah Day 7 (on Shabbat)",
+  "2033-01-01": "Shabbat Rosh Chodesh",
+  "2033-02-26": "Shabbat Shekalim",
+  "2033-03-12": "Shabbat Zachor",
+  "2033-03-19": "Shabbat Parah",
+  "2033-03-26": "Shabbat HaChodesh",
+  "2033-04-09": "Shabbat HaGadol",
+  "2033-04-14": "Pesach I",
+  "2033-04-15": "Pesach II",
+  "2033-04-16": "Pesach Shabbat Chol ha-Moed",
+  "2033-04-20": "Pesach VII",
+  "2033-04-21": "Pesach VIII",
+  "2033-04-30": "Shabbat Rosh Chodesh",
+  "2033-05-04": "Yom HaAtzma'ut",
+  "2033-06-03": "Shavuot I",
+  "2033-06-04": "Shavuot II (on Shabbat)",
+  "2033-08-04": "Tish'a B'Av",
+  "2033-09-24": "Rosh Hashana I (on Shabbat)",
+  "2033-09-25": "Rosh Hashana II",
+  "2033-10-01": "Shabbat Shuva",
+  "2033-10-03": "Yom Kippur",
+  "2033-10-08": "Sukkot I (on Shabbat)",
+  "2033-10-09": "Sukkot II",
+  "2033-10-15": "Shmini Atzeret (on Shabbat)",
+  "2033-10-16": "Simchat Torah",
+  "2033-12-17": "Chanukah Day 1 (on Shabbat)",
+  "2033-12-24": "Chanukah Day 8 (on Shabbat)",
+  "2034-01-21": "Shabbat Rosh Chodesh",
+  "2034-02-18": "Shabbat Shekalim",
+  "2034-03-04": "Shabbat Zachor",
+  "2034-03-11": "Shabbat Parah",
+  "2034-03-18": "Shabbat HaChodesh",
+  "2034-04-01": "Shabbat HaGadol",
+  "2034-04-04": "Pesach I",
+  "2034-04-05": "Pesach II",
+  "2034-04-08": "Pesach Shabbat Chol ha-Moed",
+  "2034-04-10": "Pesach VII",
+  "2034-04-11": "Pesach VIII",
+  "2034-04-25": "Yom HaAtzma'ut",
+  "2034-05-24": "Shavuot I",
+  "2034-05-25": "Shavuot II",
+  "2034-06-17": "Shabbat Rosh Chodesh",
+  "2034-07-25": "Tish'a B'Av",
+  "2034-09-14": "Rosh Hashana I",
+  "2034-09-15": "Rosh Hashana II",
+  "2034-09-16": "Shabbat Shuva",
+  "2034-09-23": "Yom Kippur (on Shabbat)",
+  "2034-09-28": "Sukkot I",
+  "2034-09-29": "Sukkot II",
+  "2034-09-30": "Sukkot Shabbat Chol ha-Moed",
+  "2034-10-05": "Shmini Atzeret",
+  "2034-10-06": "Simchat Torah",
+  "2034-10-14": "Shabbat Rosh Chodesh",
+  "2034-12-09": "Chanukah Day 3 (on Shabbat)",
+  "2035-02-10": "Shabbat Rosh Chodesh",
+  "2035-03-10": "Shabbat Shekalim",
+  "2035-03-24": "Shabbat Zachor",
+  "2035-03-31": "Shabbat Parah",
+  "2035-04-07": "Shabbat HaChodesh",
+  "2035-04-21": "Shabbat HaGadol",
+  "2035-04-24": "Pesach I",
+  "2035-04-25": "Pesach II",
+  "2035-04-28": "Pesach Shabbat Chol ha-Moed",
+  "2035-04-30": "Pesach VII",
+  "2035-05-01": "Pesach VIII",
+  "2035-05-15": "Yom HaAtzma'ut",
+  "2035-06-13": "Shavuot I",
+  "2035-06-14": "Shavuot II",
+  "2035-07-07": "Shabbat Rosh Chodesh",
+  "2035-08-14": "Tish'a B'Av",
+  "2035-10-04": "Rosh Hashana I",
+  "2035-10-05": "Rosh Hashana II",
+  "2035-10-06": "Shabbat Shuva",
+  "2035-10-13": "Yom Kippur (on Shabbat)",
+  "2035-10-18": "Sukkot I",
+  "2035-10-19": "Sukkot II",
+  "2035-10-20": "Sukkot Shabbat Chol ha-Moed",
+  "2035-10-25": "Shmini Atzeret",
+  "2035-10-26": "Simchat Torah",
+  "2035-11-03": "Shabbat Rosh Chodesh",
+  "2035-12-29": "Chanukah Day 4 (on Shabbat)",
+  "2036-02-23": "Shabbat Shekalim",
+  "2036-03-08": "Shabbat Zachor",
+  "2036-03-22": "Shabbat Parah",
+  "2036-03-29": "Shabbat HaChodesh (on Rosh Chodesh)",
+  "2036-04-05": "Shabbat HaGadol",
+  "2036-04-12": "Pesach I (on Shabbat)",
+  "2036-04-13": "Pesach II",
+  "2036-04-18": "Pesach VII",
+  "2036-04-19": "Pesach VIII (on Shabbat)",
+  "2036-05-01": "Yom HaAtzma'ut",
+  "2036-06-01": "Shavuot I",
+  "2036-06-02": "Shavuot II",
+  "2036-08-03": "Tish'a B'Av",
+  "2036-08-23": "Shabbat Rosh Chodesh",
+  "2036-09-22": "Rosh Hashana I",
+  "2036-09-23": "Rosh Hashana II",
+  "2036-09-27": "Shabbat Shuva",
+  "2036-10-01": "Yom Kippur",
+  "2036-10-06": "Sukkot I",
+  "2036-10-07": "Sukkot II",
+  "2036-10-11": "Sukkot Shabbat Chol ha-Moed",
+  "2036-10-13": "Shmini Atzeret",
+  "2036-10-14": "Simchat Torah",
+  "2036-12-20": "Chanukah Day 7 (on Shabbat)",
+  "2037-01-17": "Shabbat Rosh Chodesh",
+  "2037-02-14": "Shabbat Shekalim",
+  "2037-02-28": "Shabbat Zachor",
+  "2037-03-07": "Shabbat Parah",
+  "2037-03-14": "Shabbat HaChodesh",
+  "2037-03-28": "Shabbat HaGadol",
+  "2037-03-31": "Pesach I",
+  "2037-04-01": "Pesach II",
+  "2037-04-04": "Pesach Shabbat Chol ha-Moed",
+  "2037-04-06": "Pesach VII",
+  "2037-04-07": "Pesach VIII",
+  "2037-04-21": "Yom HaAtzma'ut",
+  "2037-05-20": "Shavuot I",
+  "2037-05-21": "Shavuot II",
+  "2037-06-13": "Shabbat Rosh Chodesh",
+  "2037-07-21": "Tish'a B'Av",
+  "2037-09-10": "Rosh Hashana I",
+  "2037-09-11": "Rosh Hashana II",
+  "2037-09-12": "Shabbat Shuva",
+  "2037-09-19": "Yom Kippur (on Shabbat)",
+  "2037-09-24": "Sukkot I",
+  "2037-09-25": "Sukkot II",
+  "2037-09-26": "Sukkot Shabbat Chol ha-Moed",
+  "2037-10-01": "Shmini Atzeret",
+  "2037-10-02": "Simchat Torah",
+  "2037-10-10": "Shabbat Rosh Chodesh",
+  "2037-12-05": "Chanukah Day 3 (on Shabbat)",
+  "2038-02-06": "Shabbat Rosh Chodesh",
+  "2038-03-06": "Shabbat Shekalim",
+  "2038-03-20": "Shabbat Zachor",
+  "2038-03-27": "Shabbat Parah",
+  "2038-04-03": "Shabbat HaChodesh",
+  "2038-04-17": "Shabbat HaGadol",
+  "2038-04-20": "Pesach I",
+  "2038-04-21": "Pesach II",
+  "2038-04-24": "Pesach Shabbat Chol ha-Moed",
+  "2038-04-26": "Pesach VII",
+  "2038-04-27": "Pesach VIII",
+  "2038-05-11": "Yom HaAtzma'ut",
+  "2038-06-09": "Shavuot I",
+  "2038-06-10": "Shavuot II",
+  "2038-07-03": "Shabbat Rosh Chodesh",
+  "2038-08-10": "Tish'a B'Av",
+  "2038-09-30": "Rosh Hashana I",
+  "2038-10-01": "Rosh Hashana II",
+  "2038-10-02": "Shabbat Shuva",
+  "2038-10-09": "Yom Kippur (on Shabbat)",
+  "2038-10-14": "Sukkot I",
+  "2038-10-15": "Sukkot II",
+  "2038-10-16": "Sukkot Shabbat Chol ha-Moed",
+  "2038-10-21": "Shmini Atzeret",
+  "2038-10-22": "Simchat Torah",
+  "2038-10-30": "Shabbat Rosh Chodesh",
+  "2038-12-25": "Chanukah Day 4 (on Shabbat)",
+  "2039-02-19": "Shabbat Shekalim",
+  "2039-03-05": "Shabbat Zachor",
+  "2039-03-19": "Shabbat Parah",
+  "2039-03-26": "Shabbat HaChodesh (on Rosh Chodesh)",
+  "2039-04-02": "Shabbat HaGadol",
+  "2039-04-09": "Pesach I (on Shabbat)",
+  "2039-04-10": "Pesach II",
+  "2039-04-15": "Pesach VII",
+  "2039-04-16": "Pesach VIII (on Shabbat)",
+  "2039-04-28": "Yom HaAtzma'ut",
+  "2039-05-29": "Shavuot I",
+  "2039-05-30": "Shavuot II",
+  "2039-07-31": "Tish'a B'Av",
+  "2039-08-20": "Shabbat Rosh Chodesh",
+  "2039-09-19": "Rosh Hashana I",
+  "2039-09-20": "Rosh Hashana II",
+  "2039-09-24": "Shabbat Shuva",
+  "2039-09-28": "Yom Kippur",
+  "2039-10-03": "Sukkot I",
+  "2039-10-04": "Sukkot II",
+  "2039-10-08": "Sukkot Shabbat Chol ha-Moed",
+  "2039-10-10": "Shmini Atzeret",
+  "2039-10-11": "Simchat Torah",
+  "2039-12-17": "Shabbat Rosh Chodesh Chanukah",
+  "2040-02-11": "Shabbat Shekalim",
+  "2040-02-25": "Shabbat Zachor",
+  "2040-03-03": "Shabbat Parah",
+  "2040-03-10": "Shabbat HaChodesh",
+  "2040-03-24": "Shabbat HaGadol",
+  "2040-03-29": "Pesach I",
+  "2040-03-30": "Pesach II",
+  "2040-03-31": "Pesach Shabbat Chol ha-Moed",
+  "2040-04-04": "Pesach VII",
+  "2040-04-05": "Pesach VIII",
+  "2040-04-14": "Shabbat Rosh Chodesh",
+  "2040-04-18": "Yom HaAtzma'ut",
+  "2040-05-18": "Shavuot I",
+  "2040-05-19": "Shavuot II (on Shabbat)",
+  "2040-07-19": "Tish'a B'Av",
+  "2040-09-08": "Rosh Hashana I (on Shabbat)",
+  "2040-09-09": "Rosh Hashana II",
+  "2040-09-15": "Shabbat Shuva",
+  "2040-09-17": "Yom Kippur",
+  "2040-09-22": "Sukkot I (on Shabbat)",
+  "2040-09-23": "Sukkot II",
+  "2040-09-29": "Shmini Atzeret (on Shabbat)",
+  "2040-09-30": "Simchat Torah",
+  "2040-12-01": "Chanukah Day 2 (on Shabbat)",
+  "2041-02-02": "Shabbat Rosh Chodesh",
+  "2041-03-02": "Shabbat Shekalim",
+  "2041-03-16": "Shabbat Zachor",
+  "2041-03-23": "Shabbat Parah",
+  "2041-03-30": "Shabbat HaChodesh",
+  "2041-04-13": "Shabbat HaGadol",
+  "2041-04-16": "Pesach I",
+  "2041-04-17": "Pesach II",
+  "2041-04-20": "Pesach Shabbat Chol ha-Moed",
+  "2041-04-22": "Pesach VII",
+  "2041-04-23": "Pesach VIII",
+  "2041-05-07": "Yom HaAtzma'ut",
+  "2041-06-05": "Shavuot I",
+  "2041-06-06": "Shavuot II",
+  "2041-06-29": "Shabbat Rosh Chodesh",
+  "2041-08-06": "Tish'a B'Av",
+  "2041-09-26": "Rosh Hashana I",
+  "2041-09-27": "Rosh Hashana II",
+  "2041-09-28": "Shabbat Shuva",
+  "2041-10-05": "Yom Kippur (on Shabbat)",
+  "2041-10-10": "Sukkot I",
+  "2041-10-11": "Sukkot II",
+  "2041-10-12": "Sukkot Shabbat Chol ha-Moed",
+  "2041-10-17": "Shmini Atzeret",
+  "2041-10-18": "Simchat Torah",
+  "2041-10-26": "Shabbat Rosh Chodesh",
+  "2041-12-21": "Chanukah Day 4 (on Shabbat)",
+  "2042-02-15": "Shabbat Shekalim",
+  "2042-03-01": "Shabbat Zachor",
+  "2042-03-15": "Shabbat Parah",
+  "2042-03-22": "Shabbat HaChodesh (on Rosh Chodesh)",
+  "2042-03-29": "Shabbat HaGadol",
+  "2042-04-05": "Pesach I (on Shabbat)",
+  "2042-04-06": "Pesach II",
+  "2042-04-11": "Pesach VII",
+  "2042-04-12": "Pesach VIII (on Shabbat)",
+  "2042-04-24": "Yom HaAtzma'ut",
+  "2042-05-25": "Shavuot I",
+  "2042-05-26": "Shavuot II",
+  "2042-07-27": "Tish'a B'Av",
+  "2042-08-16": "Shabbat Rosh Chodesh",
+  "2042-09-15": "Rosh Hashana I",
+  "2042-09-16": "Rosh Hashana II",
+  "2042-09-20": "Shabbat Shuva",
+  "2042-09-24": "Yom Kippur",
+  "2042-09-29": "Sukkot I",
+  "2042-09-30": "Sukkot II",
+  "2042-10-04": "Sukkot Shabbat Chol ha-Moed",
+  "2042-10-06": "Shmini Atzeret",
+  "2042-10-07": "Simchat Torah",
+  "2042-12-13": "Shabbat Rosh Chodesh Chanukah",
+  "2043-03-07": "Shabbat Shekalim",
+  "2043-03-21": "Shabbat Zachor",
+  "2043-04-04": "Shabbat Parah",
+  "2043-04-11": "Shabbat HaChodesh (on Rosh Chodesh)",
+  "2043-04-18": "Shabbat HaGadol",
+  "2043-04-25": "Pesach I (on Shabbat)",
+  "2043-04-26": "Pesach II",
+  "2043-05-01": "Pesach VII",
+  "2043-05-02": "Pesach VIII (on Shabbat)",
+  "2043-05-14": "Yom HaAtzma'ut",
+  "2043-06-14": "Shavuot I",
+  "2043-06-15": "Shavuot II",
+  "2043-08-16": "Tish'a B'Av",
+  "2043-09-05": "Shabbat Rosh Chodesh",
+  "2043-10-05": "Rosh Hashana I",
+  "2043-10-06": "Rosh Hashana II",
+  "2043-10-10": "Shabbat Shuva",
+  "2043-10-14": "Yom Kippur",
+  "2043-10-19": "Sukkot I",
+  "2043-10-20": "Sukkot II",
+  "2043-10-24": "Sukkot Shabbat Chol ha-Moed",
+  "2043-10-26": "Shmini Atzeret",
+  "2043-10-27": "Simchat Torah",
+  "2044-01-02": "Chanukah Day 7 (on Shabbat)",
+  "2044-01-30": "Shabbat Rosh Chodesh",
+  "2044-02-27": "Shabbat Shekalim",
+  "2044-03-12": "Shabbat Zachor",
+  "2044-03-19": "Shabbat Parah",
+  "2044-03-26": "Shabbat HaChodesh",
+  "2044-04-09": "Shabbat HaGadol",
+  "2044-04-12": "Pesach I",
+  "2044-04-13": "Pesach II",
+  "2044-04-16": "Pesach Shabbat Chol ha-Moed",
+  "2044-04-18": "Pesach VII",
+  "2044-04-19": "Pesach VIII",
+  "2044-05-03": "Yom HaAtzma'ut",
+  "2044-06-01": "Shavuot I",
+  "2044-06-02": "Shavuot II",
+  "2044-06-25": "Shabbat Rosh Chodesh",
+  "2044-08-02": "Tish'a B'Av",
+  "2044-09-22": "Rosh Hashana I",
+  "2044-09-23": "Rosh Hashana II",
+  "2044-09-24": "Shabbat Shuva",
+  "2044-10-01": "Yom Kippur (on Shabbat)",
+  "2044-10-06": "Sukkot I",
+  "2044-10-07": "Sukkot II",
+  "2044-10-08": "Sukkot Shabbat Chol ha-Moed",
+  "2044-10-13": "Shmini Atzeret",
+  "2044-10-14": "Simchat Torah",
+  "2044-10-22": "Shabbat Rosh Chodesh",
+  "2044-12-17": "Chanukah Day 3 (on Shabbat)",
+  "2045-02-18": "Shabbat Shekalim (on Rosh Chodesh)",
+  "2045-02-25": "Shabbat Zachor",
+  "2045-03-11": "Shabbat Parah",
+  "2045-03-18": "Shabbat HaChodesh",
+  "2045-04-01": "Shabbat HaGadol",
+  "2045-04-02": "Pesach I",
+  "2045-04-03": "Pesach II",
+  "2045-04-08": "Pesach VII (on Shabbat)",
+  "2045-04-09": "Pesach VIII",
+  "2045-04-20": "Yom HaAtzma'ut",
+  "2045-05-22": "Shavuot I",
+  "2045-05-23": "Shavuot II",
+  "2045-07-15": "Shabbat Rosh Chodesh",
+  "2045-07-23": "Tish'a B'Av",
+  "2045-09-12": "Rosh Hashana I",
+  "2045-09-13": "Rosh Hashana II",
+  "2045-09-16": "Shabbat Shuva",
+  "2045-09-21": "Yom Kippur",
+  "2045-09-26": "Sukkot I",
+  "2045-09-27": "Sukkot II",
+  "2045-09-30": "Sukkot Shabbat Chol ha-Moed",
+  "2045-10-03": "Shmini Atzeret",
+  "2045-10-04": "Simchat Torah",
+  "2045-12-09": "Shabbat Rosh Chodesh Chanukah"
+ }
+}

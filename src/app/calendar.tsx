@@ -14,7 +14,14 @@ import {
 } from '@/lib/hebrew-calendar-events';
 import { getHebrewDateKST, getHebrewDayLabelKST, getKoreanDateKST } from '@/lib/hebrew-date';
 import { getHoliday } from '@/lib/korea-holidays';
-import { getPortionOfWeek, getPortionOnDate, type TorahPortionOfWeek } from '@/lib/torah-portions';
+import {
+  getFestivalReadingOnDate,
+  getPortionOfWeek,
+  getPortionOnDate,
+  shabbatOfWeek,
+  type FestivalReading,
+  type TorahPortionOfWeek,
+} from '@/lib/torah-portions';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 const SUNDAY_COLOR = '#e03131';
@@ -99,16 +106,67 @@ export default function CalendarScreen() {
     () => (selected ? getPortionOfWeek(selected.date) : null),
     [selected],
   );
-  const selectedPortion = portionToday ?? portionThisWeek;
+  // 절기에는 파라샤 대신(또는 파라샤와 함께) 절기 독서를 한다.
+  const festivalToday = useMemo(
+    () => (selected ? getFestivalReadingOnDate(selected.date) : null),
+    [selected],
+  );
+  // 이번 주 안식일이 절기라 파라샤가 없는 주 — 그 안식일에 읽을 것을 대신 보여 준다.
+  const festivalThisShabbat = useMemo(
+    () => (selected && !portionThisWeek ? getFestivalReadingOnDate(shabbatOfWeek(selected.date)) : null),
+    [selected, portionThisWeek],
+  );
+
+  const selectedPortion = portionToday ?? portionThisWeek ?? null;
 
   const selectedIsEmpty =
     selectedInfo != null &&
     selectedInfo.festivals.length === 0 &&
     selectedInfo.bible.length === 0 &&
     selectedInfo.history.length === 0 &&
-    selectedPortion == null;
+    selectedPortion == null &&
+    festivalToday == null &&
+    festivalThisShabbat == null;
+
+  /** 하프타라 한 덩어리 — 파라샤 카드와 절기 카드가 같은 모양을 쓴다. */
+  function renderHaftarah(haftarah: { ashkenazi: string; sephardi?: string }, note?: string) {
+    return (
+      <View style={[styles.haftarahBox, { borderTopColor: theme.border }]}>
+        <ThemedText type="smallBold" themeColor="textSecondary">
+          하프타라 (이어 읽는 예언서)
+        </ThemedText>
+        {note ? (
+          <ThemedText type="small" themeColor="textSecondary">
+            {note}
+          </ThemedText>
+        ) : null}
+        <ThemedText type="smallBold" themeColor="accent" style={styles.portionRange}>
+          {haftarah.ashkenazi}
+          {haftarah.sephardi ? ' (아슈케나짐)' : ''}
+        </ThemedText>
+        {haftarah.sephardi && (
+          <>
+            <ThemedText type="smallBold" themeColor="accent" style={styles.portionRange}>
+              {haftarah.sephardi} (세파르딤)
+            </ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              전통에 따라 읽는 곳이 다른 편입니다.
+            </ThemedText>
+          </>
+        )}
+      </View>
+    );
+  }
+
+  function openReading(book: number, chapter: number) {
+    setSelected(null);
+    router.push(`/read?bookId=${book}&chapter=${chapter}`);
+  }
 
   function renderPortion(title: string, portion: TorahPortionOfWeek, showShabbatLine: boolean) {
+    // 특별 안식일에는 토라는 그대로 읽고 하프타라만 바뀐다.
+    const special = portion.specialHaftarah;
+    const haftarah = special ? special.haftarah : portion.haftarah;
     return (
       <View style={styles.section} key={title}>
         <ThemedText type="smallBold" themeColor="accent">
@@ -141,53 +199,77 @@ export default function CalendarScreen() {
               ),
           )}
 
-          {portion.haftarah && (
-            <View style={[styles.haftarahBox, { borderTopColor: theme.border }]}>
-              <ThemedText type="smallBold" themeColor="textSecondary">
-                하프타라 (이어 읽는 예언서)
-              </ThemedText>
-              <ThemedText type="smallBold" themeColor="accent" style={styles.portionRange}>
-                {portion.haftarah.ashkenazi}
-                {portion.haftarah.sephardi ? ' (아슈케나짐)' : ''}
-              </ThemedText>
-              {portion.haftarah.sephardi && (
-                <ThemedText type="smallBold" themeColor="accent" style={styles.portionRange}>
-                  {portion.haftarah.sephardi} (세파르딤)
-                </ThemedText>
-              )}
-              {portion.haftarah.sephardi && (
-                <ThemedText type="small" themeColor="textSecondary">
-                  전통에 따라 읽는 곳이 다른 편입니다.
-                </ThemedText>
-              )}
-            </View>
-          )}
+          {haftarah &&
+            renderHaftarah(
+              haftarah,
+              special
+                ? `${special.name}이라 이 주만 다른 곳을 읽습니다` +
+                  (portion.haftarah ? ` (평소에는 ${portion.haftarah.ashkenazi})` : '')
+                : undefined,
+            )}
 
           <View style={styles.portionButtons}>
             <Pressable
-              onPress={() => {
-                const first = portion.parts[0];
-                setSelected(null);
-                router.push(`/read?bookId=${first.book}&chapter=${first.startChapter}`);
-              }}
+              onPress={() => openReading(portion.parts[0].book, portion.parts[0].startChapter)}
               style={[styles.portionButton, { backgroundColor: theme.accent }]}>
               <ThemedText type="smallBold" style={{ color: '#ffffff' }}>
                 토라 펴기
               </ThemedText>
             </Pressable>
-            {portion.haftarah && (
+            {haftarah && (
               <Pressable
-                onPress={() => {
-                  const first = portion.haftarah!.first;
-                  setSelected(null);
-                  router.push(`/read?bookId=${first.book}&chapter=${first.startChapter}`);
-                }}
+                onPress={() => openReading(haftarah.first.book, haftarah.first.startChapter)}
                 style={[styles.portionButton, styles.portionButtonGhost, { borderColor: theme.accent }]}>
                 <ThemedText type="smallBold" themeColor="accent">
                   하프타라 펴기
                 </ThemedText>
               </Pressable>
             )}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  /** 절기 그 날의 독서 — 파라샤 대신 읽는다. */
+  function renderFestival(title: string, reading: FestivalReading) {
+    return (
+      <View style={styles.section} key={title}>
+        <ThemedText type="smallBold" themeColor="accent">
+          {title}
+        </ThemedText>
+        <View style={[styles.portionCard, { backgroundColor: theme.accentSoft }]}>
+          <ThemedText type="smallBold">{reading.name}</ThemedText>
+          {reading.torah && (
+            <>
+              <ThemedText type="smallBold" themeColor="accent" style={styles.portionRange}>
+                {reading.torah}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                이 날은 그 주 파라샤 대신 절기 본문을 읽습니다.
+              </ThemedText>
+            </>
+          )}
+          {renderHaftarah(reading.haftarah)}
+          <View style={styles.portionButtons}>
+            {reading.torahFirst && (
+              <Pressable
+                onPress={() => openReading(reading.torahFirst!.book, reading.torahFirst!.startChapter)}
+                style={[styles.portionButton, { backgroundColor: theme.accent }]}>
+                <ThemedText type="smallBold" style={{ color: '#ffffff' }}>
+                  토라 펴기
+                </ThemedText>
+              </Pressable>
+            )}
+            <Pressable
+              onPress={() =>
+                openReading(reading.haftarah.first.book, reading.haftarah.first.startChapter)
+              }
+              style={[styles.portionButton, styles.portionButtonGhost, { borderColor: theme.accent }]}>
+              <ThemedText type="smallBold" themeColor="accent">
+                하프타라 펴기
+              </ThemedText>
+            </Pressable>
           </View>
         </View>
       </View>
@@ -256,9 +338,12 @@ export default function CalendarScreen() {
             // 절기나 성경·역사 기록이 붙은 날은 히브리 날짜를 강조색으로 —
             // 칸 높이를 건드리지 않으면서 "누를 것이 있다"를 알린다.
             const hasEvents = hebrewDateHasContent(cell.date);
-            // 그 날 **바로** 읽는 편이 있는 날(안식일·심핫 토라)에만 두루마리를
-            // 붙인다. 한국 공휴일과 자리를 다투므로 공휴일이 있으면 그쪽을 살린다.
-            const readsTorahToday = !holiday && getPortionOnDate(cell.date) != null;
+            // 그 날 **바로** 읽는 것이 있는 날 — 안식일·심핫 토라, 그리고 파라샤
+            // 대신 절기 본문을 읽는 절기 — 에만 두루마리를 붙인다. 한국 공휴일과
+            // 자리를 다투므로 공휴일이 있으면 그쪽을 살린다.
+            const readsTorahToday =
+              !holiday &&
+              (getPortionOnDate(cell.date) != null || getFestivalReadingOnDate(cell.date)?.torah != null);
 
             return (
               <Pressable
@@ -345,6 +430,9 @@ export default function CalendarScreen() {
                     </View>
                   )}
 
+                  {/* 절기 그 날 — 파라샤 대신 절기 본문을 읽는 날. */}
+                  {festivalToday?.torah && renderFestival('오늘의 절기 독서', festivalToday)}
+
                   {portionToday && renderPortion(
                     portionToday.isSimchatTorah ? '토라포션 · 심핫 토라' : '토라포션 · 오늘 읽습니다',
                     portionToday,
@@ -352,6 +440,9 @@ export default function CalendarScreen() {
                   )}
                   {portionThisWeek && portionThisWeek.shabbat !== portionToday?.shabbat &&
                     renderPortion('이번 주 토라포션', portionThisWeek, true)}
+                  {/* 이번 주 안식일이 절기라 파라샤가 없는 주. */}
+                  {!portionThisWeek && festivalThisShabbat && !festivalToday &&
+                    renderFestival('이번 주 안식일에는', festivalThisShabbat)}
 
                   {renderEntries('성경에서 이 날', selectedInfo.bible)}
                   {renderEntries('역사에서 이 날', selectedInfo.history)}

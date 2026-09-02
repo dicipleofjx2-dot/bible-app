@@ -19,12 +19,12 @@
 // 가 54편이 창세기 1:1부터 신명기 34:12까지 빈틈없이 잇는지 bible.db 의 krv 절
 // 수로 확인한다. 히브리어 번호를 잘못 옮기면 반드시 그 자리에서 틈이 벌어진다.
 
+import bookNames from '@/data/book-names-ko.json';
+import festivalTable from '@/data/festival-readings.json';
 import haftarahTable from '@/data/haftarah.json';
 import parashot from '@/data/parashot.json';
 import schedule from '@/data/torah-portions.json';
 
-/** 모세오경 다섯 권. 번호는 성경 책 번호(창세기 1 … 신명기 5)와 같다. */
-const BOOK_KO = ['창세기', '출애굽기', '레위기', '민수기', '신명기'];
 
 export type Parasha = {
   /** 영문 이름. hebcal 이 쓰는 철자와 같아야 한다(일정표의 번호가 이 순서다). */
@@ -56,13 +56,18 @@ export const PARASHOT: Parasha[] = parashot as Parasha[];
 
 const SCHEDULE = schedule as Record<string, number[]>;
 
-/** 성경 66권 한글 이름. 하프타라는 예언서 전체에서 나오므로 다섯 권으로는 모자란다. */
-const BOOK_NAMES: Record<number, string> = {
-  6: '여호수아', 7: '사사기', 9: '사무엘상', 10: '사무엘하', 11: '열왕기상', 12: '열왕기하',
-  23: '이사야', 24: '예레미야', 26: '에스겔', 28: '호세아', 29: '요엘', 30: '아모스',
-  31: '오바댜', 32: '요나', 33: '미가', 34: '나훔', 35: '하박국', 36: '스바냐',
-  37: '학개', 38: '스가랴', 39: '말라기',
-};
+/**
+ * 책 이름 — **66권 전부**를 성경 파일에서 뽑아 둔다
+ * (`scripts/build-book-names.mjs`).
+ *
+ * 처음에는 필요해 보이는 것만 손으로 적었는데, 절기 독서가 레위기·민수기를
+ * 가리키자 이름이 빈칸으로 나왔다(「 22:26–23:44」). 쓸 책을 미리 고르지 않는다.
+ */
+const BOOK_NAMES = bookNames as Record<string, string>;
+
+function bookNameOf(book: number): string {
+  return BOOK_NAMES[String(book)] ?? '';
+}
 
 type HaftarahPart = {
   book: number;
@@ -80,8 +85,7 @@ const HAFTARAH = haftarahTable as Record<string, HaftarahRow>;
  * 하프타라 — 토라포션을 읽고 이어 읽는 예언서 본문.
  *
  * 아슈케나짐과 세파르딤이 다른 편이 열여덟이라 **다를 때만** 둘 다 담는다.
- * 절기와 겹치는 안식일에는 그 날의 특별 하프타라로 바뀌는데, 그것까지 담지
- * 않았다 — 담으려면 절기 독서표가 통째로 필요하다. 화면에서 그렇게 밝힌다.
+ * 절기와 겹치는 안식일에 바뀌는 것은 아래 `FESTIVALS` 가 따로 든다.
  */
 export type Haftarah = {
   /** "이사야 42:5–43:10" — 여러 토막이면 쉼표로 잇는다. */
@@ -96,7 +100,7 @@ function formatParts(parts: HaftarahPart[]): string {
   let lastBook = -1;
   return parts
     .map((p) => {
-      const book = p.book === lastBook ? '' : `${BOOK_NAMES[p.book] ?? ''} `;
+      const book = p.book === lastBook ? '' : `${bookNameOf(p.book)} `;
       lastBook = p.book;
       const end =
         p.endChapter === p.startChapter
@@ -119,6 +123,65 @@ function haftarahFor(indexes: number[]): Haftarah | null {
   };
 }
 
+// ── 절기 독서 ───────────────────────────────────────────────────────
+//
+// 절기가 겹치면 보통 안식일과 다른 것을 읽는다. 두 갈래다.
+//  1. **특별 안식일** — 토라는 그 주 파라샤 그대로, **하프타라만** 바뀐다
+//     (샤밧 하가돌·슈바·셰칼림·자코르·파라·하호데쉬·초하루·하누카 안식일).
+//  2. **절기 그 날** — 토라도 그 절기의 것을 읽고 파라샤는 아예 안 읽는다
+//     (유월절·오순절·초막절·로쉬 하샤나·욤 키푸르·심핫 토라…).
+// 표를 만들 때 하프타라가 있는 날만 담았다 → scripts/build-festival-readings.mjs
+
+type FestivalRow = {
+  ko: string;
+  haftarah: HaftarahPart[];
+  sephardi?: HaftarahPart[];
+  /** 있으면 그 날은 파라샤 대신 이 토라를 읽는다. */
+  torah?: HaftarahPart[];
+};
+
+const FESTIVALS = festivalTable as { readings: Record<string, FestivalRow>; dates: Record<string, string> };
+
+export type FestivalReading = {
+  /** "유월절 첫날" · "샤밧 하가돌 — 유월절 앞 큰 안식일" */
+  name: string;
+  /** 그 날 읽는 토라. 하프타라만 바뀌는 특별 안식일이면 null. */
+  torah: string | null;
+  torahFirst: HaftarahPart | null;
+  haftarah: Haftarah;
+};
+
+function festivalRowOn(dateKey: string): FestivalRow | null {
+  const key = FESTIVALS.dates[dateKey];
+  return key ? FESTIVALS.readings[key] ?? null : null;
+}
+
+function toFestivalReading(row: FestivalRow): FestivalReading {
+  return {
+    name: row.ko,
+    torah: row.torah ? formatParts(row.torah) : null,
+    torahFirst: row.torah?.[0] ?? null,
+    haftarah: {
+      ashkenazi: formatParts(row.haftarah),
+      sephardi: row.sephardi ? formatParts(row.sephardi) : undefined,
+      first: row.haftarah[0],
+    },
+  };
+}
+
+/** 그 날짜의 절기 독서. 절기가 아니면 null. */
+export function getFestivalReadingOnDate(date: Date): FestivalReading | null {
+  const row = festivalRowOn(toKey(date));
+  return row ? toFestivalReading(row) : null;
+}
+
+/** 그 주의 안식일(다가오는 토요일) 날짜. */
+export function shabbatOfWeek(date: Date): Date {
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7));
+  return d;
+}
+
 export type TorahPortionOfWeek = {
   /** 그 주 안식일(토요일)의 날짜. YYYY-MM-DD */
   shabbat: string;
@@ -132,6 +195,11 @@ export type TorahPortionOfWeek = {
   isSimchatTorah: boolean;
   /** 이어 읽는 예언서 본문. 표에 없으면 null. */
   haftarah: Haftarah | null;
+  /**
+   * 특별 안식일이라 하프타라가 바뀌는 주에만 채운다. 토라는 그대로 읽는다 —
+   * 그래서 파라샤를 지우지 않고 하프타라만 갈아 끼운다.
+   */
+  specialHaftarah: { name: string; haftarah: Haftarah } | null;
 };
 
 function pad(n: number) {
@@ -145,7 +213,7 @@ function toKey(date: Date) {
 function formatRange(parts: Parasha[]): string {
   const first = parts[0];
   const last = parts[parts.length - 1];
-  const book = BOOK_KO[first.book - 1] ?? '';
+  const book = bookNameOf(first.book);
   const start = `${first.startChapter}:${first.startVerse}`;
   const end =
     last.endChapter === first.startChapter
@@ -165,6 +233,14 @@ function build(dateKey: string, indexes: number[]): TorahPortionOfWeek {
     // 두 편을 붙여 읽는 주는 하프타라가 하나만 나간다 — 짝마다 어느 것을
     // 읽는지가 달라서 번호를 이어 붙인 열쇠로 따로 찾는다.
     haftarah: haftarahFor(indexes),
+    // 하프타라만 바뀌는 날(토라 독서가 따로 없는 특별 안식일)만 갈아 끼운다.
+    // 토라까지 바뀌는 절기에는 파라샤 자체를 안 읽으므로 일정표에 그 날이 없다.
+    specialHaftarah: (() => {
+      const row = festivalRowOn(dateKey);
+      if (!row || row.torah) return null;
+      const reading = toFestivalReading(row);
+      return { name: reading.name, haftarah: reading.haftarah };
+    })(),
   };
 }
 
@@ -183,8 +259,7 @@ export function getPortionOnDate(date: Date): TorahPortionOfWeek | null {
  * 무엇을 읽나"를 물으면 지난 토요일이 아니라 이번 토요일이 답이다.
  */
 export function getPortionOfWeek(date: Date): TorahPortionOfWeek | null {
-  const shabbat = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  shabbat.setDate(shabbat.getDate() + ((6 - shabbat.getDay() + 7) % 7));
+  const shabbat = shabbatOfWeek(date);
 
   // 절기와 겹친 안식일에는 파라샤 대신 절기 독서를 한다 — 그 주는 비워 둔다.
   // (심핫 토라처럼 안식일이 아닌 날에 읽는 것은 `getPortionOnDate` 가 잡는다.
