@@ -24,6 +24,7 @@ import { getLatestNotice, type Notice } from '@/db/notices';
 import { getCommunityUnread } from '@/db/community';
 import { hasUnseenLetter } from '@/lib/shepherdLetterBadge';
 import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
+import { getArcadeState } from '@/lib/arcade';
 import type { Href } from 'expo-router';
 
 function todayDateString() {
@@ -118,6 +119,8 @@ export default function HomeScreen() {
   const [live, setLive] = useState<MinistryLive | null>(null);
   const [letterUnseen, setLetterUnseen] = useState(false);
   const [communityUnread, setCommunityUnread] = useState(0);
+  // 창세기 아케이드에서 오늘 받은 포인트. 로그인 안 했으면 0으로 둔다.
+  const [arcadeToday, setArcadeToday] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -168,6 +171,19 @@ export default function HomeScreen() {
         .then(setLive)
         .catch(() => setLive(null));
     }, []),
+  );
+
+  // 게임을 하고 돌아오면 그 자리에서 오늘 점수가 올라 있어야 한다.
+  useFocusEffect(
+    useCallback(() => {
+      if (!session) {
+        setArcadeToday(0);
+        return;
+      }
+      getArcadeState()
+        .then((s) => setArcadeToday(s.todayPoints))
+        .catch(() => setArcadeToday(0));
+    }, [session]),
   );
 
   useFocusEffect(
@@ -379,6 +395,44 @@ export default function HomeScreen() {
               );
             })}
           </View>
+
+          {/*
+            5. 창세기 아케이드 — 화면 맨 아래.
+
+            바둑판 한 칸으로 넣지 않은 이유는 「포인트가 붙는다」를 말해야 하기
+            때문이다. 아이콘 한 칸에는 이름밖에 못 적는데, 그러면 성도가 이게
+            게임인지 공부인지도 모른 채 지나간다. 한 줄 띠로 두고 오늘 받은
+            점수를 오른쪽에 붙였다 — 오늘 몇 점 받았는지가 다시 들어올 이유다.
+          */}
+          <Pressable
+            onPress={() => router.push('/arcade' as Href)}
+            style={({ pressed }) => [
+              styles.arcadeCard,
+              cardShadow,
+              { backgroundColor: theme.backgroundElement, borderColor: theme.border },
+              pressed && styles.pressed,
+            ]}>
+            <ThemedText style={styles.arcadeEmoji}>🕹️</ThemedText>
+            <View style={styles.arcadeBody}>
+              <ThemedText type="smallBold">{t('home.arcade')}</ThemedText>
+              <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
+                {t('home.arcadeDesc')}
+              </ThemedText>
+              <ThemedText type="small" style={{ color: theme.accent }}>
+                {t('home.arcadeLead')}
+              </ThemedText>
+            </View>
+            {session && arcadeToday > 0 ? (
+              <View style={[styles.arcadeBadge, { backgroundColor: theme.accentSoft, borderColor: theme.accent }]}>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {t('home.arcadeToday')}
+                </ThemedText>
+                <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                  {arcadeToday}
+                </ThemedText>
+              </View>
+            ) : null}
+          </Pressable>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -417,6 +471,24 @@ const styles = StyleSheet.create({
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
     width: '100%',
+  },
+  arcadeCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+    borderRadius: Spacing.three,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.three,
+  },
+  arcadeEmoji: { fontSize: 30, lineHeight: 38 },
+  arcadeBody: { flex: 1, gap: 2 },
+  arcadeBadge: {
+    alignItems: 'center',
+    borderRadius: Spacing.two,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.one,
   },
   heroCard: {
     borderRadius: Spacing.four,
