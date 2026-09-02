@@ -1,6 +1,6 @@
 # BibleApp — Handoff / Status Reference
 
-Last updated: **2026-08-19** (책갈피 절 번호 작업은 미커밋). Everything through `3175923` is **committed
+Last updated: **2026-09-02** (책갈피 절 번호 작업은 미커밋). Everything through `3175923` is **committed
 on local `main` and deployed to production**
 (https://dicipleofjx-bible.vercel.app). See "This session (2026-08-19)"
 immediately below for the newest work; older session notes follow in
@@ -17,6 +17,32 @@ is behind.
 Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
+
+## This session (2026-09-02) — 수능영어 코치ON (학생용 MVP)
+
+기획서 한 장을 받아 **읽기 영역 학생용 1단계 MVP 전부**를 이 앱 안의 한 영역으로
+붙였다. 성장 탭 → 「📘 수능영어 코치ON」(`/english`).
+
+**설계·구현·검증·남은 일은 `docs/english/README.md` 한 곳에 적었다 — 이 영역을
+건드리기 전에 그것부터 읽을 것.** 여기에는 요점만 남긴다.
+
+- 15개 유형 × 2문항 = **30문항 전부 자체 제작**. 기출 원문은 이용 허가가 확인되기
+  전에는 담지 않는다(`source.status`).
+- 진단·유형훈련·복습·실전이 **`QuizRunner` 하나**를 쓴다. 화면마다 풀이 UI를 따로
+  두면 그중 하나에서 확신도나 근거 표시가 빠지고, 그 순간 「찍어서 맞힌 문제」가
+  복습노트에 안 담긴다.
+- 기록은 기기 안 `user.db`의 `english_attempts` / `english_review_items` /
+  `english_diagnostics` 세 표. **서버로 안 올린다** — 교사센터를 붙일 때 같이 옮긴다.
+  `userData.ts`의 `getUserDb()`를 export 해서 같은 연결을 나눠 쓴다(웹에서 같은
+  DB를 두 핸들로 열면 OPFS 잠금이 엇갈린다).
+- **교사센터·듣기·학부모 화면은 안 했다.** 교사센터는 학생-교사를 무엇으로 잇는지
+  (교회 초대코드 방식 vs 학원 좌석제)가 정해져야 스키마를 쓸 수 있다.
+
+**검증 (2026-09-02)**: `tsc --noEmit` 통과, `expo export --platform web` 성공
+(`/english` 아래 9개 라우트 프리렌더). 실제 Chromium으로 왕복 확인, 콘솔 오류 0건 —
+진단 15문항 완주 → 결과·4주 처방, 학습 모드 오답 → 6단계 해설 → 자기진단 → 복습노트
+적재, 복습노트에서 **변형 문제를 맞히자 원본이 당일 → 1일 후 단계로 올라감**.
+`npx expo lint`는 이 컨테이너에 eslint가 없어 못 돌렸다.
 
 ## This session (2026-08-28) — 달력에 히브리력 절기·성경·역사
 

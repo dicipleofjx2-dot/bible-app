@@ -45,6 +45,12 @@ export default function GrowthHubScreen() {
           requiresAuth: true,
         },
         {
+          emoji: '📘',
+          label: t('growth.english'),
+          description: t('growth.englishDesc'),
+          href: '/english',
+        },
+        {
           emoji: '📕',
           label: t('growth.davidBooks'),
           description: t('growth.davidBooksDesc'),

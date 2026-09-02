@@ -37,7 +37,10 @@ export type VerseMarkWithBook = VerseMark & {
 
 let dbPromise: ReturnType<typeof SQLite.openDatabaseAsync> | null = null;
 
-function getUserDb() {
+/** 같은 파일을 두 번 열지 않도록 이 연결 하나를 나눠 쓴다.
+ *  (웹에서는 같은 DB를 두 핸들로 열면 OPFS 잠금이 엇갈린다.)
+ *  다른 db/ 모듈이 자기 표를 얹을 때 이것을 부른다 — 예: db/english.ts */
+export function getUserDb() {
   if (!dbPromise) {
     dbPromise = SQLite.openDatabaseAsync('user.db').then(async (db) => {
       await db.execAsync(`

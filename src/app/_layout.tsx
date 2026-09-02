@@ -248,6 +248,23 @@ function AppStack() {
           name="r2m/cell"
           options={{ headerShown: true, title: t('nav.cellRoom') }}
         />
+        {/* 수능영어 코치ON — 한 덩어리로 붙는 학습 영역. 홈은 자기 제목을
+            직접 그리므로 헤더에는 짧은 이름만 둔다. */}
+        <Stack.Screen name="english/index" options={{ headerShown: true, title: t('nav.english') }} />
+        <Stack.Screen
+          name="english/diagnostic"
+          options={{ headerShown: true, title: t('nav.englishDiagnostic') }}
+        />
+        <Stack.Screen name="english/types" options={{ headerShown: true, title: t('nav.englishTypes') }} />
+        <Stack.Screen
+          name="english/type/[id]"
+          options={{ headerShown: true, title: t('nav.englishTypeRoom') }}
+        />
+        <Stack.Screen name="english/quiz" options={{ headerShown: true, title: t('nav.englishQuiz') }} />
+        <Stack.Screen name="english/review" options={{ headerShown: true, title: t('nav.englishReview') }} />
+        <Stack.Screen name="english/report" options={{ headerShown: true, title: t('nav.englishReport') }} />
+        <Stack.Screen name="english/bank" options={{ headerShown: true, title: t('nav.englishBank') }} />
+        <Stack.Screen name="english/mock" options={{ headerShown: true, title: t('nav.englishMock') }} />
       </Stack>
   );
 }
