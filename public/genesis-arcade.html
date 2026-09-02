@@ -109,7 +109,9 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ochre);out
   .st-goal{display:none}
 }
 .st-goal{flex:1;min-width:0;color:var(--sand-2);font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.st-x{flex:0 0 auto;border:1px solid var(--line);border-radius:9px;padding:6px 14px;font-size:15px;color:var(--sand-2)}
+.st-x,.st-snd{flex:0 0 auto;border:1px solid var(--line);border-radius:9px;padding:6px 14px;font-size:15px;color:var(--sand-2)}
+.st-snd{margin-left:auto}
+.st-snd:hover{border-color:var(--ochre);color:var(--ochre)}
 .st-x:hover{border-color:var(--flame);color:var(--flame)}
 .st-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
 .pad{max-width:820px;margin:0 auto;padding:26px 20px 40px}
@@ -317,7 +319,16 @@ function openGame(g){
   const h=el('h2',null,g.title);
   const goal=el('div','st-goal',g.goal);
   const x=el('button','st-x','나가기');
-  head.append(h,goal,x);
+  // 소리 단추는 무대 머리에 둔다 — 다섯 판이 다 같은 자리에서 끄고 켠다.
+  const spk=el('button','st-snd', SOUND?'🔊 소리':'🔇 소리');
+  spk.onclick=()=>{
+    SOUND=!SOUND;
+    spk.textContent = SOUND?'🔊 소리':'🔇 소리';
+    if(SOUND){ audioWake(); blip(440,0.09,'triangle',0.07); }
+    else if(MASTER) { try{ MASTER.gain.setValueAtTime(0, AC.currentTime); }catch(e){} }
+    if(SOUND && MASTER){ try{ MASTER.gain.setValueAtTime(0.85, AC.currentTime); }catch(e){} }
+  };
+  head.append(h,goal,spk,x);
   const body=el('div','st-body');
   st.append(head,body);
   document.body.appendChild(st);
@@ -329,6 +340,7 @@ function openGame(g){
     accent:g.accent
   };
   function close(){
+    musicStop();
     if(cleanup) try{ cleanup(); }catch(e){}
     st.remove(); document.body.style.overflow=''; active=null;
     removeEventListener('keydown',esc);
@@ -358,23 +370,215 @@ function boot(){
   paintPoints();
 }
 
-/* ---------- 아케이드 공통 껍데기 ---------- */
+/* ==========================================================
+   소리 — 음악과 효과음
+   ==========================================================
+
+   음원 파일은 한 개도 안 쓴다. 판 다섯 개가 든 이 한 장짜리 파일이 앱 안에서도
+   아티팩트로도 그대로 열려야 하는데, 파일을 걸면 한쪽에서 조용히 404 가 되기
+   때문이다. 그래서 소리를 **그 자리에서 만든다**(WebAudio).
+
+   음악은 판마다 다르고, 무엇보다 **판의 속도를 따라간다** — 방주는 짐승이
+   빨라질수록, 바벨탑은 층이 오를수록, 소돔은 소알이 가까울수록 빨라진다.
+   얍복강은 반대로 음악이 기준이다: 북소리가 곧 눌러야 할 박이다.
+
+   소리는 사람이 누른 다음에만 시작할 수 있다(브라우저 규칙). 판은 카드를
+   눌러서 열리므로 그 클릭이 곧 허락이 된다. */
+
 let SOUND = true;
-let AC = null;
-function tone(freq, dur, type, vol){
-  if(!SOUND) return;
+let AC = null, MASTER = null, NOISE = null;
+
+function audio(){
+  if(AC) return AC;
   try{
-    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
-    if(AC.state==='suspended') AC.resume();
-    const o=AC.createOscillator(), g=AC.createGain(), t=AC.currentTime;
-    o.type=type||'sine'; o.frequency.setValueAtTime(freq,t);
-    g.gain.setValueAtTime(vol==null?0.09:vol, t);
-    g.gain.exponentialRampToValueAtTime(0.0008, t+(dur||0.13));
-    o.connect(g); g.connect(AC.destination);
-    o.start(t); o.stop(t+(dur||0.13)+0.03);
-  }catch(e){}
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    MASTER = AC.createGain(); MASTER.gain.value = 0.85;
+    MASTER.connect(AC.destination);
+    // 잡음 두 초를 만들어 두고 돌려 쓴다 — 비·불·모래·북이 다 여기서 나온다.
+    NOISE = AC.createBuffer(1, AC.sampleRate * 2, AC.sampleRate);
+    const d = NOISE.getChannelData(0);
+    for(let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }catch(e){ AC = null; }
+  return AC;
 }
-function thud(){ tone(96,0.16,'triangle',0.16); }
+function audioWake(){
+  const c = audio(); if(!c) return;
+  // 사람이 누르기 전에는 브라우저가 거절한다. 거절은 그냥 삼킨다 —
+  // 다음에 판을 열 때 다시 부르면 그때 열린다.
+  if(c.state === 'suspended'){ try{ const p = c.resume(); if(p && p.catch) p.catch(()=>{}); }catch(e){} }
+}
+
+/** 한 음. glide 를 주면 그 주파수로 미끄러진다(북·쿵 소리에 쓴다). */
+function blip(freq, dur, type, vol, when, glide){
+  if(!SOUND) return;
+  const c = audio(); if(!c) return;
+  const t = when || c.currentTime, d = dur || 0.13, v = vol == null ? 0.09 : vol;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type || 'sine';
+  o.frequency.setValueAtTime(freq, t);
+  if(glide) o.frequency.exponentialRampToValueAtTime(Math.max(20, glide), t + d);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(v, t + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  o.connect(g); g.connect(MASTER);
+  o.start(t); o.stop(t + d + 0.03);
+}
+
+/** 걸러 낸 잡음 한 조각. */
+function hiss(when, dur, vol, freq, q, type){
+  if(!SOUND) return;
+  const c = audio(); if(!c) return;
+  const t = when || c.currentTime;
+  const s = c.createBufferSource(); s.buffer = NOISE; s.loop = true;
+  const f = c.createBiquadFilter();
+  f.type = type || 'bandpass'; f.frequency.value = freq || 1200; f.Q.value = q || 1;
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  s.connect(f); f.connect(g); g.connect(MASTER);
+  s.start(t); s.stop(t + dur + 0.03);
+}
+
+/* 옛 이름 — 판들이 이미 이걸로 부르고 있다. */
+function tone(freq, dur, type, vol){ blip(freq, dur, type, vol); }
+function thud(){ blip(96, 0.16, 'triangle', 0.16); }
+
+/* ── 타악기 ─────────────────────────────────────────────── */
+function kick(t, v){ blip(125, 0.17, 'sine', v || 0.20, t, 44); }
+function hat(t, v){ hiss(t, 0.03, v || 0.03, 9000, 1, 'highpass'); }
+function snare(t, v){ hiss(t, 0.11, v || 0.09, 1900, 0.9, 'bandpass'); blip(190, 0.06, 'triangle', (v || 0.09) * 0.4, t); }
+function woodblock(t, v){ hiss(t, 0.035, v || 0.09, 1500, 7, 'bandpass'); blip(540, 0.05, 'triangle', (v || 0.09) * 0.5, t); }
+function frame(t, v){ blip(78, 0.30, 'sine', v || 0.15, t, 52); hiss(t, 0.12, (v || 0.15) * 0.35, 260, 1.2, 'lowpass'); }
+
+/* ── 음계 ───────────────────────────────────────────────────
+   히자즈(프리지안 도미넌트). 두 번째 음이 반음이고 그다음이 한 음 반이라
+   서양 단조와 확실히 다른, 근동의 냄새가 나는 자리다. */
+const HIJAZ = [0, 1, 4, 5, 7, 8, 11];
+const MINOR = [0, 2, 3, 5, 7, 8, 10];
+const MAJOR = [0, 2, 4, 5, 7, 9, 11];
+function deg(root, scale, i){
+  const oct = Math.floor(i / scale.length);
+  const k = ((i % scale.length) + scale.length) % scale.length;
+  return root * Math.pow(2, (scale[k] + oct * 12) / 12);
+}
+
+/* ── 박자를 세는 시계 ───────────────────────────────────────
+   rAF 로 음을 내면 프레임이 흔들릴 때마다 박이 밀린다. 오디오 시계로 미리
+   조금씩 예약해 두면 화면이 버벅여도 음악은 안 흔들린다. */
+let MUS = null;
+function musicStart(track, bpm){
+  const c = audio(); if(!c) return;
+  musicStop();
+  MUS = { track, bpm: bpm || 110, step: 0, next: c.currentTime + 0.08, mood: {}, timer: 0 };
+  MUS.timer = setInterval(musicTick, 25);
+}
+function musicTick(){
+  const c = audio(); if(!c || !MUS) return;
+  const spb = 60 / MUS.bpm / 4;              // 16분음표 한 칸
+  let guard = 0;
+  while(MUS.next < c.currentTime + 0.14 && guard++ < 40){
+    if(SOUND) { try{ MUS.track(MUS.step, MUS.next, MUS.mood); }catch(e){} }
+    MUS.next += spb;
+    MUS.step++;
+  }
+  // 오래 멈춰 있었으면(탭을 벗어났다가 돌아온 경우) 시계를 다시 맞춘다.
+  if(MUS.next < c.currentTime) MUS.next = c.currentTime + 0.05;
+}
+function musicStop(){
+  if(MUS && MUS.timer) clearInterval(MUS.timer);
+  MUS = null;
+}
+/** 판이 제 속도를 알려 준다. 음악이 그걸 따라간다. */
+function musicSet(mood, bpm){
+  if(!MUS) return;
+  if(mood) Object.assign(MUS.mood, mood);
+  if(bpm) MUS.bpm = bpm;
+}
+
+/* ── 판마다 한 곡 ───────────────────────────────────────── */
+
+/** 방주 — 망치질과 빗소리. 짐승이 빨라질수록 걸음이 빨라진다. */
+function trackArk(s, t, m){
+  const b = s % 16, bar = (s >> 4) % 4;
+  if(b === 0 || b === 8) kick(t, 0.19);
+  if(b === 4 || b === 12) woodblock(t, 0.085);      // 널판을 붙이는 소리
+  if(b % 2 === 1) hat(t, 0.016);
+  if(b === 0) blip([110, 110, 98, 82.4][bar], 0.5, 'triangle', 0.075, t);
+  if(b === 10) blip([110, 110, 98, 82.4][bar] * 1.5, 0.22, 'triangle', 0.045, t);
+  // 실수가 쌓이면 물이 차오르는 소리가 섞인다
+  if(m.wet > 0 && b === 6) hiss(t, 0.5, 0.012 * m.wet, 420, 0.7, 'lowpass');
+}
+
+/** 바벨탑 — 한 층 오를 때마다 반음씩 올라가는 오르막. */
+function trackBabel(s, t, m){
+  const b = s % 16;
+  const root = 98 * Math.pow(2, Math.min(14, m.lift || 0) / 12);
+  if(b % 4 === 0) kick(t, 0.17);
+  if(b % 2 === 0) hat(t, 0.015);
+  if(b === 6 || b === 14) woodblock(t, 0.05);
+  const line = [0, 2, 4, 2, 5, 4, 2, 0];
+  if(s % 2 === 0) blip(deg(root * 2, HIJAZ, line[(s >> 1) % 8]), 0.12, 'triangle', 0.05, t);
+  // 말이 흩어질수록 같은 가락이 어긋난 음정으로 겹친다
+  if(m.conf > 0 && b === 7) blip(deg(root * 2, HIJAZ, 4) * (1 + 0.013 * m.conf), 0.26, 'sawtooth', 0.022, t);
+  if(s === 0) blip(root / 2, 0.7, 'sine', 0.06, t);
+}
+
+/** 소돔 — 뒤에서 밀어붙이는 16분음표. 소알이 가까울수록 몰아친다. */
+function trackSodom(s, t, m){
+  const b = s % 16;
+  if(b % 4 === 0) kick(t, 0.22);
+  if(b === 4 || b === 12) snare(t, 0.10);
+  hat(t, b % 2 ? 0.012 : 0.024);
+  const line = [0, 0, 3, 0, 5, 0, 4, 3];
+  if(s % 2 === 0) blip(deg(82.4, MINOR, line[(s >> 1) % 8]), 0.10, 'sawtooth', 0.042, t);
+  // 뒤에서 성이 무너지는 소리 — 갈수록 잦고 커진다
+  if(m.heat > 0.35 && b === 15 && Math.random() < m.heat) hiss(t, 0.35, 0.03 * m.heat, 200, 0.7, 'lowpass');
+}
+
+/** 얍복강 — 음악은 바닥에 깔린 밤이다. 박은 노트가 친다(아래 step 참고). */
+function trackJabbok(s, t, m){
+  const b = s % 32;
+  if(b === 0) blip(55, 1.8, 'sine', 0.06, t);
+  if(b === 16) blip(82.4, 1.4, 'sine', 0.04, t);
+  if(b % 8 === 4) hiss(t, 0.5, 0.008, 700, 0.6, 'lowpass');     // 강물
+  // 새벽이 다가오면 위쪽에서 빛이 든다
+  if(m.dawn > 0.45 && b === 8) blip(deg(220, HIJAZ, 4), 1.1, 'triangle', 0.028 * m.dawn, t);
+  if(m.dawn > 0.75 && b === 24) blip(deg(220, HIJAZ, 6), 1.1, 'triangle', 0.026 * m.dawn, t);
+}
+
+/** 곳간 — 풍년은 걷는 걸음, 흉년은 마른 바람. 같은 판인데 곡이 바뀐다. */
+function trackGranary(s, t, m){
+  const b = s % 16;
+  if(m.lean){
+    if(b === 0) blip(73.4, 0.8, 'triangle', 0.07, t);
+    if(b === 8) blip(61.7, 0.8, 'triangle', 0.06, t);
+    if(b === 4 || b === 12) hiss(t, 0.22, 0.022, 620, 0.8, 'bandpass');
+    if(b === 6) blip(deg(146.8, MINOR, 2), 0.34, 'triangle', 0.032, t);
+    if(b === 14) blip(deg(146.8, MINOR, 1), 0.34, 'triangle', 0.026, t);
+  } else {
+    if(b % 4 === 0) kick(t, 0.15);
+    if(b === 2 || b === 10) hat(t, 0.018);
+    if(b === 6 || b === 14) snare(t, 0.05);
+    const line = [0, 4, 2, 4, 5, 4, 2, 1];
+    if(s % 2 === 0) blip(deg(196, MAJOR, line[(s >> 1) % 8]), 0.15, 'triangle', 0.045, t);
+    if(b === 0) blip(98, 0.55, 'triangle', 0.06, t);
+  }
+}
+
+/** 판이 끝났을 때 짧게. 이긴 쪽은 올라가고 진 쪽은 내려간다. */
+function cadence(win){
+  const c = audio(); if(!c || !SOUND) return;
+  const t0 = c.currentTime + 0.05;
+  const scale = win ? MAJOR : MINOR;
+  const steps = win ? [0, 2, 4, 7] : [7, 4, 2, 0];
+  steps.forEach((d, i) => {
+    blip(deg(win ? 196 : 147, scale, d), 0.55, 'triangle', 0.085, t0 + i * 0.135);
+    if(i === 3) blip(deg(win ? 98 : 73.4, scale, d), 0.9, 'sine', 0.07, t0 + i * 0.135);
+  });
+}
+
+/* ---------- 아케이드 공통 껍데기 ---------- */
 
 function arcade(root){
   const holder=el('div'); holder.style.cssText='height:100%;display:flex;flex-direction:column;min-height:0';
@@ -385,11 +589,6 @@ function arcade(root){
   holder.append(bar,wrap,ctl); root.appendChild(holder);
   const x=cvs.getContext('2d');
   const A={ bar, wrap, cvs, ctl, x, W:0, H:0, raf:0, keys:{} };
-
-  const spk=el('button','st-x', SOUND?'소리 켬':'소리 끔');
-  spk.style.cssText='margin-left:auto;font-size:15px';
-  spk.onclick=()=>{ SOUND=!SOUND; spk.textContent=SOUND?'소리 켬':'소리 끔'; if(SOUND) tone(440,0.09); };
-  A.speaker=spk;
 
   function size(){
     const r=wrap.getBoundingClientRect(), d=Math.min(devicePixelRatio||1,2);
@@ -474,20 +673,24 @@ GAMES.push({
       const blocked = S.gate>0;
       if(blocked){
         a.dir=-1;
-        if(full){ mark('막았다','#8FB463'); tone(520,0.1,'triangle',0.07); }
+        if(full){ mark('막았다','#8FB463'); blip(660,0.12,'triangle',0.07); blip(880,0.09,'sine',0.04); }
         else { fail(); mark('아직 모자라다','#E45C3D'); }
       } else {
         if(full){ fail(); mark('정원 초과','#E45C3D'); }
-        else { S.got[a.k.k]++; S.done++; mark('+1','#6E9AF7'); tone(300+S.done*9,0.1,'sine',0.07); }
+        else { S.got[a.k.k]++; S.done++; mark('+1','#6E9AF7');
+               blip(deg(262,MAJOR,S.done%8),0.13,'triangle',0.075); }
       }
       if(S.done>=TOTAL && !S.over){ S.over='closed'; }
     }
-    function fail(){ S.miss++; S.flash=16; S.shake=11; thud();
+    function fail(){ S.miss++; S.flash=16; S.shake=11;
+      hiss(0,0.4,0.14,300,0.8,'lowpass'); blip(150,0.35,'sawtooth',0.10,0,60);
       if(S.miss>=3) S.over='flood'; }
 
     function step(){
       if(S.over) return;
       S.t++;
+      // 짐승이 빨라지는 만큼 음악도 빨라진다. 스무 마리째엔 처음보다 한참 급하다.
+      if(S.t % 20 === 0) musicSet({ wet: S.miss / 3 }, 92 + S.done * 1.9);
       if(S.gate>0) S.gate--; else if(S.cool>0) S.cool--;
       const sp=speed();
       S.line.forEach(a=>{ a.x += a.dir*sp; });
@@ -504,7 +707,8 @@ GAMES.push({
 
     function press(){
       if(S.over || S.gate>0 || S.cool>0) return;
-      S.gate=17; S.cool=9; tone(180,0.07,'square',0.05);
+      S.gate=17; S.cool=9;
+      woodblock(0, 0.11); blip(150,0.10,'triangle',0.06,0,95);   // 막대가 내려꽂히는 소리
     }
 
     function paint(){
@@ -587,16 +791,19 @@ GAMES.push({
       });
       const miss=el('div','hint','실수 ');
       miss.innerHTML=`<span class="hint">실수</span> <span class="num" style="font-size:19px;color:${S.miss?'var(--flame)':'var(--sand)'}">${S.miss}/3</span>`;
-      A.bar.append(list, miss, A.speaker);
+      A.bar.append(list, miss);
     }
 
     function finish(){
       ended=true;
+      musicStop();
       if(S.over==='closed'){
+        frame(0,0.22); cadence(true);                 // 문이 닫히는 소리
         endCard(A,'var(--lapis)','문이 닫혔다',
           `부정한 짐승은 둘씩, 정결한 짐승은 일곱씩. 스무 마리가 모두 제자리에 앉았고, 실수는 ${S.miss}번이었다. 그리고 문은 밖에서 닫혔다.`,
           '"여호와께서 그를 들여보내고 문을 닫으시니라" — 창세기 7:16', reset, 'ark');
       } else {
+        hiss(0,1.4,0.10,320,0.6,'lowpass'); cadence(false);
         endCard(A,'var(--flame)','물이 들어왔다',
           `세 번 틀렸다. 정원이 찬 종을 또 들이거나, 아직 모자란 종을 막아 세우는 사이 물이 문턱을 넘었다. 태운 짐승은 ${S.done}마리.`,
           '"큰 깊음의 샘들이 터지며 하늘의 창문들이 열려" — 창세기 7:11', reset);
@@ -613,6 +820,7 @@ GAMES.push({
 
     A.onKey(e=>{ if(e.code==='Space'||e.key===' '){ press(); return true; } });
     A.cvs.addEventListener('pointerdown',e=>{ e.preventDefault(); press(); });
+    audioWake(); musicStart(trackArk, 92);
     reset();
     A.run(()=>{ step(); paint(); ui(); if(S.over && !ended) finish(); });
     return ()=>A.stop();
@@ -681,6 +889,7 @@ GAMES.push({
       if(ov<=2){
         S.fall.push({x:c.x,y:blockY(level()),w:c.w,vy:0,vx:c.dir*1.5,rot:0,vr:c.dir*.05});
         S.over=true; S.shake=16;
+        hiss(0,0.7,0.13,260,0.7,'lowpass'); blip(120,0.6,'sawtooth',0.09,0,40);
         S.ended={title:'벽돌이 빗나갔다', body:`${level()}층에서 손이 어긋났다. 아래로 떨어진 벽돌이 흙먼지를 일으켰다.`};
         return;
       }
@@ -691,15 +900,17 @@ GAMES.push({
       if(Math.abs(c.x-top.x) <= Math.max(8, speed()*1.6)){
         S.stack.push({x:top.x, w:top.w});
         S.snap=(S.snap||0)+1;
-        tone(680,0.09,'triangle',0.07);
+        blip(deg(392,MAJOR,level()%8),0.13,'triangle',0.08); blip(deg(784,MAJOR,level()%8),0.09,'sine',0.035);
       } else {
         if(c.x < l) S.fall.push({x:c.x,y:blockY(level()),w:l-c.x,vy:0,vx:-1.4,rot:0,vr:-.06});
         if(c.x+c.w > r) S.fall.push({x:r,y:blockY(level()),w:c.x+c.w-r,vy:0,vx:1.4,rot:0,vr:.06});
         S.stack.push({x:l,w:ov});
+        woodblock(0,0.10); hiss(0,0.09,0.05,900,3,'bandpass');   // 어긋나 깎이는 소리
       }
       const lv=level();
       const hit=CONF.find(k=>k.h===lv);
-      if(hit) S.banner={txt:hit.n, sub:hit.d, t:150};
+      if(hit){ S.banner={txt:hit.n, sub:hit.d, t:150};
+        blip(311,0.5,'sawtooth',0.06); blip(294,0.5,'sawtooth',0.05); }   // 말이 어긋나는 순간
       if(lv>=GOAL){
         S.over=true;
         S.ended={title:'거기서 흩으셨다', body:`열다섯 층에 이르렀을 때, 아무도 옆 사람의 말을 알아듣지 못했다. 성 쌓기를 그치고 사람들은 온 지면으로 흩어졌다. 딱 맞게 놓은 것 ${S.snap||0}번.`, scatter:true};
@@ -712,6 +923,9 @@ GAMES.push({
 
     function step(){
       S.t++;
+      // 층이 오를수록 가락이 반음씩 올라가고 걸음이 빨라진다.
+      if(S.t % 20 === 0)
+        musicSet({ lift: level()-1, conf: CONF.filter(c=>has(c.h)).length }, 100 + level()*3.4);
       const target = Math.max(0, (level()-4))*BH;
       S.camY += (target - S.camY)*0.12;
       if(!S.over && S.cur){
@@ -787,6 +1001,7 @@ GAMES.push({
 
     function finish(){
       dead=true;
+      musicStop(); cadence(!!S.ended.scatter);
       ctl.innerHTML='';
       const box=el('div'); box.style.cssText='text-align:center;max-width:52ch';
       box.innerHTML=`<h3 style="font-size:1.5rem;color:${S.ended.scatter?'var(--ochre)':'var(--flame)'};margin-bottom:8px">${S.ended.title}</h3>
@@ -815,8 +1030,9 @@ GAMES.push({
     cvs.addEventListener('pointerdown',e=>{ e.preventDefault(); drop(); });
     const ro=new ResizeObserver(()=>{ const old=W; size(); if(S && old && W && Math.abs(old-W)>1){ /* 폭 변화 시 유지 */ } });
     size(); reset(); controls(); ro.observe(wrap);
+    audioWake(); musicStart(trackBabel, 100);
     raf=requestAnimationFrame(loop);
-    return ()=>{ cancelAnimationFrame(raf); removeEventListener('keydown',key); ro.disconnect(); };
+    return ()=>{ cancelAnimationFrame(raf); removeEventListener('keydown',key); ro.disconnect(); musicStop(); };
   }
 });
 
@@ -842,6 +1058,7 @@ GAMES.push({
       '두 사위는 어떻게 되었을까','소리가 점점 커진다'];
 
     let S,W=0,H=0,raf=0,over=false,keyL=false,keyR=false,ptrX=null;
+    const A_W=()=>W||1;
 
     function reset(){
       S={ px:W/2, prog:0, t:0, warn:[], blast:[], coin:[], silver:0, hit:0,
@@ -854,6 +1071,8 @@ GAMES.push({
     function step(){
       if(over) return;
       S.t++; S.prog += 0.0295;
+      // 소알이 가까울수록 몰아친다 — 132에서 시작해 170까지.
+      if(S.t % 20 === 0) musicSet({ heat: S.prog/100 }, 132 + S.prog*0.38);
       if(S.prog>=100){ finish('safe'); return; }
       // 이동
       let d=0; if(keyL) d-=1; if(keyR) d+=1;
@@ -872,13 +1091,18 @@ GAMES.push({
       S.warn.filter(m=>m.t<=0).forEach(m=>{
         S.blast.push({x:m.x,r:m.r,life:26});
         S.shake=Math.max(S.shake,9);
-        if(Math.abs(S.px-m.x) < m.r*0.82){ S.hit++; S.flash=14; }
+        // 가까이 떨어질수록 크게 들린다
+        const near = 1 - Math.min(1, Math.abs(S.px-m.x)/(A_W()*0.6));
+        hiss(0, 0.34, 0.05+0.10*near, 240, 0.7, 'lowpass');
+        blip(90,0.28,'sawtooth',0.04+0.07*near,0,38);
+        if(Math.abs(S.px-m.x) < m.r*0.82){ S.hit++; S.flash=14; blip(160,0.4,'square',0.12,0,60); }
       });
       S.warn=S.warn.filter(m=>m.t>0);
       S.blast.forEach(b=>b.life--); S.blast=S.blast.filter(b=>b.life>0);
       S.coin.forEach(c=>c.y+=c.vy);
       S.coin=S.coin.filter(c=>{
-        if(c.y>groundY()-14 && Math.abs(c.x-S.px)<24){ S.silver++; return false; }
+        if(c.y>groundY()-14 && Math.abs(c.x-S.px)<24){ S.silver++;
+          blip(1046,0.10,'triangle',0.06); blip(1568,0.08,'sine',0.03); return false; }
         return c.y<H+30;
       });
       if(S.shake>0.4) S.shake*=0.88;
@@ -995,6 +1219,10 @@ GAMES.push({
 
     function finish(kind){
       over=true; ctl.innerHTML=''; lookBtn=null;
+      musicStop();
+      if(kind==='salt'){ hiss(0,1.2,0.09,5200,0.8,'highpass'); blip(880,1.1,'sine',0.05,0,220); }
+      else if(kind==='burn'){ hiss(0,1.0,0.13,220,0.7,'lowpass'); }
+      cadence(kind==='safe');
       let title,body,verse,color;
       if(kind==='salt'){
         color='var(--sand-2)'; title='소금 기둥';
@@ -1041,8 +1269,9 @@ GAMES.push({
     ['pointerup','pointerleave','pointercancel'].forEach(ev=>cvs.addEventListener(ev,()=>ptrX=null));
     const ro=new ResizeObserver(size);
     size(); reset(); ro.observe(wrap);
+    audioWake(); musicStart(trackSodom, 132);
     raf=requestAnimationFrame(loop);
-    return ()=>{ cancelAnimationFrame(raf); removeEventListener('keydown',kd); removeEventListener('keyup',ku); ro.disconnect(); };
+    return ()=>{ cancelAnimationFrame(raf); removeEventListener('keydown',kd); removeEventListener('keyup',ku); ro.disconnect(); musicStop(); };
   }
 });
 
@@ -1085,7 +1314,7 @@ GAMES.push({
 
     function hit(lane){
       if(S.over) return;
-      if(S.hurt && lane===1){ S.flash=8; tone(90,0.09,'square',0.05); return; }
+      if(S.hurt && lane===1){ S.flash=8; blip(88,0.10,'square',0.05); return; }
       let best=null, bd=99;
       for(const n of S.notes){
         if(n.hit || n.lane!==lane) continue;
@@ -1095,14 +1324,15 @@ GAMES.push({
       if(best && bd<=13){
         best.hit=1;
         if(bd<=4){ S.perfect++; S.grip+=2.6; S.combo++; S.judge={t:'꽉 붙들었다',c:'#E3A83E',life:26};
-                   tone(300+lane*90,0.11,'triangle',0.10); }
+                   blip(deg(330,HIJAZ,lane*2),0.14,'triangle',0.11);
+                   blip(deg(660,HIJAZ,lane*2),0.10,'sine',0.05); }
         else { S.good++; S.grip+=1.1; S.combo++; S.judge={t:'붙들었다',c:'#8FB463',life:22};
-               tone(260+lane*80,0.09,'sine',0.08); }
+               blip(deg(294,HIJAZ,lane*2),0.11,'sine',0.085); }
         S.best=Math.max(S.best,S.combo);
         S.fx.push({x:laneX(lane), y:judgeY(), r:10, life:18});
       } else {
         S.grip-=1.6; S.combo=0; S.judge={t:'헛손질',c:'#E45C3D',life:20};
-        tone(110,0.1,'square',0.06);
+        blip(110,0.12,'square',0.06); hiss(0,0.08,0.03,500,2,'bandpass');
       }
     }
 
@@ -1110,11 +1340,17 @@ GAMES.push({
       if(S.over) return;
       S.t++;
       S.grip -= 0.028;
+      if(S.t % 30 === 0) musicSet({ dawn: prog()/100 }, 62);
       if(!S.hurt && prog()>=58){
-        S.hurt=true; S.judge={t:'환도뼈가 어긋났다',c:'#E45C3D',life:80}; thud();
+        S.hurt=true; S.judge={t:'환도뼈가 어긋났다',c:'#E45C3D',life:80};
+        hiss(0,0.5,0.14,1600,5,'bandpass'); blip(70,0.7,'sawtooth',0.11,0,42);
       }
+      // 눌러야 할 자리마다 북이 한 번 운다. 이 소리가 곧 박이다 —
+      // 노트를 보고 맞추는 게 아니라 소리에 맞춰도 되게 만든다.
       for(const n of S.notes){
-        if(!n.hit && S.t > n.f+13){ n.hit=-1; S.missed++; S.combo=0; S.grip-=4.2; S.flash=10; }
+        if(n.f === S.t) frame(0, n.hit ? 0.06 : 0.13);
+        if(!n.hit && S.t > n.f+13){ n.hit=-1; S.missed++; S.combo=0; S.grip-=4.2; S.flash=10;
+          hiss(0,0.22,0.06,180,0.8,'lowpass'); }
       }
       S.grip=clamp(S.grip,0,100);
       S.fx.forEach(f=>{ f.r+=2.4; f.life--; });
@@ -1218,11 +1454,12 @@ GAMES.push({
         <div style="min-width:150px"><span class="hint">밤</span>
           <div class="bar" style="margin-top:5px"><i style="width:${prog()}%;background:var(--lapis)"></i></div></div>
         <div><span class="hint">잇달아</span> <span class="num" style="font-size:19px">${S.combo}</span></div>`;
-      A.bar.append(box, A.speaker);
+      A.bar.append(box);
     }
 
     function finish(){
       ended=true;
+      musicStop(); cadence(S.over!=='lost');
       if(S.over==='lost'){
         endCard(A,'var(--flame)','손이 풀렸다',
           `밤이 다 가기 전에 손이 미끄러졌다. 꽉 붙든 것 ${S.perfect}번, 놓친 것 ${S.missed}번. 강가에 혼자 남았고, 이름은 그대로 야곱이었다.`,
@@ -1269,9 +1506,10 @@ GAMES.push({
     A.onKey(e=>{
       for(let i=0;i<3;i++) if(KEYS[i].includes(e.key)){ if(!e.repeat) hit(i); return true; }
     });
+    audioWake(); musicStart(trackJabbok, 62);
     reset();
     A.run(()=>{ step(); paint(); ui(); if(S.over && !ended) finish(); });
-    return ()=>A.stop();
+    return ()=>{ musicStop(); A.stop(); };
   }
 });
 
@@ -1302,6 +1540,8 @@ GAMES.push({
     function step(){
       if(S.over) return;
       S.t++;
+      // 풍년과 흉년은 아예 다른 곡이다. 해가 바뀌는 순간 곡이 바뀐다.
+      if(S.t % 20 === 0) musicSet({ lean: S.phase==='lean' }, S.phase==='lean' ? 76 : 108);
       let d=0; if(keyL) d-=1; if(keyR) d+=1;
       if(ptr!=null){ const dx=ptr-S.cart; d = Math.abs(dx)<7?0:(dx>0?1:-1); }
       S.cart = clamp(S.cart + d*(A.W/86), cartW()/2, A.W-cartW()/2);
@@ -1319,15 +1559,18 @@ GAMES.push({
         S.drops.forEach(o=>o.y+=o.vy);
         S.drops = S.drops.filter(o=>{
           if(o.y > cartY()-26 && o.y < cartY()+16 && Math.abs(o.x-S.cart) < cartW()/2+12){
-            if(o.chaff){ S.store=Math.max(0,S.store-2); S.flash=12; thud(); S.note={t:'쭉정이',c:'#E45C3D',life:26}; }
-            else { S.store++; S.gold=6; tone(420+Math.min(300,S.store*3),0.07,'sine',0.06); }
+            if(o.chaff){ S.store=Math.max(0,S.store-2); S.flash=12; S.note={t:'쭉정이',c:'#E45C3D',life:26};
+              hiss(0,0.22,0.09,300,0.9,'lowpass'); blip(120,0.2,'square',0.07); }
+            else { S.store++; S.gold=6; blip(deg(392,MAJOR,S.store%8),0.11,'triangle',0.07); }
             return false;
           }
           if(o.y > groundY()){ if(!o.chaff) S.wasted++; return false; }
           return true;
         });
         if(S.t>=FAT){ S.phase='lean'; S.t=0; S.spawnT=0; S.drops=[];
-          S.note={t:'일곱 해가 지나고 흉년이 시작되었다',c:'#E3A83E',life:150}; thud(); }
+          S.note={t:'일곱 해가 지나고 흉년이 시작되었다',c:'#E3A83E',life:150};
+          musicSet({lean:true}, 76);
+          frame(0,0.20); blip(98,1.3,'sawtooth',0.08,0,49); }
         return;
       }
 
@@ -1357,7 +1600,8 @@ GAMES.push({
           const p=S.folk.filter(f=>f.state==='wait' && !f.fed && Math.abs(f.x-s.x)<42)
                         .sort((a,b)=>a.wait-b.wait)[0];
           if(p){ p.fed=true; p.state='leave'; p.out=0; S.saved++; if(p.bro) S.bro.fed++;
-                 tone(520,0.1,'triangle',0.08); }
+                 blip(deg(523,MAJOR,p.bro?4:0),0.13,'triangle',0.08);
+                 blip(deg(784,MAJOR,p.bro?4:0),0.10,'sine',0.04); }
           else { S.flash=6; }
           return false;
         }
@@ -1368,10 +1612,10 @@ GAMES.push({
 
     function throwSack(){
       if(S.over || S.phase!=='lean') return;
-      if(S.store<=0){ S.note={t:'곳간이 비었다',c:'#E45C3D',life:40}; tone(100,0.1,'square',0.05); return; }
+      if(S.store<=0){ S.note={t:'곳간이 비었다',c:'#E45C3D',life:40}; blip(100,0.12,'square',0.05); return; }
       S.store--;
       S.sacks.push({ x:S.cart, y:cartY()+12, vy:2.4 });
-      tone(230,0.07,'sine',0.05);
+      hiss(0,0.10,0.035,1800,1.4,'bandpass'); blip(300,0.09,'triangle',0.045,0,180);   // 던지는 바람소리
     }
 
     function drawCart(x, cx, cy, w){
@@ -1473,11 +1717,13 @@ GAMES.push({
           ? `<div><span class="hint">땅에 떨어뜨림</span> <span class="num" style="font-size:18px">${S.wasted}</span></div>`
           : `<div><span class="hint">먹인 사람</span> <span class="num" style="font-size:18px;color:var(--olive)">${S.saved}</span></div>
              <div><span class="hint">굶긴 사람</span> <span class="num" style="font-size:18px;color:${S.lost?'var(--flame)':'var(--sand)'}">${S.lost}</span></div>`);
-      A.bar.append(box, A.speaker);
+      A.bar.append(box);
     }
 
     function finish(){
       ended=true;
+      const total0=S.saved+S.lost;
+      musicStop(); cadence(total0 ? S.saved/total0 >= 0.58 : false);
       const total=S.saved+S.lost;
       const rate= total? Math.round(S.saved/total*100) : 0;
       let title, body;
@@ -1523,9 +1769,10 @@ GAMES.push({
     A.cvs.addEventListener('pointermove',e=>{ if(e.buttons||e.pointerType==='touch') pos(e); });
     ['pointerup','pointerleave','pointercancel'].forEach(ev=>A.cvs.addEventListener(ev,()=>ptr=null));
 
+    audioWake(); musicStart(trackGranary, 108);
     reset();
     A.run(()=>{ step(); paint(); ui(); if(S.over && !ended) finish(); });
-    return ()=>A.stop();
+    return ()=>{ musicStop(); A.stop(); };
   }
 });
 
