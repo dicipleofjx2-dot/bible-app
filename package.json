@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@hebcal/core": "^5.10.1",
+    "@hebcal/leyning": "^10.0.0",
     "@types/react": "~19.2.2",
     "pdf-parse": "^2.4.5",
     "sql.js": "^1.14.1",

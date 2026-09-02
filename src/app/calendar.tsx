@@ -140,17 +140,55 @@ export default function CalendarScreen() {
                 </ThemedText>
               ),
           )}
-          <Pressable
-            onPress={() => {
-              const first = portion.parts[0];
-              setSelected(null);
-              router.push(`/read?bookId=${first.book}&chapter=${first.startChapter}`);
-            }}
-            style={[styles.portionButton, { backgroundColor: theme.accent }]}>
-            <ThemedText type="smallBold" style={{ color: '#ffffff' }}>
-              본문 펴기
-            </ThemedText>
-          </Pressable>
+
+          {portion.haftarah && (
+            <View style={[styles.haftarahBox, { borderTopColor: theme.border }]}>
+              <ThemedText type="smallBold" themeColor="textSecondary">
+                하프타라 (이어 읽는 예언서)
+              </ThemedText>
+              <ThemedText type="smallBold" themeColor="accent" style={styles.portionRange}>
+                {portion.haftarah.ashkenazi}
+                {portion.haftarah.sephardi ? ' (아슈케나짐)' : ''}
+              </ThemedText>
+              {portion.haftarah.sephardi && (
+                <ThemedText type="smallBold" themeColor="accent" style={styles.portionRange}>
+                  {portion.haftarah.sephardi} (세파르딤)
+                </ThemedText>
+              )}
+              {portion.haftarah.sephardi && (
+                <ThemedText type="small" themeColor="textSecondary">
+                  전통에 따라 읽는 곳이 다른 편입니다.
+                </ThemedText>
+              )}
+            </View>
+          )}
+
+          <View style={styles.portionButtons}>
+            <Pressable
+              onPress={() => {
+                const first = portion.parts[0];
+                setSelected(null);
+                router.push(`/read?bookId=${first.book}&chapter=${first.startChapter}`);
+              }}
+              style={[styles.portionButton, { backgroundColor: theme.accent }]}>
+              <ThemedText type="smallBold" style={{ color: '#ffffff' }}>
+                토라 펴기
+              </ThemedText>
+            </Pressable>
+            {portion.haftarah && (
+              <Pressable
+                onPress={() => {
+                  const first = portion.haftarah!.first;
+                  setSelected(null);
+                  router.push(`/read?bookId=${first.book}&chapter=${first.startChapter}`);
+                }}
+                style={[styles.portionButton, styles.portionButtonGhost, { borderColor: theme.accent }]}>
+                <ThemedText type="smallBold" themeColor="accent">
+                  하프타라 펴기
+                </ThemedText>
+              </Pressable>
+            )}
+          </View>
         </View>
       </View>
     );
@@ -379,13 +417,27 @@ const styles = StyleSheet.create({
   portionRange: {
     fontSize: 16,
   },
+  haftarahBox: {
+    borderTopWidth: 1,
+    paddingTop: Spacing.two,
+    marginTop: Spacing.two,
+    gap: Spacing.half,
+  },
+  portionButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.two,
+    marginTop: Spacing.two,
+  },
   portionButton: {
-    alignSelf: 'flex-start',
     minHeight: 44,
+    alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.four,
     borderRadius: Spacing.five,
-    marginTop: Spacing.two,
+  },
+  portionButtonGhost: {
+    borderWidth: 1,
   },
   weekdayRow: {
     flexDirection: 'row',

@@ -1,0 +1,891 @@
+{
+ "0": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 42,
+    "startVerse": 5,
+    "endChapter": 43,
+    "endVerse": 10
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 23,
+    "startChapter": 42,
+    "startVerse": 5,
+    "endChapter": 42,
+    "endVerse": 21
+   }
+  ]
+ },
+ "1": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 54,
+    "startVerse": 1,
+    "endChapter": 55,
+    "endVerse": 5
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 23,
+    "startChapter": 54,
+    "startVerse": 1,
+    "endChapter": 54,
+    "endVerse": 10
+   }
+  ]
+ },
+ "2": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 40,
+    "startVerse": 27,
+    "endChapter": 41,
+    "endVerse": 16
+   }
+  ]
+ },
+ "3": {
+  "ashkenazi": [
+   {
+    "book": 12,
+    "startChapter": 4,
+    "startVerse": 1,
+    "endChapter": 4,
+    "endVerse": 37
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 12,
+    "startChapter": 4,
+    "startVerse": 1,
+    "endChapter": 4,
+    "endVerse": 23
+   }
+  ]
+ },
+ "4": {
+  "ashkenazi": [
+   {
+    "book": 11,
+    "startChapter": 1,
+    "startVerse": 1,
+    "endChapter": 1,
+    "endVerse": 31
+   }
+  ]
+ },
+ "5": {
+  "ashkenazi": [
+   {
+    "book": 39,
+    "startChapter": 1,
+    "startVerse": 1,
+    "endChapter": 2,
+    "endVerse": 7
+   }
+  ]
+ },
+ "6": {
+  "ashkenazi": [
+   {
+    "book": 28,
+    "startChapter": 12,
+    "startVerse": 12,
+    "endChapter": 14,
+    "endVerse": 9
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 28,
+    "startChapter": 11,
+    "startVerse": 7,
+    "endChapter": 12,
+    "endVerse": 11
+   }
+  ]
+ },
+ "7": {
+  "ashkenazi": [
+   {
+    "book": 31,
+    "startChapter": 1,
+    "startVerse": 1,
+    "endChapter": 1,
+    "endVerse": 21
+   }
+  ]
+ },
+ "8": {
+  "ashkenazi": [
+   {
+    "book": 30,
+    "startChapter": 2,
+    "startVerse": 6,
+    "endChapter": 3,
+    "endVerse": 8
+   }
+  ]
+ },
+ "9": {
+  "ashkenazi": [
+   {
+    "book": 11,
+    "startChapter": 3,
+    "startVerse": 15,
+    "endChapter": 4,
+    "endVerse": 1
+   }
+  ]
+ },
+ "10": {
+  "ashkenazi": [
+   {
+    "book": 26,
+    "startChapter": 37,
+    "startVerse": 15,
+    "endChapter": 37,
+    "endVerse": 28
+   }
+  ]
+ },
+ "11": {
+  "ashkenazi": [
+   {
+    "book": 11,
+    "startChapter": 2,
+    "startVerse": 1,
+    "endChapter": 2,
+    "endVerse": 12
+   }
+  ]
+ },
+ "12": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 27,
+    "startVerse": 6,
+    "endChapter": 28,
+    "endVerse": 13
+   },
+   {
+    "book": 23,
+    "startChapter": 29,
+    "startVerse": 22,
+    "endChapter": 29,
+    "endVerse": 23
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 24,
+    "startChapter": 1,
+    "startVerse": 1,
+    "endChapter": 2,
+    "endVerse": 3
+   }
+  ]
+ },
+ "13": {
+  "ashkenazi": [
+   {
+    "book": 26,
+    "startChapter": 28,
+    "startVerse": 25,
+    "endChapter": 29,
+    "endVerse": 21
+   }
+  ]
+ },
+ "14": {
+  "ashkenazi": [
+   {
+    "book": 24,
+    "startChapter": 46,
+    "startVerse": 13,
+    "endChapter": 46,
+    "endVerse": 28
+   }
+  ]
+ },
+ "15": {
+  "ashkenazi": [
+   {
+    "book": 7,
+    "startChapter": 4,
+    "startVerse": 4,
+    "endChapter": 5,
+    "endVerse": 31
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 7,
+    "startChapter": 5,
+    "startVerse": 1,
+    "endChapter": 5,
+    "endVerse": 31
+   }
+  ]
+ },
+ "16": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 6,
+    "startVerse": 1,
+    "endChapter": 7,
+    "endVerse": 6
+   },
+   {
+    "book": 23,
+    "startChapter": 9,
+    "startVerse": 6,
+    "endChapter": 9,
+    "endVerse": 7
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 23,
+    "startChapter": 6,
+    "startVerse": 1,
+    "endChapter": 6,
+    "endVerse": 13
+   }
+  ]
+ },
+ "17": {
+  "ashkenazi": [
+   {
+    "book": 24,
+    "startChapter": 34,
+    "startVerse": 8,
+    "endChapter": 34,
+    "endVerse": 22
+   },
+   {
+    "book": 24,
+    "startChapter": 33,
+    "startVerse": 25,
+    "endChapter": 33,
+    "endVerse": 26
+   }
+  ]
+ },
+ "18": {
+  "ashkenazi": [
+   {
+    "book": 11,
+    "startChapter": 5,
+    "startVerse": 12,
+    "endChapter": 6,
+    "endVerse": 13
+   }
+  ]
+ },
+ "19": {
+  "ashkenazi": [
+   {
+    "book": 26,
+    "startChapter": 43,
+    "startVerse": 10,
+    "endChapter": 43,
+    "endVerse": 27
+   }
+  ]
+ },
+ "20": {
+  "ashkenazi": [
+   {
+    "book": 11,
+    "startChapter": 18,
+    "startVerse": 1,
+    "endChapter": 18,
+    "endVerse": 39
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 11,
+    "startChapter": 18,
+    "startVerse": 20,
+    "endChapter": 18,
+    "endVerse": 39
+   }
+  ]
+ },
+ "21": {
+  "ashkenazi": [
+   {
+    "book": 11,
+    "startChapter": 7,
+    "startVerse": 40,
+    "endChapter": 7,
+    "endVerse": 50
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 11,
+    "startChapter": 7,
+    "startVerse": 13,
+    "endChapter": 7,
+    "endVerse": 26
+   }
+  ]
+ },
+ "22": {
+  "ashkenazi": [
+   {
+    "book": 11,
+    "startChapter": 7,
+    "startVerse": 51,
+    "endChapter": 8,
+    "endVerse": 21
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 11,
+    "startChapter": 7,
+    "startVerse": 40,
+    "endChapter": 7,
+    "endVerse": 50
+   }
+  ]
+ },
+ "23": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 43,
+    "startVerse": 21,
+    "endChapter": 44,
+    "endVerse": 23
+   }
+  ]
+ },
+ "24": {
+  "ashkenazi": [
+   {
+    "book": 24,
+    "startChapter": 7,
+    "startVerse": 21,
+    "endChapter": 8,
+    "endVerse": 3
+   },
+   {
+    "book": 24,
+    "startChapter": 9,
+    "startVerse": 23,
+    "endChapter": 9,
+    "endVerse": 24
+   }
+  ]
+ },
+ "25": {
+  "ashkenazi": [
+   {
+    "book": 10,
+    "startChapter": 6,
+    "startVerse": 1,
+    "endChapter": 7,
+    "endVerse": 17
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 10,
+    "startChapter": 6,
+    "startVerse": 1,
+    "endChapter": 6,
+    "endVerse": 19
+   }
+  ]
+ },
+ "26": {
+  "ashkenazi": [
+   {
+    "book": 12,
+    "startChapter": 4,
+    "startVerse": 42,
+    "endChapter": 5,
+    "endVerse": 19
+   }
+  ]
+ },
+ "27": {
+  "ashkenazi": [
+   {
+    "book": 12,
+    "startChapter": 7,
+    "startVerse": 3,
+    "endChapter": 7,
+    "endVerse": 20
+   }
+  ]
+ },
+ "28": {
+  "ashkenazi": [
+   {
+    "book": 30,
+    "startChapter": 9,
+    "startVerse": 7,
+    "endChapter": 9,
+    "endVerse": 15
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 26,
+    "startChapter": 22,
+    "startVerse": 1,
+    "endChapter": 22,
+    "endVerse": 16
+   }
+  ]
+ },
+ "29": {
+  "ashkenazi": [
+   {
+    "book": 26,
+    "startChapter": 22,
+    "startVerse": 1,
+    "endChapter": 22,
+    "endVerse": 19
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 26,
+    "startChapter": 20,
+    "startVerse": 2,
+    "endChapter": 20,
+    "endVerse": 20
+   }
+  ]
+ },
+ "30": {
+  "ashkenazi": [
+   {
+    "book": 26,
+    "startChapter": 44,
+    "startVerse": 15,
+    "endChapter": 44,
+    "endVerse": 31
+   }
+  ]
+ },
+ "31": {
+  "ashkenazi": [
+   {
+    "book": 24,
+    "startChapter": 32,
+    "startVerse": 6,
+    "endChapter": 32,
+    "endVerse": 27
+   }
+  ]
+ },
+ "32": {
+  "ashkenazi": [
+   {
+    "book": 24,
+    "startChapter": 16,
+    "startVerse": 19,
+    "endChapter": 17,
+    "endVerse": 14
+   }
+  ]
+ },
+ "33": {
+  "ashkenazi": [
+   {
+    "book": 28,
+    "startChapter": 1,
+    "startVerse": 10,
+    "endChapter": 2,
+    "endVerse": 20
+   }
+  ]
+ },
+ "34": {
+  "ashkenazi": [
+   {
+    "book": 7,
+    "startChapter": 13,
+    "startVerse": 2,
+    "endChapter": 13,
+    "endVerse": 25
+   }
+  ]
+ },
+ "35": {
+  "ashkenazi": [
+   {
+    "book": 38,
+    "startChapter": 2,
+    "startVerse": 10,
+    "endChapter": 4,
+    "endVerse": 7
+   }
+  ]
+ },
+ "36": {
+  "ashkenazi": [
+   {
+    "book": 6,
+    "startChapter": 2,
+    "startVerse": 1,
+    "endChapter": 2,
+    "endVerse": 24
+   }
+  ]
+ },
+ "37": {
+  "ashkenazi": [
+   {
+    "book": 9,
+    "startChapter": 11,
+    "startVerse": 14,
+    "endChapter": 12,
+    "endVerse": 22
+   }
+  ]
+ },
+ "38": {
+  "ashkenazi": [
+   {
+    "book": 7,
+    "startChapter": 11,
+    "startVerse": 1,
+    "endChapter": 11,
+    "endVerse": 33
+   }
+  ]
+ },
+ "39": {
+  "ashkenazi": [
+   {
+    "book": 33,
+    "startChapter": 5,
+    "startVerse": 7,
+    "endChapter": 6,
+    "endVerse": 8
+   }
+  ]
+ },
+ "40": {
+  "ashkenazi": [
+   {
+    "book": 11,
+    "startChapter": 18,
+    "startVerse": 46,
+    "endChapter": 19,
+    "endVerse": 21
+   }
+  ]
+ },
+ "41": {
+  "ashkenazi": [
+   {
+    "book": 24,
+    "startChapter": 1,
+    "startVerse": 1,
+    "endChapter": 2,
+    "endVerse": 3
+   }
+  ]
+ },
+ "42": {
+  "ashkenazi": [
+   {
+    "book": 24,
+    "startChapter": 2,
+    "startVerse": 4,
+    "endChapter": 2,
+    "endVerse": 28
+   },
+   {
+    "book": 24,
+    "startChapter": 3,
+    "startVerse": 4,
+    "endChapter": 3,
+    "endVerse": 4
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 24,
+    "startChapter": 2,
+    "startVerse": 4,
+    "endChapter": 2,
+    "endVerse": 28
+   },
+   {
+    "book": 24,
+    "startChapter": 4,
+    "startVerse": 1,
+    "endChapter": 4,
+    "endVerse": 2
+   }
+  ]
+ },
+ "43": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 1,
+    "startVerse": 1,
+    "endChapter": 1,
+    "endVerse": 27
+   }
+  ]
+ },
+ "44": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 40,
+    "startVerse": 1,
+    "endChapter": 40,
+    "endVerse": 26
+   }
+  ]
+ },
+ "45": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 49,
+    "startVerse": 14,
+    "endChapter": 51,
+    "endVerse": 3
+   }
+  ]
+ },
+ "46": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 54,
+    "startVerse": 11,
+    "endChapter": 55,
+    "endVerse": 5
+   }
+  ]
+ },
+ "47": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 51,
+    "startVerse": 12,
+    "endChapter": 52,
+    "endVerse": 12
+   }
+  ]
+ },
+ "48": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 54,
+    "startVerse": 1,
+    "endChapter": 54,
+    "endVerse": 10
+   }
+  ]
+ },
+ "49": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 60,
+    "startVerse": 1,
+    "endChapter": 60,
+    "endVerse": 22
+   }
+  ]
+ },
+ "50": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 61,
+    "startVerse": 10,
+    "endChapter": 63,
+    "endVerse": 9
+   }
+  ]
+ },
+ "51": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 55,
+    "startVerse": 6,
+    "endChapter": 56,
+    "endVerse": 8
+   }
+  ]
+ },
+ "52": {
+  "ashkenazi": [
+   {
+    "book": 10,
+    "startChapter": 22,
+    "startVerse": 1,
+    "endChapter": 22,
+    "endVerse": 51
+   }
+  ]
+ },
+ "53": {
+  "ashkenazi": [
+   {
+    "book": 6,
+    "startChapter": 1,
+    "startVerse": 1,
+    "endChapter": 1,
+    "endVerse": 18
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 6,
+    "startChapter": 1,
+    "startVerse": 1,
+    "endChapter": 1,
+    "endVerse": 9
+   }
+  ]
+ },
+ "21-22": {
+  "ashkenazi": [
+   {
+    "book": 11,
+    "startChapter": 7,
+    "startVerse": 51,
+    "endChapter": 8,
+    "endVerse": 21
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 11,
+    "startChapter": 7,
+    "startVerse": 40,
+    "endChapter": 7,
+    "endVerse": 50
+   }
+  ]
+ },
+ "26-27": {
+  "ashkenazi": [
+   {
+    "book": 12,
+    "startChapter": 7,
+    "startVerse": 3,
+    "endChapter": 7,
+    "endVerse": 20
+   }
+  ]
+ },
+ "28-29": {
+  "ashkenazi": [
+   {
+    "book": 30,
+    "startChapter": 9,
+    "startVerse": 7,
+    "endChapter": 9,
+    "endVerse": 15
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 26,
+    "startChapter": 20,
+    "startVerse": 2,
+    "endChapter": 20,
+    "endVerse": 20
+   }
+  ]
+ },
+ "31-32": {
+  "ashkenazi": [
+   {
+    "book": 24,
+    "startChapter": 16,
+    "startVerse": 19,
+    "endChapter": 17,
+    "endVerse": 14
+   }
+  ]
+ },
+ "38-39": {
+  "ashkenazi": [
+   {
+    "book": 33,
+    "startChapter": 5,
+    "startVerse": 7,
+    "endChapter": 6,
+    "endVerse": 8
+   }
+  ]
+ },
+ "41-42": {
+  "ashkenazi": [
+   {
+    "book": 24,
+    "startChapter": 2,
+    "startVerse": 4,
+    "endChapter": 2,
+    "endVerse": 28
+   },
+   {
+    "book": 24,
+    "startChapter": 3,
+    "startVerse": 4,
+    "endChapter": 3,
+    "endVerse": 4
+   }
+  ],
+  "sephardi": [
+   {
+    "book": 24,
+    "startChapter": 2,
+    "startVerse": 4,
+    "endChapter": 2,
+    "endVerse": 28
+   },
+   {
+    "book": 24,
+    "startChapter": 4,
+    "startVerse": 1,
+    "endChapter": 4,
+    "endVerse": 2
+   }
+  ]
+ },
+ "50-51": {
+  "ashkenazi": [
+   {
+    "book": 23,
+    "startChapter": 61,
+    "startVerse": 10,
+    "endChapter": 63,
+    "endVerse": 9
+   }
+  ]
+ }
+}

@@ -19,6 +19,7 @@
 // 가 54편이 창세기 1:1부터 신명기 34:12까지 빈틈없이 잇는지 bible.db 의 krv 절
 // 수로 확인한다. 히브리어 번호를 잘못 옮기면 반드시 그 자리에서 틈이 벌어진다.
 
+import haftarahTable from '@/data/haftarah.json';
 import parashot from '@/data/parashot.json';
 import schedule from '@/data/torah-portions.json';
 
@@ -55,6 +56,69 @@ export const PARASHOT: Parasha[] = parashot as Parasha[];
 
 const SCHEDULE = schedule as Record<string, number[]>;
 
+/** 성경 66권 한글 이름. 하프타라는 예언서 전체에서 나오므로 다섯 권으로는 모자란다. */
+const BOOK_NAMES: Record<number, string> = {
+  6: '여호수아', 7: '사사기', 9: '사무엘상', 10: '사무엘하', 11: '열왕기상', 12: '열왕기하',
+  23: '이사야', 24: '예레미야', 26: '에스겔', 28: '호세아', 29: '요엘', 30: '아모스',
+  31: '오바댜', 32: '요나', 33: '미가', 34: '나훔', 35: '하박국', 36: '스바냐',
+  37: '학개', 38: '스가랴', 39: '말라기',
+};
+
+type HaftarahPart = {
+  book: number;
+  startChapter: number;
+  startVerse: number;
+  endChapter: number;
+  endVerse: number;
+};
+
+type HaftarahRow = { ashkenazi: HaftarahPart[]; sephardi?: HaftarahPart[] };
+
+const HAFTARAH = haftarahTable as Record<string, HaftarahRow>;
+
+/**
+ * 하프타라 — 토라포션을 읽고 이어 읽는 예언서 본문.
+ *
+ * 아슈케나짐과 세파르딤이 다른 편이 열여덟이라 **다를 때만** 둘 다 담는다.
+ * 절기와 겹치는 안식일에는 그 날의 특별 하프타라로 바뀌는데, 그것까지 담지
+ * 않았다 — 담으려면 절기 독서표가 통째로 필요하다. 화면에서 그렇게 밝힌다.
+ */
+export type Haftarah = {
+  /** "이사야 42:5–43:10" — 여러 토막이면 쉼표로 잇는다. */
+  ashkenazi: string;
+  /** 세파르딤 전통이 다를 때만. */
+  sephardi?: string;
+  /** 첫 토막 — 「본문 펴기」가 여는 자리. */
+  first: HaftarahPart;
+};
+
+function formatParts(parts: HaftarahPart[]): string {
+  let lastBook = -1;
+  return parts
+    .map((p) => {
+      const book = p.book === lastBook ? '' : `${BOOK_NAMES[p.book] ?? ''} `;
+      lastBook = p.book;
+      const end =
+        p.endChapter === p.startChapter
+          ? p.endVerse === p.startVerse
+            ? ''
+            : `–${p.endVerse}`
+          : `–${p.endChapter}:${p.endVerse}`;
+      return `${book}${p.startChapter}:${p.startVerse}${end}`;
+    })
+    .join(', ');
+}
+
+function haftarahFor(indexes: number[]): Haftarah | null {
+  const row = HAFTARAH[indexes.join('-')];
+  if (!row) return null;
+  return {
+    ashkenazi: formatParts(row.ashkenazi),
+    sephardi: row.sephardi ? formatParts(row.sephardi) : undefined,
+    first: row.ashkenazi[0],
+  };
+}
+
 export type TorahPortionOfWeek = {
   /** 그 주 안식일(토요일)의 날짜. YYYY-MM-DD */
   shabbat: string;
@@ -66,6 +130,8 @@ export type TorahPortionOfWeek = {
   range: string;
   /** 심핫 토라에 읽는 브조트 하브라카인가(안식일이 아니다). */
   isSimchatTorah: boolean;
+  /** 이어 읽는 예언서 본문. 표에 없으면 null. */
+  haftarah: Haftarah | null;
 };
 
 function pad(n: number) {
@@ -96,6 +162,9 @@ function build(dateKey: string, indexes: number[]): TorahPortionOfWeek {
     name: parts.map((p) => p.ko).join(' · '),
     range: formatRange(parts),
     isSimchatTorah: parts.length === 1 && parts[0].en === "V'Zot HaBerachah",
+    // 두 편을 붙여 읽는 주는 하프타라가 하나만 나간다 — 짝마다 어느 것을
+    // 읽는지가 달라서 번호를 이어 붙인 열쇠로 따로 찾는다.
+    haftarah: haftarahFor(indexes),
   };
 }
 
