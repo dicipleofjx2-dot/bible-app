@@ -184,6 +184,7 @@ function AppStack() {
         />
         <Stack.Screen name="notes" options={{ headerShown: true, title: t('nav.verseNotes') }} />
         <Stack.Screen name="community" options={{ headerShown: true, title: t('nav.community') }} />
+        <Stack.Screen name="arcade" options={{ headerShown: true, title: t('nav.arcade') }} />
         <Stack.Screen name="read" options={{ headerShown: true, title: t('nav.read') }} />
         <Stack.Screen
           name="shepherd-letters"
