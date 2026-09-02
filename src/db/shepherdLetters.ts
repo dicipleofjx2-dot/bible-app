@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabase';
-import { queuePush } from '@/db/push';
 import { STORAGE_CACHE_SECONDS } from '@/lib/storageCache';
 
 export type ShepherdLetter = {
@@ -81,27 +80,18 @@ export async function getAllLettersForAdmin(): Promise<ShepherdLetter[]> {
 }
 
 export async function insertLetter(entry: ShepherdLetterEntry): Promise<{ error?: string }> {
-  const { data, error } = await supabase
-    .from('shepherd_letters')
-    .insert({
-      title: entry.title,
-      cover_url: entry.coverUrl || null,
-      body_text: entry.bodyText,
-      image_urls: entry.imageUrls,
-      is_published: true,
-    })
-    .select('id')
-    .maybeSingle();
+  const { error } = await supabase.from('shepherd_letters').insert({
+    title: entry.title,
+    cover_url: entry.coverUrl || null,
+    body_text: entry.bodyText,
+    image_urls: entry.imageUrls,
+    is_published: true,
+  });
   if (error) return { error: error.message };
 
-  // 알림은 글이 올라간 **뒤에** 따로 보낸다. 한 몸으로 묶으면 알림이 실패할 때
-  // 글까지 못 올리게 된다 — 글은 올라갔는데 알림만 못 간 것이 훨씬 낫다.
-  await queuePush(
-    'shepherd_letter',
-    '목자의 편지가 도착했어요',
-    entry.title,
-    data?.id ? `/shepherd-letters/${data.id}` : '/shepherd-letters',
-  );
+  // 알림은 **여기서 보내지 않는다**(0075). DB 트리거가 보낸다 — 그래야 앱으로
+  // 쓰든, 사역ON 에서 받아 넣든, SQL 로 넣든 똑같이 알림이 나간다. 여기서도
+  // 보내면 앱으로 올릴 때만 두 번 간다.
   return {};
 }
 
