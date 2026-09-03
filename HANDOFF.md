@@ -1,6 +1,6 @@
 # BibleApp — Handoff / Status Reference
 
-Last updated: **2026-08-19** (책갈피 절 번호 작업은 미커밋). Everything through `3175923` is **committed
+Last updated: **2026-09-03** (책갈피 절 번호 작업은 미커밋). Everything through `3175923` is **committed
 on local `main` and deployed to production**
 (https://dicipleofjx-bible.vercel.app). See "This session (2026-08-19)"
 immediately below for the newest work; older session notes follow in
@@ -17,6 +17,52 @@ is behind.
 Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
+
+## This session (2026-09-03) — 중보기도 나무
+
+새 화면 두 개(`/prayer-tree`, `/prayer-tree/manage`)와 마이그레이션
+`0076_prayer_tree.sql`. **마이그레이션은 아직 실행 안 됐다** — 실행 전에는
+화면이 열려도 열매를 심지 못한다(표가 없다).
+
+- **열매 하나 = 기도 대상자 한 사람.** 그 사람의 기도제목 중 응답된 비율
+  하나로 열매의 **크기(34→62px)와 색(연둣빛→노랑→주황→진홍)**이 정해진다.
+  셈은 전부 `src/lib/prayerTree.ts` 의 순수 함수(`fruitLook`)에 있다 — 화면을
+  못 띄우는 환경에서도 검사가 되도록 상태·그리기를 섞지 않았다.
+- **0/0 은 0 으로 둔다.** 기도제목을 아직 안 넣은 열매가 「다 응답됨」으로
+  붉게 익어 버리면 안 된다.
+- 나무는 SVG 한 장(`TreeCanvas`), **열매는 그 위에 얹은 진짜 View** 다. 사진이
+  들어가고 눌러야 하므로 SVG 안에 넣지 않았다.
+- 덜 익은 열매 색은 잎(#4E7C41)보다 **밝은 쪽**으로 잡았다. 처음에 같은 채도의
+  초록으로 두었더니 응답 없는 열매가 잎에 묻혀 안 보였다(스크린샷으로 확인).
+  흰 테(boxShadow 2px)도 그래서 둘렀고, 밝은 열매의 첫 글자는 갈색으로 쓴다.
+- **위치는 0~1 비율로 담는다**(`pos_x`/`pos_y`). 화면 크기를 담으면 폰과 웹에서
+  자리가 어긋난다. 나무 크기는 `onLayout` 이 아니라 **창 너비에서 계산**한다 —
+  이 환경에서 onLayout 이 안 오는 일이 있었다(아래 「Verification environment」).
+- 위치 지정은 **열매를 고른 뒤 나무를 누르는** 한 동작뿐이다(드래그 아님).
+- 기도카드는 열매의 익은 색을 카드 테두리로 그대로 잇는다 — 「이 열매가 그
+  카드」가 설명 없이 읽히도록.
+- **응답 시각은 표의 트리거가 채운다**(0076). 화면이 채우면 기기 시계가 틀어진
+  만큼 기록이 틀어진다.
+- 기도음악: 본인 유튜브 재생목록 주소를 `prayer_tree_settings` 에 저장하고,
+  웹은 iframe(`PrayerMusicPlayer.web.tsx`) · 앱은 WebView 로 그 자리에서 튼다.
+  유튜브 앱으로 넘기지 않는다 — 넘기면 앱을 나가고 나무가 다시 그려진다.
+  주소 해석(`parsePrayerMusicUrl`)은 playlist/watch?list/youtu.be/shorts/아이디만
+  붙여넣기까지 받는다.
+- **사생활**: 이 세 표에는 공유 스위치가 없다. 정책은 `user_id = auth.uid()`
+  하나뿐이고 관리자 예외도 두지 않았다 — 남의 병·가정사가 그대로 적히는 표다.
+- 들어가는 길: 성장 탭(🌳 중보기도 나무), 마이페이지(🌳 중보기도 나무 가꾸기).
+
+**검증 (2026-09-03)**: `tsc --noEmit` 통과(이 리포의 유일한 기존 오류
+`@/global.css` 포함해 새 오류 없음). `fruitLook`/`ripenessLabel`/
+`parsePrayerMusicUrl` 을 노드로 돌려 19가지 입력(0/0, 음수, 응답이 전체를 넘는
+값, 유튜브 주소 9종)의 결과를 눈으로 대조 — 전부 예상대로. `expo start --web`
++ Playwright(Chromium)로 **실제 브라우저에서** 나무·기도카드·가꾸기 화면·음악
+iframe을 그려 스크린샷으로 확인했다(콘솔 에러 0). 그 과정에서 로그인 전에
+`load()` 가 그냥 돌아가 돌림표가 영영 도는 것을 찾아 고쳤다.
+
+**사람이 봐 줘야 하는 것**: (1) `0076_prayer_tree.sql` 실행, (2) 로그인 상태의
+왕복(열매 심기·사진 올리기·위치 옮기기·응답 체크 → 열매가 자라고 익는지),
+(3) 다크 모드, (4) 폰에서 WebView 음악 재생.
 
 ## This session (2026-08-28) — 달력에 히브리력 절기·성경·역사
 

@@ -169,6 +169,14 @@ function AppStack() {
           options={{ headerShown: true, title: t('nav.shalom') }}
         />
         <Stack.Screen
+          name="prayer-tree"
+          options={{ headerShown: true, title: '중보기도 나무' }}
+        />
+        <Stack.Screen
+          name="prayer-tree/manage"
+          options={{ headerShown: true, title: '열매 가꾸기' }}
+        />
+        <Stack.Screen
           name="privacy-policy"
           options={{ headerShown: true, title: t('nav.privacy') }}
         />

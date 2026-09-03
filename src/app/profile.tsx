@@ -211,6 +211,13 @@ export default function ProfileScreen() {
               ) : null}
             </View>
 
+            {/* 중보기도 나무는 열매 자리·기도제목을 여기서 가꾼다(사용자 요청). */}
+            <Pressable
+              onPress={() => router.push('/prayer-tree/manage')}
+              style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
+              <ThemedText type="smallBold">🌳 중보기도 나무 가꾸기</ThemedText>
+            </Pressable>
+
             {/* 새 글 알림. 웹에서만 보인다 — 폰 앱에는 이 기능이 없다. */}
             <PushToggle isAdmin={isAdmin} />
 
