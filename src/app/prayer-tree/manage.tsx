@@ -37,28 +37,25 @@ import {
 import { TreeCanvas } from '@/features/prayer-tree/TreeCanvas';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { parsePrayerMusicUrl, ripenessLabel } from '@/lib/prayerTree';
+import { lastPrayedLabel, parsePrayerMusicUrl, ripenessLabel } from '@/lib/prayerTree';
+import { buildTree } from '@/lib/treeShape';
 
 /**
  * 새 열매를 심을 자리.
  *
- * 심을 때마다 자리를 물으면 열매 하나 넣는 데 두 걸음이 된다. 왕관 안쪽에
- * 미리 잡아 둔 자리를 차례로 쓰고, 마음에 안 들면 나무를 눌러 옮긴다.
- * 자리를 다 쓰면 살짝 흔들어 겹치지 않게 둔다.
+ * 심을 때마다 자리를 물으면 열매 하나 넣는 데 두 걸음이 된다. 나무를 만들 때
+ * 함께 골라 둔 **가지 끝**을 차례로 쓰고(왕관 전체에 흩어져 있다), 마음에 안
+ * 들면 나무를 눌러 옮긴다. 자리를 다 쓰면 살짝 흔들어 겹치지 않게 둔다.
  */
-const NURSERY_SPOTS: readonly (readonly [number, number])[] = [
-  [0.5, 0.22], [0.3, 0.3], [0.7, 0.3], [0.2, 0.42], [0.8, 0.42],
-  [0.38, 0.45], [0.62, 0.45], [0.5, 0.36], [0.28, 0.52], [0.72, 0.52],
-  [0.44, 0.55], [0.58, 0.55],
-];
-
 function nextSpot(count: number): { x: number; y: number } {
-  const base = NURSERY_SPOTS[count % NURSERY_SPOTS.length];
-  const round = Math.floor(count / NURSERY_SPOTS.length);
+  const spots = buildTree().fruitSpots;
+  if (spots.length === 0) return { x: 0.5, y: 0.3 };
+  const base = spots[count % spots.length];
+  const round = Math.floor(count / spots.length);
   const jitter = round === 0 ? 0 : ((round % 2 === 0 ? 1 : -1) * 0.03 * round) % 0.12;
   return {
-    x: Math.min(0.95, Math.max(0.05, base[0] + jitter)),
-    y: Math.min(0.62, Math.max(0.08, base[1] + jitter)),
+    x: Math.min(0.95, Math.max(0.05, base.x + jitter)),
+    y: Math.min(0.66, Math.max(0.05, base.y + jitter)),
   };
 }
 
@@ -124,7 +121,7 @@ export default function PrayerTreeManageScreen() {
     }, [load]),
   );
 
-  const treeWidth = Math.min(windowWidth - Spacing.three * 2, 420);
+  const treeWidth = Math.min(windowWidth - Spacing.three * 2, 520);
   const selected = fruits.find((f) => f.id === selectedId) ?? null;
   const music = useMemo(() => parsePrayerMusicUrl(savedPlaylist), [savedPlaylist]);
   const draftMusic = useMemo(() => parsePrayerMusicUrl(playlistDraft), [playlistDraft]);
@@ -318,12 +315,13 @@ export default function PrayerTreeManageScreen() {
                       {photo ? (
                         <Image source={{ uri: photo }} style={styles.thumb} />
                       ) : (
-                        <View style={[styles.thumb, { backgroundColor: theme.backgroundSelected }]} />
+                        <View style={[styles.thumb, { backgroundColor: theme.accentSoft }]} />
                       )}
                       <View style={styles.fruitRowText}>
                         <ThemedText type="smallBold">{fruit.name}</ThemedText>
                         <ThemedText type="small" themeColor="textSecondary">
-                          {ripenessLabel(fruit.topics.length, answered)}
+                          {ripenessLabel(fruit.topics.length, answered)} ·{' '}
+                          {lastPrayedLabel(fruit.last_prayed_at)}
                         </ThemedText>
                       </View>
                       <ThemedText type="small" themeColor="textSecondary">
@@ -439,13 +437,13 @@ export default function PrayerTreeManageScreen() {
                           <Pressable
                             onPress={() => handlePickPhoto(fruit)}
                             disabled={busy}
-                            style={[styles.smallButton, { backgroundColor: theme.backgroundSelected }]}>
+                            style={[styles.smallButton, { backgroundColor: theme.accentSoft }]}>
                             <ThemedText type="smallBold">🖼 사진</ThemedText>
                           </Pressable>
                           <Pressable
                             onPress={() => handleDeleteFruit(fruit)}
                             disabled={busy}
-                            style={[styles.smallButton, { backgroundColor: theme.backgroundSelected }]}>
+                            style={[styles.smallButton, { backgroundColor: theme.accentSoft }]}>
                             <ThemedText type="smallBold">🗑 열매 지우기</ThemedText>
                           </Pressable>
                         </View>

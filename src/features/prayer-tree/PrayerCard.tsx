@@ -5,7 +5,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { fruitPhotoUrl, type PrayerFruit, type PrayerTopic } from '@/db/prayerTree';
 import { useTheme } from '@/hooks/use-theme';
-import { fruitLook, ripenessLabel } from '@/lib/prayerTree';
+import { fruitLook, lastPrayedLabel, prayedToday, ripenessLabel } from '@/lib/prayerTree';
 
 export type PrayerCardProps = {
   fruit: PrayerFruit | null;
@@ -13,6 +13,8 @@ export type PrayerCardProps = {
   onToggleAnswered: (topic: PrayerTopic, answered: boolean) => void;
   onAddTopic: (body: string) => void;
   onDeleteTopic: (topic: PrayerTopic) => void;
+  /** 「이 사람을 위해 기도했습니다」 — R2M 오늘의 훈련 기도 항목까지 채운다 */
+  onPray?: () => void;
   /** 저장이 도는 동안 두 번 눌리지 않게 */
   busy?: boolean;
 };
@@ -36,6 +38,7 @@ export function PrayerCard({
   onToggleAnswered,
   onAddTopic,
   onDeleteTopic,
+  onPray,
   busy = false,
 }: PrayerCardProps) {
   const theme = useTheme();
@@ -86,6 +89,38 @@ export function PrayerCard({
                 </ThemedText>
               </View>
             </View>
+
+            {onPray ? (
+              <Pressable
+                onPress={onPray}
+                disabled={busy}
+                style={[
+                  styles.prayButton,
+                  {
+                    // 이미 기도한 날은 눌러야 할 단추가 아니라 「했다」는 표시다.
+                    // 연한 바탕에 강조색 글자로 한 단계 물러선다(backgroundSelected
+                    // 는 accent 와 같은 색이라 구분이 안 된다).
+                    backgroundColor: prayedToday(fruit.last_prayed_at)
+                      ? theme.accentSoft
+                      : theme.accent,
+                    opacity: busy ? 0.6 : 1,
+                  },
+                ]}>
+                <ThemedText
+                  type="smallBold"
+                  themeColor={prayedToday(fruit.last_prayed_at) ? 'accent' : undefined}
+                  style={prayedToday(fruit.last_prayed_at) ? undefined : styles.prayButtonText}>
+                  {prayedToday(fruit.last_prayed_at)
+                    ? '🙏 오늘 기도했어요 · 한 번 더'
+                    : '🙏 이 사람을 위해 기도합니다'}
+                </ThemedText>
+              </Pressable>
+            ) : null}
+
+            <ThemedText type="small" themeColor="textSecondary">
+              {lastPrayedLabel(fruit.last_prayed_at)}
+              {fruit.prayed_count > 0 ? ` · 모두 ${fruit.prayed_count}번` : ''}
+            </ThemedText>
 
             {fruit.memo ? (
               <ThemedText type="small" style={styles.memo} themeColor="textSecondary">
@@ -254,4 +289,11 @@ const styles = StyleSheet.create({
   },
   addButtonText: { color: '#FFFFFF' },
   closeButton: { alignItems: 'center', paddingTop: Spacing.two },
+  prayButton: {
+    paddingVertical: 11,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: Spacing.one,
+  },
+  prayButtonText: { color: '#FFFFFF' },
 });

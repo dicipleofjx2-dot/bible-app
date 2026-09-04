@@ -141,3 +141,33 @@ function playlistEmbed(id: string): string {
 function videoEmbed(id: string): string {
   return `https://www.youtube.com/embed/${encodeURIComponent(id)}?rel=0`;
 }
+
+/**
+ * 오늘(기기 기준) 기도한 열매인가.
+ *
+ * 서버가 준 시각을 문자열로 자르지 않고 Date 로 옮겨 **그 사람의 날**로 견준다
+ * — 서울에서 새벽에 기도하면 UTC 로는 아직 어제다.
+ */
+export function prayedToday(lastPrayedAt: string | null, now: Date = new Date()): boolean {
+  if (!lastPrayedAt) return false;
+  const d = new Date(lastPrayedAt);
+  if (Number.isNaN(d.getTime())) return false;
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+}
+
+/** 「오늘 기도함」 · 「3일 전」 처럼 읽히는 한 줄. */
+export function lastPrayedLabel(lastPrayedAt: string | null, now: Date = new Date()): string {
+  if (!lastPrayedAt) return '아직 기도 기록 없음';
+  const d = new Date(lastPrayedAt);
+  if (Number.isNaN(d.getTime())) return '아직 기도 기록 없음';
+  const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const days = Math.round((startOf(now) - startOf(d)) / 86400000);
+  if (days <= 0) return '오늘 기도함';
+  if (days === 1) return '어제 기도함';
+  if (days < 30) return `${days}일 전에 기도함`;
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')} 에 기도함`;
+}

@@ -24,6 +24,9 @@ export type PrayerFruit = {
   pos_x: number;
   pos_y: number;
   created_at: string;
+  /** 이 사람을 위해 마지막으로 기도한 때(0077). 한 번도 없으면 null */
+  last_prayed_at: string | null;
+  prayed_count: number;
   topics: PrayerTopic[];
 };
 
@@ -42,7 +45,7 @@ export function fruitPhotoUrl(path: string | null): string | null {
 export async function getPrayerTree(userId: string): Promise<PrayerFruit[]> {
   const { data: fruits, error } = await supabase
     .from('prayer_fruits')
-    .select('id, name, photo_path, memo, pos_x, pos_y, created_at')
+    .select('id, name, photo_path, memo, pos_x, pos_y, created_at, last_prayed_at, prayed_count')
     .eq('user_id', userId)
     .order('created_at', { ascending: true });
   if (error) throw error;
@@ -169,6 +172,24 @@ export async function uploadFruitPhoto(
 
 export async function removeFruitPhoto(path: string): Promise<void> {
   await supabase.storage.from(PHOTO_BUCKET).remove([path]).catch(() => {});
+}
+
+/**
+ * 이 열매를 위해 방금 기도했다고 남긴다.
+ *
+ * 한 번 부르면 두 가지가 같이 일어난다(0077 의 RPC 안에서).
+ *   · 열매의 마지막 기도 시각과 횟수가 올라간다.
+ *   · R2M 「오늘의 훈련」의 기도 항목이 채워진다(prayer_logs). 그날 이미
+ *     채워져 있으면 줄을 더 넣지 않는다 — 성장기록이 줄 수를 「기도한 날」로
+ *     세기 때문이다.
+ *
+ * 두 가지를 화면에서 따로 부르지 않는 이유: 사이에서 끊기면 열매만 올라가고
+ * 훈련은 안 채워지는(또는 그 반대) 어긋난 기록이 남는다.
+ */
+export async function prayForFruit(fruitId: string): Promise<string> {
+  const { data, error } = await supabase.rpc('pray_for_fruit', { p_fruit_id: fruitId });
+  if (error) throw error;
+  return typeof data === 'string' ? data : new Date().toISOString();
 }
 
 /** 기도음악 — 사람마다 자기 재생목록. 없으면 빈 문자열. */

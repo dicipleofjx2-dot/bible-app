@@ -19,15 +19,17 @@ import {
   deleteTopic,
   getPrayerPlaylist,
   getPrayerTree,
+  prayForFruit,
   setTopicAnswered,
   type PrayerFruit,
   type PrayerTopic,
 } from '@/db/prayerTree';
+import { hasPrayerLogToday } from '@/db/r2m';
 import { PrayerCard } from '@/features/prayer-tree/PrayerCard';
 import { TreeCanvas } from '@/features/prayer-tree/TreeCanvas';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { parsePrayerMusicUrl } from '@/lib/prayerTree';
+import { parsePrayerMusicUrl, prayedToday } from '@/lib/prayerTree';
 
 /**
  * 중보기도 나무.
@@ -51,6 +53,8 @@ export default function PrayerTreeScreen() {
   const [error, setError] = useState('');
   const [openFruitId, setOpenFruitId] = useState<string | null>(null);
   const [musicOpen, setMusicOpen] = useState(false);
+  // R2M 「오늘의 훈련」의 기도 항목. 나무에서 기도하면 이것이 채워진다.
+  const [trainedToday, setTrainedToday] = useState(false);
 
   const userId = session?.user.id ?? null;
 
@@ -62,12 +66,14 @@ export default function PrayerTreeScreen() {
       return;
     }
     try {
-      const [tree, playlist] = await Promise.all([
+      const [tree, playlist, prayed] = await Promise.all([
         getPrayerTree(userId),
         getPrayerPlaylist(userId).catch(() => ''),
+        hasPrayerLogToday(userId).catch(() => false),
       ]);
       setFruits(tree);
       setPlaylistUrl(playlist);
+      setTrainedToday(prayed);
       setError('');
     } catch (e) {
       setError(e instanceof Error ? e.message : '나무를 불러오지 못했어요.');
@@ -82,7 +88,8 @@ export default function PrayerTreeScreen() {
     }, [load]),
   );
 
-  const treeWidth = Math.min(windowWidth - Spacing.three * 2, MaxContentWidth * 0.6, 520);
+  // 나무는 화면을 꽉 채우게 둔다 — 열매를 눌러야 하므로 크면 클수록 좋다.
+  const treeWidth = Math.min(windowWidth - Spacing.two * 2, 620);
   const music = useMemo(() => parsePrayerMusicUrl(playlistUrl), [playlistUrl]);
   const openFruit = fruits.find((f) => f.id === openFruitId) ?? null;
 
@@ -91,6 +98,34 @@ export default function PrayerTreeScreen() {
     (sum, f) => sum + f.topics.filter((t) => t.answered).length,
     0,
   );
+  const prayedTodayCount = fruits.filter((f) => prayedToday(f.last_prayed_at)).length;
+
+  /**
+   * 「이 사람을 위해 기도합니다」.
+   *
+   * 열매의 기도 기록과 R2M 오늘의 훈련이 서버의 한 함수 안에서 같이 올라간다
+   * (0077). 화면은 그 결과를 받아 그리기만 한다.
+   */
+  async function handlePray() {
+    if (!openFruitId) return;
+    setBusy(true);
+    try {
+      const at = await prayForFruit(openFruitId);
+      setFruits((prev) =>
+        prev.map((f) =>
+          f.id === openFruitId
+            ? { ...f, last_prayed_at: at, prayed_count: f.prayed_count + 1 }
+            : f,
+        ),
+      );
+      setTrainedToday(true);
+      setError('');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '기도 기록을 남기지 못했어요.');
+    } finally {
+      setBusy(false);
+    }
+  }
 
   /** 화면을 먼저 고치고 서버에 보낸다 — 체크 한 번에 나무가 바로 익어야 한다. */
   async function toggleAnswered(topic: PrayerTopic, answered: boolean) {
@@ -180,6 +215,22 @@ export default function PrayerTreeScreen() {
             </ThemedText>
           </View>
 
+          <Pressable
+            onPress={() => router.push('/bible-reading')}
+            style={[
+              styles.training,
+              {
+                backgroundColor: trainedToday ? theme.done : theme.backgroundElement,
+                borderColor: trainedToday ? theme.done : theme.border,
+              },
+            ]}>
+            <ThemedText type="smallBold" style={trainedToday ? styles.trainingDoneText : undefined}>
+              {trainedToday
+                ? `오늘의 훈련 · 기도 ✓${prayedTodayCount > 0 ? ` (${prayedTodayCount}명)` : ''}`
+                : '오늘의 훈련 · 기도 — 열매를 눌러 기도하면 채워져요'}
+            </ThemedText>
+          </Pressable>
+
           {!loading && fruits.length === 0 ? (
             <ThemedText type="small" themeColor="textSecondary" style={styles.empty}>
               아직 열매가 없어요. 아래 「열매 가꾸기」에서 기도할 사람을 심어 주세요.
@@ -230,6 +281,7 @@ export default function PrayerTreeScreen() {
         onToggleAnswered={toggleAnswered}
         onAddTopic={handleAddTopic}
         onDeleteTopic={handleDeleteTopic}
+        onPray={handlePray}
       />
     </SafeAreaView>
   );
@@ -238,13 +290,22 @@ export default function PrayerTreeScreen() {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: {
-    padding: Spacing.three,
+    padding: Spacing.two,
     paddingBottom: BottomTabInset + Spacing.four,
     alignItems: 'center',
   },
   inner: { width: '100%', maxWidth: MaxContentWidth, alignItems: 'center', gap: Spacing.two },
   lead: { textAlign: 'center' },
   treeWrap: { alignItems: 'center', justifyContent: 'center', minHeight: 120 },
+  training: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+    alignItems: 'center',
+    alignSelf: 'stretch',
+  },
+  trainingDoneText: { color: '#FFFFFF' },
   summary: {
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,

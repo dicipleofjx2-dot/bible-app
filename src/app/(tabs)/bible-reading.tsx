@@ -28,7 +28,10 @@ const CHECKLIST_ITEMS: ChecklistItem[] = [
   { key: 'qt', labelKey: 'r2m.item.qt', href: '/meditation' },
   { key: 'reading', labelKey: 'r2m.item.reading', href: '/read' },
   { key: 'meditation', labelKey: 'r2m.item.meditation', href: '/notes' },
-  { key: 'prayer', labelKey: 'r2m.item.prayer', href: '/prayer-group' },
+  // 「기도」는 중보기도 나무로 간다 — 개인기도 훈련의 자리다. 샬롬기도단은
+  // 함께 나누는 곳이라 성장 탭에 따로 있고, 거기서도 여전히 기도 기록을
+  // 남길 수 있다(둘 다 prayer_logs 를 쓴다).
+  { key: 'prayer', labelKey: 'r2m.item.prayer', href: '/prayer-tree' },
   { key: 'memorization', labelKey: 'r2m.item.memorization', href: '/reading-helper' },
   { key: 'obedience', labelKey: 'r2m.item.obedience', href: '/spiritual-journal' },
   { key: 'gratitude', labelKey: 'r2m.item.gratitude', href: '/r2m/gratitude' },

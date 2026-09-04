@@ -1,9 +1,11 @@
+import { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, View, type GestureResponderEvent } from 'react-native';
-import Svg, { Circle, Defs, Ellipse, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
+import Svg, { Defs, Ellipse, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
 import { ThemedText } from '@/components/themed-text';
 import { fruitPhotoUrl, type PrayerFruit } from '@/db/prayerTree';
-import { fruitLook } from '@/lib/prayerTree';
+import { fruitLook, prayedToday } from '@/lib/prayerTree';
+import { buildTree, leafColor } from '@/lib/treeShape';
 
 /** 나무 그림의 세로/가로 비. 왕관이 넉넉해야 열매를 놓을 자리가 생긴다. */
 export const TREE_ASPECT = 1.12;
@@ -40,6 +42,9 @@ export function TreeCanvas({
   showLabels = true,
 }: TreeCanvasProps) {
   const height = width * TREE_ASPECT;
+  // 가지·잎은 씨앗이 같으면 언제나 같은 모양이다. 그려 둔 것을 다시 쓴다 —
+  // 열매를 하나 누를 때마다 수백 개의 잎을 다시 셈할 이유가 없다.
+  const tree = useMemo(() => buildTree(), []);
 
   function handleCanvasPress(e: GestureResponderEvent) {
     if (!onPressCanvas) return;
@@ -64,37 +69,55 @@ export function TreeCanvas({
               <Stop offset="0" stopColor="#EAF3E4" />
               <Stop offset="1" stopColor="#F7EFE3" />
             </LinearGradient>
-            <LinearGradient id="bark" x1="0" y1="0" x2="1" y2="0">
-              <Stop offset="0" stopColor="#6B4A31" />
-              <Stop offset="0.55" stopColor="#8A6242" />
-              <Stop offset="1" stopColor="#5C3F2A" />
-            </LinearGradient>
           </Defs>
 
           <Rect x="0" y="0" width="100" height="112" rx="6" fill="url(#sky)" />
 
-          {/* 땅 */}
-          <Ellipse cx="50" cy="105" rx="42" ry="6" fill="#CBBF9C" opacity={0.55} />
+          {/* 땅과 그림자 */}
+          <Ellipse cx={tree.base.x} cy={tree.base.y} rx="40" ry="5.5" fill="#CBBF9C" opacity={0.5} />
+          <Ellipse cx={tree.base.x} cy={tree.base.y} rx="15" ry="2.6" fill="#A8977A" opacity={0.45} />
 
-          {/* 잎 덩어리를 여러 겹으로 겹친다. 하나짜리 원은 나무가 아니라 사탕처럼 보인다. */}
-          <Ellipse cx="50" cy="34" rx="34" ry="27" fill="#4E7C41" />
-          <Ellipse cx="27" cy="47" rx="21" ry="17" fill="#3F6A37" />
-          <Ellipse cx="73" cy="47" rx="21" ry="17" fill="#3F6A37" />
-          <Ellipse cx="50" cy="52" rx="30" ry="18" fill="#568A47" />
-          <Ellipse cx="38" cy="28" rx="16" ry="12" fill="#5F9750" opacity={0.75} />
-          <Ellipse cx="64" cy="32" rx="14" ry="10" fill="#69A257" opacity={0.6} />
+          {/* 가지 — 굵은 것부터 그려야 갈라지는 자리가 자연스럽게 이어진다 */}
+          {tree.branches.map((branch, i) => (
+            <Path
+              key={`b${i}`}
+              d={branch.d}
+              stroke={branch.depth === 0 ? '#5C3F2A' : branch.depth < 3 ? '#6B4A31' : '#7A583C'}
+              strokeWidth={branch.width}
+              strokeLinecap="round"
+              fill="none"
+            />
+          ))}
 
-          {/* 줄기와 가지 */}
-          <Path
-            d="M45 104 C45 86 44 74 46 62 L54 62 C56 74 55 86 55 104 Z"
-            fill="url(#bark)"
-          />
-          <Path d="M48 68 C40 62 34 58 28 54" stroke="#6B4A31" strokeWidth="3" strokeLinecap="round" fill="none" />
-          <Path d="M52 66 C60 61 66 57 72 53" stroke="#6B4A31" strokeWidth="3" strokeLinecap="round" fill="none" />
-          <Path d="M50 60 C50 52 50 46 50 40" stroke="#6B4A31" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+          {/* 줄기의 그늘 — 굵은 가지 한쪽에 어두운 선을 겹쳐 둥글어 보이게 */}
+          {tree.branches
+            .filter((branch) => branch.depth <= 1)
+            .map((branch, i) => (
+              <Path
+                key={`s${i}`}
+                d={branch.d}
+                stroke="#422C1D"
+                strokeWidth={branch.width * 0.4}
+                strokeLinecap="round"
+                opacity={0.5}
+                fill="none"
+                transform={`translate(${(branch.width * 0.26).toFixed(2)},0)`}
+              />
+            ))}
 
-          {/* 뿌리 언저리 */}
-          <Circle cx="50" cy="104" r="2" fill="#5C3F2A" />
+          {/* 잎 — 어두운 것부터 얹어 안쪽이 그늘지게. 정원이 아니라 살짝 눌린
+              타원이라야 잎덩이처럼 보인다. */}
+          {tree.leaves.map((leaf, i) => (
+            <Ellipse
+              key={`l${i}`}
+              cx={leaf.cx}
+              cy={leaf.cy}
+              rx={leaf.r}
+              ry={leaf.r * 0.82}
+              fill={leafColor(leaf.tone)}
+              opacity={0.94}
+            />
+          ))}
         </Svg>
       </Pressable>
 
@@ -158,7 +181,9 @@ export function TreeCanvas({
             {showLabels ? (
               <View style={styles.labelWrap}>
                 <ThemedText style={styles.label} numberOfLines={1}>
-                  {fruit.name}
+                  {/* 오늘 기도한 사람은 이름 앞에 표를 둔다 — 나무만 보고도
+                      「오늘 어디까지 돌았는지」가 읽힌다. */}
+                  {prayedToday(fruit.last_prayed_at) ? `🙏 ${fruit.name}` : fruit.name}
                 </ThemedText>
               </View>
             ) : null}
@@ -187,7 +212,7 @@ const styles = StyleSheet.create({
     paddingVertical: 1,
     borderRadius: 6,
     backgroundColor: 'rgba(30,22,16,0.55)',
-    maxWidth: 84,
+    maxWidth: 96,
   },
   label: {
     color: '#FFFFFF',
