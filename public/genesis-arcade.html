@@ -93,6 +93,8 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ochre);out
   border:1px solid var(--line-soft);border-radius:var(--r);padding:14px 18px;margin-bottom:26px;font-size:16px}
 .ptsbar b{font-family:var(--f-num);font-size:22px;color:var(--ochre)}
 .ptsbar .hint{margin-left:auto}
+.ptsbar a{color:var(--lapis);text-decoration:none;border-bottom:1px solid currentColor;white-space:nowrap}
+.ptsbar a:hover{color:var(--ochre)}
 .done-tag{font-size:15px;color:var(--olive);border:1px solid var(--olive);border-radius:999px;padding:1px 10px}
 .pts-line{margin-top:14px;font-size:16px;color:var(--ochre);min-height:24px;text-align:center}
 .pts-line b{font-family:var(--f-num)}
@@ -367,6 +369,16 @@ function boot(){
   });
   // 앱에게 「나 떴다」고 알린다. 앱이 오늘 상태를 돌려준다.
   if(EMBED) toHost({ source:'genesis-arcade', type:'ready' });
+  else {
+    // 앱 밖에서 그냥 연 사람. 게임은 다 되지만 포인트는 여기서 안 쌓인다 —
+    // 어디로 가면 되는지 알려 주지 않으면 「왜 점수가 없지」로 끝난다.
+    const bar = $('#ptsbar');
+    if(bar){
+      bar.hidden = false;
+      bar.innerHTML = '<span>데이빗바이블 앱에서 하면 한 판을 끝까지 통과할 때마다 <b>30</b>포인트가 쌓입니다</span>'
+        + '<a class="hint" href="https://dicipleofjx-bible.vercel.app/arcade" target="_blank" rel="noopener">앱에서 열기 →</a>';
+    }
+  }
   paintPoints();
 }
 
