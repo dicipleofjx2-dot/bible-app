@@ -27,6 +27,8 @@ export type PrayerFruit = {
   /** 이 사람을 위해 마지막으로 기도한 때(0077). 한 번도 없으면 null */
   last_prayed_at: string | null;
   prayed_count: number;
+  /** 따서 과일상자에 담은 때(0078). 나무에 달려 있으면 null */
+  harvested_at: string | null;
   topics: PrayerTopic[];
 };
 
@@ -45,7 +47,9 @@ export function fruitPhotoUrl(path: string | null): string | null {
 export async function getPrayerTree(userId: string): Promise<PrayerFruit[]> {
   const { data: fruits, error } = await supabase
     .from('prayer_fruits')
-    .select('id, name, photo_path, memo, pos_x, pos_y, created_at, last_prayed_at, prayed_count')
+    .select(
+      'id, name, photo_path, memo, pos_x, pos_y, created_at, last_prayed_at, prayed_count, harvested_at',
+    )
     .eq('user_id', userId)
     .order('created_at', { ascending: true });
   if (error) throw error;
@@ -172,6 +176,22 @@ export async function uploadFruitPhoto(
 
 export async function removeFruitPhoto(path: string): Promise<void> {
   await supabase.storage.from(PHOTO_BUCKET).remove([path]).catch(() => {});
+}
+
+/**
+ * 다 익은 열매를 따서 상자에 담는다 — 되돌리려면 `harvested: false`.
+ *
+ * 딴 때를 담는 이유: 상자는 담은 차례대로 아래부터 쌓인다. 순서가 없으면
+ * 「언제 응답받았는지」가 사라져 그냥 열매 무더기가 된다.
+ */
+export async function setFruitHarvested(fruitId: string, harvested: boolean): Promise<string | null> {
+  const at = harvested ? new Date().toISOString() : null;
+  const { error } = await supabase
+    .from('prayer_fruits')
+    .update({ harvested_at: at })
+    .eq('id', fruitId);
+  if (error) throw error;
+  return at;
 }
 
 /**

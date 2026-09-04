@@ -28,6 +28,7 @@ import {
   getPrayerPlaylist,
   getPrayerTree,
   removeFruitPhoto,
+  setFruitHarvested,
   setPrayerPlaylist,
   setTopicAnswered,
   updateFruit,
@@ -123,6 +124,8 @@ export default function PrayerTreeManageScreen() {
 
   const treeWidth = Math.min(windowWidth - Spacing.three * 2, 520);
   const selected = fruits.find((f) => f.id === selectedId) ?? null;
+  // 딴 열매는 나무에 없다(상자에 있다). 여기서도 나무에는 안 그린다.
+  const treeFruits = fruits.filter((f) => !f.harvested_at);
   const music = useMemo(() => parsePrayerMusicUrl(savedPlaylist), [savedPlaylist]);
   const draftMusic = useMemo(() => parsePrayerMusicUrl(playlistDraft), [playlistDraft]);
 
@@ -163,9 +166,14 @@ export default function PrayerTreeManageScreen() {
       return;
     }
     // 화면을 먼저 옮겨 둔다. 서버를 기다리면 누른 자리에 안 붙는 것처럼 보인다.
-    setFruits((prev) => prev.map((f) => (f.id === selected.id ? { ...f, pos_x: x, pos_y: y } : f)));
+    setFruits((prev) =>
+      prev.map((f) => (f.id === selected.id ? { ...f, pos_x: x, pos_y: y, harvested_at: null } : f)),
+    );
+    const wasInBox = !!selected.harvested_at;
     await run(async () => {
       await updateFruit(selected.id, { pos_x: x, pos_y: y });
+      // 상자에 있던 열매를 나무에 놓았다면 그건 「다시 걸기」다.
+      if (wasInBox) await setFruitHarvested(selected.id, false);
     }, '자리를 저장하지 못했어요.');
   }
 
@@ -244,7 +252,7 @@ export default function PrayerTreeManageScreen() {
             ) : (
               <TreeCanvas
                 width={treeWidth}
-                fruits={fruits}
+                fruits={treeFruits}
                 selectedId={selectedId}
                 onPressFruit={(fruit) => setSelectedId(fruit.id)}
                 onPressCanvas={handleMove}
@@ -320,6 +328,7 @@ export default function PrayerTreeManageScreen() {
                       <View style={styles.fruitRowText}>
                         <ThemedText type="smallBold">{fruit.name}</ThemedText>
                         <ThemedText type="small" themeColor="textSecondary">
+                          {fruit.harvested_at ? '🧺 과일상자에 담김 · ' : ''}
                           {ripenessLabel(fruit.topics.length, answered)} ·{' '}
                           {lastPrayedLabel(fruit.last_prayed_at)}
                         </ThemedText>
@@ -434,6 +443,20 @@ export default function PrayerTreeManageScreen() {
                         </View>
 
                         <View style={styles.detailButtons}>
+                          {answered > 0 && answered === fruit.topics.length ? (
+                            <Pressable
+                              onPress={() =>
+                                run(async () => {
+                                  await setFruitHarvested(fruit.id, !fruit.harvested_at);
+                                }, '열매를 옮기지 못했어요.')
+                              }
+                              disabled={busy}
+                              style={[styles.smallButton, { backgroundColor: theme.accentSoft }]}>
+                              <ThemedText type="smallBold">
+                                {fruit.harvested_at ? '🌳 나무에 다시' : '🧺 상자에 담기'}
+                              </ThemedText>
+                            </Pressable>
+                          ) : null}
                           <Pressable
                             onPress={() => handlePickPhoto(fruit)}
                             disabled={busy}

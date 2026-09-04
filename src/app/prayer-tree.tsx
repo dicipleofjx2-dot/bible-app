@@ -20,16 +20,18 @@ import {
   getPrayerPlaylist,
   getPrayerTree,
   prayForFruit,
+  setFruitHarvested,
   setTopicAnswered,
   type PrayerFruit,
   type PrayerTopic,
 } from '@/db/prayerTree';
 import { hasPrayerLogToday } from '@/db/r2m';
+import { FruitBox } from '@/features/prayer-tree/FruitBox';
 import { PrayerCard } from '@/features/prayer-tree/PrayerCard';
 import { TreeCanvas } from '@/features/prayer-tree/TreeCanvas';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { parsePrayerMusicUrl, prayedToday } from '@/lib/prayerTree';
+import { fruitLook, parsePrayerMusicUrl, prayedToday } from '@/lib/prayerTree';
 
 /**
  * 중보기도 나무.
@@ -89,9 +91,26 @@ export default function PrayerTreeScreen() {
   );
 
   // 나무는 화면을 꽉 채우게 둔다 — 열매를 눌러야 하므로 크면 클수록 좋다.
-  const treeWidth = Math.min(windowWidth - Spacing.two * 2, 620);
+  // 옆에 상자를 세우는 넓은 화면에서는 상자 몫(190 + 여백)을 덜어 낸다.
+  const treeWidth =
+    windowWidth >= 760
+      ? Math.min(windowWidth - Spacing.two * 2 - 206, 620)
+      : Math.min(windowWidth - Spacing.two * 2, 620);
   const music = useMemo(() => parsePrayerMusicUrl(playlistUrl), [playlistUrl]);
   const openFruit = fruits.find((f) => f.id === openFruitId) ?? null;
+
+  // 딴 열매는 나무에서 내려와 상자로 간다. 상자는 **담은 차례대로** 쌓는다.
+  const treeFruits = fruits.filter((f) => !f.harvested_at);
+  const boxFruits = fruits
+    .filter((f) => f.harvested_at)
+    .sort((a, b) => (a.harvested_at ?? '').localeCompare(b.harvested_at ?? ''));
+  // 다 익었는데 아직 안 딴 열매 — 나무 위에서 「딸 때가 됐다」를 알린다.
+  const ripeOnTree = treeFruits.filter(
+    (f) => fruitLook(f.topics.length, f.topics.filter((t) => t.answered).length).fullyRipe,
+  );
+  // 넓은 화면이면 나무 옆에, 좁으면 나무 아래에 상자를 둔다.
+  const sideBySide = windowWidth >= 760;
+  const boxWidth = sideBySide ? 190 : treeWidth;
 
   const totalTopics = fruits.reduce((sum, f) => sum + f.topics.length, 0);
   const totalAnswered = fruits.reduce(
@@ -154,11 +173,39 @@ export default function PrayerTreeScreen() {
     }
   }
 
+  /**
+   * 열매를 따서 상자에 담거나, 상자에서 나무로 되돌린다.
+   *
+   * 되돌릴 자리를 잃지 않으려고 pos_x/pos_y 는 건드리지 않는다 — 상자에 담긴
+   * 동안에도 그대로 있어서 다시 걸면 원래 가지로 돌아간다.
+   */
+  async function handleHarvest(harvested: boolean) {
+    if (!openFruitId) return;
+    setBusy(true);
+    try {
+      const at = await setFruitHarvested(openFruitId, harvested);
+      setFruits((prev) =>
+        prev.map((f) => (f.id === openFruitId ? { ...f, harvested_at: at } : f)),
+      );
+      // 담은 뒤에는 카드를 닫는다 — 열매가 상자로 옮겨 간 것이 보여야 한다.
+      if (harvested) setOpenFruitId(null);
+      setError('');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '열매를 옮기지 못했어요.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleAddTopic(body: string) {
     if (!userId || !openFruitId) return;
     setBusy(true);
     try {
       await addTopic(userId, openFruitId, body);
+      // 기도할 일이 새로 생긴 열매는 더 이상 「다 익은」 열매가 아니다.
+      // 상자에 있었다면 조용히 나무로 되돌린다.
+      const inBox = fruits.find((f) => f.id === openFruitId)?.harvested_at;
+      if (inBox) await setFruitHarvested(openFruitId, false).catch(() => {});
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : '기도제목을 넣지 못했어요.');
@@ -201,17 +248,30 @@ export default function PrayerTreeScreen() {
             {loading ? (
               <ActivityIndicator />
             ) : (
-              <TreeCanvas
-                width={treeWidth}
-                fruits={fruits}
-                onPressFruit={(fruit) => setOpenFruitId(fruit.id)}
-              />
+              <View style={[styles.garden, sideBySide && styles.gardenRow]}>
+                <TreeCanvas
+                  width={treeWidth}
+                  fruits={treeFruits}
+                  onPressFruit={(fruit) => setOpenFruitId(fruit.id)}
+                />
+                <View style={{ width: boxWidth }}>
+                  <ThemedText type="smallBold" style={styles.boxTitle}>
+                    🧺 과일상자 {boxFruits.length}
+                  </ThemedText>
+                  <FruitBox
+                    width={boxWidth}
+                    fruits={boxFruits}
+                    onPressFruit={(fruit) => setOpenFruitId(fruit.id)}
+                  />
+                </View>
+              </View>
             )}
           </View>
 
           <View style={[styles.summary, { backgroundColor: theme.accentSoft }]}>
             <ThemedText type="smallBold" themeColor="accent">
-              열매 {fruits.length} · 기도제목 {totalTopics} · 응답 {totalAnswered}
+              열매 {treeFruits.length} · 기도제목 {totalTopics} · 응답 {totalAnswered}
+              {ripeOnTree.length > 0 ? ` · 딸 열매 ${ripeOnTree.length}` : ''}
             </ThemedText>
           </View>
 
@@ -282,6 +342,7 @@ export default function PrayerTreeScreen() {
         onAddTopic={handleAddTopic}
         onDeleteTopic={handleDeleteTopic}
         onPray={handlePray}
+        onHarvest={handleHarvest}
       />
     </SafeAreaView>
   );
@@ -297,6 +358,9 @@ const styles = StyleSheet.create({
   inner: { width: '100%', maxWidth: MaxContentWidth, alignItems: 'center', gap: Spacing.two },
   lead: { textAlign: 'center' },
   treeWrap: { alignItems: 'center', justifyContent: 'center', minHeight: 120 },
+  garden: { alignItems: 'center', gap: Spacing.two },
+  gardenRow: { flexDirection: 'row', alignItems: 'flex-end', gap: Spacing.three },
+  boxTitle: { marginBottom: Spacing.one, textAlign: 'center' },
   training: {
     borderWidth: 1,
     borderRadius: 12,

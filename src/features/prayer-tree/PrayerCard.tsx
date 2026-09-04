@@ -15,6 +15,8 @@ export type PrayerCardProps = {
   onDeleteTopic: (topic: PrayerTopic) => void;
   /** 「이 사람을 위해 기도했습니다」 — R2M 오늘의 훈련 기도 항목까지 채운다 */
   onPray?: () => void;
+  /** 다 익은 열매를 따서 상자에 담기 / 상자에서 나무로 되돌리기 */
+  onHarvest?: (harvested: boolean) => void;
   /** 저장이 도는 동안 두 번 눌리지 않게 */
   busy?: boolean;
 };
@@ -39,6 +41,7 @@ export function PrayerCard({
   onAddTopic,
   onDeleteTopic,
   onPray,
+  onHarvest,
   busy = false,
 }: PrayerCardProps) {
   const theme = useTheme();
@@ -126,6 +129,26 @@ export function PrayerCard({
               <ThemedText type="small" style={styles.memo} themeColor="textSecondary">
                 {fruit.memo}
               </ThemedText>
+            ) : null}
+
+            {/* 다 익은 열매만 딸 수 있다. 담긴 열매는 되돌리는 자리로 바뀐다. */}
+            {onHarvest && (look.fullyRipe || fruit.harvested_at) ? (
+              <Pressable
+                onPress={() => onHarvest(!fruit.harvested_at)}
+                disabled={busy}
+                style={[
+                  styles.harvestButton,
+                  {
+                    backgroundColor: fruit.harvested_at ? theme.accentSoft : theme.done,
+                    opacity: busy ? 0.6 : 1,
+                  },
+                ]}>
+                <ThemedText type="smallBold" themeColor={fruit.harvested_at ? 'accent' : 'text'}>
+                  {fruit.harvested_at
+                    ? '🌳 나무에 다시 걸기'
+                    : '🧺 열매를 따서 과일상자에 담기'}
+                </ThemedText>
+              </Pressable>
             ) : null}
 
             <View style={[styles.divider, { backgroundColor: theme.border }]} />
@@ -296,4 +319,10 @@ const styles = StyleSheet.create({
     marginTop: Spacing.one,
   },
   prayButtonText: { color: '#FFFFFF' },
+  harvestButton: {
+    paddingVertical: 11,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: Spacing.one,
+  },
 });
