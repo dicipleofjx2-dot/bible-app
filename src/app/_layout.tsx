@@ -202,22 +202,13 @@ function AppStack() {
           name="shepherd-letters/[id]"
           options={{ headerShown: true, title: t('nav.letter') }}
         />
-        <Stack.Screen
-          name="shepherd-letters/admin"
-          options={{ headerShown: true, title: t('nav.letterAdmin') }}
-        />
         <Stack.Screen name="boards" options={{ headerShown: true, title: t('nav.boards') }} />
         <Stack.Screen name="boards/[slug]" options={{ headerShown: true, title: t('nav.boards') }} />
         <Stack.Screen name="boards/post/[id]" options={{ headerShown: true, title: t('nav.boardPost') }} />
-        <Stack.Screen name="boards/settings" options={{ headerShown: true, title: t('nav.boardsAdmin') }} />
         <Stack.Screen name="notice-board" options={{ headerShown: true, title: t('nav.notices') }} />
         <Stack.Screen
           name="notice-board/[id]"
           options={{ headerShown: true, title: t('nav.notices') }}
-        />
-        <Stack.Screen
-          name="notice-board/admin"
-          options={{ headerShown: true, title: t('nav.noticesAdmin') }}
         />
         <Stack.Screen name="support" options={{ headerShown: true, title: t('nav.support') }} />
         <Stack.Screen
@@ -233,10 +224,6 @@ function AppStack() {
           options={{ headerShown: true, title: t('nav.courses') }}
         />
         <Stack.Screen
-          name="r2m/courses/admin"
-          options={{ headerShown: true, title: t('nav.coursesAdmin') }}
-        />
-        <Stack.Screen
           name="r2m/gratitude"
           options={{ headerShown: true, title: t('nav.gratitude') }}
         />
@@ -247,10 +234,6 @@ function AppStack() {
         <Stack.Screen
           name="r2m/leaders"
           options={{ headerShown: true, title: t('nav.leaders') }}
-        />
-        <Stack.Screen
-          name="r2m/leader-assign"
-          options={{ headerShown: true, title: t('nav.leaderAssign') }}
         />
         <Stack.Screen
           name="r2m/cell"

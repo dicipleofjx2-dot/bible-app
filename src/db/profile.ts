@@ -23,20 +23,39 @@ export async function updateUsername(userId: string, username: string): Promise<
   if (error) throw error;
 }
 
+/**
+ * 웹 앱(스마트주보·목회 AI) 주소를 만들 때 쓰는 내 교회 슬러그.
+ *
+ * 못 찾아도 던지지 않는다. 슬러그가 없으면 그 앱의 현관으로 보내면 되고,
+ * 현관은 속한 교회가 하나면 곧장 그리로 넘긴다 — 한 번 더 누를 뿐 길은 있다.
+ */
+export async function getMyChurchSlug(userId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('churches(slug)')
+    .eq('id', userId)
+    .maybeSingle();
+  if (error || !data) return null;
+  const church = (data as { churches?: { slug?: string } | { slug?: string }[] }).churches;
+  const row = Array.isArray(church) ? church[0] : church;
+  return row?.slug ?? null;
+}
+
 export async function getIsAdmin(userId: string): Promise<boolean> {
   const { data, error } = await supabase.from('profiles').select('is_admin').eq('id', userId).single();
   if (error) throw error;
   return !!(data as any)?.is_admin;
 }
 
-export type ChurchOption = { id: string; name: string };
+/** 슬러그는 웹 앱(스마트주보·목회AI)의 주소를 만들 때 쓴다. */
+export type ChurchOption = { id: string; name: string; slug: string | null };
 
 /** 내 소속 교회 이름. 못 찾으면 null. */
 export async function getMyChurch(churchId: string | null): Promise<ChurchOption | null> {
   if (!churchId) return null;
   const { data, error } = await supabase
     .from('churches')
-    .select('id, name')
+    .select('id, name, slug')
     .eq('id', churchId)
     .maybeSingle();
   if (error) return null;

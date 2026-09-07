@@ -11,6 +11,9 @@ import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/lib/i18n';
 import type { StringKey } from '@/constants/strings';
 import { getDevotionBoard, getMyLedCellId, type DevotionRow } from '@/db/cell';
+import { getMyChurchSlug } from '@/db/profile';
+import { appSettingsUrl } from '@/lib/adminApps';
+import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
 import {
   getEnrolledUsersStatus,
   getLeaderScope,
@@ -39,6 +42,8 @@ export default function R2MLeadersScreen() {
   const { lang, t } = useI18n();
   const { session, loading } = useAuth();
   const [scope, setScope] = useState<LeaderScope | null>(null);
+  // 배정 화면으로 나가는 주소를 만들 때만 쓴다. 못 찾으면 그 앱 현관으로 간다.
+  const [churchSlug, setChurchSlug] = useState<string | null>(null);
   const [users, setUsers] = useState<EnrolledUserStatus[]>([]);
   const [error, setError] = useState<string | null>(null);
   // 내가 목자인 목장과 그 목장의 이번 주 경건생활. 목자가 아니면 비어 있다.
@@ -60,6 +65,9 @@ export default function R2MLeadersScreen() {
         })
         .catch(() => setLedCellId(null));
 
+      getMyChurchSlug(userId)
+        .then(setChurchSlug)
+        .catch(() => setChurchSlug(null));
       getLeaderScope(userId)
         .then((s) => {
           setScope(s);
@@ -104,15 +112,17 @@ export default function R2MLeadersScreen() {
             {scope?.isAdmin ? t('r2m.leaders.noteAdmin') : t('r2m.leaders.noteLeader')}
           </ThemedText>
 
+          {/* 누구를 어느 목장에 넣을지 정하는 일은 목회 AI 앱에서 한다. 이 화면은
+              목자가 자기 목장 진행을 보는 곳이라 그대로 남는다. */}
           {scope?.isAdmin && (
             <Pressable
-              onPress={() => router.push('/r2m/leader-assign')}
+              onPress={() => openAppWindow(appSettingsUrl(churchSlug), APP_WINDOW.pastorAI)}
               style={({ pressed }) => [
                 styles.assignButton,
                 { backgroundColor: theme.backgroundElement },
                 pressed && styles.pressed,
               ]}>
-              <ThemedText type="smallBold">{t('r2m.leaders.assignLink')}</ThemedText>
+              <ThemedText type="smallBold">{t('r2m.leaders.assignLink')} ↗</ThemedText>
             </Pressable>
           )}
 

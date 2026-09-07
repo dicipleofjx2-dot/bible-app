@@ -24,6 +24,7 @@ import { getLatestNotice, type Notice } from '@/db/notices';
 import { getCommunityUnread } from '@/db/community';
 import { hasUnseenLetter } from '@/lib/shepherdLetterBadge';
 import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
+import { bulletinAppUrl } from '@/lib/adminApps';
 import { getArcadeState } from '@/lib/arcade';
 import type { Href } from 'expo-router';
 
@@ -34,9 +35,10 @@ function todayDateString() {
 
 type JourneyStep = { label: string; href: Href; done?: boolean };
 
-// 새부대교회 스마트주보는 별도 Next.js 앱(dg-smart-bulletin)으로 배포되어 있어
-// 내부 라우트가 아니라 외부 링크로 연다.
-const SMART_BULLETIN_URL = 'https://dg-smart-bulletin.vercel.app/church/saebudae-church';
+// 스마트주보는 별도 웹 앱이라 내부 라우트가 아니라 외부 링크로 연다.
+// 주소는 adminApps.ts 한 곳에만 적는다 — 두 군데 적으면 도메인을 옮길 때
+// 한쪽만 고치게 되고, 그 한쪽은 아무도 안 눌러 볼 때까지 죽은 채로 남는다.
+const SMART_BULLETIN_URL = bulletinAppUrl('saebudae-church');
 
 const CHURCH_HOME_URL = 'https://newwineskin.co.kr';
 

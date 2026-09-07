@@ -8,14 +8,18 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
-import { getIsAdmin } from '@/db/profile';
+import { getIsAdmin, getMyChurchSlug } from '@/db/profile';
 import { getBoards, type Board } from '@/db/boards';
+import { appSettingsUrl } from '@/lib/adminApps';
+import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
 
 export default function BoardsScreen() {
   const theme = useTheme();
   const { session } = useAuth();
   const [boards, setBoards] = useState<Board[] | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  // 관리 화면으로 나가는 주소를 만들 때만 쓴다. 못 찾으면 그 앱 현관으로 간다.
+  const [churchSlug, setChurchSlug] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -26,8 +30,12 @@ export default function BoardsScreen() {
         getIsAdmin(session.user.id)
           .then(setIsAdmin)
           .catch(() => setIsAdmin(false));
+        getMyChurchSlug(session.user.id)
+          .then(setChurchSlug)
+          .catch(() => setChurchSlug(null));
       } else {
         setIsAdmin(false);
+        setChurchSlug(null);
       }
     }, [session])
   );
@@ -52,12 +60,14 @@ export default function BoardsScreen() {
             올라갑니다.
           </ThemedText>
 
+          {/* 게시판을 만들고 정리하는 일은 목회 AI 앱에서 한다. 여기는 성도가
+              글을 읽고 쓰는 곳이라, 관리 화면까지 얹으면 두 가지가 섞인다. */}
           {isAdmin && (
             <Pressable
-              onPress={() => router.push('/boards/settings')}
+              onPress={() => openAppWindow(appSettingsUrl(churchSlug), APP_WINDOW.pastorAI)}
               style={({ pressed }) => [styles.manageLink, pressed && styles.pressed]}>
               <ThemedText type="small" themeColor="textSecondary">
-                ⚙️ 게시판 관리
+                ⚙️ 게시판 관리 (목회 AI) ↗
               </ThemedText>
             </Pressable>
           )}

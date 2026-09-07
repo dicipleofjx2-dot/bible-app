@@ -1,5 +1,12 @@
 import { supabase } from '@/lib/supabase';
-import { queuePush } from '@/db/push';
+
+/**
+ * 알림마당 — **읽기만** 한다.
+ *
+ * 글을 쓰는 화면은 스마트주보로 옮겼다(`/church/<슬러그>/davidbible/notices`).
+ * 여기에 쓰기 함수를 다시 두지 말 것 — 같은 일을 두 군데서 하면 한쪽만 고치게 되고,
+ * 알림을 두 번 보내거나 한쪽만 교회를 못 채우는 일이 생긴다.
+ */
 
 export type Notice = {
   id: string;
@@ -7,11 +14,6 @@ export type Notice = {
   bodyText: string;
   isPublished: boolean;
   createdAt: string;
-};
-
-export type NoticeEntry = {
-  title: string;
-  bodyText: string;
 };
 
 function mapRow(row: any): Notice {
@@ -53,31 +55,3 @@ export async function getNoticeById(id: string): Promise<Notice | null> {
   return data ? mapRow(data) : null;
 }
 
-export async function getAllNoticesForAdmin(): Promise<Notice[]> {
-  const { data, error } = await supabase.from('notices').select('*').order('created_at', { ascending: false });
-  if (error) throw error;
-  return (data ?? []).map(mapRow);
-}
-
-export async function insertNotice(entry: NoticeEntry): Promise<{ error?: string }> {
-  const { data, error } = await supabase
-    .from('notices')
-    .insert({ title: entry.title, body_text: entry.bodyText, is_published: true })
-    .select('id')
-    .maybeSingle();
-  if (error) return { error: error.message };
-
-  // 글이 올라간 뒤에 따로 보낸다(shepherdLetters 와 같은 이유).
-  await queuePush(
-    'notice',
-    '알림마당에 새 글이 올라왔어요',
-    entry.title,
-    data?.id ? `/notice-board/${data.id}` : '/notice-board',
-  );
-  return {};
-}
-
-export async function deleteNotice(id: string): Promise<{ error?: string }> {
-  const { error } = await supabase.from('notices').delete().eq('id', id);
-  return { error: error?.message };
-}
