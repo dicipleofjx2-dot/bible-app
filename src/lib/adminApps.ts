@@ -13,9 +13,9 @@
  * 본다. 도메인을 dgaiworks 하위로 옮길 때 **여기 한 줄만** 고치면 된다.
  */
 
-export const SMART_BULLETIN_ORIGIN = 'https://dg-smart-bulletin.vercel.app';
+export const SMART_BULLETIN_ORIGIN = 'https://bulletin.dgaiworks.com';
 /** 교회운영ON(교적·재정·목양). 예전 이름은 「목회 AI」였다. */
-export const PASTOR_AI_ORIGIN = 'https://dg-pastor-ai.vercel.app';
+export const CHURCH_ON_ORIGIN = 'https://churchon.dgaiworks.com';
 
 /**
  * 교회를 모를 때 쓰는 주소.
@@ -27,8 +27,8 @@ export function bulletinAppUrl(churchSlug: string | null, path = ''): string {
   return churchSlug ? `${SMART_BULLETIN_ORIGIN}/church/${churchSlug}${path}` : SMART_BULLETIN_ORIGIN;
 }
 
-export function pastorAppUrl(churchSlug: string | null, path = ''): string {
-  return churchSlug ? `${PASTOR_AI_ORIGIN}/church/${churchSlug}${path}` : PASTOR_AI_ORIGIN;
+export function churchOnUrl(churchSlug: string | null, path = ''): string {
+  return churchSlug ? `${CHURCH_ON_ORIGIN}/church/${churchSlug}${path}` : CHURCH_ON_ORIGIN;
 }
 
 /** 데이빗바이블로 나가는 글을 쓰는 자리 — 편지·알림마당·알림팝업이 여기 모여 있다. */
@@ -38,5 +38,5 @@ export function appContentUrl(churchSlug: string | null): string {
 
 /** 데이빗바이블의 판을 바꾸는 자리 — 게시판·훈련과정·리더배정(교회운영ON 안에 있다). */
 export function appSettingsUrl(churchSlug: string | null): string {
-  return pastorAppUrl(churchSlug, '/pastor/davidbible');
+  return churchOnUrl(churchSlug, '/pastor/davidbible');
 }

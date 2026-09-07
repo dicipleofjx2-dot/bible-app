@@ -253,7 +253,7 @@ export default function ProfileScreen() {
                 </Pressable>
                 <Pressable
                   onPress={() =>
-                    openAppWindow(appSettingsUrl(church?.slug ?? null), APP_WINDOW.pastorAI)
+                    openAppWindow(appSettingsUrl(church?.slug ?? null), APP_WINDOW.churchOn)
                   }
                   style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
                   <ThemedText type="smallBold">🎯 게시판·훈련과정·목장 (교회운영ON) ↗</ThemedText>

@@ -116,7 +116,7 @@ export default function R2MLeadersScreen() {
               목자가 자기 목장 진행을 보는 곳이라 그대로 남는다. */}
           {scope?.isAdmin && (
             <Pressable
-              onPress={() => openAppWindow(appSettingsUrl(churchSlug), APP_WINDOW.pastorAI)}
+              onPress={() => openAppWindow(appSettingsUrl(churchSlug), APP_WINDOW.churchOn)}
               style={({ pressed }) => [
                 styles.assignButton,
                 { backgroundColor: theme.backgroundElement },

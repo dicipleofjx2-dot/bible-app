@@ -64,7 +64,7 @@ export default function BoardsScreen() {
               글을 읽고 쓰는 곳이라, 관리 화면까지 얹으면 두 가지가 섞인다. */}
           {isAdmin && (
             <Pressable
-              onPress={() => openAppWindow(appSettingsUrl(churchSlug), APP_WINDOW.pastorAI)}
+              onPress={() => openAppWindow(appSettingsUrl(churchSlug), APP_WINDOW.churchOn)}
               style={({ pressed }) => [styles.manageLink, pressed && styles.pressed]}>
               <ThemedText type="small" themeColor="textSecondary">
                 ⚙️ 게시판 관리 (교회운영ON) ↗
