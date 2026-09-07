@@ -55,8 +55,6 @@ export const STRINGS = {
     en: 'Five hands-on games straight from Genesis',
   },
   'home.arcadeToday': { ko: '오늘 받은 포인트', en: 'Points earned today' },
-  'home.churchBulletin': { ko: '새부대스마트주보', en: 'Church Bulletin' },
-  'home.churchSite': { ko: '새부대홈페이지', en: 'Church Website' },
   'home.support': { ko: 'David Bible 후원', en: 'Support David Bible' },
   'home.noNews': { ko: '등록된 소식이 없어요', en: 'No news yet' },
 

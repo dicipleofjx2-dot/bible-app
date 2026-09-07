@@ -24,7 +24,6 @@ import { getLatestNotice, type Notice } from '@/db/notices';
 import { getCommunityUnread } from '@/db/community';
 import { hasUnseenLetter } from '@/lib/shepherdLetterBadge';
 import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
-import { bulletinAppUrl } from '@/lib/adminApps';
 import { getArcadeState } from '@/lib/arcade';
 import type { Href } from 'expo-router';
 
@@ -34,13 +33,6 @@ function todayDateString() {
 }
 
 type JourneyStep = { label: string; href: Href; done?: boolean };
-
-// 스마트주보는 별도 웹 앱이라 내부 라우트가 아니라 외부 링크로 연다.
-// 주소는 adminApps.ts 한 곳에만 적는다 — 두 군데 적으면 도메인을 옮길 때
-// 한쪽만 고치게 되고, 그 한쪽은 아무도 안 눌러 볼 때까지 죽은 채로 남는다.
-const SMART_BULLETIN_URL = bulletinAppUrl('saebudae-church');
-
-const CHURCH_HOME_URL = 'https://newwineskin.co.kr';
 
 /**
  * 홈 화면 바둑판.
@@ -66,8 +58,6 @@ type HomeTile = {
   key: string;
   /** 로그인해야 쓸 수 있는 곳 — 안 했으면 마이페이지로 보낸다 */
   requiresAuth?: boolean;
-  /** 앱 밖으로 나가는 곳 */
-  externalUrl?: string;
 };
 
 // 공지사항은 바둑판에 넣지 않는다 — 제목이 바로 보이는 한 줄 띠가 위에 따로
@@ -83,8 +73,9 @@ const HOME_TILES: HomeTile[] = [
   // 서버가 돌 때 다시 만들어진다. 새 화면을 더한 직후에는 아직 그 목록에 없어서
   // 타입 검사가 막힌다. 서버가 한 번 돌면 캐스팅 없이도 통과한다.
   { key: 'arena', emoji: '🏆', label: 'home.arena', href: '/arena' as Href },
-  { key: 'bulletin', emoji: '📰', label: 'home.churchBulletin', href: '/' as Href, externalUrl: SMART_BULLETIN_URL },
-  { key: 'churchSite', emoji: '🏠', label: 'home.churchSite', href: '/' as Href, externalUrl: CHURCH_HOME_URL },
+  // 주보와 교회 홈페이지 칸은 뺐다. 이 앱은 개인 경건훈련 자리이고, 교회 소식은
+  // 스마트주보 앱이 따로 맡는다 — 홈 화면에 둘 다 두면 어느 앱을 쓰는 중인지
+  // 흐려진다. 주보로 가는 길은 목자의 편지·알림마당 알림에 그대로 있다.
   // 데이빗북스 하나만 걸던 자리를 성장 탭으로 넓혔다. 데이빗북스는 그 안에
   // 있고, 순종일기·우선순위·천국재정·샬롬기도단도 같이 열린다.
   { key: 'growth', emoji: '🌱', label: 'tab.growth', href: '/growth' },
@@ -354,20 +345,9 @@ export default function HomeScreen() {
               return (
                 <Pressable
                   key={tile.key}
-                  onPress={() => {
-                    if (tile.externalUrl) {
-                      // 이름 붙인 창으로 연다 — 같은 곳을 여러 탭에 띄우지 않는다.
-                      // 자세한 이유는 lib/openExternal.ts.
-                      openAppWindow(
-                        tile.externalUrl,
-                        tile.externalUrl === SMART_BULLETIN_URL
-                          ? APP_WINDOW.smartBulletin
-                          : APP_WINDOW.churchSite,
-                      );
-                      return;
-                    }
-                    router.push(tile.requiresAuth && !session ? '/profile' : tile.href);
-                  }}
+                  onPress={() =>
+                    router.push(tile.requiresAuth && !session ? '/profile' : tile.href)
+                  }
                   style={({ pressed }) => [styles.tile, pressed && styles.pressed]}>
                   {/*
                     네모 카드를 걷어내고 받침 원만 남긴다. 카드가 여섯 개 늘어서
