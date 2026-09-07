@@ -112,7 +112,7 @@ export default function R2MLeadersScreen() {
             {scope?.isAdmin ? t('r2m.leaders.noteAdmin') : t('r2m.leaders.noteLeader')}
           </ThemedText>
 
-          {/* 누구를 어느 목장에 넣을지 정하는 일은 목회 AI 앱에서 한다. 이 화면은
+          {/* 누구를 어느 목장에 넣을지 정하는 일은 교회운영ON 앱에서 한다. 이 화면은
               목자가 자기 목장 진행을 보는 곳이라 그대로 남는다. */}
           {scope?.isAdmin && (
             <Pressable

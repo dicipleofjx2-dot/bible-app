@@ -239,7 +239,7 @@ export default function ProfileScreen() {
                 {/* 교회를 관리하는 일은 이 앱에 없다.
                     데이빗바이블은 개인 경건훈련 앱이고, 목자의 편지·알림마당·
                     알림팝업은 스마트주보에서, 게시판·훈련과정·목장 배정은
-                    목회 AI 에서 쓴다. 여기서 그리로 가는 문만 연다 —
+                    교회운영ON 에서 쓴다. 여기서 그리로 가는 문만 연다 —
                     아무 안내 없이 단추만 없애면 「되던 게 없어졌다」가 된다. */}
                 <ThemedText type="small" themeColor="textSecondary" style={styles.adminNote}>
                   교회 관리는 웹 앱에서 합니다. 같은 계정으로 바로 들어갑니다.
@@ -256,7 +256,7 @@ export default function ProfileScreen() {
                     openAppWindow(appSettingsUrl(church?.slug ?? null), APP_WINDOW.pastorAI)
                   }
                   style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
-                  <ThemedText type="smallBold">🎯 게시판·훈련과정·목장 (목회 AI) ↗</ThemedText>
+                  <ThemedText type="smallBold">🎯 게시판·훈련과정·목장 (교회운영ON) ↗</ThemedText>
                 </Pressable>
               </View>
             )}

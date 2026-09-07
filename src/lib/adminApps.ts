@@ -5,7 +5,7 @@
  * 교회가 글을 쓰거나 판을 바꾸는 일은 웹 앱 둘이 맡는다.
  *
  *   · 스마트주보 — 목자의 편지 · 알림마당 · 알림팝업
- *   · 목회 AI  — 게시판 · R2M 훈련과정 · 목장 리더 배정
+ *   · 교회운영ON   — 게시판 · R2M 훈련과정 · 목장 리더 배정
  *
  * 성도가 **읽는** 화면은 전부 이 앱에 그대로 있다. 옮긴 것은 쓰는 화면뿐이다.
  *
@@ -14,6 +14,7 @@
  */
 
 export const SMART_BULLETIN_ORIGIN = 'https://dg-smart-bulletin.vercel.app';
+/** 교회운영ON(교적·재정·목양). 예전 이름은 「목회 AI」였다. */
 export const PASTOR_AI_ORIGIN = 'https://dg-pastor-ai.vercel.app';
 
 /**
@@ -35,7 +36,7 @@ export function appContentUrl(churchSlug: string | null): string {
   return bulletinAppUrl(churchSlug, '/davidbible');
 }
 
-/** 데이빗바이블의 판을 바꾸는 자리 — 게시판·훈련과정·리더배정. */
+/** 데이빗바이블의 판을 바꾸는 자리 — 게시판·훈련과정·리더배정(교회운영ON 안에 있다). */
 export function appSettingsUrl(churchSlug: string | null): string {
   return pastorAppUrl(churchSlug, '/pastor/davidbible');
 }

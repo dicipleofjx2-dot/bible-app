@@ -26,7 +26,7 @@ export function openAppWindow(url: string, windowName: string): void {
 /** 창 이름. 같은 앱은 늘 같은 이름을 써야 한 창에 모인다. */
 export const APP_WINDOW = {
   smartBulletin: 'smartbulletin',
-  /** 목회 AI. 주보와 다른 앱이라 창도 따로 둔다 — 한 창에 모으면 주보를 보다가
+  /** 교회운영ON(교적·재정·목양). 주보와 다른 앱이라 창도 따로 둔다 — 한 창에 모으면 주보를 보다가
    *  관리 화면으로 덮이고, 돌아갈 길이 뒤로가기밖에 없어진다. */
   pastorAI: 'pastorai',
   churchSite: 'churchsite',

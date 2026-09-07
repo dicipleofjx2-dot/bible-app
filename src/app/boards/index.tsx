@@ -60,14 +60,14 @@ export default function BoardsScreen() {
             올라갑니다.
           </ThemedText>
 
-          {/* 게시판을 만들고 정리하는 일은 목회 AI 앱에서 한다. 여기는 성도가
+          {/* 게시판을 만들고 정리하는 일은 교회운영ON 앱에서 한다. 여기는 성도가
               글을 읽고 쓰는 곳이라, 관리 화면까지 얹으면 두 가지가 섞인다. */}
           {isAdmin && (
             <Pressable
               onPress={() => openAppWindow(appSettingsUrl(churchSlug), APP_WINDOW.pastorAI)}
               style={({ pressed }) => [styles.manageLink, pressed && styles.pressed]}>
               <ThemedText type="small" themeColor="textSecondary">
-                ⚙️ 게시판 관리 (목회 AI) ↗
+                ⚙️ 게시판 관리 (교회운영ON) ↗
               </ThemedText>
             </Pressable>
           )}

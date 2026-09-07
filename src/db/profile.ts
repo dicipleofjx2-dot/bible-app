@@ -24,7 +24,7 @@ export async function updateUsername(userId: string, username: string): Promise<
 }
 
 /**
- * 웹 앱(스마트주보·목회 AI) 주소를 만들 때 쓰는 내 교회 슬러그.
+ * 웹 앱(스마트주보·교회운영ON) 주소를 만들 때 쓰는 내 교회 슬러그.
  *
  * 못 찾아도 던지지 않는다. 슬러그가 없으면 그 앱의 현관으로 보내면 되고,
  * 현관은 속한 교회가 하나면 곧장 그리로 넘긴다 — 한 번 더 누를 뿐 길은 있다.
@@ -47,7 +47,7 @@ export async function getIsAdmin(userId: string): Promise<boolean> {
   return !!(data as any)?.is_admin;
 }
 
-/** 슬러그는 웹 앱(스마트주보·목회AI)의 주소를 만들 때 쓴다. */
+/** 슬러그는 웹 앱(스마트주보·교회운영ON)의 주소를 만들 때 쓴다. */
 export type ChurchOption = { id: string; name: string; slug: string | null };
 
 /** 내 소속 교회 이름. 못 찾으면 null. */
