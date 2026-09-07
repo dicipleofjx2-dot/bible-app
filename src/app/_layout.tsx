@@ -202,9 +202,6 @@ function AppStack() {
           name="shepherd-letters/[id]"
           options={{ headerShown: true, title: t('nav.letter') }}
         />
-        <Stack.Screen name="boards" options={{ headerShown: true, title: t('nav.boards') }} />
-        <Stack.Screen name="boards/[slug]" options={{ headerShown: true, title: t('nav.boards') }} />
-        <Stack.Screen name="boards/post/[id]" options={{ headerShown: true, title: t('nav.boardPost') }} />
         <Stack.Screen name="notice-board" options={{ headerShown: true, title: t('nav.notices') }} />
         <Stack.Screen
           name="notice-board/[id]"

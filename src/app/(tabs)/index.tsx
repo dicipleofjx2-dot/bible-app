@@ -84,7 +84,9 @@ const HOME_TILES: HomeTile[] = [
   // 데이빗북스 하나만 걸던 자리를 성장 탭으로 넓혔다. 데이빗북스는 그 안에
   // 있고, 순종일기·우선순위·천국재정·샬롬기도단도 같이 열린다.
   { key: 'growth', emoji: '🌱', label: 'tab.growth', href: '/growth' },
-  { key: 'board', emoji: '📋', label: 'home.board', href: '/boards' },
+  // 게시판 칸은 스마트주보로 옮겼다. 게시판은 교회가 함께 쓰는 곳이고, 이 앱은
+  // 개인 경건훈련 자리다. 주보에 「게시판 면」이 생겨 거기서 읽고 쓴다 —
+  // 표는 같은 것이라 옛 글이 그대로 이어지고, 교회 홈페이지에도 함께 보인다.
   { key: 'support', emoji: '🤍', label: 'home.support', href: '/support' },
   { key: 'community', emoji: '💬', label: 'home.community', href: '/community', requiresAuth: true },
 ];
