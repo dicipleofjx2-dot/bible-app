@@ -63,6 +63,11 @@ type HomeTile = {
 // 공지사항은 바둑판에 넣지 않는다 — 제목이 바로 보이는 한 줄 띠가 위에 따로
 // 있고, 그게 아이콘 한 칸보다 훨씬 잘 읽힌다.
 const HOME_TILES: HomeTile[] = [
+  // 매일 여는 셋을 맨 앞에 둔다. 이 앱을 여는 이유가 대개 이 셋이다 —
+  // 아래로 내려가야 보이면 매일 하는 일이 매일 한 번 더 찾는 일이 된다.
+  { key: 'bibleRead', emoji: '📖', label: 'home.bibleRead', href: '/read' },
+  { key: 'qtMeditation', emoji: '🕊️', label: 'home.qtMeditation', href: '/meditation' },
+  { key: 'bibleStudy', emoji: '🔎', label: 'home.bibleStudy', href: '/bible-study' },
   { key: 'shepherdLetter', emoji: '💌', label: 'home.shepherdLetter', href: '/shepherd-letters' },
   { key: 'r2m', emoji: '🔥', label: 'home.r2m', href: '/bible-reading' },
   { key: 'readingHelper', emoji: '📆', label: 'home.readingHelper', href: '/reading-helper', requiresAuth: true },
