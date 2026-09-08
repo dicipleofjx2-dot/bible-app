@@ -353,6 +353,7 @@ export function buildManuscript(
   answers: AnswerLike[],
   timeline: TimelineLike[],
   exportLevel: Visibility = 'writer',
+  extras: { testimonies?: TestimonyLike[]; assets?: AssetLike[] } = {},
 ): string {
   const usable = answers.filter((a) => allowedInExport(a.visibility, exportLevel));
   const out: string[] = [];
@@ -409,7 +410,296 @@ export function buildManuscript(
     out.push('');
   }
 
+  // ── 부록: 동역자의 증언 (§10) ──────────────────────────────────────
+  // **서로 다른 기억을 임의로 합치지 않는다.** 누가 무엇을 말했는지 그대로
+  // 나란히 적는다. 합쳐 놓으면 나중에 어느 쪽이 무슨 말을 했는지 되찾을 수 없다.
+  const testimonies = (extras.testimonies ?? []).filter((t) => allowedInExport(t.visibility, exportLevel));
+  if (testimonies.length > 0) {
+    out.push('---');
+    out.push('');
+    out.push('## 부록: 가족과 동역자의 증언');
+    out.push('');
+    const byQuestion = new Map<string, TestimonyLike[]>();
+    for (const item of testimonies) {
+      const key = item.question || '(질문 없이 보내 주신 이야기)';
+      const list = byQuestion.get(key);
+      if (list) list.push(item);
+      else byQuestion.set(key, [item]);
+    }
+    for (const [question, list] of byQuestion) {
+      out.push(`### ${question}`);
+      out.push('');
+      for (const item of list) {
+        const who = [maskIfSecure(item.witness_name, subject.security_mode), item.relation]
+          .filter(Boolean)
+          .join(' · ');
+        out.push(`**${who || '이름을 밝히지 않은 증언'}**`);
+        out.push('');
+        out.push(item.body.trim());
+        out.push('');
+      }
+      if (list.length > 1) {
+        out.push('*(같은 일에 관한 증언이 여럿입니다. 한쪽으로 합치지 않고 그대로 실었습니다.)*');
+        out.push('');
+      }
+    }
+  }
+
+  // ── 부록: 사역 자료 (§9) ──────────────────────────────────────────
+  const assets = (extras.assets ?? []).filter((a) => allowedInExport(a.visibility, exportLevel));
+  if (assets.length > 0) {
+    out.push('---');
+    out.push('');
+    out.push('## 부록: 사역 자료 목록');
+    out.push('');
+    for (const asset of assets) {
+      const when = asset.year ? `${asset.year}${asset.month ? `.${String(asset.month).padStart(2, '0')}` : ''}` : '연도 미상';
+      const where = maskIfSecure(asset.place, subject.security_mode);
+      out.push(`- [${assetKindLabel(asset.kind)}] ${asset.title || '(제목 없음)'} — ${[when, where].filter(Boolean).join(' · ')}`);
+    }
+    out.push('');
+  }
+
   return out.join('\n');
+}
+
+// ── 2단계: 사역 자료실 · 공동 증언 · 발자취 · 인쇄본 ─────────────────
+
+export type AssetKind = 'sermon' | 'photo' | 'letter' | 'bulletin' | 'document' | 'audio' | 'video' | 'other';
+
+export const ASSET_KINDS: { id: AssetKind; label: string }[] = [
+  { id: 'sermon', label: '설교' },
+  { id: 'photo', label: '사진' },
+  { id: 'letter', label: '선교 편지' },
+  { id: 'bulletin', label: '주보' },
+  { id: 'document', label: '문서' },
+  { id: 'audio', label: '음성' },
+  { id: 'video', label: '영상' },
+  { id: 'other', label: '그 밖의 자료' },
+];
+
+export function assetKindLabel(kind: AssetKind): string {
+  return ASSET_KINDS.find((k) => k.id === kind)?.label ?? kind;
+}
+
+export type AssetLike = {
+  kind: AssetKind;
+  title: string;
+  body: string;
+  year: number | null;
+  month: number | null;
+  place: string;
+  people: string;
+  visibility: Visibility;
+};
+
+export type TestimonyLike = {
+  witness_name: string;
+  relation: string;
+  question: string;
+  body: string;
+  visibility: Visibility;
+};
+
+/**
+ * 설교와 편지에서 **반복해서 나온 말**을 뽑는다 (§9).
+ *
+ * 「핵심 메시지를 찾아낸다」고 하지 않는다 — 이것은 낱말을 세는 일이지 뜻을
+ * 읽는 일이 아니다. 세어 놓고 「이 말이 자주 나옵니다, 여기가 목회철학입니까?」
+ * 하고 사람에게 되묻는 것이 정직하다.
+ *
+ * 한국어는 조사가 붙어 같은 낱말이 다른 낱말처럼 세어진다(은혜가/은혜를/은혜는).
+ * 형태소 분석기를 싣지 않고 **자주 쓰이는 조사만 꼬리에서 떼어** 어림한다.
+ */
+const JOSA = ['으로서', '에서는', '에서', '으로', '에게', '까지', '부터', '이라', '라고', '하고', '이나', '으로써', '와의', '과의', '의', '을', '를', '이', '가', '은', '는', '도', '만', '과', '와', '로', '에'];
+const STOPWORDS = new Set([
+  '그리고', '그러나', '하지만', '그래서', '우리', '저는', '제가', '그것', '이것', 'there', '있는', '있다', '없는', '없다', '합니다', '했습니다', '입니다', '이런', '저런', '그런', '때문', '통해', '위해', '대해', '모든', '다시', '정말', '많이', '조금', '항상', '지금', '오늘', '내일', '어제', '사람', '생각', '말씀드리',
+]);
+
+function normalizeWord(raw: string): string {
+  let word = raw;
+  for (const josa of JOSA) {
+    if (word.length > josa.length + 1 && word.endsWith(josa)) {
+      word = word.slice(0, -josa.length);
+      break;
+    }
+  }
+  return word;
+}
+
+export function repeatedWords(texts: string[], limit = 12): { word: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const text of texts) {
+    for (const raw of (text ?? '').split(/[^가-힣A-Za-z]+/)) {
+      if (raw.length < 2) continue;
+      const word = normalizeWord(raw);
+      if (word.length < 2 || STOPWORDS.has(word)) continue;
+      counts.set(word, (counts.get(word) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .filter(([, count]) => count >= 2)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([word, count]) => ({ word, count }));
+}
+
+export type PlaceGroup = {
+  place: string;
+  firstYear: number | null;
+  lastYear: number | null;
+  events: string[];
+  assets: number;
+};
+
+/**
+ * 발자취를 장소별로 묶는다 (§8 선교 지도).
+ *
+ * 지도를 앱 안에 그리지 않는다 — 이 리포는 성경지도에서도 같은 판단을 했다
+ * (네이티브 지도 의존성을 들이지 않고 밖으로 연다). 여기서는 장소마다 언제
+ * 무슨 일이 있었는지를 모아 두고, 지도는 눌러서 밖에서 연다.
+ */
+export function groupPlaces(
+  timeline: TimelineLike[],
+  answers: AnswerLike[],
+  assets: AssetLike[] = [],
+): PlaceGroup[] {
+  const groups = new Map<string, PlaceGroup>();
+  const touch = (placeRaw: string, year: number | null, event: string, isAsset: boolean) => {
+    const place = (placeRaw ?? '').trim();
+    if (!place) return;
+    const found = groups.get(place) ?? { place, firstYear: null, lastYear: null, events: [], assets: 0 };
+    if (year) {
+      found.firstYear = found.firstYear === null ? year : Math.min(found.firstYear, year);
+      found.lastYear = found.lastYear === null ? year : Math.max(found.lastYear, year);
+    }
+    if (isAsset) found.assets += 1;
+    else if (event) found.events.push(event);
+    groups.set(place, found);
+  };
+
+  for (const row of timeline) touch(row.place, row.year, row.event || row.org || row.role, false);
+  for (const answer of answers) {
+    if (!isAnswered(answer.body)) continue;
+    touch(answer.place, answer.year, answer.body.trim().split(/[.!?\n]/)[0].slice(0, 60), false);
+  }
+  for (const asset of assets) touch(asset.place, asset.year, '', true);
+
+  return [...groups.values()].sort((a, b) => (a.firstYear ?? 9999) - (b.firstYear ?? 9999));
+}
+
+/** 지도는 밖에서 연다. 장소 이름만으로 여는 일반 지도 검색 주소. */
+export function placeMapUrl(place: string): string {
+  return `https://www.google.com/maps/search/${encodeURIComponent(place)}`;
+}
+
+/**
+ * 인쇄·전자책용 HTML 한 장.
+ *
+ * EPUB 을 만들지 않은 이유: EPUB 은 zip 묶음이라 압축 라이브러리를 새로 실어야
+ * 하는데, 브라우저에서 인쇄(→ PDF 저장)만으로도 종이책 원고와 전자책 원고가
+ * 둘 다 나온다. 먼저 이것으로 쓰이는지 보고 필요하면 그때 EPUB 을 더한다.
+ *
+ * 우리가 만든 마크다운만 다룬다(제목·인용·기울임·표·구분선·문단). 일반적인
+ * 마크다운 변환기가 아니다 — 들어올 글의 모양을 우리가 알고 있으므로 그만큼만
+ * 다룬다.
+ */
+export function manuscriptToHtml(markdown: string, title: string): string {
+  const escape = (text: string) =>
+    text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const inline = (text: string) =>
+    escape(text)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+  const lines = markdown.split('\n');
+  const html: string[] = [];
+  let paragraph: string[] = [];
+  let table: string[][] = [];
+
+  const flushParagraph = () => {
+    if (paragraph.length > 0) {
+      html.push(`<p>${inline(paragraph.join(' '))}</p>`);
+      paragraph = [];
+    }
+  };
+  const flushTable = () => {
+    if (table.length === 0) return;
+    const [head, ...rows] = table;
+    html.push('<table>');
+    html.push(`<thead><tr>${head.map((c) => `<th>${inline(c)}</th>`).join('')}</tr></thead>`);
+    html.push('<tbody>');
+    for (const row of rows) html.push(`<tr>${row.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`);
+    html.push('</tbody></table>');
+    table = [];
+  };
+
+  for (const line of lines) {
+    const text = line.trimEnd();
+    if (text.startsWith('|')) {
+      const cells = text.slice(1, text.endsWith('|') ? -1 : undefined).split('|').map((c) => c.trim());
+      // |---|---| 줄은 표의 뼈대일 뿐이라 버린다.
+      if (cells.every((c) => /^-{2,}$/.test(c))) continue;
+      flushParagraph();
+      table.push(cells);
+      continue;
+    }
+    flushTable();
+
+    if (text === '') {
+      flushParagraph();
+    } else if (text === '---') {
+      flushParagraph();
+      html.push('<hr />');
+    } else if (text.startsWith('### ')) {
+      flushParagraph();
+      html.push(`<h3>${inline(text.slice(4))}</h3>`);
+    } else if (text.startsWith('## ')) {
+      flushParagraph();
+      // 장은 새 쪽에서 시작한다 — 종이책은 그래야 읽힌다.
+      html.push(`<h2>${inline(text.slice(3))}</h2>`);
+    } else if (text.startsWith('# ')) {
+      flushParagraph();
+      html.push(`<h1>${inline(text.slice(2))}</h1>`);
+    } else if (text.startsWith('> ')) {
+      flushParagraph();
+      html.push(`<blockquote>${inline(text.slice(2))}</blockquote>`);
+    } else if (text.startsWith('- ')) {
+      flushParagraph();
+      html.push(`<p class="item">${inline(text.slice(2))}</p>`);
+    } else {
+      paragraph.push(text);
+    }
+  }
+  flushParagraph();
+  flushTable();
+
+  return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>${escape(title)}</title>
+<style>
+  @page { size: A5; margin: 18mm 15mm; }
+  body { font-family: 'Noto Serif KR', serif; line-height: 1.9; color: #2b211c; max-width: 42em; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 { font-size: 1.9rem; text-align: center; margin-bottom: 0.4rem; }
+  h2 { font-size: 1.3rem; margin-top: 2.4rem; page-break-before: always; }
+  h2:first-of-type { page-break-before: avoid; }
+  h3 { font-size: 1.05rem; margin-top: 1.6rem; }
+  blockquote { margin: 1.2rem 0; padding-left: 1rem; border-left: 3px solid #bc5c35; color: #6b574d; }
+  em { color: #6b574d; font-size: 0.86em; }
+  p { margin: 0.8rem 0; text-align: justify; }
+  p.item { margin: 0.25rem 0 0.25rem 1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.86rem; margin: 1rem 0; }
+  th, td { border: 1px solid #e3d3c6; padding: 0.35rem 0.5rem; text-align: left; }
+  hr { border: none; border-top: 1px solid #e3d3c6; margin: 2rem 0; }
+  @media print { body { padding: 0; } }
+</style>
+</head>
+<body>
+${html.join('\n')}
+</body>
+</html>`;
 }
 
 /** 확인이 필요한 항목. 홈 화면의 「확인이 필요한 사건」(§16)이 이 목록이다. */

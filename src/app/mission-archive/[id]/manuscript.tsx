@@ -11,10 +11,14 @@ import { Type } from '@/constants/typography';
 import {
   getSubject,
   listAnswers,
+  listAssets,
+  listTestimonies,
   listTimeline,
   saveChapter,
   type MissionAnswer,
+  type MissionAsset,
   type MissionSubject,
+  type MissionTestimony,
   type MissionTimelineRow,
 } from '@/db/missionArchive';
 import { ChipRow, MissionCard, PrimaryButton } from '@/features/mission/ui';
@@ -25,6 +29,7 @@ import {
   VISIBILITY,
   buildManuscript,
   isAnswered,
+  manuscriptToHtml,
   type Visibility,
 } from '@/lib/missionArchive';
 
@@ -48,6 +53,8 @@ export default function MissionManuscriptScreen() {
   const [subject, setSubject] = useState<MissionSubject | null>(null);
   const [answers, setAnswers] = useState<MissionAnswer[]>([]);
   const [timeline, setTimeline] = useState<MissionTimelineRow[]>([]);
+  const [testimonies, setTestimonies] = useState<MissionTestimony[]>([]);
+  const [assets, setAssets] = useState<MissionAsset[]>([]);
   const [level, setLevel] = useState<Visibility>('writer');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -59,10 +66,18 @@ export default function MissionManuscriptScreen() {
       return;
     }
     try {
-      const [one, list, rows] = await Promise.all([getSubject(id), listAnswers(id), listTimeline(id)]);
+      const [one, list, rows, witnesses, files] = await Promise.all([
+        getSubject(id),
+        listAnswers(id),
+        listTimeline(id),
+        listTestimonies(id),
+        listAssets(id),
+      ]);
       setSubject(one);
       setAnswers(list);
       setTimeline(rows);
+      setTestimonies(witnesses);
+      setAssets(files);
     } catch (e) {
       setMessage(e instanceof Error ? e.message : '불러오지 못했어요.');
     } finally {
@@ -78,12 +93,34 @@ export default function MissionManuscriptScreen() {
 
   const manuscript = useMemo(() => {
     if (!subject) return '';
-    return buildManuscript(subject, answers, timeline, level);
-  }, [subject, answers, timeline, level]);
+    return buildManuscript(subject, answers, timeline, level, { testimonies, assets });
+  }, [subject, answers, timeline, level, testimonies, assets]);
 
   async function copy() {
     await Clipboard.setStringAsync(manuscript);
     setMessage('원고를 복사했습니다. 한글·워드에 붙여 넣으세요.');
+  }
+
+  /**
+   * 인쇄·전자책용 한 장짜리 HTML.
+   *
+   * EPUB(zip 묶음) 대신 이것을 만든 이유는 `lib/missionArchive.ts` 의
+   * `manuscriptToHtml` 머리말에 적었다 — 브라우저 인쇄로 종이책 원고와 PDF가
+   * 둘 다 나온다. 새 창에서 열어 바로 인쇄할 수 있게 한다.
+   */
+  function openPrintable() {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') {
+      setMessage('인쇄본은 웹에서 만들 수 있습니다.');
+      return;
+    }
+    const html = manuscriptToHtml(manuscript, `${subject?.name ?? '사역'} 사역 기록`);
+    const win = window.open('', '_blank');
+    if (!win) {
+      setMessage('새 창이 막혀 있습니다. 팝업을 허용해 주세요.');
+      return;
+    }
+    win.document.write(html);
+    win.document.close();
   }
 
   /** 웹에서는 파일로 내려받게 한다. 폰에서는 복사만 — 파일 앱 왕복이 더 번거롭다. */
@@ -160,8 +197,9 @@ export default function MissionManuscriptScreen() {
             <>
               <MissionCard>
                 <ThemedText themeColor="textSecondary" style={Type.itemDescription}>
-                  답한 질문 {answered}개, 연표 {timeline.length}줄로 초고를 엮습니다. 말하지 않은 사건은
-                  넣지 않습니다.
+                  답한 질문 {answered}개, 연표 {timeline.length}줄, 증언 {testimonies.length}건, 자료{' '}
+                  {assets.length}건으로 초고를 엮습니다. 말하지 않은 사건은 넣지 않고, 서로 다른 증언은
+                  합치지 않고 나란히 싣습니다.
                 </ThemedText>
                 <ChipRow
                   label="내보낼 범위"
@@ -177,7 +215,10 @@ export default function MissionManuscriptScreen() {
               <View style={styles.actions}>
                 <PrimaryButton label="복사하기" onPress={copy} />
                 {Platform.OS === 'web' ? (
-                  <PrimaryButton label="원고 파일로 내려받기 (.md)" tone="quiet" onPress={download} />
+                  <>
+                    <PrimaryButton label="인쇄·전자책용으로 열기" tone="quiet" onPress={openPrintable} />
+                    <PrimaryButton label="원고 파일로 내려받기 (.md)" tone="quiet" onPress={download} />
+                  </>
                 ) : null}
                 <PrimaryButton label={busy ? '저장 중…' : '장별 초고 저장'} tone="quiet" onPress={saveDraft} disabled={busy} />
               </View>

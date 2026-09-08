@@ -4,6 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { Type } from '@/constants/typography';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 
 /**
@@ -90,8 +91,12 @@ export function PrimaryButton({
   tone?: 'accent' | 'quiet';
 }) {
   const theme = useTheme();
+  // 어두운 모드의 accent(#EC9A70)는 밝은 살구색이다. 거기에 흰 글자를 얹으면
+  // 대비가 2:1도 안 된다 — 밝은 바탕에는 어두운 글자를 얹는다(TreeCanvas 의
+  // 열매 글자가 같은 방식이다). 밝은 모드의 accent(#BC5C35)는 흰 글자로 4.5:1.
+  const isDark = useColorScheme() === 'dark';
   const background = tone === 'accent' ? theme.accent : theme.accentSoft;
-  const color = tone === 'accent' ? '#FFFFFF' : theme.accent;
+  const color = tone === 'accent' ? (isDark ? '#241A16' : '#FFFFFF') : theme.accent;
   return (
     <Pressable
       onPress={onPress}

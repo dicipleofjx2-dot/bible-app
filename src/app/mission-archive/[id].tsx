@@ -197,6 +197,10 @@ export default function MissionSubjectScreen() {
                 {[
                   { emoji: '🎤', label: 'AI 사역 인터뷰', to: 'interview', desc: '질문에 답하면 꼬리질문이 이어집니다' },
                   { emoji: '🗓️', label: '사역 연표', to: 'timeline', desc: '파송·개척·이동·이양을 연도로' },
+                  { emoji: '🗂️', label: '사역 자료실', to: 'assets', desc: '설교·사진·선교 편지·주보' },
+                  { emoji: '👥', label: '동역자 증언', to: 'witnesses', desc: '링크를 보내 가족·성도의 기억을' },
+                  { emoji: '🧭', label: '사역의 발자취', to: 'places', desc: '장소별로 모아 본 사역지' },
+                  { emoji: '🔍', label: '사실 검토실', to: 'review', desc: '확인 상태와 공개 범위를 한자리에서' },
                   { emoji: '📖', label: '원고 편집실', to: 'manuscript', desc: '장별 초고를 엮고 내보냅니다' },
                 ].map((item) => (
                   <Pressable

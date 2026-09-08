@@ -1,5 +1,7 @@
+import * as ImageManipulator from 'expo-image-manipulator';
+
 import { supabase } from '@/lib/supabase';
-import type { FactStatus, MissionAxis, MissionRole, Visibility } from '@/lib/missionArchive';
+import type { AssetKind, FactStatus, MissionAxis, MissionRole, Visibility } from '@/lib/missionArchive';
 
 /**
  * 사명기록관 데이터. 표 넷(0079) 을 읽고 쓴다.
@@ -224,4 +226,247 @@ export async function saveChapter(
     .from('mission_chapters')
     .upsert({ owner_id: ownerId, subject_id: subjectId, ...input }, { onConflict: 'subject_id,ord' });
   if (error) throw error;
+}
+
+// ── 2단계: 사역 자료실 · 공동 증언 (0080) ───────────────────────────
+
+const ASSET_BUCKET = 'mission-assets';
+
+export type MissionAsset = {
+  id: string;
+  subject_id: string;
+  kind: AssetKind;
+  title: string;
+  path: string | null;
+  year: number | null;
+  month: number | null;
+  place: string;
+  people: string;
+  note: string;
+  body: string;
+  fact_status: FactStatus;
+  visibility: Visibility;
+  created_at: string;
+};
+
+export type MissionInvite = {
+  id: string;
+  subject_id: string;
+  token: string;
+  invitee_name: string;
+  relation: string;
+  questions: string[];
+  note: string;
+  active: boolean;
+  expires_at: string | null;
+  created_at: string;
+};
+
+export type MissionTestimony = {
+  id: string;
+  subject_id: string;
+  invite_id: string | null;
+  witness_name: string;
+  relation: string;
+  question: string;
+  body: string;
+  contact: string;
+  source: 'link' | 'manual';
+  reviewed: boolean;
+  visibility: Visibility;
+  created_at: string;
+};
+
+const ASSET_COLUMNS =
+  'id, subject_id, kind, title, path, year, month, place, people, note, body, fact_status, visibility, created_at';
+const INVITE_COLUMNS =
+  'id, subject_id, token, invitee_name, relation, questions, note, active, expires_at, created_at';
+const TESTIMONY_COLUMNS =
+  'id, subject_id, invite_id, witness_name, relation, question, body, contact, source, reviewed, visibility, created_at';
+
+export async function listAssets(subjectId: string): Promise<MissionAsset[]> {
+  const { data, error } = await supabase
+    .from('mission_assets')
+    .select(ASSET_COLUMNS)
+    .eq('subject_id', subjectId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as MissionAsset[];
+}
+
+export type AssetInput = Omit<MissionAsset, 'id' | 'subject_id' | 'created_at'>;
+
+export async function addAsset(
+  ownerId: string,
+  subjectId: string,
+  input: Partial<AssetInput> & { kind: AssetKind; title: string },
+): Promise<void> {
+  const { error } = await supabase
+    .from('mission_assets')
+    .insert({ owner_id: ownerId, subject_id: subjectId, ...input });
+  if (error) throw error;
+}
+
+export async function updateAsset(assetId: string, patch: Partial<AssetInput>): Promise<void> {
+  const { error } = await supabase.from('mission_assets').update(patch).eq('id', assetId);
+  if (error) throw error;
+}
+
+export async function deleteAsset(assetId: string, path: string | null): Promise<void> {
+  const { error } = await supabase.from('mission_assets').delete().eq('id', assetId);
+  if (error) throw error;
+  if (path) await supabase.storage.from(ASSET_BUCKET).remove([path]).catch(() => {});
+}
+
+/**
+ * 자료 파일 하나를 올린다.
+ *
+ * 경로 첫 칸이 그 사람의 uuid 여야 저장소 정책을 지난다(0080). 사진은
+ * 열매 사진처럼 줄여서 올린다 — 스캔한 주보 한 장이 십수 MB 인 일이 흔하다.
+ */
+export async function uploadAssetFile(
+  ownerId: string,
+  uri: string,
+  fileName: string,
+  mimeType?: string,
+): Promise<{ path?: string; error?: string }> {
+  try {
+    const isImage = (mimeType ?? '').startsWith('image/');
+    const shrunk = isImage
+      ? await ImageManipulator.manipulateAsync(uri, [{ resize: { width: 1400 } }], {
+          compress: 0.82,
+          format: ImageManipulator.SaveFormat.JPEG,
+        }).catch(() => null)
+      : null;
+
+    const source = shrunk?.uri ?? uri;
+    const response = await fetch(source);
+    const arrayBuffer = await response.arrayBuffer();
+    const type = shrunk ? 'image/jpeg' : mimeType ?? 'application/octet-stream';
+    const ext =
+      (shrunk ? 'jpg' : fileName.split('.').pop() ?? '').replace(/[^a-z0-9]/gi, '').slice(0, 8) || 'bin';
+    const path = `${ownerId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+    const { error } = await supabase.storage.from(ASSET_BUCKET).upload(path, arrayBuffer, {
+      contentType: type,
+    });
+    if (error) return { error: error.message };
+    return { path };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : '자료를 올리지 못했어요.' };
+  }
+}
+
+/**
+ * 자료를 볼 주소.
+ *
+ * 이 통은 **비공개**라 공개 주소가 없다(0080). 볼 때마다 짧게 사는 서명 주소를
+ * 받는다 — 주소가 새어 나가도 한 시간 뒤에는 죽는다.
+ */
+export async function assetSignedUrl(path: string, seconds = 3600): Promise<string | null> {
+  const { data, error } = await supabase.storage.from(ASSET_BUCKET).createSignedUrl(path, seconds);
+  if (error) return null;
+  return data?.signedUrl ?? null;
+}
+
+export async function listInvites(subjectId: string): Promise<MissionInvite[]> {
+  const { data, error } = await supabase
+    .from('mission_witness_invites')
+    .select(INVITE_COLUMNS)
+    .eq('subject_id', subjectId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as MissionInvite[];
+}
+
+export async function createInvite(
+  ownerId: string,
+  subjectId: string,
+  input: { invitee_name: string; relation: string; questions: string[]; note: string },
+): Promise<MissionInvite> {
+  const { data, error } = await supabase
+    .from('mission_witness_invites')
+    .insert({ owner_id: ownerId, subject_id: subjectId, ...input })
+    .select(INVITE_COLUMNS)
+    .single();
+  if (error) throw error;
+  return data as MissionInvite;
+}
+
+/** 링크를 끄고 켠다. 지우지 않는 이유: 이미 받은 증언이 어느 요청에서 왔는지 남겨 둔다. */
+export async function setInviteActive(inviteId: string, active: boolean): Promise<void> {
+  const { error } = await supabase.from('mission_witness_invites').update({ active }).eq('id', inviteId);
+  if (error) throw error;
+}
+
+export async function listTestimonies(subjectId: string): Promise<MissionTestimony[]> {
+  const { data, error } = await supabase
+    .from('mission_testimonies')
+    .select(TESTIMONY_COLUMNS)
+    .eq('subject_id', subjectId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as MissionTestimony[];
+}
+
+export async function addTestimony(
+  ownerId: string,
+  subjectId: string,
+  input: { witness_name: string; relation: string; question: string; body: string },
+): Promise<void> {
+  const { error } = await supabase
+    .from('mission_testimonies')
+    .insert({ owner_id: ownerId, subject_id: subjectId, ...input, source: 'manual' });
+  if (error) throw error;
+}
+
+export async function setTestimonyReviewed(testimonyId: string, reviewed: boolean): Promise<void> {
+  const { error } = await supabase.from('mission_testimonies').update({ reviewed }).eq('id', testimonyId);
+  if (error) throw error;
+}
+
+export async function setTestimonyVisibility(testimonyId: string, visibility: Visibility): Promise<void> {
+  const { error } = await supabase.from('mission_testimonies').update({ visibility }).eq('id', testimonyId);
+  if (error) throw error;
+}
+
+export async function deleteTestimony(testimonyId: string): Promise<void> {
+  const { error } = await supabase.from('mission_testimonies').delete().eq('id', testimonyId);
+  if (error) throw error;
+}
+
+// ── 증언자 쪽 (로그인 없이 쓰는 두 함수, 0080) ──────────────────────
+
+export type WitnessPrompt = {
+  subject_name: string;
+  invitee_name: string;
+  relation: string;
+  questions: string[];
+  note: string;
+};
+
+/** 링크를 연 사람에게 **물어볼 것만** 돌려준다. 기록은 한 줄도 돌려주지 않는다. */
+export async function getWitnessPrompt(token: string): Promise<WitnessPrompt | null> {
+  const { data, error } = await supabase.rpc('mission_witness_prompt', { p_token: token });
+  if (error) throw error;
+  const rows = (data ?? []) as WitnessPrompt[];
+  return rows[0] ?? null;
+}
+
+export async function submitTestimony(
+  token: string,
+  witnessName: string,
+  relation: string,
+  contact: string,
+  answers: { question: string; body: string }[],
+): Promise<number> {
+  const { data, error } = await supabase.rpc('mission_submit_testimony', {
+    p_token: token,
+    p_witness_name: witnessName,
+    p_relation: relation,
+    p_contact: contact,
+    p_answers: answers,
+  });
+  if (error) throw error;
+  return (data as number) ?? 0;
 }
