@@ -1,0 +1,444 @@
+/**
+ * 사명기록관 — 셈과 글짓기.
+ *
+ * 화면과 서버를 섞지 않고 여기 순수 함수로 모은다. 질문 라이브러리, 꼬리질문,
+ * 진행률, 원고 조립이 전부 여기 있어서 화면을 못 띄우는 환경에서도 노드로 돌려
+ * 검사할 수 있다(중보기도 나무의 `lib/prayerTree.ts` 와 같은 방식).
+ *
+ * ── 꼬리질문에 모델을 부르지 않는 이유 ──────────────────────────────
+ * 이 앱에는 언어모델 열쇠가 없고, 있더라도 사역자의 생애 기록을 통째로 밖으로
+ * 보내는 일은 선교지 보안(기획서 §14)과 정면으로 부딪힌다. 그래서 꼬리질문은
+ * **규칙**으로 만든다 — 기획서 §7 의 「몇 년도인가 · 어디인가 · 누구였는가 ·
+ * 그 뒤로 무엇이 달라졌는가 · 근거가 있는가」가 그대로 규칙이 된다. 모델보다
+ * 덜 똑똑하지만, 빠뜨리지 않고 묻는다는 점에서는 더 낫다.
+ */
+
+export type MissionRole = 'pastor' | 'missionary' | 'both' | 'other';
+
+/** 기획서 §6 — 기록의 여섯 축. 출생·성장 순서가 아니라 부르심의 순서다. */
+export type MissionAxis = 'calling' | 'preparation' | 'sending' | 'fruit' | 'suffering' | 'legacy';
+
+export const AXES: { id: MissionAxis; label: string; hint: string }[] = [
+  { id: 'calling', label: '소명', hint: '복음을 만난 자리와 부르심' },
+  { id: 'preparation', label: '준비', hint: '훈련, 스승, 첫 사역' },
+  { id: 'sending', label: '파송과 개척', hint: '떠남, 첫 예배, 시행착오' },
+  { id: 'fruit', label: '복음의 열매', hint: '회심, 제자, 지역의 변화' },
+  { id: 'suffering', label: '고난과 회복', hint: '박해, 갈등, 가족의 희생' },
+  { id: 'legacy', label: '계승과 유산', hint: '이양, 말씀, 다음 세대' },
+];
+
+export function axisLabel(axis: MissionAxis): string {
+  return AXES.find((a) => a.id === axis)?.label ?? axis;
+}
+
+/** 기획서 §13 — 무엇으로 확인된 이야기인지. 원고를 쓸 때 이 값이 근거가 된다. */
+export type FactStatus = 'self' | 'witness' | 'document' | 'need_year' | 'conflict' | 'review' | 'private';
+
+export const FACT_STATUS: { id: FactStatus; label: string; short: string }[] = [
+  { id: 'self', label: '본인 인터뷰로 확인', short: '본인' },
+  { id: 'witness', label: '가족·동역자 증언으로 확인', short: '증언' },
+  { id: 'document', label: '사진·문서·영상으로 확인', short: '자료' },
+  { id: 'need_year', label: '연도 또는 장소 확인 필요', short: '확인필요' },
+  { id: 'conflict', label: '서로 다른 증언이 있음', short: '엇갈림' },
+  { id: 'review', label: '공개 전 교회·선교단체 확인 필요', short: '검토' },
+  { id: 'private', label: '민감정보 또는 비공개', short: '비공개' },
+];
+
+export function factLabel(status: FactStatus): string {
+  return FACT_STATUS.find((f) => f.id === status)?.label ?? status;
+}
+
+export function factShort(status: FactStatus): string {
+  return FACT_STATUS.find((f) => f.id === status)?.short ?? status;
+}
+
+/** 기획서 §14 — 어디까지 내보낼 것인가. 표를 남에게 여는 값이 아니라, 원고에서 무엇을 뺄지 정하는 값이다. */
+export type Visibility = 'public' | 'church' | 'family' | 'writer' | 'private';
+
+export const VISIBILITY: { id: Visibility; label: string; rank: number }[] = [
+  { id: 'public', label: '공개', rank: 0 },
+  { id: 'church', label: '교회 내부', rank: 1 },
+  { id: 'family', label: '가족 전용', rank: 2 },
+  { id: 'writer', label: '작가 전용', rank: 3 },
+  { id: 'private', label: '비공개', rank: 4 },
+];
+
+export function visibilityLabel(v: Visibility): string {
+  return VISIBILITY.find((x) => x.id === v)?.label ?? v;
+}
+
+function rankOf(v: Visibility): number {
+  return VISIBILITY.find((x) => x.id === v)?.rank ?? 9;
+}
+
+/**
+ * 내보낼 원고가 담을 수 있는 가장 넓은 범위.
+ *
+ * 「공개용 원고」를 뽑으면 공개로 표시된 답만 들어간다. 보관용 완전 원고
+ * (writer)를 뽑으면 비공개(private)만 빠진다 — 비공개는 어떤 원고에도 넣지
+ * 않는다. 원고를 두 벌로 나누라는 §14 의 요구가 이 한 줄이다.
+ */
+export function allowedInExport(answerVisibility: Visibility, exportLevel: Visibility): boolean {
+  if (answerVisibility === 'private') return false;
+  return rankOf(answerVisibility) <= rankOf(exportLevel);
+}
+
+// ── 질문 라이브러리 (기획서 §6, §7) ───────────────────────────────────
+
+export type Question = {
+  key: string;
+  axis: MissionAxis;
+  /** 누구에게 묻는 질문인가. 'all' 은 목회자·선교사 모두. */
+  who: 'all' | 'pastor' | 'missionary';
+  text: string;
+};
+
+export const QUESTIONS: Question[] = [
+  // 6.1 소명
+  { key: 'calling.gospel', axis: 'calling', who: 'all', text: '예수님을 인격적으로 만난 때는 언제였습니까?' },
+  { key: 'calling.moment', axis: 'calling', who: 'all', text: '목회자 또는 선교사가 되어야겠다고 처음 생각한 계기는 무엇이었습니까?' },
+  { key: 'calling.word', axis: 'calling', who: 'all', text: '그 부르심을 확신하게 한 말씀이나 사건이 있었습니까?' },
+  { key: 'calling.family', axis: 'calling', who: 'all', text: '배우자와 가족은 그 결정을 어떻게 받아들였습니까?' },
+  { key: 'calling.struggle', axis: 'calling', who: 'all', text: '순종하기 가장 어려웠던 부분은 무엇이었습니까?' },
+
+  // 6.2 준비
+  { key: 'prep.school', axis: 'preparation', who: 'all', text: '신학교와 훈련 과정은 어떠했습니까?' },
+  { key: 'prep.mentor', axis: 'preparation', who: 'all', text: '가장 큰 영향을 준 목회자·선교사·스승은 누구였습니까?' },
+  { key: 'prep.firstSermon', axis: 'preparation', who: 'all', text: '첫 설교는 언제, 어디에서, 어떤 마음으로 하셨습니까?' },
+  { key: 'prep.philosophy', axis: 'preparation', who: 'all', text: '지금의 사역 철학은 어떤 과정을 거쳐 만들어졌습니까?' },
+  { key: 'prep.cost', axis: 'preparation', who: 'all', text: '준비하는 동안 경제적·가정적으로 무엇을 감당하셨습니까?' },
+
+  // 6.3 파송과 개척
+  { key: 'send.church', axis: 'sending', who: 'all', text: '파송 교회 또는 선교단체는 어디였고, 어떻게 이어졌습니까?' },
+  { key: 'send.firstField', axis: 'sending', who: 'pastor', text: '처음 맡은 교회는 어떤 형편이었습니까?' },
+  { key: 'send.firstService', axis: 'sending', who: 'pastor', text: '첫 예배에 몇 명이 참석했고, 무엇을 설교하셨습니까?' },
+  { key: 'send.lack', axis: 'sending', who: 'pastor', text: '교회를 개척할 때 가장 부족했던 것은 무엇이었습니까?' },
+  { key: 'send.sameLand', axis: 'sending', who: 'missionary', text: '처음 품었던 나라와 실제 파송지는 같았습니까?' },
+  { key: 'send.firstDay', axis: 'sending', who: 'missionary', text: '선교지에 도착한 첫날 무엇을 보고 어떤 생각을 하셨습니까?' },
+  { key: 'send.language', axis: 'sending', who: 'missionary', text: '언어와 문화 때문에 겪은 가장 큰 어려움은 무엇이었습니까?' },
+  { key: 'send.mistakes', axis: 'sending', who: 'all', text: '사역 초기의 실패와 시행착오는 무엇이었습니까?' },
+
+  // 6.4 복음의 열매
+  { key: 'fruit.firstConvert', axis: 'fruit', who: 'all', text: '처음으로 복음을 받아들인 사람은 누구였습니까?' },
+  { key: 'fruit.changedMe', axis: 'fruit', who: 'all', text: '한 성도의 변화가 사역 방향을 바꾼 일이 있었습니까?' },
+  { key: 'fruit.disciples', axis: 'fruit', who: 'all', text: '제자를 세우고 현지 지도자를 키운 과정은 어떠했습니까?' },
+  { key: 'fruit.community', axis: 'fruit', who: 'all', text: '교회와 지역사회에 어떤 변화가 있었습니까?' },
+  { key: 'fruit.partners', axis: 'fruit', who: 'all', text: '가장 기억에 남는 성도와 동역자는 누구입니까?' },
+
+  // 6.5 고난과 회복
+  { key: 'suffer.crisis', axis: 'suffering', who: 'all', text: '박해·질병·사고·재정 위기 가운데 가장 힘들었던 때는 언제였습니까?' },
+  { key: 'suffer.conflict', axis: 'suffering', who: 'all', text: '사역 인생에서 가장 아팠던 갈등은 무엇이었습니까?' },
+  { key: 'suffer.burnout', axis: 'suffering', who: 'all', text: '사역을 멈추고 싶었던 순간이 있었습니까?' },
+  { key: 'suffer.family', axis: 'suffering', who: 'all', text: '가족이 감당한 희생은 무엇이었습니까?' },
+  { key: 'suffer.expel', axis: 'suffering', who: 'missionary', text: '생명의 위협이나 추방의 위기를 경험한 적이 있습니까?' },
+  { key: 'suffer.leading', axis: 'suffering', who: 'all', text: '그 위기 속에서 하나님의 인도하심을 어떻게 경험하셨습니까?' },
+  { key: 'suffer.after', axis: 'suffering', who: 'all', text: '그 실패 이후 사역의 방향은 어떻게 달라졌습니까?' },
+
+  // 6.6 계승과 유산
+  { key: 'legacy.handover', axis: 'legacy', who: 'all', text: '후임자나 현지 지도자에게 사역을 이양할 때 가장 중요하게 여긴 것은 무엇입니까?' },
+  { key: 'legacy.principle', axis: 'legacy', who: 'all', text: '다음 세대에게 전하고 싶은 목회·선교 원칙은 무엇입니까?' },
+  { key: 'legacy.word', axis: 'legacy', who: 'all', text: '평생 붙들었던 성경 말씀은 무엇입니까?' },
+  { key: 'legacy.sermon', axis: 'legacy', who: 'all', text: '남기고 싶은 대표 설교와 신학적 통찰은 무엇입니까?' },
+  { key: 'legacy.restart', axis: 'legacy', who: 'all', text: '지금 다시 사역을 시작한다면 무엇을 다르게 하시겠습니까?' },
+  { key: 'legacy.letter', axis: 'legacy', who: 'all', text: '자녀와 성도, 후배 사역자에게 어떤 편지를 남기고 싶으십니까?' },
+];
+
+/** 이 사역자에게 물을 질문만 고른다. 목회자에게 선교지 언어를 묻지 않는다. */
+export function questionsFor(role: MissionRole): Question[] {
+  if (role === 'both' || role === 'other') return QUESTIONS;
+  return QUESTIONS.filter((q) => q.who === 'all' || q.who === role);
+}
+
+export function questionByKey(key: string): Question | null {
+  return QUESTIONS.find((q) => q.key === key) ?? null;
+}
+
+// ── 진행률 ───────────────────────────────────────────────────────────
+
+/** 답으로 치는 최소 길이. 「네」 한 마디는 아직 이야기가 아니다. */
+const MIN_ANSWER_LENGTH = 15;
+
+export function isAnswered(body: string | null | undefined): boolean {
+  return (body ?? '').trim().length >= MIN_ANSWER_LENGTH;
+}
+
+export type AxisProgress = { axis: MissionAxis; label: string; done: number; total: number };
+
+export function axisProgress(role: MissionRole, answers: { question_key: string; body: string }[]): AxisProgress[] {
+  const done = new Set(answers.filter((a) => isAnswered(a.body)).map((a) => a.question_key));
+  return AXES.map((axis) => {
+    const list = questionsFor(role).filter((q) => q.axis === axis.id);
+    return {
+      axis: axis.id,
+      label: axis.label,
+      done: list.filter((q) => done.has(q.key)).length,
+      total: list.length,
+    };
+  });
+}
+
+/**
+ * 오늘 이어서 할 질문.
+ *
+ * 순서대로 첫 빈 질문을 준다 — 축을 건너뛰며 물으면 이야기가 조각난다.
+ * 기획서 §17 의 「매일 한 가지 질문」이 이 함수다.
+ */
+export function nextQuestion(role: MissionRole, answers: { question_key: string; body: string }[]): Question | null {
+  const done = new Set(answers.filter((a) => isAnswered(a.body)).map((a) => a.question_key));
+  return questionsFor(role).find((q) => !done.has(q.key)) ?? null;
+}
+
+// ── 꼬리질문 (기획서 §7) ─────────────────────────────────────────────
+
+export type FollowUp = { key: string; text: string };
+
+const YEAR_PATTERN = /(19|20)\d{2}\s*년?/;
+/** 사람을 가리키는 말. 이름 없이 「한 성도가」로 지나가면 원고에서 그 사람이 사라진다. */
+const PERSON_WORDS = ['성도', '집사', '권사', '장로', '목사', '선교사', '전도사', '제자', '동역자', '아내', '남편', '자녀', '아들', '딸', '어머니', '아버지', '스승', '교수'];
+const MIRACLE_WORDS = ['기적', '치유', '고침', '나았', '살아나', '응답', '환상', '꿈', '음성'];
+const TURN_WORDS = ['그만', '포기', '문을 닫', '떠나', '실패', '갈등', '싸움', '중단', '무너'];
+const PLACE_HINT = /[가-힣A-Za-z]{2,}(시|군|구|도|국|주|현|마을|지역|교회|신학교|선교회)/;
+
+/**
+ * 답을 읽고 더 물어야 할 것을 고른다.
+ *
+ * 기획서 §7 의 예시(「교회 문을 닫으려던 때 한 성도가 찾아왔습니다」)에 그대로
+ * 걸리도록 만들었다 — 연도·장소·인물·그 뒤의 변화·근거를 차례로 묻는다.
+ * 이미 채워 둔 칸(year/place/people/evidence)은 다시 묻지 않는다.
+ */
+export function followUps(
+  body: string,
+  filled: { year?: number | null; place?: string; people?: string; evidence?: string } = {},
+): FollowUp[] {
+  const text = (body ?? '').trim();
+  if (text.length < 5) return [];
+
+  const out: FollowUp[] = [];
+
+  if (!filled.year && !YEAR_PATTERN.test(text)) {
+    out.push({ key: 'year', text: '그때가 몇 년도였습니까?' });
+  }
+  if (!(filled.place ?? '').trim() && !PLACE_HINT.test(text)) {
+    out.push({ key: 'place', text: '그 일은 어느 지역, 어느 교회에서 있었습니까?' });
+  }
+  if (!(filled.people ?? '').trim() && PERSON_WORDS.some((w) => text.includes(w))) {
+    out.push({ key: 'people', text: '그 사람은 누구였습니까? 이름을 남겨도 괜찮은 분입니까?' });
+  }
+  if (TURN_WORDS.some((w) => text.includes(w))) {
+    out.push({ key: 'turn', text: '그날 이후 무엇이 달라졌습니까? 지금의 사역철학에 어떤 영향을 주었습니까?' });
+  }
+  if (MIRACLE_WORDS.some((w) => text.includes(w))) {
+    // §13 — 기적과 응답은 「누가 보았는가」를 함께 적어야 기록으로 남는다.
+    out.push({ key: 'witness', text: '그 일을 함께 본 사람이나 당시에 남긴 기록이 있습니까?' });
+  }
+  if (text.length < 120) {
+    out.push({ key: 'detail', text: '그때 보고 들은 것을 조금만 더 자세히 말씀해 주시겠습니까?' });
+  }
+  if (!(filled.evidence ?? '').trim()) {
+    out.push({ key: 'evidence', text: '관련 사진, 주보, 편지, 일기 또는 증언해 줄 분이 있습니까?' });
+  }
+
+  // 한 번에 다 들이밀면 답을 못 한다. 넷까지만 보여 준다.
+  return out.slice(0, 4);
+}
+
+// ── 원고 (기획서 §12) ────────────────────────────────────────────────
+
+export type ChapterPreset = { ord: number; title: string; keys: string[] };
+
+/** 기획서 §12 의 권장 목차. 어느 질문의 답이 어느 장으로 가는지 여기서 정한다. */
+export const CHAPTER_PRESET: ChapterPreset[] = [
+  { ord: 0, title: '프롤로그: 왜 이 사명을 기록하는가', keys: [] },
+  { ord: 1, title: '믿음이 시작된 집', keys: ['calling.gospel'] },
+  { ord: 2, title: '나를 찾아오신 하나님', keys: ['calling.moment', 'calling.word'] },
+  { ord: 3, title: '피할 수 없었던 부르심', keys: ['calling.struggle', 'calling.family'] },
+  { ord: 4, title: '훈련과 기다림의 시간', keys: ['prep.school', 'prep.mentor', 'prep.cost'] },
+  { ord: 5, title: '첫 교회, 첫 설교, 첫 성도', keys: ['prep.firstSermon', 'send.firstField', 'send.firstService'] },
+  { ord: 6, title: '낯선 땅을 향한 순종', keys: ['send.church', 'send.sameLand', 'send.firstDay'] },
+  { ord: 7, title: '아무것도 보이지 않던 개척의 날들', keys: ['send.lack', 'send.language', 'send.mistakes'] },
+  { ord: 8, title: '한 영혼에게서 시작된 변화', keys: ['fruit.firstConvert', 'fruit.changedMe'] },
+  { ord: 9, title: '사역을 멈추고 싶었던 순간', keys: ['suffer.crisis', 'suffer.burnout'] },
+  { ord: 10, title: '가족이 함께 감당한 선교', keys: ['suffer.family', 'suffer.expel'] },
+  { ord: 11, title: '동역자와 제자를 세우다', keys: ['fruit.disciples', 'fruit.partners'] },
+  { ord: 12, title: '교회와 지역이 변화되다', keys: ['fruit.community'] },
+  { ord: 13, title: '실패를 통해 다시 배운 복음', keys: ['suffer.conflict', 'suffer.leading', 'suffer.after'] },
+  { ord: 14, title: '다음 세대에게 사명을 넘기다', keys: ['legacy.handover', 'legacy.principle', 'legacy.letter'] },
+  { ord: 15, title: '끝까지 붙들고 싶은 말씀', keys: ['legacy.word', 'legacy.sermon', 'legacy.restart'] },
+  { ord: 16, title: '사역 철학과 남기는 조언', keys: ['prep.philosophy'] },
+];
+
+export type AnswerLike = {
+  question_key: string;
+  question: string;
+  body: string;
+  year: number | null;
+  place: string;
+  people: string;
+  evidence: string;
+  fact_status: FactStatus;
+  visibility: Visibility;
+};
+
+export type TimelineLike = {
+  year: number;
+  month: number | null;
+  place: string;
+  org: string;
+  role: string;
+  event: string;
+  people: string;
+  evidence: string;
+};
+
+export type SubjectLike = {
+  name: string;
+  role: MissionRole;
+  denomination: string;
+  church: string;
+  fields: string;
+  summary: string;
+  security_mode: boolean;
+};
+
+/**
+ * 보안 지역의 지명·인명을 가린다.
+ *
+ * **구조화된 칸(장소·인물)만 가릴 수 있다.** 본문 속 지명까지 기계가 지우려
+ * 들면 반드시 놓치거나 엉뚱한 말을 지운다 — 사람이 다치는 쪽이라 흉내내지
+ * 않는다. 대신 원고 맨 앞에 「본문은 사람이 직접 확인할 것」을 적는다.
+ */
+function maskIfSecure(value: string, secure: boolean): string {
+  const text = (value ?? '').trim();
+  if (!secure || !text) return text;
+  return '○○';
+}
+
+function chapterBody(chapter: ChapterPreset, answers: AnswerLike[], secure: boolean): string {
+  const lines: string[] = [];
+  for (const key of chapter.keys) {
+    const answer = answers.find((a) => a.question_key === key);
+    if (!answer || !isAnswered(answer.body)) continue;
+
+    lines.push(`> ${answer.question}`);
+    lines.push('');
+    lines.push(answer.body.trim());
+
+    // 근거는 원고 안에 붙여 둔다. 나중에 빼기는 쉬워도, 없던 근거를 되찾기는
+    // 어렵다(§21.9 — 원문과 편집문을 견줄 수 있게 한다).
+    const marks: string[] = [];
+    if (answer.year) marks.push(`${answer.year}년`);
+    const place = maskIfSecure(answer.place, secure);
+    if (place) marks.push(place);
+    const people = maskIfSecure(answer.people, secure);
+    if (people) marks.push(people);
+    marks.push(factShort(answer.fact_status));
+    if (answer.evidence) marks.push(`근거: ${answer.evidence}`);
+    lines.push('');
+    lines.push(`*(${marks.join(' · ')})*`);
+    lines.push('');
+  }
+  return lines.join('\n').trim();
+}
+
+/**
+ * 초고를 엮는다.
+ *
+ * **말하지 않은 것을 지어내지 않는다(§21.5).** 여기서 하는 일은 답을 장별로
+ * 모으고, 근거를 함께 적고, 연표를 부록으로 붙이는 것뿐이다. 1인칭 자서전이나
+ * 3인칭 평전으로 문체를 바꾸는 일은 사람(또는 나중에 붙일 모델)의 몫이다 —
+ * 규칙으로 한국어 문체를 바꾸면 사역자의 목소리가 망가진다.
+ */
+export function buildManuscript(
+  subject: SubjectLike,
+  answers: AnswerLike[],
+  timeline: TimelineLike[],
+  exportLevel: Visibility = 'writer',
+): string {
+  const usable = answers.filter((a) => allowedInExport(a.visibility, exportLevel));
+  const out: string[] = [];
+
+  out.push(`# ${subject.name} 사역 기록`);
+  out.push('');
+  const head = [subject.denomination, subject.church, subject.fields].filter(Boolean).join(' · ');
+  if (head) out.push(head);
+  if (subject.summary) {
+    out.push('');
+    out.push(subject.summary.trim());
+  }
+  out.push('');
+  out.push(`*내보낸 범위: ${visibilityLabel(exportLevel)}까지 · 비공개 항목은 어떤 원고에도 들어가지 않습니다.*`);
+  if (subject.security_mode) {
+    out.push('');
+    out.push('> **보안 지역 기록입니다.** 장소와 인물 칸은 ○○ 로 가렸습니다. 본문 속 지명·실명은 기계가 지우지 않았으니 출판 전에 사람이 직접 확인해 주세요.');
+  }
+  out.push('');
+  out.push('---');
+  out.push('');
+
+  for (const chapter of CHAPTER_PRESET) {
+    const body = chapterBody(chapter, usable, subject.security_mode);
+    if (chapter.ord === 0 || !body) {
+      if (chapter.ord !== 0) continue; // 답이 없는 장은 빈 제목만 남기지 않는다
+    }
+    out.push(`## ${chapter.ord === 0 ? '' : `${chapter.ord}. `}${chapter.title}`);
+    out.push('');
+    out.push(body || '(아직 기록되지 않았습니다.)');
+    out.push('');
+  }
+
+  if (timeline.length > 0) {
+    out.push('---');
+    out.push('');
+    out.push('## 부록: 사역 연표');
+    out.push('');
+    out.push('| 연도 | 장소 | 교회·기관 | 역할 | 주요 사건 | 관련 인물 | 근거 자료 |');
+    out.push('|---|---|---|---|---|---|---|');
+    for (const row of [...timeline].sort((a, b) => a.year - b.year || (a.month ?? 0) - (b.month ?? 0))) {
+      const when = row.month ? `${row.year}.${String(row.month).padStart(2, '0')}` : `${row.year}`;
+      const cells = [
+        when,
+        maskIfSecure(row.place, subject.security_mode),
+        row.org,
+        row.role,
+        row.event,
+        maskIfSecure(row.people, subject.security_mode),
+        row.evidence,
+      ].map((c) => (c || '').replace(/\|/g, '/'));
+      out.push(`| ${cells.join(' | ')} |`);
+    }
+    out.push('');
+  }
+
+  return out.join('\n');
+}
+
+/** 확인이 필요한 항목. 홈 화면의 「확인이 필요한 사건」(§16)이 이 목록이다. */
+export function needsCheck<T extends Pick<AnswerLike, 'body' | 'fact_status'>>(answers: T[]): T[] {
+  return answers.filter(
+    (a) => isAnswered(a.body) && (a.fact_status === 'need_year' || a.fact_status === 'conflict' || a.fact_status === 'review'),
+  );
+}
+
+/**
+ * 답에서 연표 한 줄을 만들어 본다.
+ *
+ * 연도를 모르면 연표에 놓을 자리가 없으므로 null 이다 — 임의로 짐작해 넣으면
+ * 그 짐작이 그대로 교회사가 된다.
+ */
+export function toTimelineDraft(answer: AnswerLike): Omit<TimelineLike, 'evidence'> & { evidence: string } | null {
+  // 연도 칸이 비었으면 본문에서 찾아본다 — 「1995년에」라고 말해 놓고 칸은 비워
+  // 두는 일이 잦다. 그래도 없으면 연표에 놓을 자리가 없다.
+  const fromBody = Number((answer.body.match(YEAR_PATTERN)?.[0] ?? '').replace(/[^0-9]/g, ''));
+  const year = answer.year ?? (Number.isFinite(fromBody) && fromBody > 0 ? fromBody : null);
+  if (!year) return null;
+  return {
+    year,
+    month: null,
+    place: answer.place,
+    org: '',
+    role: '',
+    event: answer.body.trim().split(/[.!?\n]/)[0].slice(0, 60),
+    people: answer.people,
+    evidence: answer.evidence,
+  };
+}

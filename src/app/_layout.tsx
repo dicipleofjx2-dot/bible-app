@@ -177,6 +177,26 @@ function AppStack() {
           options={{ headerShown: true, title: '열매 가꾸기' }}
         />
         <Stack.Screen
+          name="mission-archive"
+          options={{ headerShown: true, title: '사명기록관' }}
+        />
+        <Stack.Screen
+          name="mission-archive/[id]"
+          options={{ headerShown: true, title: '사역 기록' }}
+        />
+        <Stack.Screen
+          name="mission-archive/[id]/interview"
+          options={{ headerShown: true, title: '사역 인터뷰' }}
+        />
+        <Stack.Screen
+          name="mission-archive/[id]/timeline"
+          options={{ headerShown: true, title: '사역 연표' }}
+        />
+        <Stack.Screen
+          name="mission-archive/[id]/manuscript"
+          options={{ headerShown: true, title: '원고 편집실' }}
+        />
+        <Stack.Screen
           name="privacy-policy"
           options={{ headerShown: true, title: t('nav.privacy') }}
         />
