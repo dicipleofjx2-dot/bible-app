@@ -45,6 +45,13 @@ export default function GrowthHubScreen() {
           requiresAuth: true,
         },
         {
+          emoji: '🕯️',
+          label: '사명기록관',
+          description: '소명과 사역을 인터뷰로 받아 적어 한 권의 기록으로',
+          href: '/mission-archive',
+          requiresAuth: true,
+        },
+        {
           emoji: '🙏',
           label: t('growth.shalomPrayer'),
           description: t('growth.shalomPrayerDesc'),
