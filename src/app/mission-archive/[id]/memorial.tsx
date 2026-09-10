@@ -164,8 +164,8 @@ export default function MissionMemorialAdminScreen() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <ThemedText style={Type.screenTitle}>디지털 기념관</ThemedText>
           <ThemedText themeColor="textSecondary" style={Type.itemDescription}>
-            연표·이야기·증언·사진을 한 장으로 엮어 누구나 볼 수 있게 엽니다. **「공개」로 표시한
-            것만** 나갑니다.
+            연표·이야기·증언·사진을 한 장으로 엮어 누구나 볼 수 있게 엽니다. 「공개」로 표시한
+            것만 나갑니다.
           </ThemedText>
 
           {loading ? (

@@ -20,7 +20,7 @@ import {
   type MissionTestimony,
   type MissionTimelineRow,
 } from '@/db/missionArchive';
-import { ChipRow, MissionCard, PrimaryButton } from '@/features/mission/ui';
+import { ChipRow, MarkdownPreview, MissionCard, PrimaryButton } from '@/features/mission/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import {
@@ -172,9 +172,7 @@ export default function MissionDocumentaryScreen() {
 
               <MissionCard>
                 <ThemedText style={Type.itemTitle}>대본 미리보기</ThemedText>
-                <ThemedText selectable style={Type.reading}>
-                  {script}
-                </ThemedText>
+                <MarkdownPreview text={script} />
               </MissionCard>
             </>
           )}
