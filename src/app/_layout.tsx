@@ -80,14 +80,16 @@ export default function RootLayout() {
     alreadyRedirected.current = true;
   }
 
-  // 증언 링크(/witness/...)만은 **성경 저장소를 열지 않고** 그린다.
+  // 증언 링크(/witness/...)와 공개 기념관(/memorial/...)만은 **성경 저장소를
+  // 열지 않고** 그린다.
   //
-  // 이 화면에 오는 분은 사역자의 가족이나 옛 성도다. 증언 한 편 남기러 와서
-  // 수십 MB 짜리 성경 데이터베이스를 내려받고 탭 자리다툼(DbTabGate)까지 지날
-  // 이유가 없다. 이 화면이 쓰는 것은 서버 함수 둘뿐이라 로그인도 필요 없다.
+  // 이 두 화면에 오는 분은 사역자의 가족이나 옛 성도, 또는 기념관 링크를 받은
+  // 낯선 방문자다. 증언 한 편 남기거나 기념관 한 장을 보러 와서 수십 MB 짜리
+  // 성경 데이터베이스를 내려받고 탭 자리다툼(DbTabGate)까지 지날 이유가 없다.
+  // 두 화면이 쓰는 것은 서버 함수뿐이라 로그인도 필요 없다.
   //
   // 갈림길을 여기 둔 덕에 평소 경로는 한 줄도 달라지지 않는다.
-  if (pathname.startsWith('/witness')) {
+  if (pathname.startsWith('/witness') || pathname.startsWith('/memorial')) {
     return (
       <SkinProvider>
         <I18nProvider>
@@ -234,6 +236,18 @@ function AppStack() {
         <Stack.Screen
           name="witness/[token]"
           options={{ headerShown: true, title: '증언 남기기' }}
+        />
+        <Stack.Screen
+          name="mission-archive/[id]/memorial"
+          options={{ headerShown: true, title: '디지털 기념관' }}
+        />
+        <Stack.Screen
+          name="mission-archive/[id]/documentary"
+          options={{ headerShown: true, title: '다큐 스튜디오' }}
+        />
+        <Stack.Screen
+          name="memorial/[slug]"
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="privacy-policy"

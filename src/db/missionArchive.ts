@@ -1,7 +1,14 @@
 import * as ImageManipulator from 'expo-image-manipulator';
 
 import { supabase } from '@/lib/supabase';
-import type { AssetKind, FactStatus, MissionAxis, MissionRole, Visibility } from '@/lib/missionArchive';
+import type {
+  AssetKind,
+  FactStatus,
+  MemorialData,
+  MissionAxis,
+  MissionRole,
+  Visibility,
+} from '@/lib/missionArchive';
 
 /**
  * 사명기록관 데이터. 표 넷(0079) 을 읽고 쓴다.
@@ -469,4 +476,110 @@ export async function submitTestimony(
   });
   if (error) throw error;
   return (data as number) ?? 0;
+}
+
+// ── 3단계: 디지털 기념관 (0081) ─────────────────────────────────────
+
+const MEMORIAL_BUCKET = 'mission-memorial-photos';
+
+export type MissionMemorial = {
+  subject_id: string;
+  slug: string;
+  title: string;
+  intro: string;
+  published: boolean;
+  updated_at: string;
+};
+
+export type MemorialPhoto = {
+  id: string;
+  path: string;
+  caption: string;
+  ord: number;
+};
+
+export async function getMemorialSettings(subjectId: string): Promise<MissionMemorial | null> {
+  const { data, error } = await supabase
+    .from('mission_memorials')
+    .select('subject_id, slug, title, intro, published, updated_at')
+    .eq('subject_id', subjectId)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as MissionMemorial | null) ?? null;
+}
+
+export async function saveMemorialSettings(
+  ownerId: string,
+  subjectId: string,
+  input: { slug: string; title: string; intro: string; published: boolean },
+): Promise<void> {
+  const { error } = await supabase
+    .from('mission_memorials')
+    .upsert({ owner_id: ownerId, subject_id: subjectId, ...input }, { onConflict: 'subject_id' });
+  if (error) throw error;
+}
+
+export async function listMemorialPhotos(subjectId: string): Promise<MemorialPhoto[]> {
+  const { data, error } = await supabase
+    .from('mission_memorial_photos')
+    .select('id, path, caption, ord')
+    .eq('subject_id', subjectId)
+    .order('ord', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as MemorialPhoto[];
+}
+
+export function memorialPhotoUrl(path: string): string {
+  return supabase.storage.from(MEMORIAL_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
+/**
+ * 자료실의 사진 하나를 기념관에 건다.
+ *
+ * 비공개 통의 파일을 가리키기만 하면 익명 방문자가 열 수 없다(0080/0081).
+ * 서명 주소로 한 번 내려받아 **공개 통에 다시 올린다** — 「공개하겠다」고 한 번
+ * 더 누른 사진만 공개된다는 규칙이 이 한 번의 복사다.
+ */
+export async function publishPhotoToMemorial(
+  ownerId: string,
+  subjectId: string,
+  asset: { path: string | null; title: string },
+  ord: number,
+): Promise<{ error?: string }> {
+  if (!asset.path) return { error: '파일이 없는 자료입니다.' };
+  try {
+    const signed = await assetSignedUrl(asset.path, 120);
+    if (!signed) return { error: '원본을 열지 못했어요.' };
+    const response = await fetch(signed);
+    const arrayBuffer = await response.arrayBuffer();
+    const ext = (asset.path.split('.').pop() ?? 'jpg').replace(/[^a-z0-9]/gi, '').slice(0, 8) || 'jpg';
+    const path = `${ownerId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage.from(MEMORIAL_BUCKET).upload(path, arrayBuffer, {
+      contentType: response.headers.get('content-type') ?? 'image/jpeg',
+      cacheControl: '31536000',
+    });
+    if (uploadError) return { error: uploadError.message };
+
+    const { error } = await supabase
+      .from('mission_memorial_photos')
+      .insert({ owner_id: ownerId, subject_id: subjectId, path, caption: asset.title, ord });
+    if (error) return { error: error.message };
+    return {};
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : '기념관에 걸지 못했어요.' };
+  }
+}
+
+export async function removeMemorialPhoto(photoId: string, path: string): Promise<void> {
+  const { error } = await supabase.from('mission_memorial_photos').delete().eq('id', photoId);
+  if (error) throw error;
+  await supabase.storage.from(MEMORIAL_BUCKET).remove([path]).catch(() => {});
+}
+
+/** 방문자 쪽. 로그인 없이 함수 하나로 기념관을 통째로 받는다(0081). */
+export async function getMemorial(slug: string): Promise<MemorialData | null> {
+  const { data, error } = await supabase.rpc('mission_memorial', { p_slug: slug });
+  if (error) throw error;
+  return (data as MemorialData | null) ?? null;
 }

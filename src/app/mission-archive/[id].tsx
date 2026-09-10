@@ -202,6 +202,8 @@ export default function MissionSubjectScreen() {
                   { emoji: '🧭', label: '사역의 발자취', to: 'places', desc: '장소별로 모아 본 사역지' },
                   { emoji: '🔍', label: '사실 검토실', to: 'review', desc: '확인 상태와 공개 범위를 한자리에서' },
                   { emoji: '📖', label: '원고 편집실', to: 'manuscript', desc: '장별 초고를 엮고 내보냅니다' },
+                  { emoji: '🎬', label: '다큐 스튜디오', to: 'documentary', desc: '장면·내레이션·자막 대본 초고' },
+                  { emoji: '🏛️', label: '디지털 기념관', to: 'memorial', desc: '공개로 표시한 것만 한 장으로 엽니다' },
                 ].map((item) => (
                   <Pressable
                     key={item.to}

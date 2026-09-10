@@ -298,6 +298,8 @@ export type SubjectLike = {
   fields: string;
   summary: string;
   security_mode: boolean;
+  /** 고인의 기록인가. 다큐 대본의 말투가 여기서 갈린다. */
+  is_deceased?: boolean;
 };
 
 /**
@@ -731,4 +733,256 @@ export function toTimelineDraft(answer: AnswerLike): Omit<TimelineLike, 'evidenc
     people: answer.people,
     evidence: answer.evidence,
   };
+}
+
+// ── 3단계: 다큐멘터리 대본 · 디지털 기념관 ───────────────────────────
+
+/**
+ * 「카메라 앞에 세울 만한 이야기」를 고른다 (기획서 §18 3단계 「하이라이트 추출」).
+ *
+ * 영상을 자르지 않는다 — 자를 영상이 이 앱에 없다. 대신 **어느 답이 장면이
+ * 되는지**를 고른다. 고르는 잣대는 셋이다: 언제 있었는지 아는 이야기(연도),
+ * 충분히 말한 이야기(길이), 그리고 흐름이 꺾인 이야기(전환·응답). 왜 골랐는지를
+ * 함께 돌려주어 사람이 뒤집을 수 있게 한다.
+ */
+export type Highlight = { key: string; question: string; body: string; year: number | null; reason: string };
+
+export function pickHighlights(answers: AnswerLike[], limit = 8): Highlight[] {
+  const scored = answers
+    .filter((a) => isAnswered(a.body) && a.visibility !== 'private')
+    .map((a) => {
+      const reasons: string[] = [];
+      let score = 0;
+      if (a.year) {
+        score += 2;
+        reasons.push('연도가 있다');
+      }
+      if (a.body.trim().length >= 200) {
+        score += 2;
+        reasons.push('길게 말씀하셨다');
+      }
+      if (TURN_WORDS.some((w) => a.body.includes(w))) {
+        score += 3;
+        reasons.push('흐름이 꺾인 대목');
+      }
+      if (MIRACLE_WORDS.some((w) => a.body.includes(w))) {
+        score += 2;
+        reasons.push('기도 응답·치유의 증언');
+      }
+      if (a.evidence.trim()) {
+        score += 1;
+        reasons.push('보여 줄 자료가 있다');
+      }
+      return { a, score, reasons };
+    })
+    .filter((item) => item.score >= 3)
+    .sort((x, y) => y.score - x.score);
+
+  return scored.slice(0, limit).map(({ a, reasons }) => ({
+    key: a.question_key,
+    question: a.question,
+    body: a.body.trim(),
+    year: a.year,
+    reason: reasons.join(' · '),
+  }));
+}
+
+/**
+ * 내레이션 한 줄.
+ *
+ * **연표에 적힌 사실만으로 만든다.** 「그는 두려웠다」 같은 말을 붙이지 않는다 —
+ * 아무도 그렇게 말한 적이 없기 때문이다(§21.5). 형용사가 필요하면 사람이 쓴다.
+ */
+function narrationFor(row: TimelineLike, secure: boolean): string {
+  const when = row.month ? `${row.year}년 ${row.month}월` : `${row.year}년`;
+  const where = maskIfSecure(row.place, secure);
+  const parts = [when];
+  if (where) parts.push(where);
+  const org = row.org.trim();
+  if (org) parts.push(org);
+  const what = row.event.trim() || row.role.trim();
+  return what ? `${parts.join(', ')} — ${what}.` : `${parts.join(', ')}.`;
+}
+
+/**
+ * 다큐멘터리 대본 초고 (기획서 §11).
+ *
+ * 씬 하나에 넷을 나란히 둔다 — 화면(무엇을 비출지), 내레이션(연표에서 나온
+ * 사실), 사역자 육성(인터뷰 원문 그대로), 증언(누가 말했는지 밝혀서). 넷을
+ * 섞어 한 문단으로 녹이지 않는다: 촬영·편집하는 사람이 **어디까지가 본인 말이고
+ * 어디부터가 우리가 붙인 말인지** 한눈에 봐야 하기 때문이다.
+ */
+export function buildDocumentaryScript(
+  subject: SubjectLike,
+  answers: AnswerLike[],
+  timeline: TimelineLike[],
+  testimonies: TestimonyLike[] = [],
+  assets: AssetLike[] = [],
+  exportLevel: Visibility = 'church',
+): string {
+  const usable = answers.filter((a) => allowedInExport(a.visibility, exportLevel));
+  const usableTestimonies = testimonies.filter((t) => allowedInExport(t.visibility, exportLevel));
+  const usableAssets = assets.filter((a) => allowedInExport(a.visibility, exportLevel));
+  const highlights = pickHighlights(usable);
+  const secure = subject.security_mode;
+
+  const out: string[] = [];
+  out.push(`# ${subject.name} — 다큐멘터리 대본 초고`);
+  out.push('');
+  out.push(
+    `*내보낸 범위: ${visibilityLabel(exportLevel)}까지 · 내레이션은 연표에 적힌 사실만으로 지었습니다. 감정을 담은 문장은 사람이 쓰셔야 합니다.*`,
+  );
+  if (secure) {
+    out.push('');
+    out.push('> **보안 지역 기록입니다.** 지명과 인명을 가렸습니다. 얼굴이 나오는 장면은 촬영 전에 본인 동의를 받아 주세요.');
+  }
+  out.push('');
+  out.push('---');
+  out.push('');
+
+  // 여는 장면 — 사역자가 누구인지 한 문장.
+  out.push('## 씬 1. 여는 장면');
+  out.push('');
+  out.push(`**화면** — ${usableAssets.find((a) => a.kind === 'photo')?.title ?? '초기 사역 사진'} 위로 자막.`);
+  out.push('');
+  const intro = [subject.denomination, subject.church, subject.fields].filter(Boolean).join(' · ');
+  out.push(
+    `**내레이션** — ${subject.name}님이 ${subject.is_deceased ? '걸어가신 길입니다' : '걸어온 길입니다'}.${intro ? ` ${intro}.` : ''}`,
+  );
+  if (subject.summary.trim()) {
+    out.push('');
+    out.push(`**자막** — ${subject.summary.trim()}`);
+  }
+  out.push('');
+
+  // 연표를 따라 흐르는 본 씬들. 하이라이트가 붙는 해에는 육성을 얹는다.
+  const sorted = [...timeline].sort((a, b) => a.year - b.year || (a.month ?? 0) - (b.month ?? 0));
+  let sceneNo = 2;
+  for (const row of sorted) {
+    out.push(`## 씬 ${sceneNo}. ${row.year}년${row.place ? ` · ${maskIfSecure(row.place, secure)}` : ''}`);
+    out.push('');
+    const photo = usableAssets.find((a) => a.year === row.year && a.kind === 'photo');
+    out.push(`**화면** — ${photo ? `${photo.title || '사진'} (${photo.year}년)` : '해당 시기의 사진·영상 자료를 찾아 넣으세요.'}`);
+    out.push('');
+    out.push(`**내레이션** — ${narrationFor(row, secure)}`);
+
+    const voice = highlights.find((h) => h.year === row.year);
+    if (voice) {
+      out.push('');
+      out.push('**사역자 육성** (인터뷰 원문 그대로)');
+      out.push('');
+      out.push(`> ${voice.body.split('\n').join(' ')}`);
+    }
+    out.push('');
+    sceneNo += 1;
+  }
+
+  // 육성만 있고 연도가 없는 이야기 — 연표에 못 붙였으니 따로 모은다.
+  const floating = highlights.filter((h) => !h.year || !sorted.some((row) => row.year === h.year));
+  if (floating.length > 0) {
+    out.push(`## 씬 ${sceneNo}. 자리를 정해야 하는 이야기`);
+    out.push('');
+    out.push('**연출 메모** — 아래는 연표에 붙일 해를 아직 모르는 이야기입니다. 연도를 확인하면 위 흐름 안으로 옮기세요.');
+    out.push('');
+    for (const item of floating) {
+      out.push(`- **${item.question}** — ${item.body.slice(0, 160)}${item.body.length > 160 ? '…' : ''}`);
+      out.push(`  *(고른 이유: ${item.reason})*`);
+    }
+    out.push('');
+    sceneNo += 1;
+  }
+
+  if (usableTestimonies.length > 0) {
+    out.push(`## 씬 ${sceneNo}. 곁에서 본 사람들`);
+    out.push('');
+    out.push('**화면** — 증언해 주신 분들의 인터뷰. 한 사람씩, 이름과 관계를 자막으로.');
+    out.push('');
+    for (const item of usableTestimonies) {
+      const who = [maskIfSecure(item.witness_name, secure), item.relation].filter(Boolean).join(' · ');
+      out.push(`**자막** — ${who || '증언자'}`);
+      out.push('');
+      out.push(`> ${item.body.trim().split('\n').join(' ')}`);
+      out.push('');
+    }
+    sceneNo += 1;
+  }
+
+  out.push(`## 씬 ${sceneNo}. 닫는 장면`);
+  out.push('');
+  const legacy = usable.find((a) => a.question_key === 'legacy.word' && isAnswered(a.body));
+  const letter = usable.find((a) => a.question_key === 'legacy.letter' && isAnswered(a.body));
+  out.push('**화면** — 지금의 사역지, 또는 후임자와 함께 선 모습.');
+  out.push('');
+  if (legacy) {
+    out.push('**사역자 육성** (평생 붙든 말씀)');
+    out.push('');
+    out.push(`> ${legacy.body.trim().split('\n').join(' ')}`);
+    out.push('');
+  }
+  if (letter) {
+    out.push('**사역자 육성** (다음 세대에게)');
+    out.push('');
+    out.push(`> ${letter.body.trim().split('\n').join(' ')}`);
+    out.push('');
+  }
+  if (!legacy && !letter) {
+    out.push('**연출 메모** — 「평생 붙든 말씀」과 「다음 세대에게 보내는 편지」를 아직 안 여쭈었습니다. 인터뷰에서 그 둘을 받으면 닫는 장면이 채워집니다.');
+    out.push('');
+  }
+
+  return out.join('\n');
+}
+
+// ── 기념관 ───────────────────────────────────────────────────────────
+
+/** 주소에 쓸 이름. 한글 이름은 주소에 담기 어려우므로 영문·숫자만 받는다. */
+export function isValidSlug(slug: string): boolean {
+  return /^[a-z0-9][a-z0-9-]{2,48}[a-z0-9]$/.test(slug);
+}
+
+export function slugify(raw: string): string {
+  const cleaned = raw
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  // 한글만 적으면 아무것도 남지 않는다. 그때는 빈 값을 돌려주고 화면이 되묻는다.
+  return cleaned.length >= 4 ? cleaned.slice(0, 50) : '';
+}
+
+export type MemorialData = {
+  name: string;
+  title: string | null;
+  intro: string | null;
+  role: MissionRole;
+  denomination: string;
+  church: string;
+  fields: string;
+  summary: string;
+  is_deceased: boolean;
+  timeline: { year: number; month: number | null; place: string; org: string; role: string; event: string; people: string }[];
+  stories: { question: string; body: string; year: number | null; place: string }[];
+  testimonies: { witness_name: string; relation: string; question: string; body: string }[];
+  photos: { path: string; caption: string }[];
+};
+
+/**
+ * 기념관이 비어 보이는 이유를 짚어 준다.
+ *
+ * 「공개」로 표시한 것만 나가므로(0081), 처음 켠 사람은 십중팔구 텅 빈 기념관을
+ * 본다. 그때 「왜 비었는가」를 말해 주지 않으면 고장으로 읽힌다.
+ */
+export function memorialReadiness(answers: AnswerLike[], testimonies: TestimonyLike[], photos: number): string[] {
+  const notes: string[] = [];
+  const publicAnswers = answers.filter((a) => a.visibility === 'public' && isAnswered(a.body)).length;
+  if (publicAnswers === 0) {
+    notes.push('공개로 표시한 이야기가 없습니다. 사실 검토실에서 내보낼 이야기를 「공개」로 바꿔 주세요.');
+  }
+  if (testimonies.length > 0 && testimonies.every((t) => t.visibility !== 'public')) {
+    notes.push('받은 증언이 모두 비공개 범위입니다. 기념관에 싣고 싶은 증언은 「공개」로 바꿔 주세요.');
+  }
+  if (photos === 0) {
+    notes.push('기념관에 건 사진이 없습니다. 자료실에서 사진을 고른 뒤 여기로 올려 주세요.');
+  }
+  return notes;
 }
