@@ -45,6 +45,9 @@ export type MissionAnswer = {
   evidence: string;
   fact_status: FactStatus;
   visibility: Visibility;
+  /** 인터뷰 녹음 원본(비공개 통 안의 경로, 0082). 받아쓴 글을 고쳐도 남는다. */
+  audio_path: string | null;
+  audio_seconds: number | null;
   updated_at: string;
 };
 
@@ -75,7 +78,7 @@ export type MissionChapter = {
 const SUBJECT_COLUMNS =
   'id, name, role, denomination, church, fields, born_year, called_year, summary, is_deceased, security_mode, created_at';
 const ANSWER_COLUMNS =
-  'id, subject_id, axis, question_key, question, body, year, place, people, evidence, fact_status, visibility, updated_at';
+  'id, subject_id, axis, question_key, question, body, year, place, people, evidence, fact_status, visibility, audio_path, audio_seconds, updated_at';
 const TIMELINE_COLUMNS =
   'id, subject_id, year, month, place, org, role, event, people, evidence, fact_status';
 const CHAPTER_COLUMNS = 'id, subject_id, ord, title, body, source_keys, updated_at';
@@ -142,6 +145,8 @@ export type AnswerInput = {
   evidence?: string;
   fact_status?: FactStatus;
   visibility?: Visibility;
+  audio_path?: string | null;
+  audio_seconds?: number | null;
 };
 
 /**
@@ -370,6 +375,48 @@ export async function uploadAssetFile(
  * 이 통은 **비공개**라 공개 주소가 없다(0080). 볼 때마다 짧게 사는 서명 주소를
  * 받는다 — 주소가 새어 나가도 한 시간 뒤에는 죽는다.
  */
+/**
+ * 인터뷰 녹음 한 개를 올린다.
+ *
+ * 자료실과 **같은 비공개 통**을 쓴다(0082). 성격이 같은 파일이고, 통을 하나 더
+ * 만들면 정책도 하나 더 늘어난다 — 늘어난 만큼 새는 구멍이 생긴다.
+ */
+export async function uploadAnswerAudio(
+  ownerId: string,
+  uri: string,
+): Promise<{ path?: string; error?: string }> {
+  try {
+    const response = await fetch(uri);
+    const arrayBuffer = await response.arrayBuffer();
+
+    // **파일 종류를 주소에서 짐작하지 않는다.** 웹의 녹음 주소는 `blob:...` 이라
+    // 확장자가 아예 없고, 브라우저마다 webm 으로도 mp4 로도 떨어진다. 확장자만
+    // 보고 `.m4a` 라고 붙여 두면 파일 속은 webm 인데 이름만 m4a 인 것이 되어,
+    // 나중에 어떤 브라우저에서는 재생이 안 된다. 받아 온 것에게 직접 물어본다.
+    const declared = (response.headers.get('content-type') ?? '').split(';')[0].trim();
+    const fromUri = (uri.split('?')[0].split('.').pop() ?? '').toLowerCase();
+    const type = declared.startsWith('audio/') || declared.startsWith('video/')
+      ? declared
+      : fromUri === 'webm'
+        ? 'audio/webm'
+        : 'audio/m4a';
+    const ext = type.includes('webm') ? 'webm' : type.includes('ogg') ? 'ogg' : type.includes('wav') ? 'wav' : 'm4a';
+
+    const path = `${ownerId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from(ASSET_BUCKET).upload(path, arrayBuffer, {
+      contentType: type,
+    });
+    if (error) return { error: error.message };
+    return { path };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : '녹음을 올리지 못했어요.' };
+  }
+}
+
+export async function removeAnswerAudio(path: string): Promise<void> {
+  await supabase.storage.from(ASSET_BUCKET).remove([path]).catch(() => {});
+}
+
 export async function assetSignedUrl(path: string, seconds = 3600): Promise<string | null> {
   const { data, error } = await supabase.storage.from(ASSET_BUCKET).createSignedUrl(path, seconds);
   if (error) return null;
