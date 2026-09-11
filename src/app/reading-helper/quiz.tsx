@@ -1,5 +1,5 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,13 +16,10 @@ import {
   setQuizScore,
   WORD_CARD_MIN_QUIZ_SCORE,
 } from '@/lib/readingHelper/db';
+import { scoreOf } from '@/lib/readingHelper/grade';
 import { currentDayNumber, dayNumberForDate, todayDateString } from '@/lib/readingHelper/readingPlan';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
-
-function normalizeAnswer(s: string): string {
-  return s.replace(/\s+/g, '').toLowerCase();
-}
 
 /**
  * 점수대별 칭찬.
@@ -56,12 +53,22 @@ export default function ReadingHelperQuizScreen() {
   const [index, setIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [shortAnswer, setShortAnswer] = useState('');
-  const [correctCount, setCorrectCount] = useState(0);
   const [score, setScore] = useState<number | null>(null);
-  const [answers, setAnswers] = useState<(number | string)[]>([]);
+  // 답은 **문항 번호 자리**에 넣는다(뒤에 붙이지 않는다). 뒤에 붙이면 같은
+  // 문제를 두 번 답했을 때 줄이 밀려, 채점이 문항과 어긋난다.
+  const [answers, setAnswers] = useState<(number | string | undefined)[]>([]);
+
+  // 풀기 시작하면 문제를 바꾸지 않는다.
+  //
+  // ⚠️ 이 화면은 돌아올 때마다(useFocusEffect) 그날 문제를 다시 불러 온다.
+  // 로그인이 늦게 붙거나 말을 바꾸면 **푸는 도중에** 문제 묶음이 통째로
+  // 바뀔 수 있는데, 그때 몇 번째 문제인지와 답 자리는 그대로 남아 채점이
+  // 어긋난다. 한 판이 시작되면 그 판은 끝까지 같은 문제로 간다.
+  const startedRef = useRef(false);
 
   useFocusEffect(
     useCallback(() => {
+      if (startedRef.current) return;
       let cancelled = false;
       (async () => {
         // 로그인 없이 들어와도 풀 수 있다. 문제는 「몇 일차인가」로 정해지고
@@ -74,7 +81,7 @@ export default function ReadingHelperQuizScreen() {
         }
         const dayNumber = reviewDate ? dayNumberForDate(startDate, reviewDate) : currentDayNumber(startDate);
         const dayContent = await getDayContentForDay(startDate, dayNumber, lang);
-        if (!cancelled) {
+        if (!cancelled && !startedRef.current) {
           setContent(dayContent);
           setLoading(false);
         }
@@ -111,8 +118,10 @@ export default function ReadingHelperQuizScreen() {
   const question = content.questions[index];
   const answered = question.type === 'choice' ? selectedChoice !== null : shortAnswer.trim().length > 0;
 
-  async function finish(finalCorrectCount: number, finalAnswers: (number | string)[]) {
-    const finalScore = Math.round((finalCorrectCount / total) * 100);
+  async function finish(finalAnswers: (number | string | undefined)[]) {
+    // 세어 둔 개수가 아니라 **남긴 답**으로 채점한다. 세어 두면 한 문제가 두
+    // 번 세어질 때 만점이 105점이 된다(실제로 그랬다).
+    const finalScore = scoreOf(content!.questions, finalAnswers);
     if (!isReview && userId) {
       await setQuizScore(userId, todayDateString(), finalScore);
       // 여기서 「통독 완료로 표시할까요?」를 묻던 것을 뺐다. 달력의 ✓ 기준이
@@ -127,13 +136,9 @@ export default function ReadingHelperQuizScreen() {
     if (!answered || !content) return;
     const q = content.questions[index];
     const currentAnswer: number | string = q.type === 'choice' ? (selectedChoice as number) : shortAnswer;
-    const isCorrect =
-      q.type === 'choice'
-        ? selectedChoice === q.correctIndex
-        : q.acceptedAnswers.some((a) => normalizeAnswer(a) === normalizeAnswer(shortAnswer));
-    const nextCorrectCount = correctCount + (isCorrect ? 1 : 0);
-    const nextAnswers = [...answers, currentAnswer];
-    setCorrectCount(nextCorrectCount);
+    startedRef.current = true;
+    const nextAnswers = [...answers];
+    nextAnswers[index] = currentAnswer;
     setAnswers(nextAnswers);
 
     if (index + 1 < total) {
@@ -141,7 +146,7 @@ export default function ReadingHelperQuizScreen() {
       setSelectedChoice(null);
       setShortAnswer('');
     } else {
-      finish(nextCorrectCount, nextAnswers);
+      finish(nextAnswers);
     }
   }
 
