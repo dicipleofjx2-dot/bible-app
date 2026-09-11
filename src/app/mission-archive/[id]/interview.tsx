@@ -1,6 +1,14 @@
+import {
+  RecordingPresets,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+  useAudioPlayer,
+  useAudioRecorder,
+  useAudioRecorderState,
+} from 'expo-audio';
 import { Redirect, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -9,21 +17,25 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { Type } from '@/constants/typography';
 import {
   addTimelineRow,
+  assetSignedUrl,
   getSubject,
   listAnswers,
+  removeAnswerAudio,
   saveAnswer,
+  uploadAnswerAudio,
   type MissionAnswer,
   type MissionSubject,
 } from '@/db/missionArchive';
 import { ChipRow, Field, MissionCard, PrimaryButton } from '@/features/mission/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
+import { createDictation } from '@/lib/dictation';
 import {
   FACT_STATUS,
   VISIBILITY,
   axisLabel,
   followUps,
-  isAnswered,
+  answered,
   questionsFor,
   toTimelineDraft,
   type FactStatus,
@@ -38,6 +50,9 @@ type Draft = {
   evidence: string;
   fact: FactStatus;
   visibility: Visibility;
+  /** 녹음 원본(비공개 통 안의 경로, 0082). 글로 옮겨도 지우지 않는다. */
+  audioPath: string | null;
+  audioSeconds: number | null;
 };
 
 const EMPTY: Draft = {
@@ -48,6 +63,8 @@ const EMPTY: Draft = {
   evidence: '',
   fact: 'self',
   visibility: 'church',
+  audioPath: null,
+  audioSeconds: null,
 };
 
 function draftFrom(answer: MissionAnswer | undefined): Draft {
@@ -60,7 +77,15 @@ function draftFrom(answer: MissionAnswer | undefined): Draft {
     evidence: answer.evidence,
     fact: answer.fact_status,
     visibility: answer.visibility,
+    audioPath: answer.audio_path,
+    audioSeconds: answer.audio_seconds,
   };
+}
+
+/** 00:42 처럼. 녹음 중에 시간이 안 보이면 얼마나 말했는지 가늠이 안 된다. */
+function clock(seconds: number): string {
+  const whole = Math.max(0, Math.floor(seconds));
+  return `${String(Math.floor(whole / 60)).padStart(2, '0')}:${String(whole % 60).padStart(2, '0')}`;
 }
 
 /**
@@ -91,6 +116,19 @@ export default function MissionInterviewScreen() {
   const questions = useMemo(() => questionsFor(subject?.role ?? 'pastor'), [subject?.role]);
   const current = questions[Math.min(index, Math.max(questions.length - 1, 0))] ?? null;
 
+  // ── 녹음 ────────────────────────────────────────────────────────────
+  // 은퇴를 앞둔 사역자에게 한 시간짜리 이야기를 타자로 치게 할 수는 없다.
+  // 말로 받고, 웹에서는 브라우저 받아쓰기로 글까지 같이 받는다. **받아쓴 글이
+  // 틀려도 원본 음성은 남는다**(0082).
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState = useAudioRecorderState(recorder, 500);
+  const player = useAudioPlayer();
+  // 받아쓰기 도구는 화면이 사는 동안 하나면 된다. 새로 만들면 말하던 중에 끊긴다.
+  const dictationRef = useRef(createDictation());
+  const dictation = dictationRef.current;
+  const [dictationOn, setDictationOn] = useState(dictation.supported);
+  const [audioBusy, setAudioBusy] = useState(false);
+
   const load = useCallback(async () => {
     if (!ownerId || !id) {
       setLoading(false);
@@ -104,7 +142,7 @@ export default function MissionInterviewScreen() {
       // 처음 열 때는 아직 답하지 않은 첫 질문으로 간다. 매번 1번부터 다시
       // 넘기게 하면 서른 몇 개짜리 질문지를 매일 처음부터 훑어야 한다.
       const all = questionsFor(one?.role ?? 'pastor');
-      const done = new Set(list.filter((a) => isAnswered(a.body)).map((a) => a.question_key));
+      const done = new Set(list.filter(answered).map((a) => a.question_key));
       const firstOpen = all.findIndex((q) => !done.has(q.key));
       const start = firstOpen === -1 ? 0 : firstOpen;
       setIndex(start);
@@ -140,22 +178,124 @@ export default function MissionInterviewScreen() {
     [draft],
   );
 
+  /** 지금 화면에 있는 것을 그대로 담은 저장 꾸러미. 녹음 쪽에서도 같은 것을 쓴다. */
+  function payload(overrides: Partial<{ audio_path: string | null; audio_seconds: number | null }> = {}) {
+    return {
+      axis: current!.axis,
+      question_key: current!.key,
+      question: current!.text,
+      body: draft.body,
+      year: draft.year ? Number(draft.year) : null,
+      place: draft.place,
+      people: draft.people,
+      evidence: draft.evidence,
+      fact_status: draft.fact,
+      visibility: draft.visibility,
+      audio_path: draft.audioPath,
+      audio_seconds: draft.audioSeconds,
+      ...overrides,
+    };
+  }
+
+  async function startRecording() {
+    setMessage('');
+    try {
+      const { granted } = await requestRecordingPermissionsAsync();
+      if (!granted) {
+        setMessage('마이크를 쓸 수 없습니다. 브라우저나 폰 설정에서 마이크를 허용해 주세요.');
+        return;
+      }
+      // 아이폰은 이걸 안 켜면 무음 스위치가 올라가 있을 때 녹음이 비어서 나온다.
+      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+      await recorder.prepareToRecordAsync();
+      recorder.record();
+
+      if (dictationOn && dictation.supported) {
+        dictation.start({
+          // 중간 결과는 흘려보내고 확정된 것만 붙인다 — 중간 것까지 넣으면
+          // 같은 말이 여러 번 쌓인다.
+          onText: (text, isFinal) => {
+            if (!isFinal) return;
+            const piece = text.trim();
+            if (!piece) return;
+            setDraft((d) => ({ ...d, body: d.body ? `${d.body.trimEnd()} ${piece}` : piece }));
+          },
+          onError: (m) => setMessage(m),
+        });
+      }
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : '녹음을 시작하지 못했어요.');
+    }
+  }
+
+  /**
+   * 녹음을 멈추고 **바로 저장한다.**
+   *
+   * 여기서 저장하지 않으면, 말씀은 다 하시고 저장 단추를 안 누른 채 화면을
+   * 나가는 순간 그 한 시간이 사라진다. 녹음은 다시 못 듣는다.
+   */
+  async function stopRecording() {
+    dictation.stop();
+    setAudioBusy(true);
+    try {
+      const seconds = Math.round((recorderState.durationMillis ?? 0) / 1000);
+      await recorder.stop();
+      const uri = recorder.uri;
+      if (!uri || !ownerId || !id || !current) {
+        setMessage('녹음이 비어 있습니다.');
+        return;
+      }
+      const { path, error } = await uploadAnswerAudio(ownerId, uri);
+      if (error || !path) {
+        setMessage(error ?? '녹음을 올리지 못했어요.');
+        return;
+      }
+      await saveAnswer(ownerId, id, payload({ audio_path: path, audio_seconds: seconds }));
+      setDraft((d) => ({ ...d, audioPath: path, audioSeconds: seconds }));
+      setAnswers(await listAnswers(id));
+      setMessage('녹음을 저장했습니다.');
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : '녹음을 멈추지 못했어요.');
+    } finally {
+      setAudioBusy(false);
+    }
+  }
+
+  async function playRecording() {
+    if (!draft.audioPath) return;
+    const url = await assetSignedUrl(draft.audioPath);
+    if (!url) {
+      setMessage('녹음을 열지 못했어요.');
+      return;
+    }
+    player.replace({ uri: url });
+    player.play();
+  }
+
+  async function dropRecording() {
+    if (!draft.audioPath || !ownerId || !id || !current) return;
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      if (!window.confirm('녹음을 지울까요? 다시 들을 수 없습니다.')) return;
+    }
+    const path = draft.audioPath;
+    setAudioBusy(true);
+    try {
+      await saveAnswer(ownerId, id, payload({ audio_path: null, audio_seconds: null }));
+      await removeAnswerAudio(path);
+      setDraft((d) => ({ ...d, audioPath: null, audioSeconds: null }));
+      setAnswers(await listAnswers(id));
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : '지우지 못했어요.');
+    } finally {
+      setAudioBusy(false);
+    }
+  }
+
   async function save(advance: boolean) {
     if (!ownerId || !id || !current) return;
     setBusy(true);
     try {
-      await saveAnswer(ownerId, id, {
-        axis: current.axis,
-        question_key: current.key,
-        question: current.text,
-        body: draft.body,
-        year: draft.year ? Number(draft.year) : null,
-        place: draft.place,
-        people: draft.people,
-        evidence: draft.evidence,
-        fact_status: draft.fact,
-        visibility: draft.visibility,
-      });
+      await saveAnswer(ownerId, id, payload());
       const list = await listAnswers(id);
       setAnswers(list);
       if (advance && index < questions.length - 1) {
@@ -200,7 +340,7 @@ export default function MissionInterviewScreen() {
   if (authLoading) return null;
   if (!session) return <Redirect href="/profile" />;
 
-  const answeredCount = answers.filter((a) => isAnswered(a.body)).length;
+  const answeredCount = answers.filter(answered).length;
 
   return (
     <ThemedView style={styles.container}>
@@ -223,6 +363,71 @@ export default function MissionInterviewScreen() {
                   placeholder="편하게 말하듯 적어 주세요. 문장을 다듬는 일은 나중에 합니다."
                   multiline
                 />
+              </MissionCard>
+
+              {/* 녹음 — 글보다 말이 먼저인 분들을 위한 자리 */}
+              <MissionCard style={recorderState.isRecording ? { borderColor: theme.accent } : undefined}>
+                <View style={styles.recordHead}>
+                  <ThemedText style={Type.itemTitle}>
+                    {recorderState.isRecording ? '● 녹음 중' : '🎤 말로 답하기'}
+                  </ThemedText>
+                  {recorderState.isRecording ? (
+                    <ThemedText style={[Type.itemTitle, { color: theme.accent }]}>
+                      {clock((recorderState.durationMillis ?? 0) / 1000)}
+                    </ThemedText>
+                  ) : null}
+                </View>
+
+                <PrimaryButton
+                  label={
+                    audioBusy
+                      ? '저장 중…'
+                      : recorderState.isRecording
+                        ? '■ 멈추고 저장하기'
+                        : draft.audioPath
+                          ? '다시 녹음하기'
+                          : '녹음 시작'
+                  }
+                  onPress={recorderState.isRecording ? stopRecording : startRecording}
+                  disabled={audioBusy}
+                />
+
+                {dictation.supported ? (
+                  <Pressable onPress={() => setDictationOn((v) => !v)} disabled={recorderState.isRecording}>
+                    <ThemedText style={[Type.body, { color: dictationOn ? theme.accent : theme.textSecondary }]}>
+                      {dictationOn ? '✓ 말하는 대로 글도 받아 적기' : '○ 말하는 대로 글도 받아 적기'}
+                    </ThemedText>
+                  </Pressable>
+                ) : (
+                  <ThemedText themeColor="textSecondary" style={Type.caption}>
+                    이 기기에서는 받아쓰기가 안 됩니다. 녹음만 남기고, 글은 나중에 옮기셔도 됩니다.
+                  </ThemedText>
+                )}
+
+                {draft.audioPath ? (
+                  <View style={styles.recordRow}>
+                    <Pressable onPress={playRecording} disabled={audioBusy}>
+                      <ThemedText style={[Type.body, { color: theme.accent }]}>
+                        ▶ 들어보기{draft.audioSeconds ? ` (${clock(draft.audioSeconds)})` : ''}
+                      </ThemedText>
+                    </Pressable>
+                    <Pressable onPress={() => player.pause()}>
+                      <ThemedText style={[Type.body, { color: theme.textSecondary }]}>‖ 멈춤</ThemedText>
+                    </Pressable>
+                    <Pressable onPress={dropRecording} disabled={audioBusy}>
+                      <ThemedText style={[Type.body, { color: theme.accent }]}>녹음 지우기</ThemedText>
+                    </Pressable>
+                  </View>
+                ) : null}
+
+                <ThemedText themeColor="textSecondary" style={Type.caption}>
+                  {dictationOn && dictation.supported
+                    ? '받아쓴 글은 초안입니다. 틀린 곳은 위 칸에서 고치세요 — 원본 음성은 그대로 남습니다.'
+                    : '원본 음성은 지우지 않습니다. 글을 고쳐도 목소리는 남습니다.'}
+                  {subject?.security_mode
+                    ? ' 보안 지역 이야기는 받아쓰기를 끄고 녹음만 남기시는 편이 안전합니다.'
+                    : ''}
+                </ThemedText>
               </MissionCard>
 
               {tails.length > 0 ? (
@@ -312,6 +517,8 @@ const styles = StyleSheet.create({
   },
   loading: { marginVertical: Spacing.four },
   actions: { gap: Spacing.two },
+  recordHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  recordRow: { flexDirection: 'row', gap: Spacing.three, flexWrap: 'wrap' },
   nav: { flexDirection: 'row', gap: Spacing.two },
   navItem: { flex: 1 },
 });

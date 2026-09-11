@@ -162,10 +162,23 @@ export function isAnswered(body: string | null | undefined): boolean {
   return (body ?? '').trim().length >= MIN_ANSWER_LENGTH;
 }
 
+/**
+ * 이 질문에 답을 하셨는가.
+ *
+ * **녹음만 남겨도 답한 것이다**(0082). 말로 하시는 분에게 「글로 옮기기 전에는
+ * 답한 것이 아니다」라고 하면, 한 시간을 이야기하고도 진행이 0 으로 남는다.
+ */
+export function answered(a: { body?: string | null; audio_path?: string | null }): boolean {
+  return isAnswered(a.body) || !!(a.audio_path ?? '').trim();
+}
+
 export type AxisProgress = { axis: MissionAxis; label: string; done: number; total: number };
 
-export function axisProgress(role: MissionRole, answers: { question_key: string; body: string }[]): AxisProgress[] {
-  const done = new Set(answers.filter((a) => isAnswered(a.body)).map((a) => a.question_key));
+export function axisProgress(
+  role: MissionRole,
+  answers: { question_key: string; body: string; audio_path?: string | null }[],
+): AxisProgress[] {
+  const done = new Set(answers.filter(answered).map((a) => a.question_key));
   return AXES.map((axis) => {
     const list = questionsFor(role).filter((q) => q.axis === axis.id);
     return {
@@ -183,8 +196,11 @@ export function axisProgress(role: MissionRole, answers: { question_key: string;
  * 순서대로 첫 빈 질문을 준다 — 축을 건너뛰며 물으면 이야기가 조각난다.
  * 기획서 §17 의 「매일 한 가지 질문」이 이 함수다.
  */
-export function nextQuestion(role: MissionRole, answers: { question_key: string; body: string }[]): Question | null {
-  const done = new Set(answers.filter((a) => isAnswered(a.body)).map((a) => a.question_key));
+export function nextQuestion(
+  role: MissionRole,
+  answers: { question_key: string; body: string; audio_path?: string | null }[],
+): Question | null {
+  const done = new Set(answers.filter(answered).map((a) => a.question_key));
   return questionsFor(role).find((q) => !done.has(q.key)) ?? null;
 }
 
@@ -269,6 +285,8 @@ export const CHAPTER_PRESET: ChapterPreset[] = [
 
 export type AnswerLike = {
   question_key: string;
+  /** 녹음만 남긴 답인지 가리기 위한 것(0082). 없어도 된다. */
+  audio_path?: string | null;
   question: string;
   body: string;
   year: number | null;
@@ -319,7 +337,18 @@ function chapterBody(chapter: ChapterPreset, answers: AnswerLike[], secure: bool
   const lines: string[] = [];
   for (const key of chapter.keys) {
     const answer = answers.find((a) => a.question_key === key);
-    if (!answer || !isAnswered(answer.body)) continue;
+    if (!answer) continue;
+
+    // 녹음만 있고 아직 글로 옮기지 않은 답. 빠뜨리면 「말한 적 없는 이야기」가
+    // 되어 버리므로, 자리를 비워 두고 옮겨야 한다고 적는다.
+    if (!isAnswered(answer.body)) {
+      if (!(answer.audio_path ?? '').trim()) continue;
+      lines.push(`> ${answer.question}`);
+      lines.push('');
+      lines.push('*(녹음이 있습니다. 아직 글로 옮기지 않았습니다.)*');
+      lines.push('');
+      continue;
+    }
 
     lines.push(`> ${answer.question}`);
     lines.push('');
