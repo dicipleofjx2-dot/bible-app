@@ -250,6 +250,26 @@ function AppStack() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="email-organizer"
+          options={{ headerShown: true, title: '이메일 정리ON' }}
+        />
+        <Stack.Screen
+          name="email-organizer/today"
+          options={{ headerShown: true, title: '오늘의 정리함' }}
+        />
+        <Stack.Screen
+          name="email-organizer/cleanup"
+          options={{ headerShown: true, title: '삭제 후보 검토' }}
+        />
+        <Stack.Screen
+          name="email-organizer/settings"
+          options={{ headerShown: true, title: '이메일 정리 설정' }}
+        />
+        <Stack.Screen
+          name="email-organizer/[id]"
+          options={{ headerShown: true, title: '메일' }}
+        />
+        <Stack.Screen
           name="privacy-policy"
           options={{ headerShown: true, title: t('nav.privacy') }}
         />

@@ -45,6 +45,12 @@ export default function GrowthHubScreen() {
           requiresAuth: true,
         },
         {
+          emoji: '📬',
+          label: '이메일 정리ON',
+          description: 'Gmail·한메일을 한곳에서, 광고와 반복 알림은 안전하게',
+          href: '/email-organizer',
+        },
+        {
           emoji: '🕯️',
           label: '사명기록관',
           description: '소명과 사역을 인터뷰로 받아 적어 한 권의 기록으로',
