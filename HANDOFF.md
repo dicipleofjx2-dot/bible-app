@@ -1,6 +1,6 @@
 # BibleApp — Handoff / Status Reference
 
-Last updated: **2026-09-11** (사명기록관 1~3단계 + 인터뷰 녹음). Everything through `3175923` is **committed
+Last updated: **2026-09-11** (사명기록관 1~3단계 + 인터뷰 녹음, 영적기록ON 첫 판). Everything through `3175923` is **committed
 on local `main` and deployed to production**
 (https://dicipleofjx-bible.vercel.app). See "This session (2026-08-19)"
 immediately below for the newest work; older session notes follow in
@@ -17,6 +17,60 @@ is behind.
 Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
+
+## 이어서 (2026-09-11) — 영적기록ON (별도 Next.js PWA, `spiritual-log-on/`)
+
+기획서 「영적기록ON — 음성 기록·정리·블로그 발행」의 **첫 판 전부**를 만들었다.
+이 리포 안에 있지만 **이 앱의 일부가 아니다** — 자기 `package.json` 과 자기
+Supabase 표를 가진 독립된 Next.js 앱이다. 떼어내는 방법은
+`spiritual-log-on/README.md` 맨 아래에 적어 두었다.
+
+- **왜 이 리포 안에 있나**: 사용자는 「별도 레포」를 골랐는데, 이 세션의 GitHub
+  통합에 레포 생성 권한이 없었다(`403 Resource not accessible by integration`).
+  코드는 독립적이므로 빈 레포를 만들어 폴더째 옮기면 그대로 선다.
+- **성경앱과 섞이지 않게 막아 두었다**: 루트 `tsconfig.json` 의 exclude,
+  `eslint.config.js` 의 ignores, `metro.config.js` 의 blockList 세 곳.
+  metro 가 저쪽 node_modules 를 훑으면 react 가 둘이 되어 꼬인다.
+- **정리는 규칙으로 한다. 언어모델을 부르지 않는다.** 꿈·예언 원문에는 배우자와
+  자녀의 실명, 교회 사정, 어떤 사람을 향한 메시지가 그대로 적힌다. 「모든 기록은
+  기본 비공개」라고 해 놓고 그것을 통째로 밖으로 보낼 수는 없다(기획서 §12).
+  그리고 §8 이 요구하는 것은 똑똑함이 아니라 **절제**다 — 규칙은 모델보다 덜
+  똑똑하지만 없는 말을 지어내지 못한다. 모델을 붙이려면 `lib/organize.ts` 의
+  `organize()` 하나만 갈아 끼우면 된다.
+- **정리문은 덜어내기만 한다.** 지우는 것은 혼자 선 군말, 바로 겹친 낱말, 겹친
+  공백뿐. 요약도 「쓰는 일」이 아니라 원문에서 **문장을 고르는 일**이다 — 그래서
+  정리문·요약에 사용자가 하지 않은 말이 한 글자도 없다.
+- **나누기는 사람이 짚은 자리가 먼저다.** 녹음 화면의 「새 기록으로 나누기」는
+  빈 줄 하나로 남는다. 본문에 「다음 기록」 같은 말을 끼워 넣지 않아도 되도록
+  일부러 이렇게 했다. 규칙이 짐작한 자리는 확신 값과 까닭을 함께 보여 준다.
+- **워드프레스 비밀번호는 서버에서만 읽는다.** `/api/publish` 라우트가 환경
+  변수로 받고, 화면은 「무엇을 보낼지」만 넘긴다. 기본 상태는 `draft` —
+  꿈과 예언을 실수로 공개하는 쪽보다 초안함에 쌓이는 쪽이 낫다.
+- **실명을 바꾸면 조사도 고친다.** 브라우저 왕복 중에 실제로 찾은 결함이다 —
+  「김철수 씨를」을 그냥 바꾸면 「교회 지인를」이 되어 가린 티가 그대로 남는다.
+  받침을 보고 은/는·이/가·을/를·과/와·으로/로를 맞춘다(ㄹ 받침은 「로」).
+- **서비스워커는 기록을 캐시하지 않는다.** 껍데기만 담는다. 기기를 잠깐 빌려준
+  사이에 브라우저 캐시에 남은 꿈이 열리면 안 된다.
+- 표 넷(`spirit_recordings`/`spirit_records`/`spirit_notes`/`spirit_publications`)과
+  **비공개** 음성 통. 정책은 `user_id = auth.uid()` 하나뿐이고 관리자 예외가 없다.
+  해석과 관련 사건은 본문을 고치지 않고 `spirit_notes` 에 쌓인다(§7).
+
+**검증 (2026-09-11)**: `tsc --noEmit` 오류 0, `next build` 통과. 순수 함수
+**64가지**를 노드로 대조 — 나누기(짧은 토막은 떼지 않는지, 사람이 나눈 자리를
+지키는지), 군더더기 덜어내기(문장 안의 「그」는 남는지), 요약이 원문 문장만
+쓰는지와 순서를 지키는지, 종류 추천이 확정이 아닌지, 성경 구절 3형식, 인물·장소·
+감정·상징, `[확인 필요]` 표시, 블로그 절 차례·빼기·실명 가리기·조사 보정·꺾쇠
+이스케이프 — 전부 예상대로. **실제 브라우저(Chromium)에서 왕복을 돌렸다**:
+가짜 마이크로 3초 녹음 → 「새 기록으로 나누기」 → 「멈추고 저장하기」 까지 눌러
+42KB webm 이 올라가고 원문이 빈 줄로 나뉘어 표에 저장되고 정리 화면에 기록 2개가
+서는 것, 발행 화면에서 개인 예언 경고와 남은 실명 경고가 뜨고 이름을 바꾸면
+사라지는 것, 워드프레스로 나가는 값이 `status: draft` 로 맞는 것까지 확인
+(콘솔 에러 0, 404 0). 밝은/어두운 모드 스크린샷도 봤다.
+
+**사람이 봐 줘야 하는 것**: (1) `spiritual-log-on/supabase/migrations/0001_spirit_log.sql`
+실행, (2) 진짜 로그인 왕복, (3) 폰 크롬에서 한국어 받아쓰기가 쓸 만한지(사파리에는
+없다 — 녹음만 된다), (4) 긴 녹음 업로드, (5) 워드프레스 애플리케이션 비밀번호로
+초안이 실제로 꽂히는지, (6) 빈 레포를 만들어 폴더째 옮기기.
 
 ## This session (2026-09-03) — 중보기도 나무
 

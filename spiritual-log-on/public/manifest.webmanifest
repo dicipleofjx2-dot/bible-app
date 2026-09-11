@@ -1,0 +1,14 @@
+{
+  "name": "영적기록ON",
+  "short_name": "영적기록ON",
+  "description": "꿈·환상·예언·감동을 음성으로 남기면 정리하고 분류해 보관합니다.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#8a5a3b",
+  "lang": "ko",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

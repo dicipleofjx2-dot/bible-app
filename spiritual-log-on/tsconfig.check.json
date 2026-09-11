@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "strict": true,
+    "noEmit": false,
+    "outDir": ".check",
+    "skipLibCheck": true
+  },
+  "include": ["src/lib/organize.ts", "src/lib/korean.ts", "src/lib/blog.ts", "src/lib/kinds.ts"]
+}

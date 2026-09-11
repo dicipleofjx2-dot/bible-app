@@ -1,0 +1,133 @@
+/*
+ * 한 벌의 색과 간격. 화면마다 색을 새로 고르면 앱이 여러 개처럼 보인다.
+ * 밤에 깨어 꿈을 적는 앱이라 **어두운 모드가 기본에 가깝게** 읽히도록 맞췄다.
+ */
+:root {
+  --bg: #faf7f2;
+  --surface: #ffffff;
+  --surface-soft: #f3ece1;
+  --line: #e2d8c8;
+  --text: #2b2521;
+  --muted: #6f6358;
+  --accent: #8a5a3b;
+  --accent-soft: #f0e2d5;
+  --danger: #a8422f;
+  --radius: 14px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16130f;
+    --surface: #201b16;
+    --surface-soft: #2a231c;
+    --line: #3a3028;
+    --text: #f0e8df;
+    --muted: #b3a494;
+    --accent: #e0a077;
+    --accent-soft: #382a20;
+    --danger: #e08a72;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic',
+    'Noto Sans KR', system-ui, sans-serif;
+  /* 기본보다 한 단계 크다. 새벽에 눈 뜨자마자 보는 화면이다. */
+  font-size: 17px;
+  line-height: 1.7;
+  -webkit-text-size-adjust: 100%;
+}
+
+main { max-width: 680px; margin: 0 auto; padding: 16px 16px 96px; }
+
+h1 { font-size: 1.5rem; margin: 8px 0 4px; }
+h2 { font-size: 1.15rem; margin: 24px 0 8px; }
+p { margin: 8px 0; }
+a { color: var(--accent); }
+/* 카드 전체가 링크인 곳이 많다. 밑줄이 겹치면 목록이 어지러워진다. */
+a.card, a.card *, a.btn { text-decoration: none; color: inherit; }
+a.card strong { color: var(--text); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin: 10px 0;
+}
+
+.muted { color: var(--muted); font-size: 0.92rem; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.spread { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+
+button, .btn {
+  font: inherit;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  padding: 12px 16px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+button:disabled { opacity: 0.5; cursor: default; }
+
+.primary {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  /* 어두운 모드의 accent 에 흰 글자는 대비가 나온 적이 없다. 밝은 바탕에 진한 글자. */
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.chip {
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+.chip.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+input, textarea, select {
+  font: inherit;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+}
+textarea { min-height: 120px; resize: vertical; line-height: 1.7; }
+label { display: block; margin: 12px 0 4px; font-size: 0.92rem; color: var(--muted); }
+
+/* 홈의 큰 녹음 단추 — §16 「10초 안에 녹음을 시작한다」 */
+.record-big {
+  display: block;
+  width: 100%;
+  padding: 30px 16px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  border: 2px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 20px;
+}
+
+.recording { border-color: var(--danger) !important; color: var(--danger) !important; }
+
+.pill { font-size: 0.8rem; padding: 3px 10px; border-radius: 999px; background: var(--surface-soft); color: var(--muted); }
+.warn { border-left: 4px solid var(--danger); padding-left: 12px; }
+.stack > * + * { margin-top: 10px; }
+.nav { position: sticky; top: 0; background: var(--bg); padding: 10px 0; z-index: 5; }
+.nav a { margin-right: 14px; font-size: 0.95rem; }
+.clock { font-variant-numeric: tabular-nums; font-size: 2rem; font-weight: 700; }
