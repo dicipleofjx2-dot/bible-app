@@ -11,13 +11,10 @@ import { useAuth } from '@/lib/auth';
 import { getStartDate } from '@/lib/readingHelper/db';
 import { currentDayNumber, dayNumberForDate } from '@/lib/readingHelper/readingPlan';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
+import { isAnswerCorrect } from '@/lib/readingHelper/grade';
 import { useI18n } from '@/lib/i18n';
 import type { StringKey } from '@/constants/strings';
 import type { DayQuizContent, QuizQuestion } from '@/lib/readingHelper/quizTypes';
-
-function normalizeAnswer(s: string): string {
-  return s.replace(/\s+/g, '').toLowerCase();
-}
 
 function correctAnswerLabel(q: QuizQuestion): string {
   if (q.type === 'short') return q.acceptedAnswers[0] ?? '';
@@ -26,19 +23,13 @@ function correctAnswerLabel(q: QuizQuestion): string {
 
 function userAnswerLabel(
   q: QuizQuestion,
-  userAnswer: number | string | undefined,
+  userAnswer: number | string | null | undefined,
   t: (key: StringKey, params?: Record<string, string | number>) => string
 ): string {
-  if (userAnswer === undefined || userAnswer === '') return t('ans.noAnswer');
+  if (userAnswer == null || userAnswer === '') return t('ans.noAnswer');
   if (q.type === 'short') return String(userAnswer);
   const i = Number(userAnswer);
   return `${String.fromCharCode(65 + i)}. ${q.choices[i] ?? ''}`;
-}
-
-function isAnswerCorrect(q: QuizQuestion, userAnswer: number | string | undefined): boolean {
-  if (userAnswer === undefined || userAnswer === '') return false;
-  if (q.type === 'choice') return Number(userAnswer) === q.correctIndex;
-  return q.acceptedAnswers.some((a) => normalizeAnswer(a) === normalizeAnswer(String(userAnswer)));
 }
 
 export default function ReadingHelperQuizAnswersScreen() {
@@ -54,7 +45,7 @@ export default function ReadingHelperQuizAnswersScreen() {
   // 퀴즈를 막 끝내고 넘어온 경우에만 채점 결과가 있다 — 아카이브/캘린더에서
   // 과거 날짜를 복습하러 바로 들어온 경우엔 answers 파라미터 자체가 없어
   // 기존처럼 정답/해설만 보여준다(하위 호환).
-  let userAnswers: (number | string)[] | null = null;
+  let userAnswers: (number | string | null)[] | null = null;
   try {
     userAnswers = answersParam ? JSON.parse(answersParam) : null;
   } catch {
