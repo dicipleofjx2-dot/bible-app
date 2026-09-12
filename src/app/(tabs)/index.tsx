@@ -68,7 +68,9 @@ const HOME_TILES: HomeTile[] = [
   { key: 'bibleRead', emoji: '📖', label: 'home.bibleRead', href: '/read' },
   { key: 'qtMeditation', emoji: '🕊️', label: 'home.qtMeditation', href: '/meditation' },
   { key: 'bibleStudy', emoji: '🔎', label: 'home.bibleStudy', href: '/bible-study' },
-  { key: 'shepherdLetter', emoji: '💌', label: 'home.shepherdLetter', href: '/shepherd-letters' },
+  // 목자의 편지는 교회로 갈린다. 로그인 전에는 어느 교회인지 알 수 없어 목록이
+  // 비므로(→ `@/lib/churchScope`) 빈 화면을 보여 주기보다 로그인으로 안내한다.
+  { key: 'shepherdLetter', emoji: '💌', label: 'home.shepherdLetter', href: '/shepherd-letters', requiresAuth: true },
   { key: 'r2m', emoji: '🔥', label: 'home.r2m', href: '/bible-reading' },
   { key: 'readingHelper', emoji: '📆', label: 'home.readingHelper', href: '/reading-helper', requiresAuth: true },
   // 성경게임대전 — 로그인 없이도 방에 들어가 볼 수 있게 두었다. 기록 저장만
