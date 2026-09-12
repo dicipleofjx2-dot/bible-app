@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Image, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,7 +8,8 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { getSupportSettings, type SupportSettings } from '@/db/support';
+import { useAuth } from '@/lib/auth';
+import { canManageSupport, getSupportSettings, type SupportSettings } from '@/db/support';
 
 const EMPTY_SETTINGS: SupportSettings = { coupangUrl: '', bankName: '', bankAccount: '', bankHolder: '' };
 
@@ -81,13 +82,25 @@ function AccountBlock({ settings }: { settings: SupportSettings }) {
 
 export default function SupportScreen() {
   const theme = useTheme();
+  const { session } = useAuth();
   const [settings, setSettings] = useState<SupportSettings>(EMPTY_SETTINGS);
+  // 고칠 수 있는 분에게는 이 화면에서 바로 들어가는 문을 낸다. 교회 관리자는
+  // 마이페이지의 관리 묶음(전체 관리자 전용)이 안 보이기 때문에, 그 문이
+  // 없으면 자기 교회 계좌를 넣을 길이 없다.
+  const [canManage, setCanManage] = useState(false);
 
   const load = useCallback(() => {
     getSupportSettings()
       .then(setSettings)
       .catch(() => setSettings(EMPTY_SETTINGS));
-  }, []);
+    if (!session) {
+      setCanManage(false);
+      return;
+    }
+    Promise.all([canManageSupport('church'), canManageSupport('shared')])
+      .then(([church, shared]) => setCanManage(church || shared))
+      .catch(() => setCanManage(false));
+  }, [session]);
 
   useFocusEffect(load);
 
@@ -154,6 +167,14 @@ export default function SupportScreen() {
               </ThemedText>
             )}
           </View>
+
+          {canManage ? (
+            <Pressable
+              onPress={() => router.push('/support/admin')}
+              style={[styles.secondaryButton, { borderColor: theme.backgroundSelected }]}>
+              <ThemedText type="smallBold">✏️ 후원정보 관리</ThemedText>
+            </Pressable>
+          ) : null}
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
