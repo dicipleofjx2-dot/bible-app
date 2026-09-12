@@ -1,3 +1,4 @@
+import { currentChurchId } from '@/lib/churchScope';
 import { supabase } from '@/lib/supabase';
 import type { QtAnswers } from '@/db/userData';
 
@@ -31,13 +32,23 @@ function mapRow(row: any): ShepherdQt {
   };
 }
 
-// 로그인 여부와 무관하게 누구나 호출 가능 — RLS의 is_public 정책이 이미 걸러준다.
+/**
+ * 그날 공개된 목자의 큐티.
+ *
+ * 교회로 갈린다. 로그인하지 않으면 DB가 모든 교회 것을 내주므로(→
+ * `@/lib/churchScope`) 교회를 정해서 부른다. 교회를 안 걸면 같은 날 두 교회가
+ * 올린 날에 `maybeSingle` 이 「행이 여럿」으로 터지고, 안 터지더라도 남의 교회
+ * 큐티가 뜬다.
+ */
 export async function getPublicShepherdQt(date: string): Promise<ShepherdQt | null> {
+  const churchId = await currentChurchId();
+  if (!churchId) return null;
   const { data, error } = await supabase
     .from('shepherd_qt')
     .select('*')
     .eq('date', date)
     .eq('is_public', true)
+    .eq('church_id', churchId)
     .maybeSingle();
   if (error) throw error;
   return data ? mapRow(data) : null;

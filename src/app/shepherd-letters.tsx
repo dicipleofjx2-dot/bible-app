@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useAuth } from '@/lib/auth';
 import { getPublishedLetters, type ShepherdLetter } from '@/db/shepherdLetters';
 import { markLettersSeen } from '@/lib/shepherdLetterBadge';
 
@@ -17,6 +18,10 @@ function formatDate(iso: string): string {
 
 export default function ShepherdLettersScreen() {
   const theme = useTheme();
+  // 편지는 교회로 갈린다. 로그인해야 어느 교회인지 알 수 있어서, 로그아웃
+  // 상태에서는 목록이 빈다(→ `@/lib/churchScope`). 빈 까닭을 「편지가 없다」로
+  // 적으면 거짓말이 되므로 로그인 안내로 바꿔 준다.
+  const { session } = useAuth();
   const [letters, setLetters] = useState<ShepherdLetter[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +31,7 @@ export default function ShepherdLettersScreen() {
         .then(setLetters)
         .catch((e) => setError(e?.message ?? String(e)));
       markLettersSeen();
-    }, []),
+    }, [session]),
   );
 
   return (
@@ -43,7 +48,7 @@ export default function ShepherdLettersScreen() {
           }
           ListEmptyComponent={
             <ThemedText themeColor="textSecondary" style={styles.emptyText}>
-              {error ?? '아직 등록된 편지가 없어요.'}
+              {error ?? (session ? '아직 등록된 편지가 없어요.' : '로그인하면 우리 교회 목자의 편지를 볼 수 있어요.')}
             </ThemedText>
           }
           renderItem={({ item }) => (

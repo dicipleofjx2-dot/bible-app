@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useAuth } from '@/lib/auth';
 import { getPublishedNotices, type Notice } from '@/db/notices';
 
 function formatDate(iso: string): string {
@@ -16,6 +17,8 @@ function formatDate(iso: string): string {
 
 export default function NoticeBoardScreen() {
   const theme = useTheme();
+  // 공지도 교회로 갈린다 — 목자의 편지와 같은 까닭(`@/lib/churchScope`).
+  const { session } = useAuth();
   const [notices, setNotices] = useState<Notice[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,7 +27,7 @@ export default function NoticeBoardScreen() {
       getPublishedNotices()
         .then(setNotices)
         .catch((e) => setError(e?.message ?? String(e)));
-    }, []),
+    }, [session]),
   );
 
   return (
@@ -41,7 +44,7 @@ export default function NoticeBoardScreen() {
           }
           ListEmptyComponent={
             <ThemedText themeColor="textSecondary" style={styles.emptyText}>
-              {error ?? '아직 등록된 소식이 없어요.'}
+              {error ?? (session ? '아직 등록된 소식이 없어요.' : '로그인하면 우리 교회 소식을 볼 수 있어요.')}
             </ThemedText>
           }
           renderItem={({ item }) => (

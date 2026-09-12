@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useAuth } from '@/lib/auth';
 import { getLetterById, type ShepherdLetterWithParagraphs } from '@/db/shepherdLetters';
 
 function formatDate(iso: string): string {
@@ -17,20 +18,23 @@ function formatDate(iso: string): string {
 export default function ShepherdLetterDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const theme = useTheme();
+  const { session } = useAuth();
   const [letter, setLetter] = useState<ShepherdLetterWithParagraphs | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       if (!id) return;
       getLetterById(id).then(setLetter).catch(() => setLetter(null));
-    }, [id]),
+    }, [id, session]),
   );
 
   if (!letter) {
     return (
       <ThemedView style={styles.container}>
         <SafeAreaView style={styles.safeAreaCentered}>
-          <ThemedText themeColor="textSecondary">편지를 찾을 수 없어요.</ThemedText>
+          <ThemedText themeColor="textSecondary">
+            {session ? '편지를 찾을 수 없어요.' : '로그인하면 우리 교회 목자의 편지를 볼 수 있어요.'}
+          </ThemedText>
         </SafeAreaView>
       </ThemedView>
     );
