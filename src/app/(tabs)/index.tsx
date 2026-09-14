@@ -58,6 +58,14 @@ type HomeTile = {
   key: string;
   /** 로그인해야 쓸 수 있는 곳 — 안 했으면 마이페이지로 보낸다 */
   requiresAuth?: boolean;
+  /**
+   * 앱 밖으로 나가는 칸. 있으면 `href` 대신 이 주소를 연다.
+   *
+   * 이름을 주는 이유는 `openAppWindow` 의 설명 그대로다 — 누를 때마다 새 탭이
+   * 생기면 데이빗바이블이 여러 탭에 뜨고, 웹 저장소(OPFS)를 한 탭만 잡을 수
+   * 있어서 나중 탭이 「저장소 오류」로 죽는다.
+   */
+  external?: { url: string; window: string };
 };
 
 // 공지사항은 바둑판에 넣지 않는다 — 제목이 바로 보이는 한 줄 띠가 위에 따로
@@ -68,6 +76,17 @@ const HOME_TILES: HomeTile[] = [
   { key: 'bibleRead', emoji: '📖', label: 'home.bibleRead', href: '/read' },
   { key: 'qtMeditation', emoji: '🕊️', label: 'home.qtMeditation', href: '/meditation' },
   { key: 'bibleStudy', emoji: '🔎', label: 'home.bibleStudy', href: '/bible-study' },
+  // 24시간 기도의 집 — 다른 앱이다(prayer.dgaiworks.com). 교회 소식을 나르는
+  // 주보와 달리 기도는 이 앱이 맡은 개인 경건훈련 그대로라, 홈에 자리를 준다.
+  // 넷째 칸(둘째 줄 맨 앞)에 둔 이유: 매일 여는 셋의 차례를 흔들지 않으면서도
+  // 화면을 내리지 않고 바로 보이는 자리다. 계정은 같은 카카오라 따로 가입하지 않는다.
+  {
+    key: 'prayerHouse',
+    emoji: '🕯️',
+    label: 'home.prayerHouse',
+    href: '/',
+    external: { url: 'https://prayer.dgaiworks.com/', window: APP_WINDOW.prayerHouse },
+  },
   // 목자의 편지는 교회로 갈린다. 로그인 전에는 어느 교회인지 알 수 없어 목록이
   // 비므로(→ `@/lib/churchScope`) 빈 화면을 보여 주기보다 로그인으로 안내한다.
   { key: 'shepherdLetter', emoji: '💌', label: 'home.shepherdLetter', href: '/shepherd-letters', requiresAuth: true },
@@ -354,9 +373,13 @@ export default function HomeScreen() {
               return (
                 <Pressable
                   key={tile.key}
-                  onPress={() =>
-                    router.push(tile.requiresAuth && !session ? '/profile' : tile.href)
-                  }
+                  onPress={() => {
+                    if (tile.external) {
+                      openAppWindow(tile.external.url, tile.external.window);
+                      return;
+                    }
+                    router.push(tile.requiresAuth && !session ? '/profile' : tile.href);
+                  }}
                   style={({ pressed }) => [styles.tile, pressed && styles.pressed]}>
                   {/*
                     네모 카드를 걷어내고 받침 원만 남긴다. 카드가 여섯 개 늘어서
@@ -374,8 +397,11 @@ export default function HomeScreen() {
                     style={[styles.tilePad, padShadow, { borderColor: padRim }]}>
                     <ThemedText style={styles.tileEmoji}>{tile.emoji}</ThemedText>
                   </LinearGradient>
+                  {/* ↗ 는 앱 밖으로 나간다는 뜻. 마이페이지의 바깥 링크와 같은 표시를 쓴다 —
+                      눌렀을 때 다른 앱이 열리는 것을 미리 알 수 있어야 한다. */}
                   <ThemedText type="small" style={styles.tileLabel} numberOfLines={2}>
                     {t(tile.label as StringKey)}
+                    {tile.external ? ' ↗' : ''}
                   </ThemedText>
                   {badge ? (
                     <ThemedText type="small" themeColor="textSecondary" numberOfLines={1} style={styles.tileBadge}>

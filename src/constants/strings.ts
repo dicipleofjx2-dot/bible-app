@@ -47,6 +47,9 @@ export const STRINGS = {
   'home.readingHelper': { ko: '성경통독도우미', en: 'Bible Reading Helper' },
   'home.r2m': { ko: 'R2M훈련', en: 'R2M Training' },
   'home.arena': { ko: '성경게임대전', en: 'Bible Arena' },
+  // 줄바꿈을 손으로 넣는다. 바둑판 한 칸은 화면의 31.5% 라 그냥 두면
+  // 「24시간 기도의 / 집」 으로 끊겨 둘째 줄에 한 글자만 남는다.
+  'home.prayerHouse': { ko: '24시간\n기도의 집', en: '24H Prayer\nHouse' },
   'home.arcade': { ko: '성경 아케이드', en: 'Bible Arcade' },
   'home.arcadeLead': {
     ko: '한 판을 끝까지 통과할 때마다 30포인트',
