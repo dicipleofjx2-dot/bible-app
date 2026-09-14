@@ -35,4 +35,8 @@ export const APP_WINDOW = {
   bibleReader: 'biblereader',
   /** 목회동행 실시간 화면. 걷는 동안 여러 번 열게 되므로 한 창에 모은다. */
   ministryLive: 'ministrylive',
+  /** 블로그(dgaiworks.com)에 있는 사용설명서. 여러 글을 오가도 한 창에 모은다. */
+  guide: 'dgguide',
+  /** 24시간 기도의 집. 기도 시간을 맡아 두고 여러 번 드나드는 곳이라 한 창에 모은다. */
+  prayerHouse: 'prayerhouse',
 } as const;
