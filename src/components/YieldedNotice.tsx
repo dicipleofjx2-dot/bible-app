@@ -1,9 +1,10 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { reclaimHere } from '@/lib/tabPresence';
+import { reclaimHere, stillYielded } from '@/lib/tabPresence';
 
 /**
  * 자리를 내주고 물러난 탭이 보는 화면.
@@ -19,6 +20,33 @@ import { reclaimHere } from '@/lib/tabPresence';
  * 서로 뺏느라 새로고침만 반복한다.
  */
 export function YieldedNotice() {
+  // 상대 탭이 이미 닫혔을 수 있다. 그러면 이 화면을 보여 줄 이유가 없다 —
+  // 표시를 지우고 새로고침해 곧바로 앱을 연다. 확인하는 동안만 잠깐 기다린다.
+  const [confirmed, setConfirmed] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    stillYielded()
+      .then((held) => {
+        if (!alive) return;
+        if (held) setConfirmed(true);
+        else if (typeof window !== 'undefined') window.location.reload();
+      })
+      .catch(() => {
+        if (alive) setConfirmed(true);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  if (!confirmed) {
+    return (
+      <ThemedView style={styles.container}>
+        <ActivityIndicator />
+      </ThemedView>
+    );
+  }
+
   return (
     <ThemedView style={styles.container}>
       <View style={styles.card}>

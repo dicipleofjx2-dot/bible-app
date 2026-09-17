@@ -149,6 +149,37 @@ export function hasYielded(): boolean {
   return sessionStorage.getItem(YIELDED_KEY) === '1';
 }
 
+/**
+ * 물러난 표시가 남아 있는데 **실제로는 아무도 DB를 안 쥐고 있으면** 스스로 푼다.
+ *
+ * 자리를 넘겨받은 탭이 닫히면 잠금은 브라우저가 풀어 주지만, 물러난 표시는 이 탭의
+ * sessionStorage 에 그대로 남는다. 그러면 그 탭에서는 앱이 **영영 안 열린다** —
+ * 교회앱에서 링크를 눌러 들어와도 매번 "다른 탭에서 열었어요"만 보인다.
+ * (2026-09-18 확인: 상대 탭을 닫은 뒤에도 같은 화면이 계속 나왔다.)
+ *
+ * 돌려주는 값: 정말 다른 탭이 쓰고 있으면 true. 표시를 못 지웠을 때도 true 를
+ * 돌려준다 — 못 지운 채 새로고침하면 같은 화면으로 되돌아와 무한히 반복된다.
+ */
+export async function stillYielded(): Promise<boolean> {
+  if (!hasYielded()) return false;
+
+  // 한 번만 보고 판단하면 안 된다. 자리를 넘겨받는 탭은 **잠깐 잠금을 놓았다가**
+  // 다시 잡는다(빈 자리를 확인한 뒤 DB 를 여는 구조라 그렇다). 그 틈에 물어보면
+  // "아무도 없다"로 보여서, 물러난 탭이 도로 잡으러 들고 두 탭이 서로 뺏는다.
+  // 그래서 잠시 지켜보다가 **한 번이라도 잡혀 있으면** 진짜로 쓰는 중이라고 본다.
+  for (let i = 0; i < 6; i += 1) {
+    if (await hasOtherTab()) return true;
+    await new Promise((r) => setTimeout(r, 500));
+  }
+
+  try {
+    sessionStorage.removeItem(YIELDED_KEY);
+  } catch {
+    return true;
+  }
+  return hasYielded();
+}
+
 /** "여기서 다시 열기"를 누르면 물러남을 취소하고 다시 잡으러 간다. */
 export function reclaimHere() {
   if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem(YIELDED_KEY);
