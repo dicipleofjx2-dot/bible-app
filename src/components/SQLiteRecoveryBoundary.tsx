@@ -13,6 +13,8 @@ type State = {
   /** 다시 시도한 횟수. 이 값을 children 의 key 로 써서 통째로 새로 마운트한다. */
   attempt: number;
   retrying: boolean;
+  /** 자리를 달라고 했는데 한참 답이 없는 상태. 끝없이 기다리지 않는다. */
+  stalled: boolean;
 };
 
 /**
@@ -54,9 +56,11 @@ const OPFS_LOCK_MESSAGE_FRAGMENT = 'Access Handle';
  * 이 탭은 잠금이 풀리는 순간 다시 열린다. 사용자는 아무것도 안 눌러도 된다.
  */
 export class SQLiteRecoveryBoundary extends Component<Props, State> {
-  state: State = { error: null, otherTabOpen: false, attempt: 0, retrying: false };
+  state: State = { error: null, otherTabOpen: false, attempt: 0, retrying: false, stalled: false };
   private stopListening: (() => void) | null = null;
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
+  private claimTimer: ReturnType<typeof setInterval> | null = null;
+  private stallTimer: ReturnType<typeof setTimeout> | null = null;
   private retries = 0;
 
   static getDerivedStateFromError(error: Error) {
@@ -80,6 +84,13 @@ export class SQLiteRecoveryBoundary extends Component<Props, State> {
       this.stopListening = onDbLockReleased(() => this.reload());
       // 앞선 탭에게 자리를 달라고 한다. 그 탭은 스스로 물러난다(AppDbLock).
       claimDb();
+
+      // 한 번만 부르고 마냥 기다리면 안 된다. 앞선 창이 폰에서 잠들어 있거나
+      // 옛 판이면 영영 답이 없고, 사용자에게는 "안 열린다"로만 보인다.
+      // 그래서 ① 몇 초마다 다시 부르고(잠든 탭은 깨어날 때 받는다)
+      //        ② 그래도 답이 없으면 기다림을 접고 무엇을 하면 되는지 알려 준다.
+      this.claimTimer = setInterval(() => claimDb(), 2000);
+      this.stallTimer = setTimeout(() => this.setState({ stalled: true }), 8000);
       return;
     }
 
@@ -100,6 +111,8 @@ export class SQLiteRecoveryBoundary extends Component<Props, State> {
   componentWillUnmount() {
     this.stopListening?.();
     if (this.retryTimer) clearTimeout(this.retryTimer);
+    if (this.claimTimer) clearInterval(this.claimTimer);
+    if (this.stallTimer) clearTimeout(this.stallTimer);
   }
 
   private isOpfsLock(error: Error) {
@@ -125,7 +138,7 @@ export class SQLiteRecoveryBoundary extends Component<Props, State> {
   }
 
   render() {
-    const { error, otherTabOpen, attempt, retrying } = this.state;
+    const { error, otherTabOpen, attempt, retrying, stalled } = this.state;
     // key 가 바뀌면 아래 나무가 통째로 새로 마운트된다 — 다시 시도하는 방법이다.
     if (!error) return <Fragment key={attempt}>{this.props.children}</Fragment>;
 
@@ -148,11 +161,14 @@ export class SQLiteRecoveryBoundary extends Component<Props, State> {
         <ThemedView style={styles.container}>
           <View style={styles.card}>
             <ThemedText type="smallBold" style={styles.title}>
-              잠시만요, 넘겨받는 중입니다
+              {stalled ? '먼저 열어 둔 창이 응답하지 않아요' : '잠시만요, 넘겨받는 중입니다'}
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary" style={styles.body}>
-              먼저 열어 둔 탭에서 자리를 넘겨받고 있어요. 곧 이 탭에서 이어집니다.
+              {stalled
+                ? '다른 창이나 앱에서 데이빗바이블을 열어 둔 채 화면이 잠든 것 같습니다. 그 창을 닫은 뒤 아래를 눌러 주세요.'
+                : '먼저 열어 둔 탭에서 자리를 넘겨받고 있어요. 곧 이 탭에서 이어집니다.'}
             </ThemedText>
+            {stalled ? null : <ActivityIndicator />}
             <Pressable onPress={() => this.reload()} style={styles.button}>
               <ThemedText type="smallBold" style={styles.buttonText}>
                 다시 시도
