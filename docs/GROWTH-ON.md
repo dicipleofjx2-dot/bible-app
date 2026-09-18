@@ -14,10 +14,51 @@ npm run web                 # http://localhost:8081
 npx tsc --noEmit            # 기존 오류 1건(@/global.css) 말고 새 오류가 없어야 한다
 ```
 
-**먼저 할 일 — 마이그레이션 실행.** `supabase/migrations/0084_growth_school.sql`
-전체를 Supabase SQL Editor 에 붙여 넣고 한 번 실행한다. **실행 전에는 화면이
-열려도 아무것도 저장되지 않는다(표가 없다).** 두 번 실행해도 터지지 않게
-`if not exists` / `drop policy if exists` 로 감쌌다.
+**먼저 할 일 — 마이그레이션 실행.** **실행 전에는 화면이 열려도 아무것도
+저장되지 않는다(표가 없다).** 두 번 실행해도 터지지 않게 `if not exists` /
+`drop policy if exists` 로 감쌌다. 세 가지 길이 있다.
+
+**① 명령 한 줄 (권함).** 580줄을 손으로 붙여 넣다 한 줄이 잘리면 표 하나가
+빠진 채로 돌아간다. 파일을 그대로 보내는 실행기를 두었다:
+
+```bash
+# https://supabase.com/dashboard/account/tokens 에서 토큰을 만들어
+# .env 에 SUPABASE_ACCESS_TOKEN=sbp_... 한 줄을 더한 뒤 (git 에 안 올라간다)
+node scripts/apply-migration.mjs 0084_growth_school.sql
+```
+
+실행 뒤 표가 정말 섰는지 되물어서 이름을 찍어 준다. 끝나면 토큰은 지워도 된다.
+
+**② Claude 가 대신 실행.** 토큰을 대화에 붙여넣지 않고, claude.ai/code 의
+**환경 설정 → API credentials** 에 걸어 두면 프록시가 요청이 VM 을 떠난 뒤
+헤더를 붙인다 — 세션은 토큰을 한 번도 보지 못한다. 자세한 절차는 아래
+「클라우드 세션에서 실행하기」. 그때 Claude 가 부르는 명령은:
+
+```bash
+node scripts/apply-migration.mjs 0084_growth_school.sql --proxy-auth --yes
+```
+
+**③ 손으로.** `supabase/migrations/0084_growth_school.sql` 전체를 Supabase
+SQL Editor 에 붙여 넣고 한 번 실행한다.
+
+### 클라우드 세션에서 실행하기 (②의 절차)
+
+claude.ai/code 의 클라우드 세션은 기본(**Trusted**)으로 Supabase 에 나갈 수
+없다 — `api.supabase.com` 이 허용 목록에 없어 403 이 난다. 둘 중 하나를 한다.
+
+- **API credentials (권함, Pro·Max)**: claude.ai/code → 환경 선택기 →
+  이미 있는 환경의 설정 아이콘 → **Update cloud environment** →
+  **API credentials** → **Add credential**
+  · Credential type: **Bearer**
+  · Allowed websites: `api.supabase.com`
+  · Custom headers: 이름 `Authorization`, 접두사 `Bearer`, 값에 Supabase 토큰
+  → **Connect**. 이 호스트는 네트워크 등급과 무관하게 열리고, **값은 저장 뒤
+  다시 볼 수 없다**(세션도 못 본다).
+- **네트워크만 여는 경우**: 같은 대화상자의 **Network access** 를 **Custom**
+  으로 바꾸고 **Allowed domains** 에 `api.supabase.com` 을 넣는다. 이때는
+  토큰을 세션에 따로 줘야 하므로 첫 번째가 낫다.
+
+끝나면 새 세션에서 「0084 실행해줘」라고 하면 된다.
 
 실행됐는지 확인:
 
