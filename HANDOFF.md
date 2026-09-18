@@ -1,6 +1,6 @@
 # BibleApp — Handoff / Status Reference
 
-Last updated: **2026-09-11** (사명기록관 1~3단계 + 인터뷰 녹음). Everything through `3175923` is **committed
+Last updated: **2026-09-18** (물품관리ON 1단계). Everything through `3175923` is **committed
 on local `main` and deployed to production**
 (https://dicipleofjx-bible.vercel.app). See "This session (2026-08-19)"
 immediately below for the newest work; older session notes follow in
@@ -17,6 +17,50 @@ is behind.
 Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
+
+## This session (2026-09-18) — 물품관리ON (교회·가정 물품 수납 지도)
+
+기획서 「물품관리ON」의 **1단계 MVP** 를 이 앱 안에 넣었다. 마이그레이션
+`0084_inventory.sql` — **실행 전에는 화면이 열려도 아무것도 저장되지 않는다(표가
+없다).**
+
+- 표 다섯: `inv_orgs`(관리 공간) · `inv_members`(권한) · `inv_spaces`(건물→층→
+  방→수납 위치, 한 표에 parent_id 로 잇는다) · `inv_items` · `inv_logs`.
+  사진 통 하나(`inventory-photos`)는 **비공개**다 — 여기엔 남의 집 안방과 교회
+  사무실 내부가 찍힌다(§7.2). 화면은 볼 때마다 서명 주소를 받아 쓴다.
+- **권한 판정은 security definer 함수 `inv_role()` 한 곳에만 있다.** 정책 안에서
+  `inv_members` 를 직접 조회하면 그 표의 정책이 다시 자기를 불러 무한 재귀에
+  빠진다. 규칙을 고칠 자리도 이 함수 하나뿐이다.
+- **수량은 반드시 `inv_change_qty()` 로 바꾼다.** 수량 칸과 이력을 화면에서 따로
+  부르면 사이에서 끊길 때 수량만 바뀌고 과거를 되짚을 수 없다(0077 의
+  `pray_for_fruit` 과 같은 판단). 옮기기·처분·복원도 같은 이유로 함수다.
+- **지우지 않는다.** 수량이 0 이 되면 상태만 「사용 완료」로 바뀌고(§4.6),
+  삭제는 `deleted_at` 소프트 삭제 + 30일 휴지통이다. 영구 삭제는 관리자만.
+- **부족 판정에서 최소 수량 0 은 「알리지 않음」이다.** 0 을 기준으로 삼으면 한
+  번 다 쓴 물품이 전부 붉은 배지를 달고 목록을 채운다(`stockState`).
+- **자연어 검색에 언어모델을 부르지 않는다.** 앱에 모델 열쇠가 없고, 물건 이름
+  몇 개 찾자고 집 안 물건 목록을 밖으로 보낼 이유도 없다(0079 §14 와 같은 줄기).
+  묻는 말투와 조사를 떼는 규칙(`parseQuery`/`stripParticle`)으로 갈음했다.
+  낱말은 AND — 「주방 종이컵」이 종이컵 전부를 부르면 찾기가 아니다.
+- **핀은 끌기가 아니라 「고른 뒤 한 번 누르기」**다(중보기도 나무와 같은 판단).
+  자리는 0~1 비율(`pin_x`/`pin_y`)로 담고, 사진 크기는 `onLayout` 이 아니라
+  **창 너비에서 계산**한다 — 이 환경에서 onLayout 이 안 오는 일이 있었다.
+  사진을 바꾸면 「핀을 다시 찍으라」고 알린다(§4.2).
+- **색**: 기획서의 네이비·세이지·골드·코랄을 바탕까지 칠하지 않았다. 이 앱은
+  살구빛 한 벌로 통일돼 있어 탭을 옮길 때마다 다른 앱처럼 보인다. 바탕·카드·
+  글자는 앱 테마(어두운 모드가 저절로 따라온다), 기획서 색은 **뜻을 나르는
+  자리**(머리띠·배지·경고)에만 썼다. 어두운 모드용 한 벌을 따로 잡았다 —
+  골드 위 흰 글자는 대비가 2:1 도 안 나온다.
+- **사진은 1400px 로 줄여 올린다.** 폰 사진 그대로면 한 면이 수십 MB 라 창고
+  안 약한 신호에서 아예 안 뜬다(§13). 서명 주소는 묶어서 한 번에 받고 잠시
+  기억한다(`signedPhotoUrls`) — 카드마다 따로 받으면 한 면에 왕복이 수십 번이다.
+- 새 화면 일곱: `/inventory`(관리 공간 고르기) → `/inventory/[orgId]`(사진형 홈)
+  → `space/[spaceId]` · `item/[itemId]` · `new` · `search` · `manage`.
+  들어가는 길: 더보기 탭 「📦 물품관리ON」.
+
+**아직 안 한 것(기획서 2·3단계)**: QR·바코드, 대여·반납, 알림(푸시), 영수증
+OCR·AI 사진 인식, 월간 보고서·엑셀/PDF 내보내기, 구입 요청·승인 흐름,
+오프라인 임시 저장. 초대는 이메일이 아니라 사용자 id 로 더한다.
 
 ## This session (2026-09-03) — 중보기도 나무
 

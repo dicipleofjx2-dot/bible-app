@@ -16,6 +16,13 @@ export default function MoreHubScreen() {
           href: '/profile',
         },
         {
+          emoji: '📦',
+          label: '물품관리ON',
+          description: '교회와 가정의 물품을 사진으로 보고 찾는 수납 지도',
+          href: '/inventory',
+          requiresAuth: true,
+        },
+        {
           emoji: '💝',
           label: t('more.support'),
           description: t('more.supportDesc'),
