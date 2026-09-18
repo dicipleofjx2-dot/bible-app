@@ -1,5 +1,7 @@
 # BibleApp — Handoff / Status Reference
 
+> **내 컴퓨터에서 개발 환경을 세우려면 [`DEV-SETUP.md`](./DEV-SETUP.md) 를 본다.**
+
 Last updated: **2026-09-18** (물품관리ON 1단계). Everything through `3175923` is **committed
 on local `main` and deployed to production**
 (https://dicipleofjx-bible.vercel.app). See "This session (2026-08-19)"

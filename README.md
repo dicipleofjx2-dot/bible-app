@@ -1,3 +1,11 @@
+# 데이빗바이블 (BibleApp)
+
+- **내 컴퓨터에서 작업하려면 → [`DEV-SETUP.md`](./DEV-SETUP.md)** (내려받기·열쇠·실행·배포)
+- 지금까지의 판단과 함정 → [`HANDOFF.md`](./HANDOFF.md)
+- 배포된 웹 → https://dicipleofjx-bible.vercel.app
+
+아래는 create-expo-app 이 만들어 준 기본 안내다.
+
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
