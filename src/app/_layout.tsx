@@ -249,31 +249,6 @@ function AppStack() {
           name="memorial/[slug]"
           options={{ headerShown: false }}
         />
-        <Stack.Screen name="inventory" options={{ headerShown: true, title: '물품관리ON' }} />
-        <Stack.Screen
-          name="inventory/[orgId]"
-          options={{ headerShown: true, title: '관리 공간' }}
-        />
-        <Stack.Screen
-          name="inventory/[orgId]/space/[spaceId]"
-          options={{ headerShown: true, title: '공간' }}
-        />
-        <Stack.Screen
-          name="inventory/[orgId]/item/[itemId]"
-          options={{ headerShown: true, title: '물품' }}
-        />
-        <Stack.Screen
-          name="inventory/[orgId]/new"
-          options={{ headerShown: true, title: '물품 등록' }}
-        />
-        <Stack.Screen
-          name="inventory/[orgId]/search"
-          options={{ headerShown: true, title: '물품 찾기' }}
-        />
-        <Stack.Screen
-          name="inventory/[orgId]/manage"
-          options={{ headerShown: true, title: '물품 관리' }}
-        />
         <Stack.Screen
           name="privacy-policy"
           options={{ headerShown: true, title: t('nav.privacy') }}

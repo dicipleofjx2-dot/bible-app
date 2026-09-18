@@ -54,8 +54,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "물품관리ON에서 물품과 공간 사진을 등록하는 데 사진 보관함을 씁니다.",
-          "cameraPermission": "물품관리ON에서 물품을 그 자리에서 찍어 등록하는 데 카메라를 씁니다."
+          "photosPermission": "말씀카드 배경, 열매 사진, 사역 자료를 올리는 데 사진 보관함을 씁니다.",
+          "cameraPermission": "천국재정의 영수증을 그 자리에서 찍는 데 카메라를 씁니다."
         }
       ],
       "expo-sharing"

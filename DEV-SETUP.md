@@ -38,12 +38,18 @@ git checkout main
 git pull origin main
 ```
 
-**작업 중인 가지(branch)를 볼 때**는 그 이름으로 옮긴다. 예를 들어 물품관리ON 은
-아직 `main` 이 아니라 아래 가지에 있다.
+**작업 중인 가지(branch)를 볼 때**는 그 이름으로 옮긴다.
 
 ```bash
-git fetch origin claude/design-ui-improvement-ujulou
-git checkout claude/design-ui-improvement-ujulou
+git fetch origin <가지-이름>
+git checkout <가지-이름>
+```
+
+별도 앱인 **물품관리ON** 은 이 리포의 `inventory-on-app` 가지에 통째로 들어 있다
+(리포 하나를 새로 만들어 그대로 옮겨 담으면 된다 — 그 가지의 `README.md` 참고).
+
+```bash
+git clone --branch inventory-on-app --single-branch https://github.com/dicipleofjx2-dot/bible-app.git inventory-on
 ```
 
 ---
@@ -111,18 +117,18 @@ npm run lint         # 거슬리는 것 훑기(경고는 예전 것이 여럿 �
 2. 아직 안 돌린 파일의 내용을 통째로 붙여넣기
 3. **Run**
 
-지금 기준으로 **`0084_inventory.sql`(물품관리ON)이 아직 실행 전**이다. 이걸 돌리기
-전에는 물품관리 화면이 열려도 아무것도 저장되지 않는다(표가 없다).
+물품관리ON 은 **별도 앱으로 떨어져 나갔다.** 그 표(`inv_*`)는 같은 Supabase
+프로젝트에 이미 만들어져 있으니 **지우지 말 것** — 새 앱이 그걸 쓴다.
 
 돌아갔는지 확인하려면(로그인 없이):
 
 ```bash
-curl -s "$EXPO_PUBLIC_SUPABASE_URL/rest/v1/inv_orgs?select=id&limit=1" \
+curl -s "$EXPO_PUBLIC_SUPABASE_URL/rest/v1/<표이름>?select=id&limit=1" \
   -H "apikey: $EXPO_PUBLIC_SUPABASE_ANON_KEY" \
   -H "Authorization: Bearer $EXPO_PUBLIC_SUPABASE_ANON_KEY"
 ```
 
-표가 없으면 `relation "public.inv_orgs" does not exist`, 있으면 `[]` 가 온다.
+표가 없으면 `relation "public.<표이름>" does not exist`, 있으면 `[]` 가 온다.
 (빈 배열이 정상이다 — 남의 줄은 정책이 가린다.)
 
 ---
@@ -156,8 +162,8 @@ npm run build:android         # preview 프로필, APK
 끝나면 `expo.dev/.../builds/<id>` 주소가 나온다. 폰에서 그 주소를 열어 설치한다.
 **무료 플랜은 한 달 빌드 수가 정해져 있다** — 고칠 것을 모아 두었다가 한 번에 굽는다.
 
-> 물품관리ON 은 카메라 권한 문구가 `app.json` 에 새로 들어갔다. **폰에서 카메라로
-> 찍어 등록하려면 APK 를 한 번 다시 구워야 한다.** 웹은 배포만 하면 된다.
+> `app.json` 에 `expo-image-picker` 권한 문구가 들어 있다. 천국재정의 영수증
+> 촬영이 폰에서 되려면 APK 를 한 번 다시 구워야 한다. 웹은 배포만 하면 된다.
 
 ---
 
