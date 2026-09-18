@@ -197,7 +197,9 @@ export async function listItems(
   if (!options.includeTrash) query = query.is('deleted_at', null);
   const { data, error } = await query.order('updated_at', { ascending: false });
   if (error) throw error;
-  return (data ?? []) as InvItem[];
+  // 칼럼 목록을 문자열로 이어 붙여 넘기므로 supabase 가 결과 모양을 읽어 내지
+  // 못한다. 한 번 unknown 을 거쳐 우리가 아는 모양으로 좁힌다.
+  return (data ?? []) as unknown as InvItem[];
 }
 
 export async function getItem(itemId: string): Promise<InvItem | null> {
