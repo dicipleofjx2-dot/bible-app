@@ -59,11 +59,22 @@ function readEnv() {
   return out;
 }
 
-function projectRef(env) {
+/**
+ * 데이빗바이블의 Supabase 프로젝트.
+ *
+ * 비밀이 아니다 — 이 주소는 이미 배포된 웹 번들 안에 anon 키와 함께 들어 있다
+ * (열쇠는 RLS 뒤에 있으므로 주소를 안다고 열리지 않는다). 여기 적어 두는 것은
+ * `.env` 가 없는 곳(새로 뜬 클라우드 세션)에서도 명령 한 줄로 돌리기 위해서다.
+ */
+const DEFAULT_REF = 'bhqbrkeoiyhnmdgvofvy';
+
+function projectRef(env, argv) {
+  const flag = argv.find((a) => a.startsWith('--project='));
+  if (flag) return flag.slice('--project='.length);
   if (env.SUPABASE_PROJECT_REF) return env.SUPABASE_PROJECT_REF;
   const url = env.EXPO_PUBLIC_SUPABASE_URL ?? '';
   const m = url.match(/^https:\/\/([a-z0-9]+)\.supabase\.co/i);
-  return m ? m[1] : null;
+  return m ? m[1] : DEFAULT_REF;
 }
 
 async function query(ref, token, sql) {
@@ -104,13 +115,13 @@ async function main() {
   const name = args.find((a) => !a.startsWith('--'));
 
   if (!name) {
-    console.error('쓰는 법: node scripts/apply-migration.mjs 0084_growth_school.sql [--yes] [--proxy-auth]');
+    console.error('쓰는 법: node scripts/apply-migration.mjs 0084_growth_school.sql [--yes] [--proxy-auth] [--project=<ref>]');
     process.exit(1);
   }
 
   const env = readEnv();
   const token = proxyAuth ? null : env.SUPABASE_ACCESS_TOKEN;
-  const ref = projectRef(env);
+  const ref = projectRef(env, args);
 
   if (!proxyAuth && !token) {
     console.error('SUPABASE_ACCESS_TOKEN 이 없습니다.');
