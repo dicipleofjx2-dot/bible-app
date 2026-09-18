@@ -1,0 +1,20 @@
+node_modules/
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# local env — 절대 커밋하지 않는다
+.env
+.env*.local
+
+.DS_Store
+.vercel

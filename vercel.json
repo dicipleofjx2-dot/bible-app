@@ -1,0 +1,15 @@
+{
+  "buildCommand": "npx expo export -p web",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/:orgId/space/:spaceId", "destination": "/[orgId]/space/[spaceId]" },
+    { "source": "/:orgId/item/:itemId", "destination": "/[orgId]/item/[itemId]" },
+    { "source": "/:orgId/new", "destination": "/[orgId]/new" },
+    { "source": "/:orgId/search", "destination": "/[orgId]/search" },
+    { "source": "/:orgId/manage", "destination": "/[orgId]/manage" },
+    { "source": "/:orgId", "destination": "/[orgId]" }
+  ]
+}

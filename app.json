@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "물품관리ON",
+    "slug": "inventory-on",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "inventoryon",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dicipleofjx2.inventoryon"
+    },
+    "android": {
+      "package": "com.dicipleofjx2.inventoryon",
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "물품과 공간 사진을 등록하는 데 사진 보관함을 씁니다.",
+          "cameraPermission": "물품을 그 자리에서 찍어 등록하는 데 카메라를 씁니다."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false,
+      "reactCompiler": true
+    }
+  }
+}
