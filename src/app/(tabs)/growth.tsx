@@ -52,6 +52,13 @@ export default function GrowthHubScreen() {
           requiresAuth: true,
         },
         {
+          emoji: '🪨',
+          label: '데이빗스톤 성장ON',
+          description: '학교의 하루를 기록해 아이마다 한 달의 성장 이야기로',
+          href: '/growth-school',
+          requiresAuth: true,
+        },
+        {
           emoji: '🙏',
           label: t('growth.shalomPrayer'),
           description: t('growth.shalomPrayerDesc'),

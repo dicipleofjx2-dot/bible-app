@@ -1,10 +1,10 @@
 # BibleApp — Handoff / Status Reference
 
-Last updated: **2026-09-11** (사명기록관 1~3단계 + 인터뷰 녹음). Everything through `3175923` is **committed
-on local `main` and deployed to production**
-(https://dicipleofjx-bible.vercel.app). See "This session (2026-08-19)"
-immediately below for the newest work; older session notes follow in
-reverse order and are still accurate for their areas.
+Last updated: **2026-09-18** (데이빗스톤 성장ON 1단계 — 바로 아래 절 참고).
+그 앞의 사명기록관까지, `3175923` 까지는 **`main` 에 커밋되어 운영에 나가 있다**
+(https://dicipleofjx-bible.vercel.app). 성장ON 은 아직 `main` 이 아니라
+`claude/systematic-fast-development-3cb6og` 브랜치에 있다. 오래된 절들은
+자기 영역에 대해서는 여전히 맞는 이야기다.
 
 ~~**Not pushed to origin.**~~ **Stale — corrected 2026-08-19 (later
 session).** `main` and `origin/main` are both at `20a5256`;
@@ -17,6 +17,59 @@ is behind.
 Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
+
+## 이어서 (2026-09-18) — 데이빗스톤 성장ON (대안학교 성장기록)
+
+기획서(「데이빗스톤 성장기록 앱 통합 기획서」)의 **1단계 MVP**를 이 앱 안에
+넣었다. 마이그레이션 `0084_growth_school.sql` — **아직 실행 안 됐다면 화면은
+열려도 아무것도 저장되지 않는다(표가 없다).** 자세한 것은
+`docs/GROWTH-ON.md` 에 따로 적었다(컴퓨터에서 이어 작업하는 방법 포함).
+
+- 표 열다섯. 학교·구성원·초대·학생·보호자연결·출결·일일기록·체험활동·참여·
+  목표·상담·월간보고서·응원댓글·공지.
+- **기본값을 「교사만」으로 두었다.** 일일 기록의 공개 범위 기본이 `teacher`,
+  월간보고서는 `sent` 로 바꾸기 전에는 보호자 화면에 한 줄도 안 나간다. 실수로
+  새는 쪽이 아니라 **실수로 안 보이는 쪽**으로 기울였다(0081 기념관과 같은 줄기).
+- **보호자는 자기 자녀만 본다.** `growth_guardian_links` 에 이어진 학생만이라,
+  보호자 초대 코드는 어느 아이의 것인지 정해서 낸다. 한 코드는 한 사람이다.
+- **상담·건강은 표를 아예 갈랐다**(`growth_mentoring_notes`, 교직원만). 같은
+  표에 두고 칼럼으로 가리면 정책을 한 번 잘못 고칠 때 통째로 샌다.
+- **초대 코드로만 들어온다.** 목록에서 학교를 고르게 두면 남의 학교 아이들
+  기록으로 걸어 들어갈 수 있다(2026-08-19 에 교회 선택을 없앤 것과 같은 판단).
+  초대 표는 잠근 채 `growth_redeem_invite` 함수 하나만 열었다.
+- **언어모델을 부르지 않는다.** 기획서 §8 은 AI 요약을 말하지만, 여기 쌓이는
+  것은 미성년 스무 명의 학습·건강·관계 기록이다. 통째로 밖에 보내는 일이 §10 과
+  정면으로 부딪힌다. 월간보고서 초안은 `src/lib/growth.ts` 의 **규칙**이 만든다 —
+  없는 일을 짓지 않고, 문장마다 **근거 날짜**를 달고, 학생끼리 견주지 않고
+  (견주는 대상은 그 학생의 지난달뿐이다), **교사의 편지와 가정 실천은 일부러
+  비워 둔다.**
+- **여러 학생에게 한 번에 적는다.** 공통 수업 내용은 스무 명이 같고 다른 것은
+  학생별 한 줄뿐이다. 학생마다 화면을 열면 스무 번을 연다(§13 의 하루 10분).
+- **출결을 홈에서 바로 찍는다.** 따로 화면을 두면 매일 두 번 들어가야 한다.
+- **기록 없는 축은 0 이 아니라 null 이다.** 안 적은 것과 못한 것은 다르다
+  (중보기도 나무의 0/0 과 같은 판단). 강점 태그는 두 번 이상 적힌 것만 뽑고
+  **약점 태그는 만들지 않는다** — 그건 꼬리표가 된다.
+- **「도움 필요」에 빨강을 쓰지 않는다**(§7). `support`(흐린 청회색)로 둔다.
+- 사진·음성 통은 **비공개**(`growth-media`, 서명 주소). 미성년의 얼굴과 목소리가
+  들어간다 — 주소가 한 번 새면 되돌릴 길이 없다(0080 자료 통과 같은 방식).
+- 들어가는 길: 성장 탭 「🪨 데이빗스톤 성장ON」. 화면은 `/growth-school`(오늘의
+  학교) → `setup` · `record` · `student/[id]` · `activities` · `activity/[id]` ·
+  `reports` · `report/[id]`.
+
+**검증 (2026-09-18)**: `tsc --noEmit` 새 오류 0(기존 `@/global.css` 뿐).
+`lib/growth.ts` 를 노드로 돌려 **50가지**를 대조 — 서울 날짜 경계, 윤년 월 범위,
+기록 없는 축이 null 인지, 강점이 두 번 이상만 잡히는지, 교사가 쓴 「다음 지도
+행동」이 제안의 첫 줄에 오는지, 보고서 초안에 아홉 꼭지가 다 있고 문장마다
+날짜가 붙는지, 교사 편지 자리가 비워지는지, 활동 이야기에 학생 이름이 안
+들어가는지, 초대 코드에 헷갈리는 글자가 없는지 — 전부 예상대로.
+`npx expo export --platform web` 전체 통과(새 화면 여덟이 정적 내보내기에서
+터지지 않는다 — 2026-07-25 의 빈 화면 사고가 이 단계에서 잡히는 종류다).
+
+**사람이 봐 줘야 하는 것**: (1) `0084` 실행, (2) 로그인 상태의 왕복(학교 만들기
+→ 학생 등록 → 초대 코드 → 출결·기록 → 월간보고서 발송), (3) **보호자 계정으로
+들어가 자기 자녀만 보이는지, 「교사만」 기록이 안 보이는지**(이 설계의 핵심),
+(4) 다크 모드, (5) 이 세션의 브라우저에서는 번들 SQLite 가 안 열려 앱이
+「저장소를 여는 중입니다…」에서 멈춰 **화면을 눈으로 못 봤다.**
 
 ## This session (2026-09-03) — 중보기도 나무
 

@@ -250,6 +250,38 @@ function AppStack() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="growth-school"
+          options={{ headerShown: true, title: '성장ON' }}
+        />
+        <Stack.Screen
+          name="growth-school/setup"
+          options={{ headerShown: true, title: '학교 설정' }}
+        />
+        <Stack.Screen
+          name="growth-school/record"
+          options={{ headerShown: true, title: '오늘 기록' }}
+        />
+        <Stack.Screen
+          name="growth-school/student/[id]"
+          options={{ headerShown: true, title: '학생 성장' }}
+        />
+        <Stack.Screen
+          name="growth-school/activities"
+          options={{ headerShown: true, title: '체험활동' }}
+        />
+        <Stack.Screen
+          name="growth-school/activity/[id]"
+          options={{ headerShown: true, title: '활동 기록' }}
+        />
+        <Stack.Screen
+          name="growth-school/reports"
+          options={{ headerShown: true, title: '월말 마감' }}
+        />
+        <Stack.Screen
+          name="growth-school/report/[id]"
+          options={{ headerShown: true, title: '월간 성장보고서' }}
+        />
+        <Stack.Screen
           name="privacy-policy"
           options={{ headerShown: true, title: t('nav.privacy') }}
         />
