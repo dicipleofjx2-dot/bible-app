@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "살림ON",
+    "slug": "salim-on",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "salimon",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#FAF6EF",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dicipleofjx2.salimon"
+    },
+    "android": {
+      "package": "com.dicipleofjx2.salimon",
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": false,
+      "reactCompiler": true
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 > **내 컴퓨터에서 개발 환경을 세우려면 [`DEV-SETUP.md`](./DEV-SETUP.md) 를 본다.**
 
-Last updated: **2026-09-18** (물품관리ON 분리 — 이 앱에서 빠졌다). Everything through `3175923` is **committed
+Last updated: **2026-09-21** (살림ON — 이 리포에 별도 앱으로 들어왔다). Everything through `3175923` is **committed
 on local `main` and deployed to production**
 (https://dicipleofjx-bible.vercel.app). See "This session (2026-08-19)"
 immediately below for the newest work; older session notes follow in
@@ -19,6 +19,47 @@ is behind.
 Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
+
+## This session (2026-09-21) — 살림ON (집안일 관리) 을 **별도 앱으로** 만들었다
+
+가정용 집안일 관리 앱을 만들었다. **데이빗바이블 코드는 한 줄도 안 건드렸다** —
+`salim-on/` 폴더에 독립 Expo 앱으로 통째로 들어 있다(자기 `package.json`·
+`app.json`·`tsconfig.json`·`vercel.json` 을 따로 갖는다).
+
+- **왜 별도 앱인가**: 물품관리ON 때와 같은 판단이다(바로 아래 절). 데이빗바이블은
+  개인 경건훈련 앱이고 살림은 경건훈련이 아니다. 사용자에게 먼저 물어 확인받았다.
+  다만 물품관리ON 은 브랜치를 통째로 바꿔 놓았던 반면, 이번에는 **폴더 하나**라
+  데이빗바이블이 같은 가지에 그대로 산다.
+- **계정과 Supabase 프로젝트는 공유한다.** 표만 `home_*` 로 따로 있다
+  (`salim-on/supabase/migrations/0001_household.sql`). **아직 실행 안 됐다** —
+  실행 전에는 화면이 열려도 아무것도 저장되지 않는다.
+- 하는 일: 집안일을 **분류**하고, **담당자를 배치**(수동 + 점수 기준 공평
+  자동배정)하고, **시간을 배치**(반복 전개 + 겹침 검사)하고, 끝낸 일을
+  **확인**(별점·승인·반려)하고, **점수**(주간·월간 순위와 뱃지)를 매긴다.
+- **점수는 표의 트리거가 매긴다**(`home_score_task`). 화면이 매기면 폰 시계를
+  돌려 정시 보너스를 받는 길이 열린다 — 중보기도 나무의 응답 시각, R2M 의
+  하루 경계와 같은 줄기의 판단이다. 하루는 **서울 기준**으로 끊는다.
+- **계정이 없어도 식구가 된다.** 아이에게 이메일을 만들게 하지 않는다. 이름만
+  적어 둔 자리에 나중에 초대코드로 들어오면 **그 줄에 계정이 붙어** 점수가
+  이어진다.
+- **집에 들어오는 문은 초대코드 하나뿐이다.** 집 목록을 보여 주고 고르게 하는
+  것은 남의 집 살림을 들여다보는 길이다 — 데이빗바이블이 교회 목록에서 겪고
+  0026 으로 막은 그 자리와 같다.
+- 셈은 전부 `salim-on/src/lib/chores.ts` 의 순수 함수다(반복 전개·공평 배정·
+  겹침 검사·점수판·뱃지). 화면을 못 띄우는 자리에서도 노드로 검사된다.
+
+**검증 (2026-09-21)**: `tsc --noEmit` 오류 0. 순수 함수를 노드로 돌려 **73가지**
+대조 — 전부 예상대로. `expo export -p web` 으로 11개 경로가 정적 렌더링 통과.
+**실제 브라우저(Chromium)에서 밝은/어두운 모드로 일곱 화면을 그려 확인**했다
+(Supabase 응답을 가짜로 채워 로그인 상태를 만들었다, 콘솔 오류 0). 그 과정에서
+찾아 고친 것 셋: ① 하위 화면 새로고침이 전부 `/join` 으로 튕기던 것, ②
+`/chore/<id>` 딥링크에서 폼이 빈 채로 굳던 것, ③ 어두운 모드의 ✓ 대비. 단추를
+실제로 눌러 앱 안 이동·폼 반응·자동 배정 미리보기까지 확인했다.
+
+**사람이 봐 줘야 하는 것**: 자세한 목록은 `salim-on/README.md` 맨 아래. 핵심은
+(1) `0001_household.sql` 실행, (2) 진짜 로그인 왕복, (3) 다른 계정으로 초대코드를
+넣어 이름만 있던 식구 자리에 계정이 붙는지, (4) 식구 계정이 남의 일감을 체크하거나
+스스로 승인하지 못하는지.
 
 ## This session (2026-09-18) — 물품관리ON 을 만들었다가 **밖으로 내보냈다**
 
