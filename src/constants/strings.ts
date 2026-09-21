@@ -50,6 +50,9 @@ export const STRINGS = {
   // 줄바꿈을 손으로 넣는다. 바둑판 한 칸은 화면의 31.5% 라 그냥 두면
   // 「24시간 기도의 / 집」 으로 끊겨 둘째 줄에 한 글자만 남는다.
   'home.prayerHouse': { ko: '24시간\n기도의 집', en: '24H Prayer\nHouse' },
+  // 여기도 줄바꿈을 손으로 넣는다. 두 줄까지만 보이므로(numberOfLines={2})
+  // 한 줄이 여섯 자를 넘으면 뒤가 「…」로 잘리고 바깥 링크 표시 ↗ 까지 사라진다.
+  'home.bibleJourney': { ko: '지도로 보는\n바이블 저니', en: 'Bible Journey\nMaps' },
   'home.arcade': { ko: '성경 아케이드', en: 'Bible Arcade' },
   'home.arcadeLead': {
     ko: '한 판을 끝까지 통과할 때마다 30포인트',
