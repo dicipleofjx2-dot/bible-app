@@ -11,12 +11,14 @@ const DARK="2B2118", LIGHT="FBF7F1", LIGHT2="F2EBE1", CARD="FFFDF9",
 
 const M = 0.7, W = 13.33 - M*2;        // 11.93
 let page = 0;
+let FOOTER = "클로드 수업 1강 · 개발 용어 첫걸음";
+function setFooter(t) { FOOTER = t; page = 0; }
 
 function footer(s, dark) {
   page++;
   if (page === 1) return;
   const c = dark ? "9C8C7C" : MUTED;
-  s.addText("클로드 수업 1강 · 개발 용어 첫걸음", {
+  s.addText(FOOTER, {
     x:M, y:6.95, w:6, h:0.3, isTextBox:true, margin:0,
     fontFace:F, fontSize:9.5, color:c, valign:"middle" });
   s.addText(String(page), {
@@ -169,6 +171,6 @@ function rowsSlide(cfg) {
   footer(s);
   return s;
 }
-module.exports = { pres, F, DARK, LIGHT, LIGHT2, CARD, ACC, ACC_L, SAGE, BODY, MUTED,
+module.exports = { pres, setFooter, F, DARK, LIGHT, LIGHT2, CARD, ACC, ACC_L, SAGE, BODY, MUTED,
   BORDER, ONDARK, DARKCARD, M, W, heading, note, numCircle, footer,
   sectionSlide, cardsSlide, tableSlide, twoColSlide, rowsSlide };
