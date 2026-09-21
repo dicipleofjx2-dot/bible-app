@@ -162,7 +162,7 @@ function rowsSlide(cfg) {
   cfg.rows.forEach((r, i) => {
     const y = top + i*(rh+gap);
     s.addShape(pres.ShapeType.roundRect, { x:M, y:y, w:W, h:rh, rectRadius:0.08,
-      fill:{ color:CARD }, line:{ color:BORDER, width:1 } });
+      fill:{ color:CARD }, line:{ color: cfg.bg === LIGHT2 ? "E0D3C2" : BORDER, width:1 } });
     numCircle(s, M+0.3, y+(rh-0.46)/2, 0.46, String(i+1), i < 2 ? ACC : SAGE, LIGHT);
     s.addText(r, { x:M+1.0, y:y, w:W-1.4, h:rh, isTextBox:true, margin:0,
       fontFace:F, fontSize:15, color:DARK, valign:"middle", lineSpacing:22 });
