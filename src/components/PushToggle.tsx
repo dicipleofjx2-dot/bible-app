@@ -16,27 +16,44 @@ import {
 /**
  * 알림 받기 켜고 끄기.
  *
- * 목자의 편지와 알림마당에 새 글이 올라오면 폰 알림창에 띄운다. 앱을 열어 두지
- * 않아도 온다.
+ * 목자의 편지·알림마당·커뮤니티에 새 글이 올라오면 폰 알림창에 띄운다. 앱을
+ * 열어 두지 않아도 온다.
  *
  * **웹에서만 보인다.** 폰 앱(네이티브)에는 이 기능이 통째로 없다 — 브라우저가
  * 대신 전해 주는 방식이라 그렇다. 없는 자리에 단추만 두면 눌러도 아무 일이
  * 안 일어나므로 아예 감춘다.
+ *
+ * `hideWhenOn` 은 마이페이지 밖(커뮤니티 같은 곳)에 둘 때 쓴다. 이미 켜 두신
+ * 분께는 안 보이고, 안 켜신 분께만 켜는 길이 뜬다. 켜고 끄는 본자리는 여전히
+ * 마이페이지다 — 여기서 끄는 단추까지 곳곳에 두면 어디서 껐는지 모르게 된다.
  */
-export function PushToggle({ isAdmin = false }: { isAdmin?: boolean }) {
+export function PushToggle({
+  isAdmin = false,
+  hideWhenOn = false,
+}: {
+  isAdmin?: boolean;
+  hideWhenOn?: boolean;
+}) {
   const theme = useTheme();
   const [supported, setSupported] = useState<boolean | null>(null);
   const [homeNeeded, setHomeNeeded] = useState(false);
   const [on, setOn] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
     const ok = isPushSupported();
     setSupported(ok);
     setHomeNeeded(needsHomeScreen());
-    if (ok) isPushOn().then(setOn);
-  }, []);
+    if (ok)
+      isPushOn().then((v) => {
+        setOn(v);
+        // 들어올 때 이미 켜져 있었으면 감춘다. **켠 뒤에는 감추지 않는다** —
+        // 누르자마자 사라지면 켜진 것인지 알 수 없다.
+        if (hideWhenOn && v) setHidden(true);
+      });
+  }, [hideWhenOn]);
 
   const toggle = useCallback(async () => {
     setMessage(null);
@@ -46,6 +63,8 @@ export function PushToggle({ isAdmin = false }: { isAdmin?: boolean }) {
     if (result.error) setMessage(result.error);
     else setOn(!on);
   }, [on]);
+
+  if (hidden) return null;
 
   if (supported === null || !supported) {
     // 아이폰 사파리는 홈 화면에 추가해야 이 기능들이 생긴다. 그 사실을 안
@@ -70,7 +89,7 @@ export function PushToggle({ isAdmin = false }: { isAdmin?: boolean }) {
         <View style={styles.textCol}>
           <ThemedText type="smallBold">🔔 {on ? '알림을 받고 있어요' : '새 글 알림 받기'}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            목자의 편지와 알림마당에 새 글이 올라오면 알려 드려요.
+            목자의 편지·알림마당·커뮤니티에 새 글이 올라오면 알려 드려요.
           </ThemedText>
         </View>
         <Pressable

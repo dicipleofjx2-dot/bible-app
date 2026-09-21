@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 
 /**
- * 웹푸시 — 목자의 편지와 알림마당에 새 글이 올라오면 폰 알림창에 띄운다.
+ * 웹푸시 — 목자의 편지·알림마당·커뮤니티에 새 글이 올라오면 폰 알림창에 띄운다.
  *
  * 데이빗바이블은 Vercel 에 **정적 웹**으로 나가서 서버가 없다. 그래서 받는
  * 쪽은 브라우저가 하고, 보내는 쪽은 Supabase Edge Function(send-push) 이 맡는다.
@@ -11,7 +11,14 @@ import { supabase } from '@/lib/supabase';
  * 화면 쪽에서 먼저 걸러야 한다(isPushSupported).
  */
 
-export type PushTopic = 'shepherd_letter' | 'notice';
+/**
+ * 알림 종류.
+ *
+ * `community`·`prayer`·`reading_plan` 은 **앱이 보내지 않는다.** 글이 저장되는
+ * 자리에서 DB 트리거가 쌓는다(0071·0075·0084). 여기 적어 두는 것은 구독이
+ * 무엇을 켜 두고 있는지 앱 쪽에서도 같은 말로 부르기 위해서다.
+ */
+export type PushTopic = 'shepherd_letter' | 'notice' | 'reading_plan' | 'prayer' | 'community';
 
 /** 이 기기에서 웹푸시를 쓸 수 있는가. 폰 앱과 옛 브라우저에서는 false. */
 export function isPushSupported(): boolean {
