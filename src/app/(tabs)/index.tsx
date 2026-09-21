@@ -90,6 +90,17 @@ const HOME_TILES: HomeTile[] = [
   // 목자의 편지는 교회로 갈린다. 로그인 전에는 어느 교회인지 알 수 없어 목록이
   // 비므로(→ `@/lib/churchScope`) 빈 화면을 보여 주기보다 로그인으로 안내한다.
   { key: 'shepherdLetter', emoji: '💌', label: 'home.shepherdLetter', href: '/shepherd-letters', requiresAuth: true },
+  // 바이블 저니 ON — 다른 앱이다(journey.dgaiworks.com). 성경 서른두 코스와
+  // 세계사 열세 코스를 위성지도·3D 지형 위에서 따라간다.
+  // 여섯째 칸(둘째 줄 맨 끝)에 둔 이유: 기도의 집이 맡은 넷째 칸을 밀지 않으면서
+  // 화면을 내리지 않고 보이는 마지막 자리다. 이 칸까지 열둘이라 넉 줄이 꼭 맞는다.
+  {
+    key: 'bibleJourney',
+    emoji: '🗺️',
+    label: 'home.bibleJourney',
+    href: '/',
+    external: { url: 'https://journey.dgaiworks.com/', window: APP_WINDOW.bibleJourney },
+  },
   { key: 'r2m', emoji: '🔥', label: 'home.r2m', href: '/bible-reading' },
   { key: 'readingHelper', emoji: '📆', label: 'home.readingHelper', href: '/reading-helper', requiresAuth: true },
   // 성경게임대전 — 로그인 없이도 방에 들어가 볼 수 있게 두었다. 기록 저장만

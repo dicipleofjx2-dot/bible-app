@@ -39,4 +39,7 @@ export const APP_WINDOW = {
   guide: 'dgguide',
   /** 24시간 기도의 집. 기도 시간을 맡아 두고 여러 번 드나드는 곳이라 한 창에 모은다. */
   prayerHouse: 'prayerhouse',
+  /** 바이블 저니 ON(지도로 보는 성경·세계사). 지도와 3D 지형을 쓰는 무거운 화면이라
+   *  탭이 여러 개 뜨면 폰에서 눈에 띄게 느려진다. 반드시 한 창에 모은다. */
+  bibleJourney: 'biblejourney',
 } as const;
