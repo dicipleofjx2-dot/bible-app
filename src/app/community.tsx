@@ -3,6 +3,7 @@ import { Redirect, router, useFocusEffect } from 'expo-router';
 import { FlatList, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PushToggle } from '@/components/PushToggle';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
@@ -93,6 +94,14 @@ function Feed({ userId, theme }: { userId: string; theme: ReturnType<typeof useT
               </ThemedText>
             </Pressable>
           </View>
+        </View>
+
+        {/* 새 글 알림 켜기. **이미 켜 두신 분께는 안 보인다.**
+            알림은 켠 사람에게만 갈 수 있는데(브라우저가 허락 없이 구독 주소를
+            안 내준다), 켜는 자리가 마이페이지 안쪽에만 있어서 21명뿐이다.
+            글이 오가는 이 자리에 켜는 길을 둔다. */}
+        <View style={styles.pushSlot}>
+          <PushToggle hideWhenOn />
         </View>
 
         <View style={styles.composer}>
@@ -233,6 +242,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingTop: Spacing.three,
     gap: Spacing.two,
+  },
+  // 알림 켜기 카드 자리. 부모가 가운데 정렬이라 너비를 안 주면 카드가 글자
+  // 폭만큼 쪼그라든다. 켜 두신 분께는 이 칸이 통째로 비어 높이 0이 된다.
+  pushSlot: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.three,
   },
   composerInput: {
     minHeight: 60,
