@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "카드가계부",
+    "slug": "card-finance",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "cardfinance",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dicipleofjx2.cardfinance"
+    },
+    "android": {
+      "package": "com.dicipleofjx2.cardfinance",
+      "edgeToEdgeEnabled": true,
+      "intentFilters": [
+        {
+          "action": "SEND",
+          "category": ["DEFAULT"],
+          "data": [{ "mimeType": "text/plain" }]
+        }
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": false,
+      "reactCompiler": true
+    }
+  }
+}

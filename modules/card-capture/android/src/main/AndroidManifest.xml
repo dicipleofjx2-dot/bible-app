@@ -1,0 +1,16 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <!-- 알림 접근 서비스. 이 권한은 사용자가 안드로이드 설정에서 직접 켜야 하고,
+         대화상자로는 받을 수 없다. android:name 은 반드시 전체 경로로 적는다 —
+         라이브러리 매니페스트의 ".Foo" 는 앱 패키지 기준으로 풀린다. -->
+    <service
+      android:name="expo.modules.cardcapture.CardNotificationListener"
+      android:label="카드 결제 알림 읽기"
+      android:exported="true"
+      android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+      <intent-filter>
+        <action android:name="android.service.notification.NotificationListenerService" />
+      </intent-filter>
+    </service>
+  </application>
+</manifest>
