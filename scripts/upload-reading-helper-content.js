@@ -111,6 +111,8 @@ async function main() {
   if (regressions.length > 0 && process.env.ALLOW_QUESTION_DOWNGRADE !== '1') {
     console.error('서버에 있는 개선을 되돌리게 되어 올리지 않았습니다:\n');
     for (const m of regressions) console.error('  ·', m);
+    console.error('\n파일을 서버 쪽으로 맞추려면 (보통 이쪽입니다):');
+    console.error('  node scripts/sync-questions-from-server.js --write');
     console.error('\n정말 파일 쪽으로 되돌리려면 ALLOW_QUESTION_DOWNGRADE=1 을 붙여 다시 돌리세요.');
     process.exit(1);
   }
