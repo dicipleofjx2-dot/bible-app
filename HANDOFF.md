@@ -2,7 +2,7 @@
 
 > **내 컴퓨터에서 개발 환경을 세우려면 [`DEV-SETUP.md`](./DEV-SETUP.md) 를 본다.**
 
-Last updated: **2026-09-18** (물품관리ON 분리 — 이 앱에서 빠졌다). Everything through `3175923` is **committed
+Last updated: **2026-09-21** (물품관리ON 분리 — 이 앱에서 빠졌다). Everything through `3175923` is **committed
 on local `main` and deployed to production**
 (https://dicipleofjx-bible.vercel.app). See "This session (2026-08-19)"
 immediately below for the newest work; older session notes follow in
@@ -19,6 +19,42 @@ is behind.
 Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
+
+## 이어서 (2026-09-21) — 통독 46일째 "준비 중" · 오경 콘텐츠 완주
+
+**아직 서버에 안 올렸다.** 파일만 리포에 있고 `reading_helper_chapter_content`
+표는 그대로라, 올리기 전까지 화면은 여전히 "준비 중"이다.
+
+- **증상**: 통독도우미 46일째 민수기 본문이 "이 날짜의 통독 콘텐츠는 아직
+  준비 중입니다"로 떴다. 코드 버그가 아니라 **콘텐츠가 민수기 28장에서
+  끊겨 있었다**(창1~민28 = 145장). 46일째가 읽는 범위는 통독 시작 요일에
+  따라 민수기 31~33장 또는 33~35장이라, 그 날 범위의 장이 서버에 하나도
+  없어 `getDayContent()`가 null 을 돌려주고 `lesson.notReady` 가 떴다.
+  45일째도 민수기 28장 하나만 나오던 상태였다.
+- **채운 것**: 민수기 29~36 + 신명기 1~34 = **42장**(문항 294개). 이제
+  창세기 1장부터 신명기 34장까지 **187장이 연속으로 채워져 있다** —
+  통독 시작 요일과 상관없이 약 57일치.
+- 원고는 `scripts/bilingual/` 에 한·영을 함께 적고 `split-bilingual.js` 로
+  쪼갰다. 요약·문항·해설은 **krv 본문을 직접 읽고** 썼고, 암송구절 42개가
+  `bible.db` 의 krv·open_en 에 실제로 있는 절인지 하나씩 확인했다.
+- **올리는 법** (PC 에서, 서비스 롤 키가 있는 자리):
+
+  ```
+  for f in numbers-29-36 deuteronomy-01-09 deuteronomy-10-18 \
+           deuteronomy-19-27 deuteronomy-28-34; do
+    node scripts/upload-reading-helper-content.js scripts/content/$f.js
+    node scripts/upload-reading-helper-content-en.js scripts/content-en/$f.js
+  done
+  node scripts/check-content.js
+  ```
+
+  **새 장들만 올린다.** 옛 파일(창세기·출애굽기·레위기 1~11)은 손대지 말 것 —
+  아래 참고.
+- **옛 파일이 서버보다 뒤처져 있다**(이 세션에서 확인). 창세기·출애굽기·
+  레위기 1~11 의 한글 파일에는 아직 단답형(`type: 'short'`)으로 남은 문항이
+  338곳 있는데 서버와 영어판은 객관식이다. `check-content.js` 가 경고하는
+  바로 그 상태다 — **그 파일들을 다시 올리면 서버가 되돌아간다.** 이번
+  작업은 새 파일만 만들었고 옛 파일은 한 줄도 건드리지 않았다.
 
 ## This session (2026-09-18) — 물품관리ON 을 만들었다가 **밖으로 내보냈다**
 
