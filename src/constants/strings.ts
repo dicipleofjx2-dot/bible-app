@@ -59,8 +59,8 @@ export const STRINGS = {
     en: 'Clear a game and earn 30 points',
   },
   'home.arcadeDesc': {
-    ko: '창세기 다섯 판 · 출애굽기 다섯 판, 손으로 하는 열 개의 게임',
-    en: 'Ten hands-on games from Genesis and Exodus',
+    ko: '창세기·출애굽기 열 판과 레위기 어드벤처 한 편',
+    en: 'Ten action games and one Leviticus adventure',
   },
   'home.arcadeToday': { ko: '오늘 받은 포인트', en: 'Points earned today' },
   'home.support': { ko: 'David Bible 후원', en: 'Support David Bible' },

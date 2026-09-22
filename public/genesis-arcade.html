@@ -160,18 +160,18 @@ canvas.game{display:block;width:100%;touch-action:none}
   <div class="hero-in">
     <div class="verse" id="verse"></div>
     <h1>성경 <em>아케이드</em></h1>
-    <p class="hero-sub">읽는 게임이 아니라, 손이 바쁜 열 개의 게임</p>
-    <p class="hero-cue">창세기 다섯 판 · 출애굽기 다섯 판</p>
+    <p class="hero-sub">손이 바쁜 열 판, 그리고 앉아서 하는 한 편</p>
+    <p class="hero-cue">창세기 다섯 판 · 출애굽기 다섯 판 · 레위기 한 편</p>
   </div>
 </div>
 
 <div class="wrap">
   <section class="journey">
     <div class="journey-head">
-      <span class="kicker">창세기 6장 → 출애굽기 17장</span>
-      <h2>열 개의 판</h2>
+      <span class="kicker">창세기 6장 → 레위기 25장</span>
+      <h2>열한 개의 판</h2>
     </div>
-    <p class="journey-note">열 판 모두 손과 눈으로 하는 게임입니다. 조작은 전부 한두 개 단추뿐이고, 키보드가 없어도 화면을 눌러 할 수 있습니다. 순서는 창세기 본문이 흐르는 순서입니다.</p>
+    <p class="journey-note">창세기와 출애굽기 열 판은 손과 눈으로 하는 게임입니다 — 조작은 한두 개 단추뿐이고 키보드가 없어도 화면을 눌러 할 수 있습니다. 레위기 한 편만 다릅니다. 앉아서 읽고 고르는 어드벤처이고, 규례는 외우지 않아도 됩니다. 순서는 본문이 흐르는 순서입니다.</p>
     <div class="ptsbar" id="ptsbar" hidden></div>
     <div class="rail" id="rail"></div>
     <p class="foot">본문 인용은 개역개정을 따랐습니다. 숫자와 사건 전개는 게임을 위한 각색입니다.</p>
@@ -362,7 +362,8 @@ function openGame(g){
 // 책마다 한 줄. 판이 열 개가 되면 「무엇부터 할까」가 막막해지므로 책으로 가른다.
 const BOOKS={
   '창세기':'막고 · 쌓고 · 피하고 · 붙들고 · 받아 던진다',
-  '출애굽기':'밀고 · 바르고 · 버티고 · 절제하고 · 팔을 들어 올린다'
+  '출애굽기':'밀고 · 바르고 · 버티고 · 절제하고 · 팔을 들어 올린다',
+  '레위기':'찾아보고 · 판단하고 · 지키는 한 편의 어드벤처'
 };
 
 function boot(){
@@ -650,6 +651,19 @@ function trackAmalek(s, t, m){
   const line = [0, 0, 4, 0, 3, 0, 4, 5];
   if(s % 2 === 0) blip(deg(110, HIJAZ, line[(s >> 1) % 8]), 0.13, 'sawtooth', 0.04, t);
   if(push > 0.72 && b === 15) blip(deg(440, HIJAZ, 4), 0.3, 'triangle', 0.03, t);
+}
+
+/** 레위기 — 성막 안의 시간. 급할 것이 없고, 다만 낮게 이어진다. */
+function trackLevite(s, t, m){
+  const b = s % 32;
+  if(b === 0)  blip(73.4, 2.2, 'sine', 0.06, t);            // 낮은 드론
+  if(b === 16) blip(110,  1.8, 'sine', 0.04, t);
+  if(b % 8 === 0) hiss(t, 0.7, 0.007, 520, 0.6, 'lowpass'); // 제단의 불
+  // 규례를 익힐수록 위에 한 줄이 더 얹힌다
+  const k = m.know || 0;
+  if(k > 0.25 && b === 8)  blip(deg(220, MINOR, 2), 1.4, 'triangle', 0.024 * k, t);
+  if(k > 0.55 && b === 24) blip(deg(330, MINOR, 4), 1.2, 'triangle', 0.022 * k, t);
+  if(m.solemn && b === 4) frame(t, 0.10);                   // 대속죄일
 }
 
 /** 판이 끝났을 때 짧게. 이긴 쪽은 올라가고 진 쪽은 내려간다. */
@@ -2857,6 +2871,563 @@ GAMES.push({
     reset();
     A.run(()=>{ step(); paint(); ui(); if(S.over && !ended) finish(); });
     return ()=>{ musicStop(); A.stop(); };
+  }
+});
+
+/* ==========================================================
+   11. 레위기 — 성막 문 앞에서 (어드벤처)
+   ==========================================================
+
+   이 판만 유일하게 손이 아니라 머리로 한다. 제사 제도와 레위인의 직무는
+   반사신경으로 담을 수 있는 것이 아니다.
+
+   핵심 장치는 **율법 두루마리**다. 규례를 외워서 맞히는 퀴즈로 만들면
+   「성경 지식 시험」이 되어 아무도 두 번 안 한다. 그래서 언제든 펴 볼 수 있게
+   하고, 대신 **펴는 데 시간이 든다** — 문 앞에 줄이 서 있기 때문이다.
+   그리고 한 번 찾아본 규례는 **익힌 것이 되어 그 뒤로는 공짜**다.
+   그러면 판을 거치는 동안 저절로 빨라지고, 그 빨라짐이 곧 배운 양이 된다.
+
+   신명기 33:10 — "주의 법도를 야곱에게, 주의 율법을 이스라엘에게 가르치며".
+   레위인의 일은 아는 것을 외우는 게 아니라 찾아서 가르치는 것이다. */
+GAMES.push({
+  id:'levite', book:'레위기', ref:'레위기 1–25장', genre:'어드벤처 · 역할', accent:'var(--ochre)',
+  title:'레위기 · 성막 문 앞에서',
+  goal:'율법을 찾아 백성을 판단하고, 스스로도 거룩을 지켜라',
+  blurb:'스물다섯에 고핫 자손으로 성막에 들어가 쉰에 물러나기까지. 문 앞에 선 사람마다 사정이 다르고 드릴 것이 다르다. 규례는 외우지 않아도 된다 — 두루마리를 펴면 되고, 한 번 찾은 것은 그 뒤로 네 것이 된다. 다만 펴는 동안 줄은 길어진다.',
+  mount(root){
+    /* ── 율법 두루마리 ────────────────────────────────────────
+       한 번 읽으면 learned 가 되고 그 뒤로는 시간이 안 든다. */
+    const LAW = {
+      burnt:   { ref:'레위기 1장', t:'번제 — 온전히 태우는 것',
+        d:'소나 양이나 염소는 <b>흠 없는 수컷</b>으로 회막 문에서 드린다. 손을 그 머리에 얹고, 가죽만 제사장에게 주고 <b>나머지는 전부 태운다</b>. 형편이 안 되면 산비둘기나 집비둘기 새끼로 드릴 수 있다.' },
+      grain:   { ref:'레위기 2장', t:'소제 — 곡식으로 드리는 것',
+        d:'고운 가루에 <b>기름을 붓고 유향을 얹는다</b>. <b>누룩과 꿀은 절대 넣지 못하고</b>, 모든 소제에는 <b>소금을 친다</b>. 한 움큼을 기념물로 태우고 남은 것은 제사장의 몫이다.' },
+      peace:   { ref:'레위기 3장 · 7장', t:'화목제 — 함께 먹는 것',
+        d:'감사·서원·자원 세 가지가 있다. 기름과 피는 먹지 못한다. <b>감사제로 드린 고기는 그날에 다 먹어야 하고</b>, 서원이나 자원으로 드린 것은 이튿날까지 먹되 <b>사흘째 먹으면 가증한 것이 되어 그 제사가 무효가 된다</b>.' },
+      sin:     { ref:'레위기 4장', t:'속죄제 — 부지중에 지은 죄',
+        d:'신분에 따라 드릴 것이 다르다. <b>제사장은 흠 없는 수송아지</b>, <b>온 회중도 수송아지</b>, <b>족장은 흠 없는 수염소</b>, <b>평민은 흠 없는 암염소나 암양</b>이다.' },
+      poor:    { ref:'레위기 5:7–13', t:'형편이 못 미칠 때',
+        d:'어린 양에 힘이 미치지 못하면 <b>산비둘기 둘이나 집비둘기 새끼 둘</b>을 가져오고, 그것도 못 하면 <b>고운 가루 십분의 일 에바</b>를 속죄제로 드린다. 이때는 <b>기름도 유향도 얹지 않는다</b> — 속죄제이기 때문이다.' },
+      guilt:   { ref:'레위기 5:14–6:7', t:'속건제 — 손해를 물어 주는 것',
+        d:'성물을 범하거나 이웃의 것을 속여 가졌으면 <b>본래 것에 오분의 일을 더하여 갚고</b>, 그 위에 흠 없는 숫양으로 속건제를 드린다. 배상이 먼저다 — 제사만 드리고 갚지 않는 길은 없다.' },
+      clean:   { ref:'레위기 11장', t:'먹을 것과 먹지 못할 것',
+        d:'땅의 짐승은 <b>굽이 갈라지고 새김질하는 것</b>만 먹는다 — 낙타·토끼·돼지는 하나가 어긋나므로 안 된다. 물에서는 <b>지느러미와 비늘</b>이 있는 것만 먹는다.' },
+      skin:    { ref:'레위기 13장', t:'피부병을 진찰하는 법',
+        d:'<b>털이 희어지고 병색이 살보다 우묵하면</b> 부정하다고 진단한다. 그렇지 않고 아직 분명하지 않으면 <b>이레 동안 가두고 다시 본다</b>. 이레 후에 <b>퍼지지 않았으면 또 이레를 가두고</b>, 그때도 번지지 않고 빛이 엷으면 정하다 하고 옷을 빨게 한다.' },
+      cloth:   { ref:'레위기 13:47–59', t:'옷과 집의 색점',
+        d:'옷의 색점은 <b>이레 후에 다시 본다</b>. 번졌으면 불사르고, 그대로면 빨아서 또 이레를 본다. 집은 돌을 빼내고 흙을 긁어내어 성 밖에 버리며, 그래도 다시 나면 그 집을 헐어야 한다.' },
+      birth:   { ref:'레위기 12장', t:'아이를 낳은 여인',
+        d:'남아를 낳으면 <b>이레 동안 부정하고 삼십삼 일을 더 기다리며</b>, 여아면 <b>두 이레와 육십육 일</b>이다. 기한이 차면 번제로 어린 양과 속죄제로 산비둘기를 드리되, <b>형편이 못 미치면 산비둘기 둘이나 집비둘기 새끼 둘</b>로 한다.' },
+      atone:   { ref:'레위기 16장', t:'대속죄일 — 일곱째 달 열째 날',
+        d:'아론은 <b>몸을 씻고 세마포 옷을 입은 뒤</b> 자기 속죄제 수송아지를 드린다. 두 염소를 <b>제비뽑아 하나는 여호와께, 하나는 아사셀에게</b> 돌린다. 향로의 <b>향 연기로 속죄소를 가린 다음</b>에야 피를 가지고 들어가 뿌리고, 마지막에 남은 염소에 손을 얹어 <b>광야로 보낸다</b>. 온 백성은 스스로 괴롭게 하고 아무 일도 하지 않는다.' },
+      fire:    { ref:'레위기 10장', t:'다른 불',
+        d:'나답과 아비후가 <b>명령하지 아니한 다른 불</b>을 담아 분향하다 불에 삼켜졌다. 그 뒤로 제사장은 <b>회막에 들어갈 때에 포도주나 독주를 마시지 말라</b> 하셨다 — 거룩한 것과 속된 것, 부정한 것과 정한 것을 분별하여 가르쳐야 하기 때문이다.' },
+      corner:  { ref:'레위기 19:9–10', t:'밭의 모퉁이',
+        d:'곡식을 거둘 때 <b>밭 모퉁이까지 다 거두지 말고</b>, 떨어진 이삭도 줍지 말라. 포도원의 열매도 다 따지 말고 떨어진 것을 거두지 말라 — <b>가난한 자와 거류민을 위하여</b> 남겨 두라.' },
+      jubilee: { ref:'레위기 25장', t:'희년과 땅',
+        d:'땅은 <b>영구히 팔지 못한다</b> — 땅은 하나님의 것이고 너희는 거류민이기 때문이다. 동족이 가난하여 몸을 팔면 <b>종처럼 부리지 말고 품꾼처럼 대하며</b>, <b>오십 년째 희년에는 각기 산업으로 돌아가고 자유한다</b>.' },
+      carry:   { ref:'민수기 4장 (레위인의 직무)', t:'고핫 자손이 메는 법',
+        d:'고핫 자손은 지성물을 메지만 <b>그것을 만지면 죽는다</b>. <b>아론과 그 아들들이 먼저 덮고 채를 꿴 뒤에야</b> 들어와 멜 수 있다. 진영이 움직일 때에야 들어갈 것이요, 성소를 들여다보아서도 안 된다.' },
+    };
+
+    const S0 = () => ({
+      act:0, scene:0, holy:60, mercy:60, know:10, time:0, maxTime:0,
+      learned:{}, log:[], msg:null, scroll:false, over:null,
+      right:0, wrong:0, order:[], orderStep:0, turned:0
+    });
+    let S = S0();
+
+    /* ── 사건 ───────────────────────────────────────────────── */
+    const ACTS = [
+      /* 0 ─ 들어가는 날 */
+      { title:'스물다섯 — 들어가는 날', sub:'레위기 8장 · 민수기 8:24',
+        verse:'"레위인은 이십오 세 이상으로 회막에서 봉사하는 일에 참가할 것이요" — 민수기 8:24',
+        scenes:[
+          { kind:'talk',
+            text:'시내 광야, 진영 가운데 성막이 섰다. 오늘 네 이름이 불렸다. 고핫 자손 — 지성물을 메는 집안이다. 아론의 아들이 묻는다. "무엇을 먼저 배우려는가."',
+            choices:[
+              { l:'메는 법을 먼저 배우겠습니다', e:{holy:4, know:4}, law:'carry',
+                r:'그가 고개를 끄덕였다. "만지면 죽는다. 우리가 덮은 뒤에 들어오라. 그것을 아는 것이 네 목숨이다."' },
+              { l:'백성을 대하는 법을 먼저 배우겠습니다', e:{mercy:6, know:2},
+                r:'"문 앞에 서 보면 알게 된다. 오는 사람마다 형편이 다르다."' },
+              { l:'규례를 통째로 외우겠습니다', e:{know:8, mercy:-4},
+                r:'그가 웃었다. "외우는 것은 두루마리가 한다. 너는 <b>찾아서 가르치는</b> 사람이 되어라."' },
+            ] },
+          { kind:'talk',
+            text:'그가 두루마리를 건넨다. "문 앞에 서면 네가 다 알 수는 없다. 모르면 펴 보아라. 부끄러운 일이 아니다 — <b>모르는데 아는 척하는 것</b>이 부끄러운 일이다. 다만 펴는 동안 줄이 길어지는 것은 네가 감당해야 한다."',
+            choices:[ { l:'두루마리를 받는다', e:{know:2}, r:'이제 언제든 아래 「율법 두루마리」를 펼 수 있다. 한 번 찾아본 규례는 네 것이 되어 다시 펼 때 시간이 들지 않는다.' } ] },
+        ] },
+
+      /* 1 ─ 문 앞의 하루 */
+      { title:'문 앞의 하루', sub:'레위기 1–7장', day:14,
+        verse:'"누구든지 여호와께 예물을 드리려면" — 레위기 1:2',
+        scenes:[
+          { kind:'case', who:'첫 수확을 가져온 농부',
+            text:'"첫 곡식으로 소제를 드리려 합니다. 고운 가루에 기름을 붓고 <b>꿀을 조금 섞었습니다</b> — 첫 열매이니 달게 드리고 싶었습니다."',
+            law:'grain',
+            choices:[
+              { l:'그대로 받는다', ok:false,
+                r:'꿀을 넣은 소제는 받을 수 없다. 누룩과 꿀은 화제로 사르지 못한다 — 그 둘은 스스로 부풀고 삭는 것이라 제단에 오르지 못한다.' },
+              { l:'꿀을 걷어내고 소금을 치게 한다', ok:true,
+                r:'"소제에 꿀은 넣지 못하고 소금은 빠뜨리지 못합니다." 그가 가루를 다시 반죽했다. 유향을 얹어 한 움큼을 태웠다.' },
+              { l:'돌려보낸다', ok:false, turn:true,
+                r:'그는 첫 곡식을 안고 돌아갔다. 무엇이 어긋났는지 듣지 못한 채로. 가르치지 않고 물리는 것은 레위인의 일이 아니다.' },
+            ] },
+          { kind:'case', who:'한 지파의 족장',
+            text:'"부지중에 계명 하나를 어겼습니다. 알고 나니 잠이 오지 않았습니다. 무엇을 드려야 합니까." 종이 어린 암양 한 마리를 끌고 왔다.',
+            law:'sin',
+            choices:[
+              { l:'암양으로 속죄제를 드리게 한다', ok:false,
+                r:'암양은 평민의 속죄제다. <b>족장은 흠 없는 수염소</b>를 드린다 — 맡은 자리가 무거울수록 드릴 것도 무거워진다.' },
+              { l:'흠 없는 수염소를 가져오게 한다', ok:true,
+                r:'"족장이 부지중에 범하였으면 수염소를 끌어옵니다." 그가 사람을 보내 수염소를 가져왔고, 손을 그 머리에 얹었다.' },
+              { l:'수송아지를 가져오게 한다', ok:false,
+                r:'수송아지는 제사장이나 온 회중이 범했을 때다. 더 크게 드리는 것이 더 옳은 것은 아니다 — 규례는 신분마다 정해져 있다.' },
+            ] },
+          { kind:'case', who:'품꾼의 아내',
+            text:'"속죄제를 드려야 하는데 어린 양을 살 힘이 없습니다." 그녀의 손에는 아무것도 없다. "산비둘기 두 마리는 어찌어찌 구했습니다."',
+            law:'poor',
+            choices:[
+              { l:'산비둘기 둘로 받는다', ok:true,
+                r:'"어린 양에 힘이 미치지 못하면 산비둘기 둘로 합니다." 하나는 속죄제로, 하나는 번제로 드렸다. 율법은 가난한 사람을 위해 문을 낮춰 두었다.' },
+              { l:'기름과 유향을 얹어 더 낫게 드리자 한다', ok:false,
+                r:'가루로 드릴 때조차 <b>기름과 유향은 얹지 않는다</b> — 속죄제이기 때문이다. 보태서 드리는 것이 경건이 아니다.' },
+              { l:'힘이 생길 때 다시 오라 한다', ok:false, turn:true,
+                r:'그녀는 돌아갔고 다시 오지 못했다. 율법이 열어 둔 문을 사람이 닫았다.' },
+            ] },
+          { kind:'case', who:'이웃과 다투던 사람',
+            text:'"이웃의 맡긴 것을 속여 제 것으로 삼았습니다. 이제 숫양을 끌고 왔으니 속건제를 드리고 마음을 풀려 합니다."',
+            law:'guilt',
+            choices:[
+              { l:'속건제를 먼저 드리게 한다', ok:false,
+                r:'순서가 뒤집혔다. <b>본래 것에 오분의 일을 더하여 갚은 뒤에</b> 속건제를 드린다. 갚지 않은 제사는 제사가 아니다.' },
+              { l:'오분의 일을 더해 갚게 한 뒤 드리게 한다', ok:true,
+                r:'"먼저 그 이웃에게 값을 치르고 오십니다." 그가 저녁에 돌아와 숫양을 드렸다. 이웃도 함께 서 있었다.' },
+              { l:'이웃과 화해했으면 제사는 생략한다', ok:false,
+                r:'배상과 속건제는 둘 다다. 사람에게 갚는 것과 하나님께 드리는 것은 서로를 대신하지 못한다.' },
+            ] },
+          { kind:'case', who:'감사제를 드린 사람',
+            text:'"어제 감사하여 화목제를 드렸고 고기가 많이 남았습니다. 오늘 저녁에 식구들과 먹고, 사흘째 아침에도 조금 먹으려 합니다."',
+            law:'peace',
+            choices:[
+              { l:'사흘째까지 먹게 한다', ok:false,
+                r:'사흘째에 먹으면 가증한 것이 되어 <b>그 제사 자체가 헛것이 된다</b>. 감사제로 드린 고기는 <b>그날에</b> 다 먹어야 한다.' },
+              { l:'감사제는 그날 다 먹어야 한다고 알린다', ok:true,
+                r:'"남은 것은 불사르십니다. 감사는 미루어 두는 것이 아니라 그날 나누는 것입니다." 그가 이웃을 불러 저녁을 함께했다.' },
+              { l:'서원제였다면 이튿날까지 된다고만 말한다', ok:false,
+                r:'맞는 말이지만 그가 드린 것은 감사제다. 규례를 반만 전하면 사람은 편한 쪽으로 듣는다.' },
+            ] },
+        ] },
+
+      /* 2 ─ 다른 불 */
+      { title:'다른 불', sub:'레위기 10장',
+        verse:'"나답과 아비후가 각기 향로를 가지고 여호와 앞에 다른 불을 담아 분향하였더니" — 레위기 10:1',
+        scenes:[
+          { kind:'talk',
+            text:'아론의 두 아들이 향로를 들고 성소로 향한다. 향로 안의 불이 <b>제단에서 가져온 불이 아니다</b>. 얼굴이 붉고 걸음이 고르지 않다. 너는 고핫 자손이고, 그들은 제사장이다.',
+            choices:[
+              { l:'앞을 막고 불을 확인하라 한다', e:{holy:8, mercy:-4}, law:'fire',
+                r:'그들은 너를 밀쳤다. "레위 자손이 제사장을 가르치느냐." 그러나 그 자리에 섰던 것은 옳았다.' },
+              { l:'아론에게 달려가 알린다', e:{holy:5, mercy:2},
+                r:'아론이 일어섰으나 늦었다. 그래도 네가 침묵하지는 않았다.' },
+              { l:'내 일이 아니다 — 물러선다', e:{holy:-10},
+                r:'불이 여호와 앞에서 나와 그들을 삼켰다. 너는 문 밖에 서 있었고, 아무 말도 하지 않은 것을 오래 기억했다.' },
+            ] },
+          { kind:'talk',
+            text:'모세가 아론에게 말했다. "나를 가까이하는 자 중에서 내가 거룩하다 함을 얻겠고 온 백성 앞에서 내가 영광을 얻으리라." <b>아론이 잠잠하였다.</b> 그 침묵 앞에서 너는 무엇을 하겠는가.',
+            choices:[
+              { l:'함께 잠잠히 선다', e:{holy:6, mercy:4},
+                r:'말을 얹지 않았다. 어떤 자리에서는 설명이 아니라 잠잠함이 예배다.' },
+              { l:'까닭을 따져 묻는다', e:{know:5, holy:-3},
+                r:'물음은 정직했으나 때가 아니었다. 아론은 대답하지 않았다.' },
+              { l:'시체를 옮기고 진영 밖으로 메고 나간다', e:{holy:4, mercy:6},
+                r:'미사엘과 엘사반과 함께 그들을 옷 입은 채로 메고 나갔다. 아무도 하고 싶지 않은 일을 네가 했다.' },
+            ] },
+        ] },
+
+      /* 3 ─ 진찰하는 날 */
+      { title:'진찰하는 날', sub:'레위기 12–15장', day:10,
+        verse:'"제사장은 그를 진찰하여 그를 부정하다 할 것이요" — 레위기 13:3',
+        scenes:[
+          { kind:'case', who:'팔에 흰 점이 난 젊은이',
+            text:'제사장 뒤에 서서 함께 본다. 점이 희고 <b>그 자리의 털도 희어졌으며</b>, 병색이 <b>살보다 우묵하다</b>.',
+            law:'skin',
+            choices:[
+              { l:'부정하다고 진단한다', ok:true,
+                r:'"털이 희고 우묵하면 나병이니 부정하다 하라." 그는 진영 밖에 머물게 되었다. 무거운 판정이었으나 미루면 진영 전체가 위태로워진다.' },
+              { l:'이레 동안 가두고 다시 본다', ok:false,
+                r:'가두는 것은 <b>분명하지 않을 때</b>다. 털이 희고 우묵한 것이 다 보였다면 그 자리에서 진단한다.' },
+              { l:'정하다 하고 돌려보낸다', ok:false,
+                r:'표가 다 나타났는데 정하다 한 것은 사람을 살린 것이 아니라 온 진영을 위태롭게 한 것이다.' },
+            ] },
+          { kind:'case', who:'등에 옅은 점이 난 여인',
+            text:'점이 희읍스름하나 <b>털은 그대로이고 우묵하지도 않다</b>. 번졌는지도 알 수 없다.',
+            law:'skin',
+            choices:[
+              { l:'이레 동안 가두고 다시 본다', ok:true,
+                r:'"그를 이레 동안 가두어 둘 것이요." 판정을 서두르지 않는 것도 규례다. 이레 뒤에 다시 보기로 했다.' },
+              { l:'부정하다고 진단한다', ok:false,
+                r:'표가 분명하지 않은데 부정하다 하면 한 사람의 삶을 진영 밖으로 밀어내는 일이 된다. 이레를 기다려 다시 보라.' },
+              { l:'정하다 하고 돌려보낸다', ok:false,
+                r:'아직 알 수 없는 것을 정하다 해 버리면 다시 볼 기회가 없어진다.' },
+            ] },
+          { kind:'case', who:'이레 만에 다시 온 여인',
+            text:'이레가 지났다. 점은 <b>번지지 않았고 빛이 조금 엷어졌다</b>.',
+            law:'skin',
+            choices:[
+              { l:'또 이레를 가두고 다시 본다', ok:true,
+                r:'"또 이레 동안 그를 가두어 둘 것이요." 두 번째 이레까지 보고서야 판정한다. 그 뒤에 번지지 않으면 정하다 하고 옷을 빨게 한다.' },
+              { l:'정하다 하고 옷을 빨게 한다', ok:false,
+                r:'서둘렀다. 첫 이레에 번지지 않았으면 <b>또 이레</b>를 본 뒤에 정하다 한다.' },
+              { l:'부정하다고 진단한다', ok:false,
+                r:'번지지 않고 엷어진 것을 부정하다 할 근거가 없다.' },
+            ] },
+          { kind:'case', who:'아이를 낳은 여인의 남편',
+            text:'"아내가 사내아이를 낳았습니다. 이레가 지났으니 이제 예물을 드리러 가도 되겠습니까." 손에는 어린 양을 살 돈이 없다.',
+            law:'birth',
+            choices:[
+              { l:'삼십삼 일을 더 기다린 뒤, 형편대로 산비둘기 둘로 드리게 한다', ok:true,
+                r:'"이레와 또 삼십삼 일입니다. 어린 양에 힘이 미치지 못하면 산비둘기 둘로 합니다." 그가 날을 세어 적어 갔다.' },
+              { l:'이레가 지났으니 지금 드리게 한다', ok:false,
+                r:'남아를 낳으면 이레 부정에 <b>삼십삼 일</b>이 더 있다. 날을 줄여 주는 것이 친절이 아니다.' },
+              { l:'어린 양을 구할 때까지 미루게 한다', ok:false, turn:true,
+                r:'규례가 이미 형편이 못 미치는 사람의 길을 열어 두었는데, 그 길을 알려 주지 않았다.' },
+            ] },
+        ] },
+
+      /* 4 ─ 대속죄일 */
+      { title:'대속죄일 — 일곱째 달 열째 날', sub:'레위기 16장',
+        verse:'"이 날에 너희를 위하여 속죄하여 너희를 정결하게 하리니" — 레위기 16:30',
+        scenes:[
+          { kind:'talk',
+            text:'온 진영이 조용하다. 오늘은 아무도 일하지 않고 스스로 괴롭게 한다. 아론이 지성소에 들어가는 <b>일 년에 단 하루</b>. 너는 기구를 받쳐 들고 곁에 선다. 순서가 어긋나면 사람이 죽는다.',
+            choices:[ { l:'두루마리를 한 번 더 확인한다', e:{know:4}, law:'atone',
+              r:'씻고 · 세마포를 입고 · 제비를 뽑고 · 향으로 가리고 · 피를 뿌리고 · 광야로 보낸다. 여섯 걸음이다.' } ] },
+          { kind:'order', who:'대속죄일의 순서',
+            text:'아론이 너를 본다. "다음은 무엇이냐." 순서대로 짚어라.',
+            law:'atone',
+            steps:[
+              { l:'몸을 물로 씻는다', r:'"그는 물로 몸을 씻고" — 자기가 먼저 정결해야 한다.' },
+              { l:'세마포 옷을 입는다', r:'"세마포 속옷을 입으며 세마포 관을 쓸 것이니 이는 거룩한 옷이라."' },
+              { l:'두 염소를 제비뽑는다', r:'"두 염소를 위하여 제비 뽑아 하나는 여호와를 위하고 하나는 아사셀을 위하여 할지며."' },
+              { l:'향 연기로 속죄소를 가린다', r:'"향연으로 증거궤 위 속죄소를 가리게 할 것이라 그리하면 그가 죽지 아니하리라." <b>피보다 향이 먼저다.</b>' },
+              { l:'피를 가지고 들어가 속죄소에 뿌린다', r:'"그 피를 가지고 성소 안에 들어가서 속죄소 위와 앞에 뿌릴지니라."' },
+              { l:'남은 염소를 광야로 보낸다', r:'"염소 머리에 두 손을 얹고 죄를 지워 광야로 보낼지니 그 염소가 그들의 모든 죄를 지고 가리라."' },
+            ] },
+        ] },
+
+      /* 5 ─ 거두는 때 */
+      { title:'거두는 때', sub:'레위기 19장 · 25장', day:8,
+        verse:'"너는 네 이웃을 네 자신과 같이 사랑하라" — 레위기 19:18',
+        scenes:[
+          { kind:'case', who:'네 밭의 일꾼',
+            text:'추수철이다. 일꾼이 묻는다. "모퉁이까지 다 베겠습니다. 떨어진 이삭도 주워 담을까요? 올해는 값이 좋습니다."',
+            law:'corner',
+            choices:[
+              { l:'모퉁이를 남기고 떨어진 것은 두라 한다', ok:true,
+                r:'"밭 모퉁이까지 다 거두지 말고 떨어진 이삭도 줍지 말라 — 가난한 자와 거류민을 위하여." 저녁에 낯선 여인이 그 모퉁이에서 이삭을 주웠다.' },
+              { l:'다 거두고 나중에 얼마를 나눠 주겠다 한다', ok:false,
+                r:'율법은 나중에 나누라 하지 않고 <b>밭에 남겨 두라</b> 한다. 받는 사람이 고개를 숙이지 않고 거둘 수 있어야 한다.' },
+              { l:'값이 좋으니 올해만 다 거둔다', ok:false,
+                r:'모퉁이는 내 것이 아니었다. 그것을 거둔 해에 한 사람이 빈손으로 돌아갔다.' },
+            ] },
+          { kind:'case', who:'가난해진 친척',
+            text:'"밭을 잃고 몸을 팔려 합니다. 당신께 팔겠습니다. 값을 받고 영구히 당신의 종이 되겠습니다."',
+            law:'jubilee',
+            choices:[
+              { l:'품꾼처럼 두고, 희년에 돌아가게 한다', ok:true,
+                r:'"종처럼 부리지 말고 품꾼처럼 대하라 — 희년에는 각기 산업으로 돌아갈 것이니라." 값은 희년까지 남은 해로 셈했다.' },
+              { l:'영구히 종으로 받는다', ok:false,
+                r:'동족을 영구히 종으로 삼을 수 없다. 땅도 사람도 영구히 팔리지 않는다 — 둘 다 본래 하나님의 것이기 때문이다.' },
+              { l:'값을 안 받고 거저 도와준다', ok:false, kind2:'kind',
+                r:'마음은 옳으나 규례는 그를 <b>품꾼</b>으로 세워 제 손으로 벌게 하고 희년에 돌아가게 한다. 자비도 질서 안에서 베푼다.' },
+            ] },
+        ] },
+
+      /* 6 ─ 물러나는 날 */
+      { title:'쉰 — 물러나는 날', sub:'민수기 8:25',
+        verse:'"오십 세부터는 회막에서 섬기는 일을 쉬어" — 민수기 8:25',
+        scenes:[
+          { kind:'talk',
+            text:'스물다섯 해가 지났다. 이제 메는 일에서 물러나 <b>지키는 일과 가르치는 일</b>로 옮긴다. 젊은 레위인이 두루마리를 받으러 왔다. 네가 처음 받던 그 자리다.',
+            choices:[
+              { l:'"모르면 펴 보아라. 부끄러운 일이 아니다."', e:{mercy:6, know:2}, final:true },
+              { l:'"만지면 죽는다. 덮은 뒤에 들어오라."', e:{holy:6}, final:true },
+              { l:'"오는 사람마다 형편이 다르다. 문을 낮추어 두어라."', e:{mercy:8}, final:true },
+            ] },
+          { kind:'end' },
+        ] },
+    ];
+
+    const pad=el('div','pad'); pad.style.maxWidth='860px'; root.appendChild(pad);
+    const act = ()=>ACTS[S.act];
+    const scene = ()=>act() && act().scenes[S.scene];
+
+    function say(t,k){ S.log.unshift({t,k}); S.log=S.log.slice(0,4); }
+    function bump(e){
+      if(!e) return;
+      if(e.holy!=null) S.holy=clamp(S.holy+e.holy,0,100);
+      if(e.mercy!=null) S.mercy=clamp(S.mercy+e.mercy,0,100);
+      if(e.know!=null) S.know=clamp(S.know+e.know,0,100);
+    }
+
+    /* ── 두루마리 ─────────────────────────────────────────── */
+    function openLaw(id){
+      const L=LAW[id];
+      if(!S.learned[id]){
+        S.learned[id]=true;
+        S.know=clamp(S.know+5,0,100);
+        if(S.maxTime>0) S.time++;                      // 문 앞에 줄이 있는 동안만 시간이 든다
+        blip(deg(392,MAJOR,4),0.18,'triangle',0.06);
+        say(`두루마리를 펴서 「${L.t}」를 익혔다` + (S.maxTime>0?' (시간 1)':''), 'good');
+      }
+      S.reading=id; render();
+    }
+
+    function nextScene(){
+      S.scene++;
+      if(S.scene >= act().scenes.length){
+        // 하루가 끝나기 전에 남은 사람들
+        S.act++; S.scene=0;
+        if(S.act < ACTS.length){
+          S.maxTime = ACTS[S.act].day || 0;
+          S.time = 0;
+        }
+      }
+      S.msg=null; render();
+    }
+
+    function answer(c){
+      const sc=scene();
+      if(sc.kind==='case'){
+        if(S.maxTime>0) S.time++;
+        if(c.ok){ S.right++; bump({holy:4, know:2}); }
+        else { S.wrong++; bump({holy:-9}); }
+        if(c.turn){ S.turned++; bump({mercy:-9}); }
+        if(c.kind2==='kind') bump({mercy:3, holy:-2});
+        S.msg={ ok:!!c.ok, text:c.r, law:sc.law };
+      } else if(sc.kind==='talk'){
+        bump(c.e);
+        S.msg={ ok:null, text:c.r, law:c.law };
+        if(c.final) S.final=c.l;
+      }
+      // 시간이 다 되면 남은 사람들이 돌아간다
+      if(S.maxTime>0 && S.time>=S.maxTime){
+        const left = act().scenes.length - (S.scene+1);
+        if(left>0){
+          bump({mercy:-6*Math.min(left,3)});
+          S.msg.after = `해가 졌다. 문 앞에 남아 있던 ${left}사람이 그대로 돌아갔다.`;
+          S.skipRest = true;
+        }
+      }
+      if(S.holy<=0) S.over='removed';
+      render();
+    }
+
+    function orderPick(i){
+      const sc=scene();
+      if(i===S.orderStep){
+        S.order.push(i); S.orderStep++;
+        blip(deg(523,MAJOR,S.orderStep),0.14,'triangle',0.07);
+        if(S.orderStep>=sc.steps.length){
+          bump({holy:8, know:4}); S.right++;
+          S.msg={ ok:true, text:'여섯 걸음이 어긋나지 않았다. 아론이 지성소에서 나와 백성 앞에 섰고, 그 해의 죄가 광야로 실려 갔다.', law:'atone' };
+        } else {
+          S.msg={ ok:true, text:sc.steps[i].r, law:null, keepOrder:true };
+        }
+      } else {
+        bump({holy:-7}); S.wrong++;
+        S.msg={ ok:false, keepOrder:true, law:'atone',
+          text:`그 걸음이 아니다. <b>${sc.steps[S.orderStep].l}</b>이 먼저다 — ${sc.steps[S.orderStep].r}` };
+      }
+      if(S.holy<=0) S.over='removed';
+      render();
+    }
+
+    /* ── 그리기 ───────────────────────────────────────────── */
+    function statBar(){
+      const row=(k,v,c)=>`<div class="stat"><div class="k">${k}</div><div class="v">${Math.round(v)}</div>
+        <div class="bar"><i style="width:${v}%;background:${c}"></i></div></div>`;
+      let extra='';
+      if(S.maxTime>0) extra = `<div class="stat"><div class="k">문 앞의 시간</div>
+        <div class="v">${S.maxTime-S.time}</div><div class="bar"><i style="width:${(S.maxTime-S.time)/S.maxTime*100}%;background:var(--lapis)"></i></div></div>`;
+      return `<div class="stats" style="margin-bottom:18px">
+        ${row('거룩', S.holy, S.holy<30?'var(--flame)':'var(--ochre)')}
+        ${row('자비', S.mercy, S.mercy<30?'var(--flame)':'var(--olive)')}
+        ${row('지식', S.know, 'var(--violet)')}
+        ${extra}</div>`;
+    }
+
+    function lawPanel(){
+      const p=el('div','panel'); p.style.marginTop='18px';
+      const ids=Object.keys(LAW);
+      const learnedN=ids.filter(i=>S.learned[i]).length;
+      p.innerHTML=`<div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+        <h3 style="font-size:1.25rem">율법 두루마리</h3>
+        <span class="hint">익힌 규례 ${learnedN} / ${ids.length} · 처음 펴는 것만 시간이 듭니다</span></div>`;
+      if(S.reading){
+        const L=LAW[S.reading];
+        const box=el('div');
+        box.style.cssText='background:var(--ground-2);border:1px solid var(--line-soft);border-radius:11px;padding:16px;margin-bottom:14px';
+        box.innerHTML=`<div class="ref" style="color:var(--ochre);margin-bottom:4px">${L.ref}</div>
+          <div style="font-family:var(--f-disp);font-size:1.15rem;margin-bottom:8px">${L.t}</div>
+          <p style="color:var(--sand-2);font-size:16px">${L.d}</p>`;
+        p.appendChild(box);
+      }
+      const grid=el('div');
+      grid.style.cssText='display:flex;flex-wrap:wrap;gap:8px';
+      ids.forEach(id=>{
+        const done=!!S.learned[id];
+        const b=el('button',null, (done?'✓ ':'') + LAW[id].t);
+        b.style.cssText=`border:1px solid ${done?'var(--olive)':'var(--line)'};border-radius:999px;
+          padding:7px 14px;font-size:15px;color:${done?'var(--olive)':'var(--sand-2)'};
+          ${S.reading===id?'background:rgba(227,168,62,.12);border-color:var(--ochre);color:var(--ochre)':''}`;
+        b.onclick=()=>openLaw(id);
+        grid.appendChild(b);
+      });
+      p.appendChild(grid);
+      const close=el('button','btn ghost','두루마리를 덮는다');
+      close.style.cssText='margin-top:14px;--acc:var(--ochre)';
+      close.onclick=()=>{ S.scroll=false; S.reading=null; render(); };
+      p.appendChild(close);
+      return p;
+    }
+
+    function render(){
+      pad.innerHTML='';
+      if(S.over==='removed'){ endScreen(); return; }
+      const a=act();
+      if(!a){ endScreen(); return; }
+      const sc=scene();
+      if(sc && sc.kind==='end'){ endScreen(); return; }
+
+      // 막 머리
+      pad.insertAdjacentHTML('beforeend',
+        `<div class="journey-head" style="margin-bottom:4px">
+           <span class="kicker">${a.sub}</span><h2 style="font-size:1.5rem">${a.title}</h2></div>
+         ${a.verse?`<p class="quote" style="--acc:var(--ochre);margin:12px 0 20px">${a.verse}</p>`:''}`);
+      pad.insertAdjacentHTML('beforeend', statBar());
+
+      const p=el('div','panel');
+      if(sc.who) p.insertAdjacentHTML('beforeend',
+        `<div class="ref" style="color:var(--ochre);margin-bottom:8px">${sc.who}</div>`);
+      p.insertAdjacentHTML('beforeend', `<p style="margin-bottom:18px">${sc.text}</p>`);
+
+      if(S.msg){
+        const m=el('div');
+        m.style.cssText=`background:var(--ground-2);border-left:3px solid ${S.msg.ok===true?'var(--olive)':S.msg.ok===false?'var(--flame)':'var(--lapis)'};
+          border-radius:8px;padding:14px 16px;margin-bottom:18px`;
+        m.innerHTML=`<p style="color:var(--sand)">${S.msg.text}</p>`
+          + (S.msg.after?`<p style="color:var(--flame);margin-top:8px">${S.msg.after}</p>`:'')
+          + (S.msg.law && !S.learned[S.msg.law]
+              ? `<p class="hint" style="margin-top:8px">두루마리의 「${LAW[S.msg.law].t}」에 적혀 있다</p>`:'');
+        p.appendChild(m);
+        if(!S.msg.keepOrder){
+          const go=el('button','btn', S.skipRest? '그 날을 마친다' : '다음');
+          go.style.cssText='--acc:var(--ochre)';
+          go.onclick=()=>{
+            if(S.skipRest){ S.skipRest=false; S.scene=act().scenes.length-1; }
+            nextScene();
+          };
+          p.appendChild(go);
+        }
+      }
+
+      if(!S.msg || S.msg.keepOrder){
+        if(sc.kind==='order'){
+          const done=el('div'); done.style.cssText='display:flex;flex-direction:column;gap:6px;margin-bottom:14px';
+          S.order.forEach((i,n)=> done.insertAdjacentHTML('beforeend',
+            `<div style="color:var(--olive);font-size:16px">${n+1}. ${sc.steps[i].l}</div>`));
+          p.appendChild(done);
+          const box=el('div'); box.style.cssText='display:flex;flex-direction:column;gap:10px';
+          sc.steps.forEach((st,i)=>{
+            if(S.order.includes(i)) return;
+            const b=el('button','btn ghost',st.l);
+            b.style.cssText='text-align:left;padding:13px 18px;--acc:var(--ochre)';
+            b.onclick=()=>orderPick(i);
+            box.appendChild(b);
+          });
+          p.appendChild(box);
+          if(S.msg && S.msg.keepOrder){
+            // 잘못 짚은 안내는 위에 이미 붙었다
+          }
+        } else if(!S.msg){
+          const box=el('div'); box.style.cssText='display:flex;flex-direction:column;gap:10px';
+          (sc.choices||[]).forEach(c=>{
+            const b=el('button','btn ghost',c.l);
+            b.style.cssText='text-align:left;padding:14px 18px;--acc:var(--ochre)';
+            b.onclick=()=>answer(c);
+            box.appendChild(b);
+          });
+          p.appendChild(box);
+        }
+      }
+      pad.appendChild(p);
+
+      // 두루마리
+      if(S.scroll) pad.appendChild(lawPanel());
+      else {
+        const open=el('button','btn ghost','율법 두루마리를 펴 본다');
+        open.style.cssText='margin-top:16px;--acc:var(--ochre)';
+        open.onclick=()=>{ S.scroll=true; render(); };
+        pad.appendChild(open);
+      }
+
+      if(S.log.length){
+        const l=el('div','panel'); l.style.marginTop='18px';
+        l.innerHTML='<div style="font-size:15px;color:var(--sand-3);margin-bottom:10px">배운 것</div>';
+        const box=el('div','log'); box.style.setProperty('--acc','var(--ochre)');
+        S.log.forEach(e=>box.appendChild(el('div',e.k||'',e.t)));
+        l.appendChild(box); pad.appendChild(l);
+      }
+    }
+
+    function endScreen(){
+      musicStop();
+      const learnedN=Object.keys(LAW).filter(i=>S.learned[i]).length, total=Object.keys(LAW).length;
+      const acc = (S.right+S.wrong) ? Math.round(S.right/(S.right+S.wrong)*100) : 0;
+      let title, body, cleared=false;
+
+      if(S.over==='removed'){
+        title='직무에서 물러났다';
+        body=`거룩이 다했다. 규례를 어긴 것이 ${S.wrong}번이고, 문 앞에서 돌려보낸 사람이 ${S.turned}명이다. 성막에서 섬기는 일은 아는 만큼이 아니라 <b>지킨 만큼</b> 맡겨진다. 두루마리는 언제든 펴 볼 수 있었다.`;
+      } else if(S.holy>=70 && S.mercy>=70 && (learnedN>=12 || acc>=90)){
+        title='법도를 야곱에게 가르치는 자';
+        cleared=true;
+        body=`스물다섯 해를 성막 문 앞에 섰다. 규례를 ${learnedN}가지 익히고 판정은 ${acc}% 맞았으며, 돌려보낸 사람은 ${S.turned}명이다. 거룩을 지키면서도 문을 낮춰 두었다 — 그 둘을 함께 한 레위인은 많지 않다.`;
+      } else if(S.holy>=60 && (learnedN>=9 || acc>=80)){
+        title='성막을 지킨 사람';
+        cleared=true;
+        body=`규례 ${learnedN}가지를 익히고 판정은 ${acc}% 맞았다. 거룩은 지켰다. 다만 문 앞에서 ${S.turned}명이 무엇이 어긋났는지 듣지 못한 채 돌아갔다 — 가르치지 않고 물리는 것도 레위인의 일이 아니다.`;
+      } else if(S.mercy>=70) {
+        title='문을 낮춘 사람';
+        cleared=true;
+        body=`오는 사람마다 형편을 헤아렸다. 그러나 규례를 어긴 것이 ${S.wrong}번이다 — 자비는 질서를 밀어내는 것이 아니라 질서 안에서 베푸는 것이다. 익힌 규례는 ${learnedN}가지.`;
+      } else {
+        title='스물다섯 해가 지났다';
+        body=`익힌 규례는 ${learnedN}가지, 판정은 ${acc}% 맞았고 돌려보낸 사람은 ${S.turned}명이다. `
+           + (acc<80 ? '규례를 모르는 채로 판정하면 사람이 상한다 — 두루마리는 처음부터 곁에 있었고 펴는 데는 시간 하나가 들 뿐이었다.'
+                     : '판정은 대체로 옳았으나 거룩과 자비 어느 쪽도 끝까지 지키지는 못했다.');
+      }
+
+      cadence(cleared);
+      pad.innerHTML=`<div class="end" style="padding-top:26px">
+        <h3 style="color:${cleared?'var(--ochre)':'var(--flame)'}">${title}</h3>
+        <p>${body}</p>
+        ${S.final?`<p style="margin-top:14px;color:var(--sand)">젊은 레위인에게 남긴 말 — ${S.final}</p>`:''}
+        <p class="num" style="margin-top:16px;color:var(--sand-3);font-size:15px">거룩 ${Math.round(S.holy)} · 자비 ${Math.round(S.mercy)} · 지식 ${Math.round(S.know)} · 익힌 규례 ${learnedN}/${total} · 바른 판정 ${S.right} · 어긋난 판정 ${S.wrong}</p>
+      </div>`;
+      if(cleared) pad.appendChild(pointsLine('levite'));
+      const r=el('div','row'); r.style.cssText='justify-content:center;margin-top:18px';
+      const b=el('button','btn','다시 선다'); b.style.setProperty('--acc','var(--ochre)');
+      b.onclick=()=>{ S=S0(); S.maxTime=ACTS[0].day||0; audioWake(); musicStart(trackLevite,66); render(); };
+      r.appendChild(b); pad.appendChild(r);
+    }
+
+    audioWake(); musicStart(trackLevite, 66);
+    S.maxTime = ACTS[0].day || 0;
+    render();
+    return ()=>{ musicStop(); };
   }
 });
 
