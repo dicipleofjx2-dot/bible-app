@@ -66,6 +66,15 @@ export const STRINGS = {
     en: 'Ten action games and one Leviticus adventure',
   },
   'home.arcadeToday': { ko: '오늘 받은 포인트', en: 'Points earned today' },
+  // 후원은 바둑판 한 칸으로는 전할 수가 없다. 쿠팡으로 응원하는 길과 홈 화면에
+  // 아이콘을 까는 길이 있는데, 아이콘 한 칸에는 이름밖에 못 적기 때문이다.
+  'home.supportLead': {
+    ko: '쿠팡에서 사시면 수수료가 데이빗바이블로 옵니다. 값은 그대로예요.',
+    en: 'Shop at Coupang and a commission comes back to David Bible — at no extra cost to you.',
+  },
+  'home.supportCoupang': { ko: '🛒 쿠팡으로 응원하기', en: '🛒 Support via Coupang' },
+  'home.supportShortcut': { ko: '🏠 홈 화면에 깔기', en: '🏠 Add to home screen' },
+  'home.supportMore': { ko: '후원계좌 보기 ›', en: 'Giving account ›' },
   'home.support': { ko: 'David Bible 후원', en: 'Support David Bible' },
   'home.noNews': { ko: '등록된 소식이 없어요', en: 'No news yet' },
 
