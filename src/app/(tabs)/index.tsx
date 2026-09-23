@@ -2,7 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -25,6 +25,8 @@ import { getCommunityUnread } from '@/db/community';
 import { hasUnseenLetter } from '@/lib/shepherdLetterBadge';
 import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
 import { getArcadeState } from '@/lib/arcade';
+import { getCoupangShortcutUrl } from '@/lib/supportLinks';
+import { getSupportSettings } from '@/db/support';
 import type { Href } from 'expo-router';
 
 function todayDateString() {
@@ -114,6 +116,10 @@ const HOME_TILES: HomeTile[] = [
   // 서버가 돌 때 다시 만들어진다. 새 화면을 더한 직후에는 아직 그 목록에 없어서
   // 타입 검사가 막힌다. 서버가 한 번 돌면 캐스팅 없이도 통과한다.
   { key: 'arena', emoji: '🏆', label: 'home.arena', href: '/arena' as Href },
+  // 성경 아케이드 — 대전 바로 옆에 둔다. 둘 다 게임이고, 대전이 겨루는
+  // 자리라면 아케이드는 혼자 하는 자리다. 오늘 받은 포인트가 있으면 딱지로
+  // 붙는다(아래 badge) — 아이콘 한 칸에 더 적을 자리는 없다.
+  { key: 'arcade', emoji: '🕹️', label: 'home.arcade', href: '/arcade' as Href },
   // 주보와 교회 홈페이지 칸은 뺐다. 이 앱은 개인 경건훈련 자리이고, 교회 소식은
   // 스마트주보 앱이 따로 맡는다 — 홈 화면에 둘 다 두면 어느 앱을 쓰는 중인지
   // 흐려진다. 주보로 가는 길은 목자의 편지·알림마당 알림에 그대로 있다.
@@ -123,7 +129,6 @@ const HOME_TILES: HomeTile[] = [
   // 게시판 칸은 스마트주보로 옮겼다. 게시판은 교회가 함께 쓰는 곳이고, 이 앱은
   // 개인 경건훈련 자리다. 주보에 「게시판 면」이 생겨 거기서 읽고 쓴다 —
   // 표는 같은 것이라 옛 글이 그대로 이어지고, 교회 홈페이지에도 함께 보인다.
-  { key: 'support', emoji: '🤍', label: 'home.support', href: '/support' },
   { key: 'community', emoji: '💬', label: 'home.community', href: '/community', requiresAuth: true },
 ];
 
@@ -155,8 +160,10 @@ export default function HomeScreen() {
   const [live, setLive] = useState<MinistryLive | null>(null);
   const [letterUnseen, setLetterUnseen] = useState(false);
   const [communityUnread, setCommunityUnread] = useState(0);
-  // 창세기 아케이드에서 오늘 받은 포인트. 로그인 안 했으면 0으로 둔다.
+  // 아케이드에서 오늘 받은 포인트. 로그인 안 했으면 0으로 둔다.
   const [arcadeToday, setArcadeToday] = useState(0);
+  // 후원 상자의 쿠팡 링크. 관리자가 등록하기 전에는 빈 값이다.
+  const [coupangUrl, setCoupangUrl] = useState('');
 
   useFocusEffect(
     useCallback(() => {
@@ -220,6 +227,15 @@ export default function HomeScreen() {
         .then((s) => setArcadeToday(s.todayPoints))
         .catch(() => setArcadeToday(0));
     }, [session]),
+  );
+
+  // 후원 상자의 쿠팡 링크. 관리자가 주소를 바꾸면 다음에 홈에 들어올 때 반영된다.
+  useFocusEffect(
+    useCallback(() => {
+      getSupportSettings()
+        .then((v) => setCoupangUrl(v.coupangUrl.trim()))
+        .catch(() => setCoupangUrl(''));
+    }, []),
   );
 
   useFocusEffect(
@@ -379,6 +395,8 @@ export default function HomeScreen() {
                     : null
                   : tile.key === 'r2m' && enrollment
                     ? `${checklistCount}/7`
+                    : tile.key === 'arcade' && session && arcadeToday > 0
+                      ? `${arcadeToday}점`
                     : tile.key === 'community' && communityUnread > 0
                       ? // 99를 넘으면 「99+」로 적는다. 세 자리가 되면 아이콘을 덮는다.
                         communityUnread > 99
@@ -429,42 +447,66 @@ export default function HomeScreen() {
           </View>
 
           {/*
-            5. 창세기 아케이드 — 화면 맨 아래.
+            5. 후원 — 화면 맨 아래.
 
-            바둑판 한 칸으로 넣지 않은 이유는 「포인트가 붙는다」를 말해야 하기
-            때문이다. 아이콘 한 칸에는 이름밖에 못 적는데, 그러면 성도가 이게
-            게임인지 공부인지도 모른 채 지나간다. 한 줄 띠로 두고 오늘 받은
-            점수를 오른쪽에 붙였다 — 오늘 몇 점 받았는지가 다시 들어올 이유다.
+            바둑판 한 칸에서 내려왔다. 아이콘 한 칸에는 이름밖에 못 적는데,
+            후원에는 **누르면 되는 길이 둘**이다 — 쿠팡으로 응원하는 것과, 홈
+            화면에 아이콘을 깔아 두는 것. 그 둘이 보이지 않으면 「후원」이라는
+            이름만 남고 아무도 안 누른다.
+
+            값이 더 드는 일이 아니라는 것도 한 줄로 말해 둔다. 그게 없으면
+            후원이라는 낱말 앞에서 대부분 그냥 지나간다.
           */}
-          <Pressable
-            onPress={() => router.push('/arcade' as Href)}
-            style={({ pressed }) => [
-              styles.arcadeCard,
+          <View
+            style={[
+              styles.supportCard,
               cardShadow,
               { backgroundColor: theme.backgroundElement, borderColor: theme.border },
-              pressed && styles.pressed,
             ]}>
-            <ThemedText style={styles.arcadeEmoji}>🕹️</ThemedText>
-            <View style={styles.arcadeBody}>
-              <ThemedText type="smallBold">{t('home.arcade')}</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
-                {t('home.arcadeDesc')}
-              </ThemedText>
-              <ThemedText type="small" style={{ color: theme.accent }}>
-                {t('home.arcadeLead')}
-              </ThemedText>
-            </View>
-            {session && arcadeToday > 0 ? (
-              <View style={[styles.arcadeBadge, { backgroundColor: theme.accentSoft, borderColor: theme.accent }]}>
+            <View style={styles.supportHead}>
+              <ThemedText style={styles.supportEmoji}>🤍</ThemedText>
+              <View style={styles.supportHeadBody}>
+                <ThemedText type="smallBold">{t('home.support')}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  {t('home.arcadeToday')}
-                </ThemedText>
-                <ThemedText type="smallBold" style={{ color: theme.accent }}>
-                  {arcadeToday}
+                  {t('home.supportLead')}
                 </ThemedText>
               </View>
-            ) : null}
-          </Pressable>
+            </View>
+
+            <View style={styles.supportRow}>
+              {/* 링크가 아직 안 걸렸으면 쿠팡 단추 대신 후원 화면으로 보낸다 —
+                  눌렀는데 아무 일도 안 일어나는 것이 제일 나쁘다. */}
+              <Pressable
+                onPress={() =>
+                  coupangUrl ? Linking.openURL(coupangUrl) : router.push('/support')
+                }
+                style={({ pressed }) => [
+                  styles.supportButton,
+                  { backgroundColor: theme.accentSoft, borderColor: theme.accent },
+                  pressed && styles.pressed,
+                ]}>
+                <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                  {t('home.supportCoupang')}
+                </ThemedText>
+              </Pressable>
+
+              <Pressable
+                onPress={() => Linking.openURL(getCoupangShortcutUrl())}
+                style={({ pressed }) => [
+                  styles.supportButton,
+                  { borderColor: theme.border },
+                  pressed && styles.pressed,
+                ]}>
+                <ThemedText type="smallBold">{t('home.supportShortcut')}</ThemedText>
+              </Pressable>
+            </View>
+
+            <Pressable onPress={() => router.push('/support')} style={({ pressed }) => [pressed && styles.pressed]}>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.supportMore}>
+                {t('home.supportMore')}
+              </ThemedText>
+            </Pressable>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -504,24 +546,29 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
   },
-  arcadeCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
+  supportCard: {
     borderRadius: Spacing.three,
     borderWidth: 1,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.three,
+    gap: Spacing.three,
   },
-  arcadeEmoji: { fontSize: 30, lineHeight: 38 },
-  arcadeBody: { flex: 1, gap: 2 },
-  arcadeBadge: {
+  supportHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  supportEmoji: { fontSize: 28, lineHeight: 36 },
+  supportHeadBody: { flex: 1, gap: 2 },
+  // 두 단추는 한 줄에 반씩. 좁은 화면에서는 줄이 바뀌면서 각자 한 줄을 쓴다 —
+  // 글씨를 줄이지 않는다(→ 글씨는 크게, 단추는 넉넉히).
+  supportRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
+  supportButton: {
+    flexGrow: 1,
+    flexBasis: 150,
     alignItems: 'center',
     borderRadius: Spacing.two,
     borderWidth: 1,
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.three,
   },
+  supportMore: { textAlign: 'center' },
   heroCard: {
     borderRadius: Spacing.four,
     padding: Spacing.four,
