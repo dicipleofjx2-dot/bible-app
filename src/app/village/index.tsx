@@ -18,7 +18,7 @@ import {
 } from '@/components/village/kit';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { nameOf, useCellRoom } from '@/hooks/use-cell-room';
+import { nameOf, pickCell, useCellRoom } from '@/hooks/use-cell-room';
 import {
   createCellNotice,
   getCellMeeting,
@@ -73,7 +73,7 @@ const ROOMS: Room[] = [
 
 export default function CellHomeScreen() {
   const theme = useTheme();
-  const { room, loading, error } = useCellRoom();
+  const { room, loading, error, reload } = useCellRoom();
 
   const [gathering, setGathering] = useState<Gathering | null>(null);
   const [attendance, setAtt] = useState<Attendance[]>([]);
@@ -133,6 +133,11 @@ export default function CellHomeScreen() {
     await loadMeeting();
   }
 
+  async function changeCell(id: string) {
+    await pickCell(id);
+    await reload();
+  }
+
   const cellName = room?.cell?.name ?? '신바람목장';
   const going = attendance.filter((a) => a.reply === 'going').length;
   const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토'];
@@ -148,15 +153,65 @@ export default function CellHomeScreen() {
       ) : error ? (
         <Empty text={error} />
       ) : !room?.cell ? (
+        /*
+          여기서 **첫 번째 목장을 말없이 집지 않는다.** 관리자·교역자에게는 모든
+          목장이 목록에 오므로, 그렇게 하면 남의 목장이 「우리 목장」인 척 뜬다.
+          고를 수 있으면 묻고, 고를 것이 없으면 왜 없는지 알린다.
+        */
         <Card>
-          <ThemedText style={styles.big}>아직 목장이 정해지지 않았어요</ThemedText>
-          <ThemedText themeColor="textSecondary">
-            교적에 목장이 등록되면 이 자리에 우리 목장이 열립니다. 교회 사무실이나 목자님께 말씀해
-            주세요.
-          </ThemedText>
+          {(room?.allCells.length ?? 0) > 0 ? (
+            <>
+              <ThemedText style={styles.big}>어느 목장을 보시겠어요?</ThemedText>
+              <ThemedText themeColor="textSecondary">
+                교적에 내 목장이 걸려 있지 않아, 무엇을 열지 여쭙습니다. 고르면 그대로 기억합니다.
+              </ThemedText>
+              <ChipRow
+                options={(room?.allCells ?? []).map((c) => ({ value: c.id, label: c.name }))}
+                value={null}
+                onChange={changeCell}
+              />
+              <ThemedText type="small" themeColor="textSecondary">
+                내 목장이 여기 서려면 교적(스마트주보)에서 내 이름에 목장을 걸어 주세요.
+              </ThemedText>
+            </>
+          ) : (
+            <>
+              <ThemedText style={styles.big}>아직 목장이 정해지지 않았어요</ThemedText>
+              <ThemedText themeColor="textSecondary">
+                교적에 목장이 등록되면 이 자리에 우리 목장이 열립니다. 교회 사무실이나 목자님께
+                말씀해 주세요.
+              </ThemedText>
+            </>
+          )}
         </Card>
       ) : (
         <>
+          {/* ── 지금 보는 목장 ────────────────────────────────── */}
+          {room.viewingOther ? (
+            <Card>
+              <ThemedText type="smallBold" themeColor="support">
+                {room.myCell
+                  ? `내 목장은 ${room.myCell.name}입니다. 지금은 ${room.cell.name}을 열어 보는 중이에요.`
+                  : `교적에 내 목장이 없어, 고르신 ${room.cell.name}을 열어 보는 중이에요.`}
+              </ThemedText>
+              {room.myCell ? (
+                <Btn label={`${room.myCell.name}으로 돌아가기`} small tone="quiet" onPress={() => changeCell(room.myCell!.id)} />
+              ) : null}
+            </Card>
+          ) : null}
+          {room.allCells.length > 1 ? (
+            <Card>
+              <ThemedText type="smallBold" themeColor="textSecondary">
+                목장 고르기
+              </ThemedText>
+              <ChipRow
+                options={room.allCells.map((c) => ({ value: c.id, label: c.name }))}
+                value={room.cell.id}
+                onChange={changeCell}
+              />
+            </Card>
+          ) : null}
+
           {/* ── 이번 모임 ─────────────────────────────────────── */}
           <Card>
             <View style={styles.rowBetween}>
