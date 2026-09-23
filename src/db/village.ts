@@ -47,6 +47,18 @@ export async function getMyVillage(): Promise<Village> {
   return { id, name: String((unit as { name?: string } | null)?.name ?? '우리 마을') };
 }
 
+/**
+ * 이 목장의 목자인지.
+ *
+ * `getCellContext()` 는 **내 목장**에 대해서만 답을 준다. 관리자·교역자가 남의
+ * 목장을 열어 볼 때는 그 목장 기준으로 다시 물어야 한다 — 안 물으면 내 목장의
+ * 답이 남의 목장 화면에 그대로 쓰인다.
+ */
+export async function isCellLeaderOf(cellId: string): Promise<boolean> {
+  const { data } = await supabase.rpc('is_cell_leader_of', { target_cell_id: cellId });
+  return data === true;
+}
+
 /** 마을장인지 — 승인 단추를 보일지 정한다. 막는 것은 정책이 한다. */
 export async function amVillageLeader(villageId: string | null): Promise<boolean> {
   const { data } = await supabase.rpc('is_village_leader_of', { target_village_id: villageId });
