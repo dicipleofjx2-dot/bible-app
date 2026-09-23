@@ -9,6 +9,7 @@ import {
   Card,
   ChipRow,
   Empty,
+  Field,
   formatMeetDay,
   RoomScreen,
   SectionTitle,
@@ -18,6 +19,14 @@ import {
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { nameOf, useCellRoom } from '@/hooks/use-cell-room';
+import {
+  createCellNotice,
+  getCellMeeting,
+  getCellNotices,
+  removeCellNotice,
+  type CellMeeting,
+  type CellNotice,
+} from '@/db/cell';
 import {
   getAttendance,
   getGatherings,
@@ -36,6 +45,11 @@ import {
  *
  * 그림은 SVG 한 장이고 **방 단추는 그 위에 얹은 진짜 View** 다(0076 중보기도
  * 나무와 같은 방식). SVG 안에 넣으면 누르는 자리가 기기마다 어긋난다.
+ *
+ * 목장 공지와 정기 모임 시간도 여기 있다. 옛 목장방(/r2m/cell)이 사라지면서
+ * 옮겨 왔고 **표는 그대로**라 그때 올린 공지가 그대로 이어진다. 정기 모임은
+ * 주보의 gather_recurrences 를 읽기만 한다 — 0065 가 정한 대로 여기에 또 적지
+ * 않는다. 두 군데에 적히면 반드시 어긋난다.
  */
 
 type Room = {
@@ -50,7 +64,7 @@ type Room = {
 
 const ROOMS: Room[] = [
   { key: 'chapel', emoji: '⛪', name: '예배당', desc: '이번 모임 · 말씀 · 순서', href: '/village/chapel' },
-  { key: 'share', emoji: '💬', name: '소그룹실', desc: '나눔과 댓글', href: '/village/share' },
+  { key: 'share', emoji: '💬', name: '소그룹실', desc: '나눔 · 소통창', href: '/village/share' },
   { key: 'nurture', emoji: '🌱', name: '양육실', desc: '과정 · 다음 만남', href: '/village/nurture' },
   { key: 'care', emoji: '🤲', name: '돌봄실', desc: '안부 · 연락 · 심방', href: '/village/care', leaderOnly: true },
   { key: 'ministry', emoji: '🛠️', name: '사역실', desc: '섬김 일정과 역할', href: '/village/ministry' },
@@ -64,6 +78,11 @@ export default function CellHomeScreen() {
   const [gathering, setGathering] = useState<Gathering | null>(null);
   const [attendance, setAtt] = useState<Attendance[]>([]);
   const [busy, setBusy] = useState(false);
+  const [notices, setNotices] = useState<CellNotice[]>([]);
+  const [regular, setRegular] = useState<CellMeeting | null>(null);
+  const [writingNotice, setWritingNotice] = useState(false);
+  const [noticeTitle, setNoticeTitle] = useState('');
+  const [noticeBody, setNoticeBody] = useState('');
 
   const cellId = room?.cell?.id ?? null;
 
@@ -72,9 +91,15 @@ export default function CellHomeScreen() {
       setGathering(null);
       return;
     }
-    const list = await getGatherings(cellId, 10).catch(() => [] as Gathering[]);
+    const [list, ns, reg] = await Promise.all([
+      getGatherings(cellId, 10).catch(() => [] as Gathering[]),
+      getCellNotices(cellId).catch(() => [] as CellNotice[]),
+      getCellMeeting(cellId).catch(() => null),
+    ]);
     const current = pickCurrentGathering(list, todayString());
     setGathering(current);
+    setNotices(ns);
+    setRegular(reg);
     setAtt(current ? await getAttendance(current.id) : []);
   }, [cellId]);
 
@@ -92,8 +117,25 @@ export default function CellHomeScreen() {
     setBusy(false);
   }
 
+  async function postNotice() {
+    if (!cellId || !room || busy || !noticeTitle.trim()) return;
+    setBusy(true);
+    await createCellNotice({
+      cellId,
+      title: noticeTitle.trim(),
+      body: noticeBody.trim(),
+      authorId: room.userId,
+    });
+    setBusy(false);
+    setNoticeTitle('');
+    setNoticeBody('');
+    setWritingNotice(false);
+    await loadMeeting();
+  }
+
   const cellName = room?.cell?.name ?? '신바람목장';
   const going = attendance.filter((a) => a.reply === 'going').length;
+  const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토'];
 
   return (
     <RoomScreen
@@ -157,6 +199,65 @@ export default function CellHomeScreen() {
               </>
             )}
           </Card>
+
+          {/* ── 정기 모임 ─────────────────────────────────────── */}
+          {regular ? (
+            <Card>
+              <ThemedText type="smallBold" themeColor="textSecondary">
+                정기 모임
+              </ThemedText>
+              <ThemedText>
+                {regular.title} · 매주{' '}
+                {regular.weekdays.length > 0
+                  ? regular.weekdays.map((d) => WEEKDAY[d] ?? '').join('·') + '요일'
+                  : ''}{' '}
+                {regular.startTime}
+                {regular.location ? ` · ${regular.location}` : ''}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                시간과 장소는 주보의 정기모임에서 옵니다. 바꾸려면 주보에서 고쳐 주세요.
+              </ThemedText>
+            </Card>
+          ) : null}
+
+          {/* ── 공지 ──────────────────────────────────────────── */}
+          <SectionTitle hint={room.isLeader ? '목자가 올립니다' : undefined}>목장 공지</SectionTitle>
+          {room.isLeader || room.canSeeAll ? (
+            writingNotice ? (
+              <Card>
+                <Field label="제목" value={noticeTitle} onChangeText={setNoticeTitle} />
+                <Field label="내용" value={noticeBody} onChangeText={setNoticeBody} multiline />
+                <Btn label={busy ? '올리는 중…' : '공지 올리기'} onPress={postNotice} disabled={busy} />
+                <Btn label="취소" tone="ghost" onPress={() => setWritingNotice(false)} />
+              </Card>
+            ) : (
+              <Btn label="공지 올리기" tone="quiet" onPress={() => setWritingNotice(true)} />
+            )
+          ) : null}
+          {notices.length === 0 ? (
+            <Empty text="올라온 공지가 없어요." />
+          ) : (
+            notices.map((n) => (
+              <Card key={n.id}>
+                <View style={styles.rowBetween}>
+                  <ThemedText style={styles.big}>{n.title}</ThemedText>
+                  {n.cellId === null ? <Tag label="교회 전체" tone="warn" /> : null}
+                </View>
+                <ThemedText>{n.body}</ThemedText>
+                {n.authorId === room.userId ? (
+                  <Btn
+                    label="지우기"
+                    small
+                    tone="ghost"
+                    onPress={async () => {
+                      await removeCellNotice(n.id);
+                      await loadMeeting();
+                    }}
+                  />
+                ) : null}
+              </Card>
+            ))
+          )}
 
           {/* ── 건물 ──────────────────────────────────────────── */}
           <CellBuilding name={cellName} />

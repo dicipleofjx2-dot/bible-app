@@ -71,15 +71,15 @@ type HomeTile = {
 // 공지사항은 바둑판에 넣지 않는다 — 제목이 바로 보이는 한 줄 띠가 위에 따로
 // 있고, 그게 아이콘 한 칸보다 훨씬 잘 읽힌다.
 const HOME_TILES: HomeTile[] = [
-  // 매일 여는 셋을 맨 앞에 둔다. 이 앱을 여는 이유가 대개 이 셋이다 —
-  // 아래로 내려가야 보이면 매일 하는 일이 매일 한 번 더 찾는 일이 된다.
-  { key: 'bibleRead', emoji: '📖', label: 'home.bibleRead', href: '/read' },
-  { key: 'qtMeditation', emoji: '🕊️', label: 'home.qtMeditation', href: '/meditation' },
-  { key: 'bibleStudy', emoji: '🔎', label: 'home.bibleStudy', href: '/bible-study' },
+  // 성경읽기·QT 묵상·성경연구 세 칸을 뺐다(2026-09-23).
+  //
+  // 셋 다 **말씀 탭에 그대로 있고**(word.tsx), QT 는 이 화면 맨 위의 「QT 시작하기」
+  // 카드가 이미 같은 곳으로 보낸다. 바둑판에 또 두면 같은 문이 한 화면에 두 번
+  // 생기는 셈이라, 정작 한 번밖에 없는 칸들이 아래로 밀렸다.
+  // 지운 것은 이 세 칸뿐이다 — 화면(/read·/meditation·/bible-study)은 그대로다.
   // 24시간 기도의 집 — 다른 앱이다(prayer.dgaiworks.com). 교회 소식을 나르는
   // 주보와 달리 기도는 이 앱이 맡은 개인 경건훈련 그대로라, 홈에 자리를 준다.
-  // 넷째 칸(둘째 줄 맨 앞)에 둔 이유: 매일 여는 셋의 차례를 흔들지 않으면서도
-  // 화면을 내리지 않고 바로 보이는 자리다. 계정은 같은 카카오라 따로 가입하지 않는다.
+  // 계정은 같은 카카오라 따로 가입하지 않는다.
   {
     key: 'prayerHouse',
     emoji: '🕯️',
@@ -97,8 +97,7 @@ const HOME_TILES: HomeTile[] = [
   { key: 'village', emoji: '🏡', label: 'home.village', href: '/village' as Href, requiresAuth: true },
   // 바이블 저니 ON — 다른 앱이다(journey.dgaiworks.com). 성경 서른두 코스와
   // 세계사 열세 코스를 위성지도·3D 지형 위에서 따라간다.
-  // 여섯째 칸(둘째 줄 맨 끝)에 둔 이유: 기도의 집이 맡은 넷째 칸을 밀지 않으면서
-  // 화면을 내리지 않고 보이는 마지막 자리다. 이 칸까지 열둘이라 넉 줄이 꼭 맞는다.
+  // 무거운 화면이라 한 창에 모은다(→ APP_WINDOW.bibleJourney).
   {
     key: 'bibleJourney',
     emoji: '🗺️',

@@ -17,6 +17,13 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { nameOf, useCellRoom } from '@/hooks/use-cell-room';
 import {
+  getCellMessages,
+  postCellMessage,
+  removeCellMessage,
+  toggleCheer as toggleMessageCheer,
+  type CellMessage,
+} from '@/db/cell';
+import {
   getGatherings,
   getShares,
   pickCurrentGathering,
@@ -36,6 +43,11 @@ import {
  *
  * 「목자님께만」을 둔 이유: 목장 앞에서 말하기 어려운 것이 있다. 그 칸이 없으면
  * 그런 이야기는 아예 안 적히거나, 모두에게 적힌다. 둘 다 좋지 않다.
+ *
+ * 소통창(0068 의 cell_messages)이 이 화면 아래에 함께 있다. 옛 목장방(/r2m/cell)이
+ * 사라지면서 옮겨 왔다 — **표는 그대로라 그때 오간 말이 그대로 이어진다.**
+ * 나눔과 한 화면에 둔 까닭: 둘 다 「서로에게 말하는 곳」이고, 화면을 갈라 두면
+ * 어느 쪽에 적어야 하는지 매번 망설이게 된다.
  */
 export default function ShareRoomScreen() {
   const theme = useTheme();
@@ -50,16 +62,20 @@ export default function ShareRoomScreen() {
   const [busy, setBusy] = useState(false);
   const [commentFor, setCommentFor] = useState<string | null>(null);
   const [comment, setComment] = useState('');
+  const [messages, setMessages] = useState<CellMessage[]>([]);
+  const [talk, setTalk] = useState('');
 
   const load = useCallback(async () => {
     if (!cellId) return;
-    const [rows, meetings] = await Promise.all([
+    const [rows, meetings, msgs] = await Promise.all([
       getShares(cellId).catch(() => [] as Share[]),
       getGatherings(cellId, 5).catch(() => [] as Gathering[]),
+      getCellMessages(cellId, room?.userId ?? '').catch(() => [] as CellMessage[]),
     ]);
     setShares(rows);
     setGathering(pickCurrentGathering(meetings, todayString()));
-  }, [cellId]);
+    setMessages(msgs);
+  }, [cellId, room?.userId]);
 
   useEffect(() => {
     load();
@@ -90,6 +106,13 @@ export default function ShareRoomScreen() {
     await postShareComment({ shareId, authorId: room.userId, body: comment.trim() });
     setComment('');
     setCommentFor(null);
+    await load();
+  }
+
+  async function sendTalk() {
+    if (!cellId || !room || !talk.trim()) return;
+    await postCellMessage(cellId, room.userId, talk.trim());
+    setTalk('');
     await load();
   }
 
@@ -197,6 +220,51 @@ export default function ShareRoomScreen() {
                     ) : null}
                   </View>
                 )}
+              </Card>
+            ))
+          )}
+
+          {/* ── 소통창 ────────────────────────────────────────── */}
+          <SectionTitle hint="짧은 말이 오가는 곳. 나눔은 위에 쌓입니다">소통창</SectionTitle>
+          <Card>
+            <Field
+              label="한 마디"
+              value={talk}
+              onChangeText={setTalk}
+              placeholder="오늘 목장 모임 장소가 바뀌었어요"
+            />
+            <Btn label="보내기" small onPress={sendTalk} />
+          </Card>
+          {messages.length === 0 ? (
+            <Empty text="아직 오간 말이 없어요." />
+          ) : (
+            messages.map((t) => (
+              <Card key={t.id}>
+                <View style={styles.rowBetween}>
+                  <ThemedText type="smallBold">{t.authorName}</ThemedText>
+                  <Btn
+                    small
+                    tone={t.iCheered ? 'primary' : 'quiet'}
+                    label={`👏 ${t.cheers}`}
+                    onPress={async () => {
+                      if (!room) return;
+                      await toggleMessageCheer(t.id, room.userId, !t.iCheered);
+                      await load();
+                    }}
+                  />
+                </View>
+                <ThemedText>{t.body}</ThemedText>
+                {t.authorId === room?.userId ? (
+                  <Btn
+                    label="지우기"
+                    small
+                    tone="ghost"
+                    onPress={async () => {
+                      await removeCellMessage(t.id);
+                      await load();
+                    }}
+                  />
+                ) : null}
               </Card>
             ))
           )}
