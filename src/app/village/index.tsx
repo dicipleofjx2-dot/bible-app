@@ -133,7 +133,14 @@ export default function CellHomeScreen() {
     await loadMeeting();
   }
 
-  async function changeCell(id: string) {
+  /**
+   * 내 목장으로 돌아가기.
+   *
+   * 목장을 **고르는** 자리는 여기가 아니라 마을의 목장 거리다. 이 문은 늘
+   * 「내 목장」으로 들어가는 문이어야 한다 — 현관에 열한 목장이 늘어서 있으면
+   * 목원에게는 쓸 일 없는 줄이고, 목자에게도 자기 목장이 아닌 곳이 먼저 눈에 든다.
+   */
+  async function backToMyCell(id: string) {
     await pickCell(id);
     await reload();
   }
@@ -161,15 +168,12 @@ export default function CellHomeScreen() {
         <Card>
           {(room?.allCells.length ?? 0) > 0 ? (
             <>
-              <ThemedText style={styles.big}>어느 목장을 보시겠어요?</ThemedText>
+              <ThemedText style={styles.big}>교적에 내 목장이 없어요</ThemedText>
               <ThemedText themeColor="textSecondary">
-                교적에 내 목장이 걸려 있지 않아, 무엇을 열지 여쭙습니다. 고르면 그대로 기억합니다.
+                이 문은 「내 목장」으로 들어가는 문이라, 걸린 목장이 없으면 열 것이 없습니다.
+                다른 목장을 보시려면 마을로 나가 목장 거리에서 고르세요.
               </ThemedText>
-              <ChipRow
-                options={(room?.allCells ?? []).map((c) => ({ value: c.id, label: c.name }))}
-                value={null}
-                onChange={changeCell}
-              />
+              <Btn label="🌾 마을로 나가기" onPress={() => router.push('/village/square' as Href)} />
               <ThemedText type="small" themeColor="textSecondary">
                 내 목장이 여기 서려면 교적(스마트주보)에서 내 이름에 목장을 걸어 주세요.
               </ThemedText>
@@ -195,23 +199,10 @@ export default function CellHomeScreen() {
                   : `교적에 내 목장이 없어, 고르신 ${room.cell.name}을 열어 보는 중이에요.`}
               </ThemedText>
               {room.myCell ? (
-                <Btn label={`${room.myCell.name}으로 돌아가기`} small tone="quiet" onPress={() => changeCell(room.myCell!.id)} />
+                <Btn label={`${room.myCell.name}으로 돌아가기`} small tone="quiet" onPress={() => backToMyCell(room.myCell!.id)} />
               ) : null}
             </Card>
           ) : null}
-          {room.allCells.length > 1 ? (
-            <Card>
-              <ThemedText type="smallBold" themeColor="textSecondary">
-                목장 고르기
-              </ThemedText>
-              <ChipRow
-                options={room.allCells.map((c) => ({ value: c.id, label: c.name }))}
-                value={room.cell.id}
-                onChange={changeCell}
-              />
-            </Card>
-          ) : null}
-
           {/* ── 이번 모임 ─────────────────────────────────────── */}
           <Card>
             <View style={styles.rowBetween}>
