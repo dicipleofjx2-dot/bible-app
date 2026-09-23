@@ -1,3 +1,4 @@
+import { router, type Href } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -15,7 +16,7 @@ import {
 } from '@/components/village/kit';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { nameOf, useCellRoom } from '@/hooks/use-cell-room';
+import { nameOf, pickCell, useCellRoom } from '@/hooks/use-cell-room';
 import {
   createVillageEvent,
   createVillageWork,
@@ -47,6 +48,15 @@ import {
  *
  * **광장에는 승인된 글만 흐른다.** 목장에서 올린 글은 대기 상태로 서고, 마을장·
  * 교역자에게만 「기다리는 글」 칸이 따로 보인다.
+ *
+ * ── 목장을 바꾸는 자리는 여기다 ─────────────────────────────────────
+ * 목장 현관은 늘 「내 목장」으로 들어가는 문이고, 다른 목장으로 건너가는 것은
+ * **목장 거리에서 그 집을 누르는** 한 가지 길뿐이다. 현관에 목장 목록을 같이
+ * 두면 목원에게는 쓸 일 없는 줄이 늘 붙어 있고, 목자에게도 자기 목장이 아닌
+ * 곳이 먼저 눈에 든다.
+ *
+ * 남의 목장 문이 열리는 사람은 관리자·교역자뿐이다(`can_see_cell`). 목원에게는
+ * 건물 카드가 소개까지만 보여 준다 — 눌러도 빈 방이 열리면 고장으로 읽힌다.
  */
 
 type TabKey = 'street' | 'square' | 'hall' | 'garden' | 'works';
@@ -66,7 +76,8 @@ export default function VillageSquareScreen() {
   const myId = room?.userId ?? '';
   const canLead = Boolean(room?.isVillageLeader);
 
-  const [tab, setTab] = useState<TabKey>('square');
+  // 마을에 나오면 먼저 목장들이 보여야 한다 — 광장 글은 그 다음이다.
+  const [tab, setTab] = useState<TabKey>('street');
   const [street, setStreet] = useState<StreetCell[]>([]);
   const [posts, setPosts] = useState<VillagePost[]>([]);
   const [events, setEvents] = useState<VillageEvent[]>([]);
@@ -157,8 +168,8 @@ export default function VillageSquareScreen() {
       subtitle="목장들이 함께 이루는 마을">
       {loading ? (
         <Empty text="마을을 여는 중입니다…" />
-      ) : !room?.cell ? (
-        <Empty text="목장에 속하면 마을이 열립니다." />
+      ) : !room ? (
+        <Empty text="로그인하면 마을이 열립니다." />
       ) : (
         <>
           {/* ── 자리 고르기 ───────────────────────────────────── */}
@@ -194,11 +205,23 @@ export default function VillageSquareScreen() {
             street.length === 0 ? (
               <Empty text="이 마을에 등록된 목장이 아직 없어요." />
             ) : (
-              street.map((c) => (
-                <Card key={c.cellId}>
+              street.map((c) => {
+                const mine = c.cellId === room.myCell?.id;
+                const canEnter = room.canSeeAll || mine;
+                return (
+                <Card
+                  key={c.cellId}
+                  onPress={
+                    canEnter
+                      ? async () => {
+                          await pickCell(c.cellId);
+                          router.push('/village' as Href);
+                        }
+                      : undefined
+                  }>
                   <View style={styles.rowBetween}>
                     <ThemedText style={styles.big}>🏡 {c.cellName}</ThemedText>
-                    {c.cellId === room.cell?.id ? <Tag label="우리 목장" tone="done" /> : null}
+                    {mine ? <Tag label="우리 목장" tone="done" /> : null}
                   </View>
                   <ThemedText type="small" themeColor="textSecondary">
                     {c.leaderName ? `목자 ${c.leaderName} · ` : ''}
@@ -213,8 +236,16 @@ export default function VillageSquareScreen() {
                       다음 모임이 아직 안 올라왔어요.
                     </ThemedText>
                   )}
+                  <ThemedText type="small" themeColor={canEnter ? 'accent' : 'textSecondary'}>
+                    {mine
+                      ? '눌러서 우리 목장으로 ›'
+                      : canEnter
+                        ? '눌러서 이 목장 열어 보기 ›'
+                        : '이 목장 안은 그 목장 식구에게만 열립니다'}
+                  </ThemedText>
                 </Card>
-              ))
+                );
+              })
             )
           ) : null}
 
@@ -234,9 +265,9 @@ export default function VillageSquareScreen() {
                   <Btn label={busy ? '보내는 중…' : '나누기 신청'} onPress={submit} disabled={busy} />
                   <Btn label="취소" tone="ghost" onPress={() => setWriting(false)} />
                 </Card>
-              ) : (
+              ) : room.cell ? (
                 <Btn label="우리 목장 소식 나누기" onPress={() => setWriting(true)} />
-              )}
+              ) : null}
 
               {pending.length > 0 ? (
                 <>
@@ -362,9 +393,9 @@ export default function VillageSquareScreen() {
                   <Btn label={busy ? '올리는 중…' : '기도 제목 올리기'} onPress={submit} disabled={busy} />
                   <Btn label="취소" tone="ghost" onPress={() => setWriting(false)} />
                 </Card>
-              ) : (
+              ) : room.cell ? (
                 <Btn label="기도 제목 올리기" onPress={() => setWriting(true)} />
-              )}
+              ) : null}
               {prayers.length === 0 ? (
                 <Empty text="아직 올라온 기도 제목이 없어요." />
               ) : (
