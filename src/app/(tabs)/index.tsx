@@ -90,6 +90,11 @@ const HOME_TILES: HomeTile[] = [
   // 목자의 편지는 교회로 갈린다. 로그인 전에는 어느 교회인지 알 수 없어 목록이
   // 비므로(→ `@/lib/churchScope`) 빈 화면을 보여 주기보다 로그인으로 안내한다.
   { key: 'shepherdLetter', emoji: '💌', label: 'home.shepherdLetter', href: '/shepherd-letters', requiresAuth: true },
+  // 신바람목장(목장마을ON) — 우리 목장이 「작은 교회」가 되고, 목장들이 모여
+  // 마을이 된다. 목자의 편지 바로 뒤에 둔 이유: 둘 다 목양의 자리이고, 편지를
+  // 읽고 나면 자연스레 우리 목장으로 건너간다.
+  // 교적에 목장이 걸려 있어야 방이 열리므로 로그인이 필요하다.
+  { key: 'village', emoji: '🏡', label: 'home.village', href: '/village' as Href, requiresAuth: true },
   // 바이블 저니 ON — 다른 앱이다(journey.dgaiworks.com). 성경 서른두 코스와
   // 세계사 열세 코스를 위성지도·3D 지형 위에서 따라간다.
   // 여섯째 칸(둘째 줄 맨 끝)에 둔 이유: 기도의 집이 맡은 넷째 칸을 밀지 않으면서

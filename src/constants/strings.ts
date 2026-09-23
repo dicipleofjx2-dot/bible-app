@@ -45,6 +45,9 @@ export const STRINGS = {
   'home.bibleStudy': { ko: '성경연구', en: 'Bible Study' },
   'home.shepherdLetter': { ko: '목자의 편지', en: "Pastor's Letter" },
   'home.readingHelper': { ko: '성경통독도우미', en: 'Bible Reading Helper' },
+  // 목장마을ON 들어가는 칸. 새부대교회가 부르는 이름을 그대로 쓴다 — 「목장」은
+  // 교회마다 다르게 부르지만(구역·셀·목장), 성도는 자기 교회 말로만 찾는다.
+  'home.village': { ko: '신바람목장', en: 'Cell Village' },
   'home.r2m': { ko: 'R2M훈련', en: 'R2M Training' },
   'home.arena': { ko: '성경게임대전', en: 'Bible Arena' },
   // 줄바꿈을 손으로 넣는다. 바둑판 한 칸은 화면의 31.5% 라 그냥 두면
