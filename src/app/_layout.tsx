@@ -1,6 +1,7 @@
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Redirect, Stack, ThemeProvider, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import Head from 'expo-router/head';
 import { SQLiteProvider } from 'expo-sqlite';
 import { Suspense, useRef } from 'react';
 import { ActivityIndicator, useColorScheme } from 'react-native';
@@ -152,7 +153,15 @@ export default function RootLayout() {
 function AppStack() {
   const t = useT();
   return (
-      <Stack screenOptions={{ headerShown: false }}>
+      <>
+        <Head>
+          <title>데이빗바이블 — 읽고 이해하고 기억하는 성경 앱</title>
+          <meta
+            name="description"
+            content="성경을 읽고, 읽은 말씀을 이해하고 기억하도록 돕는 앱입니다. 통독 도우미·묵상·암송·성경 지도·아케이드를 한 곳에서."
+          />
+        </Head>
+        <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="intro" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="plans" options={{ headerShown: true, title: t('nav.plans') }} />
@@ -305,10 +314,7 @@ function AppStack() {
           name="r2m/leaders"
           options={{ headerShown: true, title: t('nav.leaders') }}
         />
-        <Stack.Screen
-          name="r2m/cell"
-          options={{ headerShown: true, title: t('nav.cellRoom') }}
-        />
       </Stack>
+      </>
   );
 }

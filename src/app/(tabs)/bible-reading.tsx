@@ -177,13 +177,11 @@ export default function R2MDashboardScreen() {
           )}
 
           <View style={styles.linksRow}>
-            {/* 목장방은 누구에게나 보인다. 교적에 목장이 없는 사람에게는 화면이
-                왜 비어 있는지 안내한다 — 단추를 감추면 물어볼 곳이 없어진다. */}
-            <Pressable onPress={() => router.push('/r2m/cell')}>
-              <ThemedText type="link" themeColor="accent">
-                {t('nav.cellRoom')}
-              </ThemedText>
-            </Pressable>
+            {/* 목장방(/r2m/cell)은 없앴다(2026-09-23). 홈 바둑판의 🏡 신바람목장이
+                같은 목장을 훨씬 넓게 연다 — 공지·소통창·모임 보고가 모두 그리로
+                옮겨 갔고 표는 그대로라 옛 글이 그대로 이어진다. 여기 링크를 남겨
+                두면 같은 목장으로 가는 문이 둘이 되어, 어느 쪽에 적었는지 서로
+                모르게 된다. */}
             <Pressable onPress={() => router.push('/r2m/courses')}>
               <ThemedText type="link" themeColor="textSecondary">
                 {t('nav.courses')}

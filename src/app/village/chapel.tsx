@@ -17,6 +17,7 @@ import {
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { nameOf, useCellRoom } from '@/hooks/use-cell-room';
+import { getCellReports, type CellReport } from '@/db/cell';
 import {
   createGathering,
   DEFAULT_STEPS,
@@ -56,6 +57,7 @@ export default function ChapelScreen() {
   const canLead = Boolean(room?.isLeader || room?.canSeeAll);
 
   const [list, setList] = useState<Gathering[]>([]);
+  const [oldReports, setOldReports] = useState<CellReport[]>([]);
   const [current, setCurrent] = useState<Gathering | null>(null);
   const [attendance, setAtt] = useState<Attendance[]>([]);
   const [busy, setBusy] = useState(false);
@@ -77,8 +79,12 @@ export default function ChapelScreen() {
 
   const load = useCallback(async () => {
     if (!cellId) return;
-    const rows = await getGatherings(cellId).catch(() => [] as Gathering[]);
+    const [rows, reports] = await Promise.all([
+      getGatherings(cellId).catch(() => [] as Gathering[]),
+      getCellReports(cellId).catch(() => [] as CellReport[]),
+    ]);
     setList(rows);
+    setOldReports(reports);
     const cur = pickCurrentGathering(rows, todayString());
     setCurrent(cur);
     setAtt(cur ? await getAttendance(cur.id) : []);
@@ -383,6 +389,32 @@ export default function ChapelScreen() {
                 </Card>
               ))
           )}
+
+          {/*
+            옛 목장방(/r2m/cell)에서 올린 모임 보고.
+
+            그 화면은 없앴지만 **표(cell_reports)는 그대로 살아 있다.** 새로 쓰는
+            자리는 위의 모임 기록이라 여기서는 읽기만 한다 — 옛 글을 못 보게
+            하면 목장이 지나온 자취가 통째로 사라진다.
+          */}
+          {oldReports.length > 0 ? (
+            <>
+              <SectionTitle hint="옛 목장방에서 올린 글입니다">지난 목장 보고</SectionTitle>
+              {oldReports.map((r) => (
+                <Card key={r.id}>
+                  <ThemedText type="smallBold" themeColor="textSecondary">
+                    {formatMeetDay(r.metOn)}
+                    {r.attendance !== null ? ` · ${r.attendance}명` : ''}
+                    {r.kind === 'report' ? ' · 모임 보고' : ''}
+                  </ThemedText>
+                  <ThemedText>{r.body}</ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {nameOf(room?.names ?? new Map(), r.authorId)}
+                  </ThemedText>
+                </Card>
+              ))}
+            </>
+          ) : null}
         </>
       )}
     </RoomScreen>

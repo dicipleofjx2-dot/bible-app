@@ -1,4 +1,7 @@
+import * as ImageManipulator from 'expo-image-manipulator';
+
 import { supabase } from '@/lib/supabase';
+import { STORAGE_CACHE_SECONDS } from '@/lib/storageCache';
 
 /**
  * 목장마을ON — 「작은 교회」(목장)의 방들과, 목장들이 모인 「마을」.
@@ -753,17 +756,38 @@ export async function takeRole(roleId: string, userId: string | null): Promise<{
 // 선교실
 // ════════════════════════════════════════════════════════════════════
 
-export type Mission = {
+export type MissionMedia = {
   id: string;
-  cellId: string;
+  missionId: string;
+  kind: 'image' | 'video';
+  /** village-media 통 안의 경로. 전체 주소는 담지 않는다. */
+  path: string;
+  url: string;
+  caption: string | null;
+  createdBy: string;
+};
+
+/**
+ * AI 에게 그림·영상을 부탁할 때 들려 보내는 칸들.
+ *
+ * 따로 뽑아 둔 까닭: 아직 만들지 않은 카드(입력 중인 것)로도 부탁할 수 있어야
+ * 한다. Mission 전체를 받게 하면 id 가 없는 동안은 부를 수가 없다.
+ */
+export type MissionSeedFields = {
   field: string;
   partner: string | null;
   story: string | null;
   prayerPoints: string | null;
+};
+
+export type Mission = MissionSeedFields & {
+  id: string;
+  cellId: string;
   supportNote: string | null;
   visitPlan: string | null;
   createdBy: string;
   createdAt: string;
+  media: MissionMedia[];
 };
 
 export async function getMissions(cellId: string): Promise<Mission[]> {
@@ -775,7 +799,9 @@ export async function getMissions(cellId: string): Promise<Mission[]> {
     .order('created_at', { ascending: false })
     .limit(30);
   if (error) throw error;
-  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+  const rows = (data ?? []) as Record<string, unknown>[];
+  const media = rows.length > 0 ? await getMissionMedia(rows.map((r) => String(r.id))) : new Map();
+  return rows.map((r) => ({
     id: String(r.id),
     cellId: String(r.cell_id),
     field: String(r.field ?? ''),
@@ -786,6 +812,7 @@ export async function getMissions(cellId: string): Promise<Mission[]> {
     visitPlan: (r.visit_plan as string | null) ?? null,
     createdBy: String(r.created_by),
     createdAt: String(r.created_at),
+    media: media.get(String(r.id)) ?? [],
   }));
 }
 
@@ -1200,4 +1227,127 @@ export async function toggleSignup(
     .eq('target_id', targetId)
     .eq('user_id', userId);
   return { error: error?.message ?? null };
+}
+
+// ════════════════════════════════════════════════════════════════════
+// 선교 카드의 사진·영상
+// ════════════════════════════════════════════════════════════════════
+//
+// 경로만 담고 전체 주소는 담지 않는다 — 통을 옮기면 담아 둔 주소가 전부 죽는다.
+// (감사일기 사진이 같은 방식이다.)
+
+const MEDIA_BUCKET = 'village-media';
+
+/** 25MB. 표(0086)에도 같은 한도가 걸려 있다 — 여기서 먼저 막아 헛수고를 줄인다. */
+export const MISSION_VIDEO_MAX_BYTES = 26214400;
+
+export function villageMediaUrl(path: string): string {
+  return supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
+async function getMissionMedia(missionIds: string[]): Promise<Map<string, MissionMedia[]>> {
+  const map = new Map<string, MissionMedia[]>();
+  const { data } = await supabase
+    .from('cell_mission_media')
+    .select('id, mission_id, kind, path, caption, created_by')
+    .in('mission_id', missionIds)
+    .order('sort_order')
+    .order('created_at');
+  for (const r of ((data ?? []) as Record<string, unknown>[])) {
+    const key = String(r.mission_id);
+    const list = map.get(key) ?? [];
+    const path = String(r.path);
+    list.push({
+      id: String(r.id),
+      missionId: key,
+      kind: r.kind === 'video' ? 'video' : 'image',
+      path,
+      url: villageMediaUrl(path),
+      caption: (r.caption as string | null) ?? null,
+      createdBy: String(r.created_by),
+    });
+    map.set(key, list);
+  }
+  return map;
+}
+
+/**
+ * 사진·영상 올리기.
+ *
+ * **사진만 줄인다.** 휴대폰 사진 한 장이 그대로 2MB 를 넘는 일이 흔하고, 선교
+ * 카드는 여러 장이 한 화면에 깔리는 곳이라 그대로 두면 전송량이 금세 찬다
+ * (2026-08-29 에 전송량 한도로 프로젝트 둘이 멎은 적이 있다). 가로 1600px ·
+ * JPEG 0.8 이면 대개 300KB 안쪽인데 눈으로는 차이가 없다.
+ *
+ * 영상은 손대지 않는다. 여기서 다시 인코딩할 방법이 없고, 25MB 넘는 것은
+ * 애초에 받지 않는다 — 긴 영상은 유튜브에 올리고 소식에 주소를 적는 편이 맞다.
+ */
+export async function addMissionMedia(input: {
+  missionId: string;
+  userId: string;
+  uri: string;
+  kind: 'image' | 'video';
+  mimeType?: string;
+  fileSize?: number;
+  caption?: string;
+}): Promise<{ error: string | null }> {
+  try {
+    if (input.kind === 'video' && (input.fileSize ?? 0) > MISSION_VIDEO_MAX_BYTES) {
+      return { error: '영상은 25MB까지 올릴 수 있어요. 긴 영상은 유튜브에 올리고 소식에 주소를 적어 주세요.' };
+    }
+
+    let source = input.uri;
+    let type = input.mimeType ?? (input.kind === 'video' ? 'video/mp4' : 'image/jpeg');
+    if (input.kind === 'image') {
+      const shrunk = await ImageManipulator.manipulateAsync(input.uri, [{ resize: { width: 1600 } }], {
+        compress: 0.8,
+        format: ImageManipulator.SaveFormat.JPEG,
+      }).catch(() => null);
+      // 줄이기가 실패하면 원본 그대로 올린다 — 못 올리는 것보다 낫다.
+      if (shrunk) {
+        source = shrunk.uri;
+        type = 'image/jpeg';
+      }
+    }
+
+    const response = await fetch(source);
+    const arrayBuffer = await response.arrayBuffer();
+    if (input.kind === 'video' && arrayBuffer.byteLength > MISSION_VIDEO_MAX_BYTES) {
+      return { error: '영상은 25MB까지 올릴 수 있어요. 긴 영상은 유튜브에 올리고 소식에 주소를 적어 주세요.' };
+    }
+
+    const ext = (type.split('/')[1] ?? 'jpg').replace(/[^a-z0-9]/gi, '') || 'jpg';
+    const path = `missions/${input.missionId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+    const { error: upErr } = await supabase.storage.from(MEDIA_BUCKET).upload(path, arrayBuffer, {
+      contentType: type,
+      cacheControl: STORAGE_CACHE_SECONDS,
+    });
+    if (upErr) return { error: upErr.message };
+
+    const { error } = await supabase.from('cell_mission_media').insert({
+      mission_id: input.missionId,
+      kind: input.kind,
+      path,
+      caption: input.caption || null,
+      created_by: input.userId,
+    });
+    return { error: error?.message ?? null };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : '올리지 못했어요.' };
+  }
+}
+
+/**
+ * 떼어내기.
+ *
+ * 표에서 줄을 지우고, 통의 파일도 지워 본다. 파일 지우기가 막혀도(올린 사람이
+ * 아니면 저장소 정책이 막는다) **줄은 이미 지워졌으므로 화면에서는 사라진다.**
+ * 걸리지 않은 파일은 아무 화면에도 안 나온다.
+ */
+export async function removeMissionMedia(id: string, path: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('cell_mission_media').delete().eq('id', id);
+  if (error) return { error: error.message };
+  await supabase.storage.from(MEDIA_BUCKET).remove([path]);
+  return { error: null };
 }
