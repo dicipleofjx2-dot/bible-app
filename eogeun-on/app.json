@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "어근영단어ON",
+    "slug": "eogeun-on",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "eogeunon",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#F6F7FB",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dicipleofjx2.eogeunon"
+    },
+    "android": {
+      "package": "com.dicipleofjx2.eogeunon",
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": false,
+      "reactCompiler": true
+    }
+  }
+}
