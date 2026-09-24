@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
-import { useMemo } from 'react';
-import { Alert, Platform, Pressable } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Type } from '@/constants/typography';
@@ -32,12 +32,11 @@ export default function Report() {
   const stages: Stage[] = ['learning', 'review', 'stable', 'long'];
   const reasons = (Object.entries(r.reasonCounts) as [FailReason, number][]).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
 
+  // 확인은 화면 안에서 한 번 더 누르게 한다 — 웹 confirm 창이 막힌 곳이 있다.
+  const [armed, setArmed] = useState(false);
   function confirmReset() {
-    const go = () => void reset().then(() => goHome());
-    const msg = '모든 학습 기록을 지웁니다. 되돌릴 수 없어요.';
-    if (Platform.OS === 'web') {
-      if (globalThis.confirm?.(msg)) go();
-    } else Alert.alert('기록 지우기', msg, [{ text: '취소', style: 'cancel' }, { text: '지우기', style: 'destructive', onPress: go }]);
+    if (!armed) return setArmed(true);
+    void reset().then(() => goHome());
   }
 
   return (
@@ -104,7 +103,8 @@ export default function Report() {
         </ThemedText>
       </Card>
 
-      <Button variant="ghost" label="기록 모두 지우기" onPress={confirmReset} />
+      <Button variant={armed ? 'bad' : 'ghost'} label={armed ? '한 번 더 누르면 모든 기록이 지워져요 (되돌릴 수 없음)' : '기록 모두 지우기'} onPress={confirmReset} />
+      {armed ? <Button variant="ghost" label="취소" onPress={() => setArmed(false)} /> : null}
     </Screen>
   );
 }
