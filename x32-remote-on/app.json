@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "X32 예배원격ON",
+    "slug": "x32-remote-on",
+    "version": "1.0.0",
+    "orientation": "default",
+    "scheme": "x32remoteon",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B1020",
+    "newArchEnabled": true,
+    "android": {
+      "package": "com.dicipleofjx2.x32remoteon",
+      "edgeToEdgeEnabled": true,
+      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE", "ACCESS_WIFI_STATE", "VIBRATE"]
+    },
+    "web": { "bundler": "metro", "output": "single" },
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": false, "reactCompiler": true }
+  }
+}

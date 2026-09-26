@@ -20,6 +20,15 @@ Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
 
+## This session (2026-09-26) — X32 예배원격ON (별도 앱, 임시로 `x32-remote-on/` 폴더)
+
+기획서 「X32 예배원격ON」 MVP 를 만들었다. 물품관리ON 과 같은 이유로 **이 앱에 넣지
+않았다** — 음향 리모컨은 경건훈련이 아니다. 새 리포 생성이 또 403 이라 지정 브랜치의
+**하위 폴더 `x32-remote-on/`** 에 독립 Expo 앱으로 두었다(자체 package.json·node_modules).
+**bible-app 코드는 안 바뀌었다** — 루트 `tsconfig.json` exclude 에 이 폴더만 넣었다(`**/*.ts` 가 잡아 가므로). main 에
+합칠 일이 생기면 먼저 새 리포로 빼낼 것(방법은 그 폴더 README). 자세한 설계·검증은
+`x32-remote-on/README.md`.
+
 ## This session (2026-09-18) — 물품관리ON 을 만들었다가 **밖으로 내보냈다**
 
 기획서 「물품관리ON」 1단계를 이 앱 안에 넣었다가, 같은 날 **별도 앱으로 떼어
