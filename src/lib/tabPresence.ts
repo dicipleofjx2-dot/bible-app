@@ -21,7 +21,7 @@ const LOCK_NAME = 'davidbible-db';
 
 type LockManager = {
   request(name: string, options: { mode?: string; signal?: AbortSignal }, cb: () => Promise<void>): Promise<void>;
-  query(): Promise<{ held: { name?: string }[] }>;
+  query(): Promise<{ held: { name?: string }[]; pending?: { name?: string }[] }>;
 };
 
 function locks(): LockManager | null {
@@ -50,6 +50,33 @@ export async function hasOtherTab(): Promise<boolean> {
     return state.held.some((lock) => lock.name === LOCK_NAME);
   } catch {
     return false;
+  }
+}
+
+/**
+ * **우리 잠금을 달라고 줄 서 있는 탭이 있는가.**
+ *
+ * 메시지(BroadcastChannel)는 잠든 탭에게 닿지 않는다. 그런데 잠금을 기다리는
+ * 요청은 브라우저가 대신 들고 있어서, 쥐고 있는 쪽에서 물어보기만 하면 안다.
+ * 화면이 꺼진 탭이 이걸로 "누가 기다리는구나"를 알아채고 자리를 내줄 수 있다.
+ */
+export async function hasWaitingTab(): Promise<boolean> {
+  const manager = locks();
+  if (!manager) return false;
+  try {
+    const state = await manager.query();
+    return (state.pending ?? []).some((lock) => lock.name === LOCK_NAME);
+  } catch {
+    return false;
+  }
+}
+
+/** 물러난 표시를 남긴다(스스로 물러날 때 쓴다). */
+export function markYielded() {
+  try {
+    sessionStorage.setItem(YIELDED_KEY, '1');
+  } catch {
+    // 못 남겨도 잠금은 놓인다. 다시 뜬 뒤 한 번 더 뺏길 뿐이다.
   }
 }
 

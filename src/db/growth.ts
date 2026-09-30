@@ -649,7 +649,7 @@ export async function uploadGrowthMedia(
   return path;
 }
 
-// ───────────────────────── 오늘의 사진 (0085) ─────────────────────────
+// ───────────────────────── 오늘의 사진 (0087) ─────────────────────────
 
 export async function listDayPhotos(schoolId: string, date: string): Promise<GrowthDailyPhoto[]> {
   return unwrap(

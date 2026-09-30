@@ -51,6 +51,13 @@
           "microphonePermission": "사명기록관 인터뷰에서 사역자의 이야기를 녹음하는 데 마이크를 씁니다."
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "말씀카드 배경, 열매 사진, 사역 자료를 올리는 데 사진 보관함을 씁니다.",
+          "cameraPermission": "천국재정의 영수증을 그 자리에서 찍는 데 카메라를 씁니다."
+        }
+      ],
       "expo-sharing"
     ],
     "experiments": {

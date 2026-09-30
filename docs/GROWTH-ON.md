@@ -14,7 +14,7 @@ npm run web                 # http://localhost:8081
 npx tsc --noEmit            # 기존 오류 1건(@/global.css) 말고 새 오류가 없어야 한다
 ```
 
-> **2026-09-30: `0084` 와 `0085` 는 실행 완료됐다.** 아래는 새 환경에
+> **2026-09-30: `0084` 와 `0087`(실행 당시 이름은 `0085`) 는 실행 완료됐다.** 아래는 새 환경에
 > 다시 세울 때를 위해 남겨 둔다.
 
 **먼저 할 일 — 마이그레이션 실행.** **실행 전에는 화면이 열려도 아무것도
@@ -28,7 +28,7 @@ npx tsc --noEmit            # 기존 오류 1건(@/global.css) 말고 새 오류
 # https://supabase.com/dashboard/account/tokens 에서 토큰을 만들어
 # .env 에 SUPABASE_ACCESS_TOKEN=sbp_... 한 줄을 더한 뒤 (git 에 안 올라간다)
 node scripts/apply-migration.mjs 0084_growth_school.sql
-node scripts/apply-migration.mjs 0085_growth_daily_photo.sql
+node scripts/apply-migration.mjs 0087_growth_daily_photo.sql
 ```
 
 실행 뒤 표가 정말 섰는지 되물어서 이름을 찍어 준다. 끝나면 토큰은 지워도 된다.
@@ -40,12 +40,12 @@ node scripts/apply-migration.mjs 0085_growth_daily_photo.sql
 
 ```bash
 node scripts/apply-migration.mjs 0084_growth_school.sql --proxy-auth --yes
-node scripts/apply-migration.mjs 0085_growth_daily_photo.sql --proxy-auth --yes
+node scripts/apply-migration.mjs 0087_growth_daily_photo.sql --proxy-auth --yes
 ```
 
 **③ 손으로.** `supabase/migrations/0084_growth_school.sql` 전체를 Supabase
-SQL Editor 에 붙여 넣고 한 번 실행한 뒤, `0085_growth_daily_photo.sql` 도
-같은 방법으로 실행한다(**0084 가 먼저다** — 0085 가 0084 의 권한 함수를 쓴다).
+SQL Editor 에 붙여 넣고 한 번 실행한 뒤, `0087_growth_daily_photo.sql` 도
+같은 방법으로 실행한다(**0084 가 먼저다** — 0087 이 0084 의 권한 함수를 쓴다).
 
 ### 클라우드 세션에서 실행하기 (②의 절차)
 
@@ -110,7 +110,7 @@ curl -s "$EXPO_PUBLIC_SUPABASE_URL/rest/v1/growth_schools?select=id&limit=1" \
 | 자리 | 하는 일 |
 |---|---|
 | `supabase/migrations/0084_growth_school.sql` | 표 15개 + RLS + 초대 코드 rpc + 비공개 통 |
-| `supabase/migrations/0085_growth_daily_photo.sql` | 대문에 거는 「오늘의 사진」 표 (0084 다음) |
+| `supabase/migrations/0087_growth_daily_photo.sql` | 대문에 거는 「오늘의 사진」 표 (0084 다음) |
 | `src/lib/growth.ts` | 순수 함수 — 날짜(서울), 균형, 강점, 보고서 초안, 마감 점검, 초대 코드 |
 | `src/db/growth.ts` | Supabase 읽기·쓰기 |
 | `src/features/growth/useSchool.ts` | 「나는 이 학교에서 누구인가」 한 곳에서 판정 |

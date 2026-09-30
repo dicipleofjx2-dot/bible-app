@@ -1,10 +1,11 @@
 # BibleApp — Handoff / Status Reference
 
-Last updated: **2026-09-18** (데이빗스톤 성장ON 1단계 — 바로 아래 절 참고).
-그 앞의 사명기록관까지, `3175923` 까지는 **`main` 에 커밋되어 운영에 나가 있다**
-(https://dicipleofjx-bible.vercel.app). 성장ON 은 아직 `main` 이 아니라
-`claude/systematic-fast-development-3cb6og` 브랜치에 있다. 오래된 절들은
-자기 영역에 대해서는 여전히 맞는 이야기다.
+> **내 컴퓨터에서 개발 환경을 세우려면 [`DEV-SETUP.md`](./DEV-SETUP.md) 를 본다.**
+
+Last updated: **2026-09-30** (데이빗스톤 성장ON 1단계 — 바로 아래 절 참고).
+그 앞의 것들은 `main` 에 있고 운영에 나가 있다
+(https://dicipleofjx-bible.vercel.app). 오래된 절들은 자기 영역에 대해서는
+여전히 맞는 이야기다.
 
 ~~**Not pushed to origin.**~~ **Stale — corrected 2026-08-19 (later
 session).** `main` and `origin/main` are both at `20a5256`;
@@ -18,11 +19,17 @@ Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
 
-## 이어서 (2026-09-18) — 데이빗스톤 성장ON (대안학교 성장기록)
+## 이어서 (2026-09-30) — 데이빗스톤 성장ON (대안학교 성장기록)
 
 기획서(「데이빗스톤 성장기록 앱 통합 기획서」)의 **1단계 MVP**를 이 앱 안에
-넣었다. 마이그레이션 `0084_growth_school.sql` 과 `0085_growth_daily_photo.sql`
-— **둘 다 2026-09-30 에 사용자가 실행해 성공했다.** 자세한 것은
+넣었다. 마이그레이션 `0084_growth_school.sql` 과 `0087_growth_daily_photo.sql`
+— **둘 다 2026-09-30 에 사용자가 실행해 성공했다.**
+
+**번호가 겹쳤다.** 이 브랜치가 갈라져 있는 동안 main 에서 `0085_village_on.sql`
+과 `0086_village_mission_media.sql` 이 나갔고, 물품관리ON 이 쓰던 `0084` 는
+파일만 지워진 채 DB 에는 `inv_*` 표로 남아 있다. 합치면서 사진 쪽을 `0085` →
+**`0087`** 로 옮겼다 — **실행할 때 이름은 `0085_growth_daily_photo.sql` 이었다.**
+같은 DB 에 이미 들어가 있으니 다시 돌릴 필요는 없다. 자세한 것은
 `docs/GROWTH-ON.md` 에 따로 적었다(컴퓨터에서 이어 작업하는 방법 포함).
 
 **붙여 넣다 두 번 막혔다. 다음에 긴 마이그레이션을 줄 때 알아 둘 것**:
@@ -88,6 +95,31 @@ re-check current quota before relying on it.
 들어가 자기 자녀만 보이는지, 「교사만」 기록이 안 보이는지**(이 설계의 핵심),
 (4) 다크 모드, (5) 이 세션의 브라우저에서는 번들 SQLite 가 안 열려 앱이
 「저장소를 여는 중입니다…」에서 멈춰 **화면을 눈으로 못 봤다.**
+
+## This session (2026-09-18) — 물품관리ON 을 만들었다가 **밖으로 내보냈다**
+
+기획서 「물품관리ON」 1단계를 이 앱 안에 넣었다가, 같은 날 **별도 앱으로 떼어
+냈다.** 이 리포에는 이제 물품관리 코드가 한 줄도 없다.
+
+- **왜 뺐나**: `src/lib/adminApps.ts` 첫 줄에 적혀 있는 그대로다 — 「데이빗바이블은
+  개인 경건훈련 앱이다. 교회가 판을 바꾸는 일은 웹 앱 둘(스마트주보·교회운영ON)이
+  맡는다.」 물품 관리는 경건훈련이 아니다. 처음에 여기 넣은 것은 세션이 이 리포에만
+  붙어 있었고 데이빗북스 전례(Supabase 무료 2프로젝트 제한)가 있었기 때문인데,
+  사용자가 바로 짚어 별도 앱으로 옮겼다.
+- **어디로 갔나**: 새 Expo 앱 `inventory-on`(브랜치 `inventory-on-app` 에 통째로
+  올려 두었다 — GitHub 앱에 리포 생성 권한이 없어 새 리포를 대신 못 만들었다).
+  화면·순수 함수·데이터 접근이 그대로 옮겨 갔고, 색은 기획서 §6.2 의 네이비·
+  세이지·골드로 새로 잡았다(이 앱의 살구빛을 빌려 쓸 이유가 없어졌다).
+- **표는 그대로 산다.** `inv_*` 다섯 표와 `inventory-photos` 통은 **같은 Supabase
+  프로젝트**에 이미 만들어져 있고(0084 로 실행됨), 새 앱이 그것을 쓴다. 그래서
+  이 리포에서 `0084_inventory.sql` 파일은 지웠지만 **DB 의 표를 지우면 안 된다** —
+  지우려면 새 앱 쪽을 먼저 봐야 한다. 새 리포에서는 같은 내용이 `0001_inventory.sql`
+  이다.
+- 계정은 공유된다. 새 앱은 같은 Supabase Auth 를 쓰므로 교인이 쓰던 이메일로
+  그대로 들어간다.
+- `app.json` 에 `expo-image-picker` 플러그인이 남았다(물품관리 때 넣은 것).
+  문구만 이 앱이 실제로 쓰는 자리(천국재정 영수증 촬영·사진 올리기)로 고쳤다.
+  **다음 APK 를 구울 때 반영된다.**
 
 ## This session (2026-09-03) — 중보기도 나무
 

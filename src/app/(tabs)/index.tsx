@@ -2,7 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -25,6 +25,8 @@ import { getCommunityUnread } from '@/db/community';
 import { hasUnseenLetter } from '@/lib/shepherdLetterBadge';
 import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
 import { getArcadeState } from '@/lib/arcade';
+import { getCoupangShortcutUrl } from '@/lib/supportLinks';
+import { getSupportSettings } from '@/db/support';
 import type { Href } from 'expo-router';
 
 function todayDateString() {
@@ -71,15 +73,15 @@ type HomeTile = {
 // 공지사항은 바둑판에 넣지 않는다 — 제목이 바로 보이는 한 줄 띠가 위에 따로
 // 있고, 그게 아이콘 한 칸보다 훨씬 잘 읽힌다.
 const HOME_TILES: HomeTile[] = [
-  // 매일 여는 셋을 맨 앞에 둔다. 이 앱을 여는 이유가 대개 이 셋이다 —
-  // 아래로 내려가야 보이면 매일 하는 일이 매일 한 번 더 찾는 일이 된다.
-  { key: 'bibleRead', emoji: '📖', label: 'home.bibleRead', href: '/read' },
-  { key: 'qtMeditation', emoji: '🕊️', label: 'home.qtMeditation', href: '/meditation' },
-  { key: 'bibleStudy', emoji: '🔎', label: 'home.bibleStudy', href: '/bible-study' },
+  // 성경읽기·QT 묵상·성경연구 세 칸을 뺐다(2026-09-23).
+  //
+  // 셋 다 **말씀 탭에 그대로 있고**(word.tsx), QT 는 이 화면 맨 위의 「QT 시작하기」
+  // 카드가 이미 같은 곳으로 보낸다. 바둑판에 또 두면 같은 문이 한 화면에 두 번
+  // 생기는 셈이라, 정작 한 번밖에 없는 칸들이 아래로 밀렸다.
+  // 지운 것은 이 세 칸뿐이다 — 화면(/read·/meditation·/bible-study)은 그대로다.
   // 24시간 기도의 집 — 다른 앱이다(prayer.dgaiworks.com). 교회 소식을 나르는
   // 주보와 달리 기도는 이 앱이 맡은 개인 경건훈련 그대로라, 홈에 자리를 준다.
-  // 넷째 칸(둘째 줄 맨 앞)에 둔 이유: 매일 여는 셋의 차례를 흔들지 않으면서도
-  // 화면을 내리지 않고 바로 보이는 자리다. 계정은 같은 카카오라 따로 가입하지 않는다.
+  // 계정은 같은 카카오라 따로 가입하지 않는다.
   {
     key: 'prayerHouse',
     emoji: '🕯️',
@@ -90,6 +92,21 @@ const HOME_TILES: HomeTile[] = [
   // 목자의 편지는 교회로 갈린다. 로그인 전에는 어느 교회인지 알 수 없어 목록이
   // 비므로(→ `@/lib/churchScope`) 빈 화면을 보여 주기보다 로그인으로 안내한다.
   { key: 'shepherdLetter', emoji: '💌', label: 'home.shepherdLetter', href: '/shepherd-letters', requiresAuth: true },
+  // 신바람목장(목장마을ON) — 우리 목장이 「작은 교회」가 되고, 목장들이 모여
+  // 마을이 된다. 목자의 편지 바로 뒤에 둔 이유: 둘 다 목양의 자리이고, 편지를
+  // 읽고 나면 자연스레 우리 목장으로 건너간다.
+  // 교적에 목장이 걸려 있어야 방이 열리므로 로그인이 필요하다.
+  { key: 'village', emoji: '🏡', label: 'home.village', href: '/village' as Href, requiresAuth: true },
+  // 바이블 저니 ON — 다른 앱이다(journey.dgaiworks.com). 성경 서른두 코스와
+  // 세계사 열세 코스를 위성지도·3D 지형 위에서 따라간다.
+  // 무거운 화면이라 한 창에 모은다(→ APP_WINDOW.bibleJourney).
+  {
+    key: 'bibleJourney',
+    emoji: '🗺️',
+    label: 'home.bibleJourney',
+    href: '/',
+    external: { url: 'https://journey.dgaiworks.com/', window: APP_WINDOW.bibleJourney },
+  },
   { key: 'r2m', emoji: '🔥', label: 'home.r2m', href: '/bible-reading' },
   { key: 'readingHelper', emoji: '📆', label: 'home.readingHelper', href: '/reading-helper', requiresAuth: true },
   // 성경게임대전 — 로그인 없이도 방에 들어가 볼 수 있게 두었다. 기록 저장만
@@ -99,6 +116,10 @@ const HOME_TILES: HomeTile[] = [
   // 서버가 돌 때 다시 만들어진다. 새 화면을 더한 직후에는 아직 그 목록에 없어서
   // 타입 검사가 막힌다. 서버가 한 번 돌면 캐스팅 없이도 통과한다.
   { key: 'arena', emoji: '🏆', label: 'home.arena', href: '/arena' as Href },
+  // 성경 아케이드 — 대전 바로 옆에 둔다. 둘 다 게임이고, 대전이 겨루는
+  // 자리라면 아케이드는 혼자 하는 자리다. 오늘 받은 포인트가 있으면 딱지로
+  // 붙는다(아래 badge) — 아이콘 한 칸에 더 적을 자리는 없다.
+  { key: 'arcade', emoji: '🕹️', label: 'home.arcade', href: '/arcade' as Href },
   // 주보와 교회 홈페이지 칸은 뺐다. 이 앱은 개인 경건훈련 자리이고, 교회 소식은
   // 스마트주보 앱이 따로 맡는다 — 홈 화면에 둘 다 두면 어느 앱을 쓰는 중인지
   // 흐려진다. 주보로 가는 길은 목자의 편지·알림마당 알림에 그대로 있다.
@@ -108,7 +129,6 @@ const HOME_TILES: HomeTile[] = [
   // 게시판 칸은 스마트주보로 옮겼다. 게시판은 교회가 함께 쓰는 곳이고, 이 앱은
   // 개인 경건훈련 자리다. 주보에 「게시판 면」이 생겨 거기서 읽고 쓴다 —
   // 표는 같은 것이라 옛 글이 그대로 이어지고, 교회 홈페이지에도 함께 보인다.
-  { key: 'support', emoji: '🤍', label: 'home.support', href: '/support' },
   { key: 'community', emoji: '💬', label: 'home.community', href: '/community', requiresAuth: true },
 ];
 
@@ -140,8 +160,10 @@ export default function HomeScreen() {
   const [live, setLive] = useState<MinistryLive | null>(null);
   const [letterUnseen, setLetterUnseen] = useState(false);
   const [communityUnread, setCommunityUnread] = useState(0);
-  // 창세기 아케이드에서 오늘 받은 포인트. 로그인 안 했으면 0으로 둔다.
+  // 아케이드에서 오늘 받은 포인트. 로그인 안 했으면 0으로 둔다.
   const [arcadeToday, setArcadeToday] = useState(0);
+  // 후원 상자의 쿠팡 링크. 관리자가 등록하기 전에는 빈 값이다.
+  const [coupangUrl, setCoupangUrl] = useState('');
 
   useFocusEffect(
     useCallback(() => {
@@ -205,6 +227,15 @@ export default function HomeScreen() {
         .then((s) => setArcadeToday(s.todayPoints))
         .catch(() => setArcadeToday(0));
     }, [session]),
+  );
+
+  // 후원 상자의 쿠팡 링크. 관리자가 주소를 바꾸면 다음에 홈에 들어올 때 반영된다.
+  useFocusEffect(
+    useCallback(() => {
+      getSupportSettings()
+        .then((v) => setCoupangUrl(v.coupangUrl.trim()))
+        .catch(() => setCoupangUrl(''));
+    }, []),
   );
 
   useFocusEffect(
@@ -364,6 +395,8 @@ export default function HomeScreen() {
                     : null
                   : tile.key === 'r2m' && enrollment
                     ? `${checklistCount}/7`
+                    : tile.key === 'arcade' && session && arcadeToday > 0
+                      ? `${arcadeToday}점`
                     : tile.key === 'community' && communityUnread > 0
                       ? // 99를 넘으면 「99+」로 적는다. 세 자리가 되면 아이콘을 덮는다.
                         communityUnread > 99
@@ -414,42 +447,66 @@ export default function HomeScreen() {
           </View>
 
           {/*
-            5. 창세기 아케이드 — 화면 맨 아래.
+            5. 후원 — 화면 맨 아래.
 
-            바둑판 한 칸으로 넣지 않은 이유는 「포인트가 붙는다」를 말해야 하기
-            때문이다. 아이콘 한 칸에는 이름밖에 못 적는데, 그러면 성도가 이게
-            게임인지 공부인지도 모른 채 지나간다. 한 줄 띠로 두고 오늘 받은
-            점수를 오른쪽에 붙였다 — 오늘 몇 점 받았는지가 다시 들어올 이유다.
+            바둑판 한 칸에서 내려왔다. 아이콘 한 칸에는 이름밖에 못 적는데,
+            후원에는 **누르면 되는 길이 둘**이다 — 쿠팡으로 응원하는 것과, 홈
+            화면에 아이콘을 깔아 두는 것. 그 둘이 보이지 않으면 「후원」이라는
+            이름만 남고 아무도 안 누른다.
+
+            값이 더 드는 일이 아니라는 것도 한 줄로 말해 둔다. 그게 없으면
+            후원이라는 낱말 앞에서 대부분 그냥 지나간다.
           */}
-          <Pressable
-            onPress={() => router.push('/arcade' as Href)}
-            style={({ pressed }) => [
-              styles.arcadeCard,
+          <View
+            style={[
+              styles.supportCard,
               cardShadow,
               { backgroundColor: theme.backgroundElement, borderColor: theme.border },
-              pressed && styles.pressed,
             ]}>
-            <ThemedText style={styles.arcadeEmoji}>🕹️</ThemedText>
-            <View style={styles.arcadeBody}>
-              <ThemedText type="smallBold">{t('home.arcade')}</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
-                {t('home.arcadeDesc')}
-              </ThemedText>
-              <ThemedText type="small" style={{ color: theme.accent }}>
-                {t('home.arcadeLead')}
-              </ThemedText>
-            </View>
-            {session && arcadeToday > 0 ? (
-              <View style={[styles.arcadeBadge, { backgroundColor: theme.accentSoft, borderColor: theme.accent }]}>
+            <View style={styles.supportHead}>
+              <ThemedText style={styles.supportEmoji}>🤍</ThemedText>
+              <View style={styles.supportHeadBody}>
+                <ThemedText type="smallBold">{t('home.support')}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  {t('home.arcadeToday')}
-                </ThemedText>
-                <ThemedText type="smallBold" style={{ color: theme.accent }}>
-                  {arcadeToday}
+                  {t('home.supportLead')}
                 </ThemedText>
               </View>
-            ) : null}
-          </Pressable>
+            </View>
+
+            <View style={styles.supportRow}>
+              {/* 링크가 아직 안 걸렸으면 쿠팡 단추 대신 후원 화면으로 보낸다 —
+                  눌렀는데 아무 일도 안 일어나는 것이 제일 나쁘다. */}
+              <Pressable
+                onPress={() =>
+                  coupangUrl ? Linking.openURL(coupangUrl) : router.push('/support')
+                }
+                style={({ pressed }) => [
+                  styles.supportButton,
+                  { backgroundColor: theme.accentSoft, borderColor: theme.accent },
+                  pressed && styles.pressed,
+                ]}>
+                <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                  {t('home.supportCoupang')}
+                </ThemedText>
+              </Pressable>
+
+              <Pressable
+                onPress={() => Linking.openURL(getCoupangShortcutUrl())}
+                style={({ pressed }) => [
+                  styles.supportButton,
+                  { borderColor: theme.border },
+                  pressed && styles.pressed,
+                ]}>
+                <ThemedText type="smallBold">{t('home.supportShortcut')}</ThemedText>
+              </Pressable>
+            </View>
+
+            <Pressable onPress={() => router.push('/support')} style={({ pressed }) => [pressed && styles.pressed]}>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.supportMore}>
+                {t('home.supportMore')}
+              </ThemedText>
+            </Pressable>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -489,24 +546,29 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
   },
-  arcadeCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
+  supportCard: {
     borderRadius: Spacing.three,
     borderWidth: 1,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.three,
+    gap: Spacing.three,
   },
-  arcadeEmoji: { fontSize: 30, lineHeight: 38 },
-  arcadeBody: { flex: 1, gap: 2 },
-  arcadeBadge: {
+  supportHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  supportEmoji: { fontSize: 28, lineHeight: 36 },
+  supportHeadBody: { flex: 1, gap: 2 },
+  // 두 단추는 한 줄에 반씩. 좁은 화면에서는 줄이 바뀌면서 각자 한 줄을 쓴다 —
+  // 글씨를 줄이지 않는다(→ 글씨는 크게, 단추는 넉넉히).
+  supportRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
+  supportButton: {
+    flexGrow: 1,
+    flexBasis: 150,
     alignItems: 'center',
     borderRadius: Spacing.two,
     borderWidth: 1,
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.three,
   },
+  supportMore: { textAlign: 'center' },
   heroCard: {
     borderRadius: Spacing.four,
     padding: Spacing.four,

@@ -12,11 +12,13 @@ import { supabase } from '@/lib/supabase';
  * 그러면 최대한 속여도 그날 몫을 미리 받는 것뿐이라 순위표가 흔들리지 않는다.
  */
 
-// 창세기 다섯 · 출애굽기 다섯. 여기와 0080 의 arcade_award() 목록이 **같아야**
-// 한다 — 한쪽만 늘리면 포인트가 조용히 'unknown_game' 으로 떨어진다.
+// 창세기 다섯 · 출애굽기 다섯 · 레위기 한 편. 여기와 0081 의 arcade_award()
+// 목록이 **같아야** 한다 — 한쪽만 늘리면 포인트가 조용히 'unknown_game' 으로
+// 떨어지고 화면에는 아무 말도 안 뜬다.
 export const ARCADE_GAMES = [
   'ark', 'babel', 'sodom', 'jabbok', 'granary',
   'basket', 'passover', 'redsea', 'manna', 'amalek',
+  'levite',
 ] as const;
 export type ArcadeGame = (typeof ARCADE_GAMES)[number];
 

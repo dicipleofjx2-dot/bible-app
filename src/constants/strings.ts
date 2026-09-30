@@ -45,21 +45,36 @@ export const STRINGS = {
   'home.bibleStudy': { ko: '성경연구', en: 'Bible Study' },
   'home.shepherdLetter': { ko: '목자의 편지', en: "Pastor's Letter" },
   'home.readingHelper': { ko: '성경통독도우미', en: 'Bible Reading Helper' },
+  // 목장마을ON 들어가는 칸. 새부대교회가 부르는 이름을 그대로 쓴다 — 「목장」은
+  // 교회마다 다르게 부르지만(구역·셀·목장), 성도는 자기 교회 말로만 찾는다.
+  'home.village': { ko: '신바람목장', en: 'Cell Village' },
   'home.r2m': { ko: 'R2M훈련', en: 'R2M Training' },
   'home.arena': { ko: '성경게임대전', en: 'Bible Arena' },
   // 줄바꿈을 손으로 넣는다. 바둑판 한 칸은 화면의 31.5% 라 그냥 두면
   // 「24시간 기도의 / 집」 으로 끊겨 둘째 줄에 한 글자만 남는다.
   'home.prayerHouse': { ko: '24시간\n기도의 집', en: '24H Prayer\nHouse' },
+  // 여기도 줄바꿈을 손으로 넣는다. 두 줄까지만 보이므로(numberOfLines={2})
+  // 한 줄이 여섯 자를 넘으면 뒤가 「…」로 잘리고 바깥 링크 표시 ↗ 까지 사라진다.
+  'home.bibleJourney': { ko: '지도로 보는\n바이블 저니', en: 'Bible Journey\nMaps' },
   'home.arcade': { ko: '성경 아케이드', en: 'Bible Arcade' },
   'home.arcadeLead': {
     ko: '한 판을 끝까지 통과할 때마다 30포인트',
     en: 'Clear a game and earn 30 points',
   },
   'home.arcadeDesc': {
-    ko: '창세기 다섯 판 · 출애굽기 다섯 판, 손으로 하는 열 개의 게임',
-    en: 'Ten hands-on games from Genesis and Exodus',
+    ko: '창세기·출애굽기 열 판과 레위기 어드벤처 한 편',
+    en: 'Ten action games and one Leviticus adventure',
   },
   'home.arcadeToday': { ko: '오늘 받은 포인트', en: 'Points earned today' },
+  // 후원은 바둑판 한 칸으로는 전할 수가 없다. 쿠팡으로 응원하는 길과 홈 화면에
+  // 아이콘을 까는 길이 있는데, 아이콘 한 칸에는 이름밖에 못 적기 때문이다.
+  'home.supportLead': {
+    ko: '쿠팡에서 사시면 수수료가 데이빗바이블로 옵니다. 값은 그대로예요.',
+    en: 'Shop at Coupang and a commission comes back to David Bible — at no extra cost to you.',
+  },
+  'home.supportCoupang': { ko: '🛒 쿠팡으로 응원하기', en: '🛒 Support via Coupang' },
+  'home.supportShortcut': { ko: '🏠 홈 화면에 깔기', en: '🏠 Add to home screen' },
+  'home.supportMore': { ko: '후원계좌 보기 ›', en: 'Giving account ›' },
   'home.support': { ko: 'David Bible 후원', en: 'Support David Bible' },
   'home.noNews': { ko: '등록된 소식이 없어요', en: 'No news yet' },
 
