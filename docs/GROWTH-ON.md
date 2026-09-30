@@ -25,6 +25,7 @@ npx tsc --noEmit            # 기존 오류 1건(@/global.css) 말고 새 오류
 # https://supabase.com/dashboard/account/tokens 에서 토큰을 만들어
 # .env 에 SUPABASE_ACCESS_TOKEN=sbp_... 한 줄을 더한 뒤 (git 에 안 올라간다)
 node scripts/apply-migration.mjs 0084_growth_school.sql
+node scripts/apply-migration.mjs 0085_growth_daily_photo.sql
 ```
 
 실행 뒤 표가 정말 섰는지 되물어서 이름을 찍어 준다. 끝나면 토큰은 지워도 된다.
@@ -36,10 +37,12 @@ node scripts/apply-migration.mjs 0084_growth_school.sql
 
 ```bash
 node scripts/apply-migration.mjs 0084_growth_school.sql --proxy-auth --yes
+node scripts/apply-migration.mjs 0085_growth_daily_photo.sql --proxy-auth --yes
 ```
 
 **③ 손으로.** `supabase/migrations/0084_growth_school.sql` 전체를 Supabase
-SQL Editor 에 붙여 넣고 한 번 실행한다.
+SQL Editor 에 붙여 넣고 한 번 실행한 뒤, `0085_growth_daily_photo.sql` 도
+같은 방법으로 실행한다(**0084 가 먼저다** — 0085 가 0084 의 권한 함수를 쓴다).
 
 ### 클라우드 세션에서 실행하기 (②의 절차)
 
@@ -104,6 +107,7 @@ curl -s "$EXPO_PUBLIC_SUPABASE_URL/rest/v1/growth_schools?select=id&limit=1" \
 | 자리 | 하는 일 |
 |---|---|
 | `supabase/migrations/0084_growth_school.sql` | 표 15개 + RLS + 초대 코드 rpc + 비공개 통 |
+| `supabase/migrations/0085_growth_daily_photo.sql` | 대문에 거는 「오늘의 사진」 표 (0084 다음) |
 | `src/lib/growth.ts` | 순수 함수 — 날짜(서울), 균형, 강점, 보고서 초안, 마감 점검, 초대 코드 |
 | `src/db/growth.ts` | Supabase 읽기·쓰기 |
 | `src/features/growth/useSchool.ts` | 「나는 이 학교에서 누구인가」 한 곳에서 판정 |
@@ -117,7 +121,8 @@ curl -s "$EXPO_PUBLIC_SUPABASE_URL/rest/v1/growth_schools?select=id&limit=1" \
 
 ## 4. 남은 것 (기획서 2·3단계)
 
-- 사진·음성 첨부 UI (통과 업로드 함수 `uploadGrowthMedia` 는 이미 있다)
+- 일일 기록·체험활동의 사진 첨부 UI (대문의 「오늘의 사진」은 됐고, 표의
+  `photo_path` 칸과 업로드 함수 `uploadGrowthMedia` 는 이미 있다)
 - 음성 메모 자동 받아쓰기 — 웹은 `src/lib/dictation.web.ts` 를 그대로 쓸 수 있다
 - 보호자 1:1 소통, 읽음 확인, 야간 알림 제한
 - 월간보고서 PDF — 사명기록관의 인쇄용 HTML(`manuscriptToHtml`)과 같은 방식이

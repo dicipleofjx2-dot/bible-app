@@ -1,3 +1,5 @@
+import * as ImageManipulator from 'expo-image-manipulator';
+
 import { supabase } from '@/lib/supabase';
 import type {
   AttendanceStatus,
@@ -129,6 +131,16 @@ export type GrowthReport = {
   home_suggestion: string;
   status: 'draft' | 'approved' | 'sent';
   approved_at: string | null;
+};
+
+export type GrowthDailyPhoto = {
+  id: string;
+  school_id: string;
+  on_date: string;
+  photo_path: string;
+  caption: string;
+  author_id: string | null;
+  created_at: string;
 };
 
 export type GrowthNotice = {
@@ -601,17 +613,81 @@ export async function growthMediaUrl(path: string): Promise<string | null> {
 /**
  * 사진 올리기.
  *
- * 파일 종류를 주소에서 짐작하지 않는다 — 웹에서 고른 사진은 `blob:` 주소라
- * 확장자가 없다(0082 에서 녹음 파일로 같은 함정을 밟았다). 응답의
- * `content-type` 에 직접 묻는다.
+ * 폰 사진은 한 장에 4~8MB 다. 대문에 걸 장면 하나에 그만한 것을 올리면 교실
+ * 와이파이에서 한참 멈추고, 보는 쪽도 매번 그만큼 내려받는다. 가로 1400px 로
+ * 줄여 올린다(사명기록관 자료실과 같은 방식).
+ *
+ * `arrayBuffer` 로 올린다. blob 으로 올리면 네이티브에서 0바이트가 올라가는
+ * 일이 있다 — 웹에서만 보면 멀쩡해 보여서 더 늦게 발견된다.
  */
-export async function uploadGrowthMedia(localUri: string, folder: string): Promise<string> {
-  const res = await fetch(localUri);
-  const blob = await res.blob();
-  const type = blob.type || res.headers.get('content-type') || 'image/jpeg';
-  const ext = type.includes('png') ? 'png' : type.includes('webm') ? 'webm' : type.includes('mp4') ? 'mp4' : 'jpg';
+export async function uploadGrowthMedia(
+  uri: string,
+  folder: string,
+  mimeType?: string,
+): Promise<string> {
+  const isImage = (mimeType ?? 'image/').startsWith('image/');
+  const shrunk = isImage
+    ? await ImageManipulator.manipulateAsync(uri, [{ resize: { width: 1400 } }], {
+        compress: 0.82,
+        format: ImageManipulator.SaveFormat.JPEG,
+      }).catch(() => null)
+    : null;
+
+  const source = shrunk?.uri ?? uri;
+  const response = await fetch(source);
+  const arrayBuffer = await response.arrayBuffer();
+  // 종류를 주소에서 짐작하지 않는다 — 웹에서 고른 사진은 `blob:` 주소라
+  // 확장자가 없다(0082 에서 녹음 파일로 같은 함정을 밟았다).
+  const type = shrunk ? 'image/jpeg' : mimeType ?? response.headers.get('content-type') ?? 'image/jpeg';
+  const ext = shrunk ? 'jpg' : type.includes('png') ? 'png' : type.includes('webp') ? 'webp' : 'jpg';
   const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const { error } = await supabase.storage.from('growth-media').upload(path, blob, { contentType: type });
+
+  const { error } = await supabase.storage.from('growth-media').upload(path, arrayBuffer, {
+    contentType: type,
+  });
   if (error) throw new Error(error.message);
   return path;
+}
+
+// ───────────────────────── 오늘의 사진 (0085) ─────────────────────────
+
+export async function listDayPhotos(schoolId: string, date: string): Promise<GrowthDailyPhoto[]> {
+  return unwrap(
+    await supabase
+      .from('growth_daily_photos')
+      .select('*')
+      .eq('school_id', schoolId)
+      .eq('on_date', date)
+      .order('created_at', { ascending: false }),
+  ) as unknown as GrowthDailyPhoto[];
+}
+
+export async function addDayPhoto(
+  schoolId: string,
+  date: string,
+  photoPath: string,
+  userId: string,
+  caption = '',
+): Promise<void> {
+  const { error } = await supabase
+    .from('growth_daily_photos')
+    .insert({ school_id: schoolId, on_date: date, photo_path: photoPath, caption, author_id: userId });
+  if (error) throw new Error(error.message);
+}
+
+export async function setDayPhotoCaption(id: string, caption: string): Promise<void> {
+  const { error } = await supabase.from('growth_daily_photos').update({ caption }).eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
+/**
+ * 사진을 내린다.
+ *
+ * 표에서만 지우고 **통의 파일은 그대로 둔다.** 잘못 지웠을 때 되돌릴 길을
+ * 남기려는 것이고, 파일 지우기는 표 지우기와 따로 끊길 수 있어 한쪽만 사라진
+ * 상태를 만들기 쉽다. 통은 비공개라 주소를 아는 사람만 열 수 있다.
+ */
+export async function removeDayPhoto(id: string): Promise<void> {
+  const { error } = await supabase.from('growth_daily_photos').delete().eq('id', id);
+  if (error) throw new Error(error.message);
 }

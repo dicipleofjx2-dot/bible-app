@@ -1,6 +1,7 @@
+import * as ImagePicker from 'expo-image-picker';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -8,14 +9,21 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { Type } from '@/constants/typography';
 import {
+  addDayPhoto,
   createSchool,
+  growthMediaUrl,
   listAttendance,
+  listDayPhotos,
   listNotices,
   listRecords,
   listStudents,
   redeemInvite,
+  removeDayPhoto,
   setAttendance as saveAttendance,
+  setDayPhotoCaption,
+  uploadGrowthMedia,
   type GrowthAttendanceRow,
+  type GrowthDailyPhoto,
   type GrowthNotice,
   type GrowthRecordRow,
   type GrowthStudent,
@@ -45,6 +53,12 @@ export default function GrowthSchoolScreen() {
   const [records, setRecords] = useState<GrowthRecordRow[]>([]);
   const [attendance, setAttendance] = useState<GrowthAttendanceRow[]>([]);
   const [notices, setNotices] = useState<GrowthNotice[]>([]);
+  const [photos, setPhotos] = useState<GrowthDailyPhoto[]>([]);
+  // 서명 주소는 한 시간짜리라 담아 두지 않고 화면을 열 때마다 받는다.
+  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
+  const [shownPhoto, setShownPhoto] = useState<string | null>(null);
+  const [captionDraft, setCaptionDraft] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [schoolName, setSchoolName] = useState('');
@@ -58,14 +72,20 @@ export default function GrowthSchoolScreen() {
       const rows = await listStudents(schoolId);
       setStudents(rows);
       const ids = rows.map((s) => s.id);
-      const [recs, atts, nots] = await Promise.all([
+      const [recs, atts, nots, pics] = await Promise.all([
         listRecords(ids, today, today),
         listAttendance(ids, today, today),
         listNotices(schoolId),
+        listDayPhotos(schoolId, today),
       ]);
       setRecords(recs);
       setAttendance(atts);
       setNotices(nots);
+      setPhotos(pics);
+      // 통이 비공개라 주소를 그대로 못 쓴다. 오늘 것만 몇 장이라 한 번에 받는다.
+      const urls = await Promise.all(pics.map((p) => growthMediaUrl(p.photo_path)));
+      setPhotoUrls(Object.fromEntries(pics.map((p, i) => [p.id, urls[i] ?? '']).filter(([, u]) => u)));
+      setShownPhoto((prev) => (prev && pics.some((p) => p.id === prev) ? prev : pics[0]?.id ?? null));
       setMessage('');
     } catch (e) {
       setMessage(e instanceof Error ? e.message : '오늘 기록을 불러오지 못했어요.');
@@ -104,6 +124,51 @@ export default function GrowthSchoolScreen() {
       setMessage(e instanceof Error ? e.message : '들어가지 못했어요.');
     } finally {
       setBusy(false);
+    }
+  }
+
+  /**
+   * 오늘의 사진 올리기.
+   *
+   * 고르자마자 올리고 바로 대문에 건다. 「고르기 → 설명 쓰기 → 저장」 세 걸음을
+   * 두면 쉬는 시간에 한 장 올리려던 선생님이 두 번째 걸음에서 멈춘다. 한 줄
+   * 설명은 올린 뒤에 덧붙인다.
+   */
+  async function pickDayPhoto() {
+    if (!userId || !schoolId) return;
+    const picked = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
+    if (picked.canceled || !picked.assets[0]) return;
+    setUploading(true);
+    try {
+      const file = picked.assets[0];
+      const path = await uploadGrowthMedia(file.uri, `daily/${schoolId}`, file.mimeType);
+      await addDayPhoto(schoolId, today, path, userId);
+      await loadDay();
+      setMessage('오늘의 사진을 올렸습니다.');
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : '사진을 올리지 못했어요.');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function saveCaption(id: string) {
+    if (captionDraft === null) return;
+    try {
+      await setDayPhotoCaption(id, captionDraft.trim());
+      setCaptionDraft(null);
+      await loadDay();
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : '한 줄을 저장하지 못했어요.');
+    }
+  }
+
+  async function dropPhoto(id: string) {
+    try {
+      await removeDayPhoto(id);
+      await loadDay();
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : '사진을 내리지 못했어요.');
     }
   }
 
@@ -189,6 +254,7 @@ export default function GrowthSchoolScreen() {
 
   const ids = students.map((s) => s.id);
   const progress = dayProgress(ids, records, attendance, today);
+  const shownPhotoRow = photos.find((p) => p.id === shownPhoto) ?? photos[0] ?? null;
 
   return (
     <ThemedView style={styles.container}>
@@ -200,6 +266,96 @@ export default function GrowthSchoolScreen() {
               {formatKoreanDate(today)} · {school?.motto ?? '오늘의 배움이 믿음의 사람을 세웁니다'}
             </ThemedText>
           </View>
+
+          {/*
+            대문 — 오늘의 사진 (기획서 §4.1).
+
+            학교 이름 바로 아래, 다른 무엇보다 위에 둔다. 보호자가 앱을 여는
+            까닭은 대개 「오늘 우리 아이가 어떻게 지냈나」이고, 그 답을 가장
+            빨리 주는 것이 사진 한 장이다.
+
+            선생님이면 누구라도 올린다. 사진이 없는 날은 **선생님에게만** 빈
+            자리를 보여 준다 — 보호자에게 「오늘은 사진이 없습니다」를 띄우면
+            없는 날마다 서운한 자리가 된다.
+          */}
+          {shownPhotoRow ? (
+            <GrowthCard style={styles.photoCard}>
+              {photoUrls[shownPhotoRow.id] ? (
+                <Image
+                  source={{ uri: photoUrls[shownPhotoRow.id] }}
+                  style={styles.photo}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={[styles.photo, styles.photoLoading, { backgroundColor: theme.accentSoft }]}>
+                  <ActivityIndicator color={theme.accent} />
+                </View>
+              )}
+
+              {photos.length > 1 ? (
+                <View style={styles.thumbRow}>
+                  {photos.map((p) => (
+                    <Pressable key={p.id} onPress={() => setShownPhoto(p.id)}>
+                      {photoUrls[p.id] ? (
+                        <Image
+                          source={{ uri: photoUrls[p.id] }}
+                          style={[
+                            styles.thumb,
+                            {
+                              borderColor: p.id === shownPhotoRow.id ? theme.accent : 'transparent',
+                            },
+                          ]}
+                        />
+                      ) : null}
+                    </Pressable>
+                  ))}
+                </View>
+              ) : null}
+
+              {captionDraft !== null && isStaff ? (
+                <>
+                  <Field
+                    label="한 줄 기록"
+                    value={captionDraft}
+                    onChangeText={setCaptionDraft}
+                    placeholder="오늘 이 장면에 대해 한 줄"
+                  />
+                  <View style={styles.photoButtons}>
+                    <PrimaryButton label="저장" onPress={() => saveCaption(shownPhotoRow.id)} />
+                    <PrimaryButton label="취소" tone="quiet" onPress={() => setCaptionDraft(null)} />
+                  </View>
+                </>
+              ) : shownPhotoRow.caption ? (
+                <ThemedText style={Type.body}>{shownPhotoRow.caption}</ThemedText>
+              ) : null}
+
+              {isStaff && captionDraft === null ? (
+                <View style={styles.photoButtons}>
+                  <QuickButton label={uploading ? '올리는 중…' : '📷 사진 더하기'} onPress={pickDayPhoto} />
+                  <QuickButton
+                    label={shownPhotoRow.caption ? '✏️ 한 줄 고치기' : '✏️ 한 줄 쓰기'}
+                    onPress={() => setCaptionDraft(shownPhotoRow.caption)}
+                  />
+                  <QuickButton label="🗑️ 이 사진 내리기" onPress={() => dropPhoto(shownPhotoRow.id)} />
+                </View>
+              ) : null}
+            </GrowthCard>
+          ) : isStaff ? (
+            <Pressable onPress={pickDayPhoto} disabled={uploading}>
+              <View
+                style={[
+                  styles.photoEmpty,
+                  { borderColor: theme.border, backgroundColor: theme.backgroundElement },
+                ]}>
+                <ThemedText style={Type.itemTitle}>
+                  {uploading ? '올리는 중…' : '📷 오늘의 사진 올리기'}
+                </ThemedText>
+                <ThemedText themeColor="textSecondary" style={Type.caption}>
+                  선생님이면 누구라도 올릴 수 있습니다. 학교 안에서만 보입니다.
+                </ThemedText>
+              </View>
+            </Pressable>
+          ) : null}
 
           {isStaff ? (
             <GrowthCard>
@@ -342,6 +498,22 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   quickRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.one },
+  photoCard: { padding: Spacing.two, gap: Spacing.two },
+  // 16:9. 폰을 세로로 들고 볼 때 대문이 화면의 반을 넘지 않는 비율이다.
+  photo: { width: '100%', aspectRatio: 16 / 9, borderRadius: 12 },
+  photoLoading: { alignItems: 'center', justifyContent: 'center' },
+  thumbRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  thumb: { width: 52, height: 52, borderRadius: 8, borderWidth: 2 },
+  photoButtons: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.one },
+  photoEmpty: {
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderRadius: 16,
+    paddingVertical: Spacing.four,
+    paddingHorizontal: Spacing.three,
+    alignItems: 'center',
+    gap: 4,
+  },
   quickButton: { borderWidth: 1, borderRadius: 12, paddingHorizontal: Spacing.two, paddingVertical: Spacing.one },
   noticeRow: { gap: 2 },
   studentHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.two },
