@@ -120,6 +120,16 @@ const HOME_TILES: HomeTile[] = [
   // 자리라면 아케이드는 혼자 하는 자리다. 오늘 받은 포인트가 있으면 딱지로
   // 붙는다(아래 badge) — 아이콘 한 칸에 더 적을 자리는 없다.
   { key: 'arcade', emoji: '🕹️', label: 'home.arcade', href: '/arcade' as Href },
+  // 말씀 웹툰 — 주일 설교를 「목사님과 한 제자」의 이야기로 그린 연재(2026-10-02).
+  // 말씀광산 앱이 한 화씩 워드프레스(sermon.dgaiworks.com 「설교 웹툰」)에 올린다.
+  // 연재 목록으로 바로 연다 — 새 화가 올라오면 앱을 고치지 않아도 그대로 보인다.
+  {
+    key: 'webtoon',
+    emoji: '🖼️',
+    label: 'home.webtoon',
+    href: '/',
+    external: { url: 'https://sermon.dgaiworks.com/sermon-comics/', window: APP_WINDOW.webtoon },
+  },
   // 주보와 교회 홈페이지 칸은 뺐다. 이 앱은 개인 경건훈련 자리이고, 교회 소식은
   // 스마트주보 앱이 따로 맡는다 — 홈 화면에 둘 다 두면 어느 앱을 쓰는 중인지
   // 흐려진다. 주보로 가는 길은 목자의 편지·알림마당 알림에 그대로 있다.
