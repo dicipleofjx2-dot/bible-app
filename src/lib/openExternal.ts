@@ -42,4 +42,6 @@ export const APP_WINDOW = {
   /** 바이블 저니 ON(지도로 보는 성경·세계사). 지도와 3D 지형을 쓰는 무거운 화면이라
    *  탭이 여러 개 뜨면 폰에서 눈에 띄게 느려진다. 반드시 한 창에 모은다. */
   bibleJourney: 'biblejourney',
+  /** 말씀 웹툰 연재(워드프레스 「설교 웹툰」). 화를 넘겨 가며 읽으므로 한 창에 모은다. */
+  webtoon: 'sermonwebtoon',
 } as const;

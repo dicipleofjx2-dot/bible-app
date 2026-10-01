@@ -57,6 +57,7 @@ export const STRINGS = {
   // 한 줄이 여섯 자를 넘으면 뒤가 「…」로 잘리고 바깥 링크 표시 ↗ 까지 사라진다.
   'home.bibleJourney': { ko: '지도로 보는\n바이블 저니', en: 'Bible Journey\nMaps' },
   'home.arcade': { ko: '성경 아케이드', en: 'Bible Arcade' },
+  'home.webtoon': { ko: '말씀웹툰', en: 'Sermon\nWebtoon' },
   'home.arcadeLead': {
     ko: '한 판을 끝까지 통과할 때마다 30포인트',
     en: 'Clear a game and earn 30 points',
