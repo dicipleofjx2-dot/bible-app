@@ -58,6 +58,7 @@ export const STRINGS = {
   'home.bibleJourney': { ko: '지도로 보는\n바이블 저니', en: 'Bible Journey\nMaps' },
   'home.arcade': { ko: '성경 아케이드', en: 'Bible Arcade' },
   'home.webtoon': { ko: '말씀웹툰', en: 'Sermon\nWebtoon' },
+  'home.songs': { ko: '결단송', en: 'Decision\nSongs' },
   'home.arcadeLead': {
     ko: '한 판을 끝까지 통과할 때마다 30포인트',
     en: 'Clear a game and earn 30 points',
@@ -505,6 +506,7 @@ export const STRINGS = {
   'nav.verseNotes': { ko: '구절묵상', en: 'Verse Notes' },
   'nav.community': { ko: '커뮤니티', en: 'Community' },
   'nav.arcade': { ko: '성경 아케이드', en: 'Bible Arcade' },
+  'nav.songs': { ko: '결단송', en: 'Decision Songs' },
   'nav.read': { ko: '성경읽기', en: 'Read the Bible' },
   'nav.letter': { ko: '목자의 편지', en: 'Pastor\'s Letter' },
   'nav.letterAdmin': { ko: '목자의 편지 관리', en: 'Manage Pastor\'s Letter' },
