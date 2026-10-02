@@ -27,6 +27,7 @@ import { useTheme } from '@/hooks/use-theme';
 import {
   balanceScores,
   buildMonthlyDraft,
+  formatKoreanDate,
   formatKoreanMonth,
   kstMonth,
   monthRange,
@@ -125,20 +126,23 @@ export default function GrowthReportScreen() {
     }
   }
 
-  async function save(status?: GrowthReport['status']) {
+  /**
+   * 저장.
+   *
+   * **상태를 건드리지 않는다.** 예전에는 이 단추가 `status: 'draft'` 를 같이
+   * 보냈다 — 이미 보낸 보고서에서 오타 하나를 고치고 저장하면 상태가 초안으로
+   * 돌아가고, 정책이 `status = 'sent'` 인 것만 보호자에게 열기 때문에
+   * **그 집 화면에서 보고서가 소리 없이 사라졌다.** 교사는 저장한 줄로만 안다.
+   * 보내고 안 보내고는 아래 「보호자에게 보내기」 하나로만 정한다.
+   */
+  async function save() {
     if (!student || !userId) return;
     setBusy(true);
     try {
       await saveReport(
         student.id,
         period,
-        {
-          body,
-          teacher_letter: letter,
-          next_goals: nextGoals,
-          home_suggestion: home,
-          ...(status ? { status } : {}),
-        },
+        { body, teacher_letter: letter, next_goals: nextGoals, home_suggestion: home },
         userId,
       );
       await load();
@@ -185,6 +189,19 @@ export default function GrowthReportScreen() {
       </ThemedView>
     );
   }
+
+  /**
+   * 내보낼 한 편의 글. 미리보기와 복사가 **같은 것**을 쓴다 — 둘을 따로 만들면
+   * 한쪽만 고치게 되고, 보호자가 받는 글이 미리 본 것과 달라진다.
+   */
+  const preview = [
+    body,
+    letter.trim() && `\n## 교사의 편지\n${letter.trim()}`,
+    nextGoals.trim() && `\n## 다음 달 지도 방향\n${nextGoals.trim()}`,
+    home.trim() && `\n## 가정에서 함께할 일\n${home.trim()}`,
+  ]
+    .filter(Boolean)
+    .join('\n');
 
   // 보호자·학생 화면. 읽기만 한다.
   if (!isStaff) {
@@ -235,7 +252,11 @@ export default function GrowthReportScreen() {
           <ThemedText style={Type.screenTitle}>{student.name}</ThemedText>
           <ThemedText themeColor="textSecondary" style={Type.itemDescription}>
             {formatKoreanMonth(period)} 성장보고서 ·{' '}
-            {report?.status === 'sent' ? '보호자에게 보냄' : report ? '작성 중' : '아직 없음'}
+            {report?.status === 'sent'
+              ? `보호자에게 보냄${report.approved_at ? ` (${formatKoreanDate(report.approved_at.slice(0, 10))})` : ''}`
+              : report
+                ? '작성 중 — 아직 보호자에게 안 보입니다'
+                : '아직 없음'}
           </ThemedText>
         </View>
 
@@ -267,16 +288,12 @@ export default function GrowthReportScreen() {
         </GrowthCard>
 
         <View style={styles.row}>
-          <PrimaryButton label="저장" tone="quiet" onPress={() => save('draft')} disabled={busy} />
+          <PrimaryButton label="저장" tone="quiet" onPress={save} disabled={busy} />
           <PrimaryButton
             label="복사"
             tone="quiet"
             onPress={async () => {
-              await Clipboard.setStringAsync(
-                [body, letter && `\n## 교사의 편지\n${letter}`, nextGoals && `\n## 다음 달 지도 방향\n${nextGoals}`, home && `\n## 가정에서 함께할 일\n${home}`]
-                  .filter(Boolean)
-                  .join('\n'),
-              );
+              await Clipboard.setStringAsync(preview);
               setMessage('복사했습니다. 한글·워드에 붙여 인쇄하실 수 있습니다.');
             }}
           />
@@ -291,10 +308,17 @@ export default function GrowthReportScreen() {
           보내기 전에는 보호자 화면에 한 줄도 나가지 않습니다.
         </ThemedText>
 
-        {body ? (
+        {/*
+          미리보기는 **보호자가 보는 그대로** 보여 준다.
+
+          예전에는 본문만 그렸다. 교사가 공들여 쓴 편지와 다음 달 목표, 가정
+          실천이 미리보기에 없어서, 제대로 적혔는지 확인하려면 보내 보는 수밖에
+          없었다 — 확인하려고 보내는 것은 순서가 거꾸로다.
+        */}
+        {preview ? (
           <GrowthCard>
-            <SectionTitle>미리보기</SectionTitle>
-            <MarkdownPreview text={body} />
+            <SectionTitle hint="보호자에게 이대로 보입니다.">미리보기</SectionTitle>
+            <MarkdownPreview text={preview} />
           </GrowthCard>
         ) : null}
 

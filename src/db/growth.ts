@@ -532,6 +532,22 @@ export async function listReports(studentIds: string[], period: string): Promise
   ) as unknown as GrowthReport[];
 }
 
+/**
+ * 이 학생의 보고서 전부, 최근 달부터.
+ *
+ * 정책이 알아서 거른다 — 교직원은 초안까지 보고, 보호자·학생은 `sent` 인
+ * 것만 받는다(0084). 화면에서 거르지 않는다.
+ */
+export async function listStudentReports(studentId: string): Promise<GrowthReport[]> {
+  return unwrap(
+    await supabase
+      .from('growth_monthly_reports')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('period', { ascending: false }),
+  ) as unknown as GrowthReport[];
+}
+
 export async function getReport(studentId: string, period: string): Promise<GrowthReport | null> {
   const { data, error } = await supabase
     .from('growth_monthly_reports')

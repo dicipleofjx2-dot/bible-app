@@ -14,11 +14,13 @@ import {
   listGoals,
   listMentoringNotes,
   listStudentRecords,
+  listStudentReports,
   setGoalStatus,
   updateStudent,
   type GrowthGoal,
   type GrowthMentoringNote,
   type GrowthRecordRow,
+  type GrowthReport,
   type GrowthStudent,
 } from '@/db/growth';
 import { Bar, ChipRow, Field, GrowthCard, LevelBadge, PrimaryButton, SectionTitle } from '@/features/growth/ui';
@@ -62,6 +64,7 @@ export default function GrowthStudentScreen() {
   const [records, setRecords] = useState<GrowthRecordRow[]>([]);
   const [goals, setGoals] = useState<GrowthGoal[]>([]);
   const [notes, setNotes] = useState<GrowthMentoringNote[]>([]);
+  const [reports, setReports] = useState<GrowthReport[]>([]);
   const [attendance, setAttendance] = useState<{ on_date: string; status: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
@@ -82,9 +85,14 @@ export default function GrowthStudentScreen() {
       setStudent(s);
       setInterests(s?.interests ?? '');
       setDream(s?.dream ?? '');
-      const [recs, gs] = await Promise.all([listStudentRecords(id), listGoals(id)]);
+      const [recs, gs, reps] = await Promise.all([
+        listStudentRecords(id),
+        listGoals(id),
+        listStudentReports(id),
+      ]);
       setRecords(recs);
       setGoals(gs);
+      setReports(reps);
       const atts = await listAttendance([id], `${month}-01`, `${month}-31`);
       setAttendance(atts);
       if (isStaff) setNotes(await listMentoringNotes(id));
@@ -239,10 +247,49 @@ export default function GrowthStudentScreen() {
               </GrowthCard>
             ) : null}
 
-            <PrimaryButton
-              label={`${formatKoreanMonth(month)} 성장보고서 열기`}
-              onPress={() => router.push(`/growth-school/report/${student.id}?period=${month}`)}
-            />
+            {/*
+              **달을 목록으로 둔다.** 예전에는 「이번 달 보고서 열기」 단추
+              하나뿐이라, 10월에 들어온 보호자는 9월에 받은 보고서를 열 길이
+              아예 없었다 — 눌러도 「아직 보내지 않은 보고서입니다」만 떴다.
+              보고서는 지난달 것을 다시 읽으려고 여는 물건이다.
+
+              거르는 일은 정책이 한다(0084): 교직원에게는 초안까지 보이고,
+              보호자·학생에게는 보낸 것만 온다.
+            */}
+            <GrowthCard>
+              <SectionTitle hint={isStaff ? '초안도 보입니다. 보호자에게는 보낸 것만 보입니다.' : undefined}>
+                성장보고서
+              </SectionTitle>
+              {reports.length ? (
+                reports.map((r) => (
+                  <Pressable
+                    key={r.id}
+                    onPress={() =>
+                      router.push(`/growth-school/report/${student.id}?period=${r.period}`)
+                    }>
+                    <View style={styles.reportRow}>
+                      <ThemedText style={Type.itemTitle}>{formatKoreanMonth(r.period)}</ThemedText>
+                      <ThemedText
+                        themeColor={r.status === 'sent' ? 'accent' : 'textSecondary'}
+                        style={Type.caption}>
+                        {r.status === 'sent' ? '받음' : r.status === 'approved' ? '승인됨' : '작성 중'}
+                      </ThemedText>
+                    </View>
+                  </Pressable>
+                ))
+              ) : (
+                <ThemedText themeColor="textSecondary" style={Type.itemDescription}>
+                  {isStaff ? '아직 쓴 보고서가 없습니다.' : '아직 받은 보고서가 없습니다.'}
+                </ThemedText>
+              )}
+
+              {isStaff && !reports.some((r) => r.period === month) ? (
+                <PrimaryButton
+                  label={`${formatKoreanMonth(month)} 보고서 쓰기`}
+                  onPress={() => router.push(`/growth-school/report/${student.id}?period=${month}`)}
+                />
+              ) : null}
+            </GrowthCard>
           </>
         ) : null}
 
@@ -396,4 +443,11 @@ const styles = StyleSheet.create({
   tab: { borderWidth: 1, borderRadius: 999, paddingHorizontal: Spacing.two, paddingVertical: 6 },
   axisRow: { gap: 4, paddingVertical: 4 },
   recordHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: Spacing.two },
+  reportRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: Spacing.two,
+    paddingVertical: Spacing.one,
+  },
 });
