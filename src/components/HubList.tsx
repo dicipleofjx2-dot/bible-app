@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { openAppWindow } from '@/lib/openExternal';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Href } from 'expo-router';
@@ -16,6 +17,8 @@ export type HubItem = {
   href: Href;
   /** 로그인해야 쓸 수 있는 화면. 비로그인이면 마이페이지로 보낸다. */
   requiresAuth?: boolean;
+  /** 바깥 앱. 있으면 `href` 대신 이 주소를 이름 붙인 창으로 연다(→ `openAppWindow`). */
+  external?: { url: string; window: string };
 };
 
 export type HubSection = {
@@ -69,7 +72,11 @@ export function HubList({
                   return (
                     <Pressable
                       key={item.label}
-                      onPress={() => router.push(locked ? '/profile' : item.href)}
+                      onPress={() => {
+                        if (locked) router.push('/profile');
+                        else if (item.external) openAppWindow(item.external.url, item.external.window);
+                        else router.push(item.href);
+                      }}
                       style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
                       <ThemedView type="backgroundElement" style={[styles.rowInner, { borderColor: theme.border }]}>
                         <View style={[styles.badge, { backgroundColor: theme.accentSoft }]}>

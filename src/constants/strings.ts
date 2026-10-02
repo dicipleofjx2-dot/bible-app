@@ -48,15 +48,13 @@ export const STRINGS = {
   // 목장마을ON 들어가는 칸. 새부대교회가 부르는 이름을 그대로 쓴다 — 「목장」은
   // 교회마다 다르게 부르지만(구역·셀·목장), 성도는 자기 교회 말로만 찾는다.
   'home.village': { ko: '신바람목장', en: 'Cell Village' },
-  'home.r2m': { ko: 'R2M훈련', en: 'R2M Training' },
+  'home.campus': { ko: '디지털\n캠퍼스', en: 'Digital\nCampus' },
   'home.arena': { ko: '성경게임대전', en: 'Bible Arena' },
   // 줄바꿈을 손으로 넣는다. 바둑판 한 칸은 화면의 31.5% 라 뒤에 붙는 바깥 링크
   // 표시 ↗ 까지 한 줄에 넣으면 끝이 잘린다.
   // 옛 이름 「24시간 기도의 집」 → 영성부 중보기도센터(2026-10-02).
   'home.prayerHouse': { ko: '중보기도\n센터', en: 'Intercessory\nPrayer Center' },
-  // 여기도 줄바꿈을 손으로 넣는다. 두 줄까지만 보이므로(numberOfLines={2})
-  // 한 줄이 여섯 자를 넘으면 뒤가 「…」로 잘리고 바깥 링크 표시 ↗ 까지 사라진다.
-  'home.bibleJourney': { ko: '지도로 보는\n바이블 저니', en: 'Bible Journey\nMaps' },
+  'home.edu': { ko: '데이빗에듀', en: 'David Edu' },
   'home.arcade': { ko: '성경 아케이드', en: 'Bible Arcade' },
   'home.webtoon': { ko: '말씀웹툰', en: 'Sermon\nWebtoon' },
   'home.songs': { ko: '결단송', en: 'Decision\nSongs' },
