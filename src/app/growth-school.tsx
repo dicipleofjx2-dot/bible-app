@@ -31,7 +31,15 @@ import {
 import { Bar, Field, GrowthCard, PrimaryButton, SectionTitle } from '@/features/growth/ui';
 import { useSchool } from '@/features/growth/useSchool';
 import { useTheme } from '@/hooks/use-theme';
-import { ATTENDANCE, dayProgress, formatKoreanDate, kstToday, studentDayState } from '@/lib/growth';
+import {
+  ATTENDANCE,
+  areaLabel,
+  dayProgress,
+  formatKoreanDate,
+  kstToday,
+  levelLabel,
+  studentDayState,
+} from '@/lib/growth';
 
 /**
  * 오늘의 학교 — 성장ON 의 첫 화면(기획서 §5.1).
@@ -422,6 +430,28 @@ export default function GrowthSchoolScreen() {
                       {state.recorded ? `오늘 기록 ${state.areas.length}영역` : '오늘 기록 없음'}
                     </ThemedText>
                   </View>
+
+                  {/*
+                    오늘 적은 것을 카드에서 바로 읽힌다.
+
+                    「오늘 기록 2영역」만으로는 **무엇을** 적었는지 알 수 없어서,
+                    확인하려면 아이마다 상세로 들어가야 했다. 스무 명이면 스무
+                    번이다. 두 줄까지만 보여 주고 나머지는 상세에서 본다.
+                  */}
+                  {records
+                    .filter((r) => r.student_id === s.id && r.on_date === today)
+                    .slice(0, 2)
+                    .map((r) => (
+                      <ThemedText
+                        key={r.id}
+                        themeColor="textSecondary"
+                        style={Type.itemDescription}
+                        numberOfLines={1}>
+                        · {areaLabel(r.area)}
+                        {r.level ? ` (${levelLabel(r.level)})` : ''}
+                        {r.body ? ` — ${r.body}` : ''}
+                      </ThemedText>
+                    ))}
                 </Pressable>
 
                 {isStaff ? (
