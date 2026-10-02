@@ -7,6 +7,7 @@ import { Suspense, useRef } from 'react';
 import { ActivityIndicator, useColorScheme } from 'react-native';
 
 import { AuthProvider } from '@/lib/auth';
+import { SongPlayerProvider } from '@/lib/songPlayer';
 import { SkinProvider } from '@/lib/skin';
 import { I18nProvider, useT } from '@/lib/i18n';
 import { SQLiteRecoveryBoundary } from '@/components/SQLiteRecoveryBoundary';
@@ -131,7 +132,10 @@ export default function RootLayout() {
               <AuthProvider>
                 <AppDbLock staleDbNames={STALE_BIBLE_DB_NAMES} />
                 {shouldShowIntro && <Redirect href="/intro" />}
-                <AppStack />
+                {/* 결단송은 앱 전체에 플레이어 하나 — 화면을 넘겨도 노래가 이어진다(→ @/lib/songPlayer) */}
+                <SongPlayerProvider>
+                  <AppStack />
+                </SongPlayerProvider>
               </AuthProvider>
             </SQLiteProvider>
           </Suspense>
