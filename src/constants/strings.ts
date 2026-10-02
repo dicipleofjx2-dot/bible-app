@@ -50,9 +50,10 @@ export const STRINGS = {
   'home.village': { ko: '신바람목장', en: 'Cell Village' },
   'home.r2m': { ko: 'R2M훈련', en: 'R2M Training' },
   'home.arena': { ko: '성경게임대전', en: 'Bible Arena' },
-  // 줄바꿈을 손으로 넣는다. 바둑판 한 칸은 화면의 31.5% 라 그냥 두면
-  // 「24시간 기도의 / 집」 으로 끊겨 둘째 줄에 한 글자만 남는다.
-  'home.prayerHouse': { ko: '24시간\n기도의 집', en: '24H Prayer\nHouse' },
+  // 줄바꿈을 손으로 넣는다. 바둑판 한 칸은 화면의 31.5% 라 뒤에 붙는 바깥 링크
+  // 표시 ↗ 까지 한 줄에 넣으면 끝이 잘린다.
+  // 옛 이름 「24시간 기도의 집」 → 영성부 중보기도센터(2026-10-02).
+  'home.prayerHouse': { ko: '중보기도\n센터', en: 'Intercessory\nPrayer Center' },
   // 여기도 줄바꿈을 손으로 넣는다. 두 줄까지만 보이므로(numberOfLines={2})
   // 한 줄이 여섯 자를 넘으면 뒤가 「…」로 잘리고 바깥 링크 표시 ↗ 까지 사라진다.
   'home.bibleJourney': { ko: '지도로 보는\n바이블 저니', en: 'Bible Journey\nMaps' },
@@ -115,11 +116,6 @@ export const STRINGS = {
   },
   'growth.priority': { ko: '우선순위', en: 'Priorities' },
   'growth.priorityDesc': { ko: '오늘 우선해야 할 일 정리', en: "Sort out today's priorities" },
-  'growth.shalomPrayer': { ko: '샬롬기도단', en: 'Shalom Prayer Team' },
-  'growth.shalomPrayerDesc': {
-    ko: '함께 기도제목을 나누는 공간',
-    en: 'Share prayer requests together',
-  },
   'growth.davidBooks': { ko: '데이빗북스', en: 'David Books' },
   'growth.davidBooksDesc': { ko: '전자책 서재', en: 'E-book library' },
   'growth.finance': { ko: '천국재정', en: 'Kingdom Finance' },
@@ -498,7 +494,6 @@ export const STRINGS = {
   'nav.obedience': { ko: '순종일기', en: 'Obedience Diary' },
   'nav.priority': { ko: '우선순위', en: 'Priorities' },
   'nav.finance': { ko: '천국재정', en: 'Kingdom Finance' },
-  'nav.shalom': { ko: '샬롬기도단', en: 'Shalom Prayer Team' },
   'nav.privacy': { ko: '개인정보처리방침', en: 'Privacy Policy' },
   'nav.todaysWord': { ko: '오늘의 말씀', en: 'Today\'s Word' },
   'nav.qtNotes': { ko: 'Q.T묵상', en: 'QT Notes' },

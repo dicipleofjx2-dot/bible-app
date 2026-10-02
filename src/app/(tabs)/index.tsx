@@ -79,8 +79,10 @@ const HOME_TILES: HomeTile[] = [
   // 카드가 이미 같은 곳으로 보낸다. 바둑판에 또 두면 같은 문이 한 화면에 두 번
   // 생기는 셈이라, 정작 한 번밖에 없는 칸들이 아래로 밀렸다.
   // 지운 것은 이 세 칸뿐이다 — 화면(/read·/meditation·/bible-study)은 그대로다.
-  // 24시간 기도의 집 — 다른 앱이다(prayer.dgaiworks.com). 교회 소식을 나르는
-  // 주보와 달리 기도는 이 앱이 맡은 개인 경건훈련 그대로라, 홈에 자리를 준다.
+  // 중보기도센터(옛 24시간 기도의 집) — 다른 앱이다(prayer.dgaiworks.com).
+  // 영성부의 에이전트로, 교회의 기도제목은 **여기서만** 올린다(2026-10-02).
+  // 그래서 샬롬기도단 화면과 스마트주보의 기도제목 올리기를 걷어냈다 —
+  // 기도제목이 여러 곳에 흩어지면 어느 곳에서도 다 모아 기도하지 못한다.
   // 계정은 같은 카카오라 따로 가입하지 않는다.
   {
     key: 'prayerHouse',
@@ -137,7 +139,7 @@ const HOME_TILES: HomeTile[] = [
   // 스마트주보 앱이 따로 맡는다 — 홈 화면에 둘 다 두면 어느 앱을 쓰는 중인지
   // 흐려진다. 주보로 가는 길은 목자의 편지·알림마당 알림에 그대로 있다.
   // 데이빗북스 하나만 걸던 자리를 성장 탭으로 넓혔다. 데이빗북스는 그 안에
-  // 있고, 순종일기·우선순위·천국재정·샬롬기도단도 같이 열린다.
+  // 있고, 순종일기·우선순위·천국재정도 같이 열린다.
   { key: 'growth', emoji: '🌱', label: 'tab.growth', href: '/growth' },
   // 게시판 칸은 스마트주보로 옮겼다. 게시판은 교회가 함께 쓰는 곳이고, 이 앱은
   // 개인 경건훈련 자리다. 주보에 「게시판 면」이 생겨 거기서 읽고 쓴다 —
@@ -281,7 +283,8 @@ export default function HomeScreen() {
   const journeySteps: JourneyStep[] = [
     { label: 'QT', href: '/meditation', done: qtDoneToday },
     { label: t('home.meditation'), href: '/word-notes' },
-    { label: t('home.prayer'), href: '/prayer-group' },
+    // 샬롬기도단이 없어져 R2M 체크리스트와 같은 곳(중보기도 나무)으로 보낸다.
+    { label: t('home.prayer'), href: '/prayer-tree' },
     { label: t('home.obedience'), href: '/spiritual-journal' },
   ];
 

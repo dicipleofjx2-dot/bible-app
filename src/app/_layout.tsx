@@ -199,10 +199,6 @@ function AppStack() {
           options={{ headerShown: true, title: t('nav.finance') }}
         />
         <Stack.Screen
-          name="prayer-group"
-          options={{ headerShown: true, title: t('nav.shalom') }}
-        />
-        <Stack.Screen
           name="prayer-tree"
           options={{ headerShown: true, title: '중보기도 나무' }}
         />

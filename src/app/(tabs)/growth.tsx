@@ -59,13 +59,6 @@ export default function GrowthHubScreen() {
           requiresAuth: true,
         },
         {
-          emoji: '🙏',
-          label: t('growth.shalomPrayer'),
-          description: t('growth.shalomPrayerDesc'),
-          href: '/prayer-group',
-          requiresAuth: true,
-        },
-        {
           emoji: '📕',
           label: t('growth.davidBooks'),
           description: t('growth.davidBooksDesc'),
