@@ -130,6 +130,9 @@ const HOME_TILES: HomeTile[] = [
     href: '/',
     external: { url: 'https://sermon.dgaiworks.com/sermon-comics/', window: APP_WINDOW.webtoon },
   },
+  // 결단송 — 주일 설교마다 만든 찬양을 새 곡부터 차례로 흘려 듣는다(2026-10-02).
+  // 바깥 창이 아니라 앱 안 화면(/songs)이다 — 화면을 꺼도 이어 듣고, 가사가 노래를 따라간다.
+  { key: 'songs', emoji: '🎵', label: 'home.songs', href: '/songs' as Href },
   // 주보와 교회 홈페이지 칸은 뺐다. 이 앱은 개인 경건훈련 자리이고, 교회 소식은
   // 스마트주보 앱이 따로 맡는다 — 홈 화면에 둘 다 두면 어느 앱을 쓰는 중인지
   // 흐려진다. 주보로 가는 길은 목자의 편지·알림마당 알림에 그대로 있다.
