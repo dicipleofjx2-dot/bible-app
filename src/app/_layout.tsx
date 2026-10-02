@@ -199,6 +199,10 @@ function AppStack() {
           options={{ headerShown: true, title: t('nav.finance') }}
         />
         <Stack.Screen
+          name="edu"
+          options={{ headerShown: true, title: '데이빗에듀' }}
+        />
+        <Stack.Screen
           name="prayer-tree"
           options={{ headerShown: true, title: '중보기도 나무' }}
         />
