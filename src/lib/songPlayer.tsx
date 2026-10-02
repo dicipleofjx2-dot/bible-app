@@ -75,6 +75,35 @@ export function SongPlayerProvider({ children }: { children: ReactNode }) {
     }
   }, [status.didJustFinish, songs?.length]);
 
+  // 안드로이드 홈 화면 웹앱은 홈에서 「뒤로」를 누르면 앱이 닫히며 노래도 끊긴다(2026-10-02).
+  // 듣는 동안 홈 화면에는 같은 주소의 「받침」 기록을 하나 깔아, 첫 「뒤로」는 받침만 걷고 안내를 띄운다.
+  // 3초 안에 한 번 더 누르면 그대로 둔다 — 그다음 「뒤로」에 앱이 닫힌다.
+  const path = usePathname();
+  const [backHint, setBackHint] = useState(false);
+  const playingRef = useRef(false);
+  const lastBack = useRef(0);
+  playingRef.current = status.playing;
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !status.playing || path !== '/') return;
+    if ((window.history.state as { dgSongGuard?: boolean } | null)?.dgSongGuard) return;
+    window.history.pushState({ ...(window.history.state ?? {}), dgSongGuard: true }, '', window.location.href);
+  }, [status.playing, path]);
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const onPop = (e: PopStateEvent) => {
+      if (!playingRef.current || window.location.pathname !== '/') return;
+      if ((e.state as { dgSongGuard?: boolean } | null)?.dgSongGuard) return;
+      const now = Date.now();
+      if (now - lastBack.current < 3000) return; // 한 번 더 눌렀다 — 닫히게 둔다
+      lastBack.current = now;
+      window.history.pushState({ ...(window.history.state ?? {}), dgSongGuard: true }, '', window.location.href);
+      setBackHint(true);
+      setTimeout(() => setBackHint(false), 3000);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
   const toggle = useCallback(() => {
     if (status.playing) {
       wantPlay.current = false;
@@ -115,19 +144,26 @@ export function SongPlayerProvider({ children }: { children: ReactNode }) {
   return (
     <SongCtx.Provider value={value}>
       {children}
-      <SongMiniBar />
+      <SongMiniBar backHint={backHint} />
     </SongCtx.Provider>
   );
 }
 
 /** 다른 화면에서 듣는 동안 아래에 뜨는 작은 띠 — 누르면 결단송 화면, ❚❚ 로 멈춤 */
-function SongMiniBar() {
+function SongMiniBar({ backHint }: { backHint: boolean }) {
   const c = useContext(SongCtx)!;
   const theme = useTheme();
   const path = usePathname();
   if (!c.song || path === '/songs' || (!c.status.playing && c.status.currentTime === 0)) return null;
   return (
     <View pointerEvents="box-none" style={styles.wrap}>
+      {backHint ? (
+        <View style={[styles.hint, { backgroundColor: theme.text }]}>
+          <ThemedText type="small" style={{ color: theme.background, textAlign: 'center' }}>
+            한 번 더 누르면 앱이 닫히고 결단송도 멈춥니다.{'\n'}노래를 들으며 나가려면 홈 버튼을 눌러 주세요.
+          </ThemedText>
+        </View>
+      ) : null}
       <View style={[styles.bar, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
         <Pressable onPress={() => router.push('/songs' as Href)} style={styles.title} accessibilityLabel="결단송 화면으로">
           <ThemedText type="smallBold" numberOfLines={1}>
@@ -166,6 +202,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   title: { flex: 1 },
+  hint: { maxWidth: 360, width: '86%', borderRadius: 14, paddingVertical: 8, paddingHorizontal: 12, marginBottom: 8 },
   btn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   btnText: { color: '#FFFFFF', fontSize: 16, lineHeight: 20 },
 });
