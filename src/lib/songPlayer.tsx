@@ -1,0 +1,171 @@
+import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus, type AudioStatus } from 'expo-audio';
+import { router, usePathname, type Href } from 'expo-router';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
+
+import { ThemedText } from '@/components/themed-text';
+import { useTheme } from '@/hooks/use-theme';
+import { fetchDecisionSongs, type DecisionSong } from '@/lib/decisionSongs';
+
+/**
+ * 결단송 플레이어 — 앱 전체에 하나(2026-10-02).
+ *
+ * 결단송 화면 안에 플레이어를 두었더니 다른 화면으로 넘어가는 순간 화면이 닫히며 노래도 꺼졌다
+ * (「앱을 꺼도 나온다면서 화면만 넘어가도 안 난다」). 그래서 플레이어를 맨 바깥(_layout)에 두고,
+ * 결단송 화면은 이것을 보여 주고 부리기만 한다. 다른 화면에서는 아래 작은 띠(SongMiniBar)로
+ * 멈추거나 결단송 화면으로 돌아간다.
+ */
+type Ctx = {
+  songs: DecisionSong[] | null;
+  error: string | null;
+  cur: number;
+  song: DecisionSong | null;
+  status: AudioStatus;
+  /** 결단송 화면을 열 때 목록을 불러온다(한 번만) */
+  load: () => void;
+  toggle: () => void;
+  pick: (i: number) => void;
+  step: (d: number) => void;
+  stop: () => void;
+};
+
+const SongCtx = createContext<Ctx | null>(null);
+
+export function useSongPlayer(): Ctx {
+  const c = useContext(SongCtx);
+  if (!c) throw new Error('SongPlayerProvider 안에서만 씁니다');
+  return c;
+}
+
+export function SongPlayerProvider({ children }: { children: ReactNode }) {
+  const [songs, setSongs] = useState<DecisionSong[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [cur, setCur] = useState(0);
+  const player = useAudioPlayer(null);
+  const status = useAudioPlayerStatus(player);
+  const wantPlay = useRef(false);
+  const loading = useRef(false);
+
+  const load = useCallback(() => {
+    if (loading.current) return;
+    loading.current = true;
+    setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true }).catch(() => {});
+    fetchDecisionSongs()
+      .then(setSongs)
+      .catch((e: Error) => {
+        loading.current = false;
+        setError(e.message);
+      });
+  }, []);
+
+  const song = songs?.[cur] ?? null;
+
+  // 곡을 바꾸면 그 음원으로 — 듣던 중이었으면 이어서
+  useEffect(() => {
+    if (!song) return;
+    player.replace({ uri: song.audio });
+    if (wantPlay.current) player.play();
+  }, [song, player]);
+
+  // 끝나면 다음 곡(마지막 뒤엔 처음으로)
+  useEffect(() => {
+    if (status.didJustFinish && songs?.length) {
+      wantPlay.current = true;
+      setCur((i) => (i + 1) % songs.length);
+    }
+  }, [status.didJustFinish, songs?.length]);
+
+  const toggle = useCallback(() => {
+    if (status.playing) {
+      wantPlay.current = false;
+      player.pause();
+    } else {
+      wantPlay.current = true;
+      player.play();
+    }
+  }, [status.playing, player]);
+
+  const pick = useCallback(
+    (i: number) => {
+      wantPlay.current = true;
+      if (i === cur) player.play();
+      else setCur(i);
+    },
+    [cur, player],
+  );
+
+  const step = useCallback(
+    (d: number) => {
+      if (!songs?.length) return;
+      wantPlay.current = status.playing || wantPlay.current;
+      setCur((i) => (i + d + songs.length) % songs.length);
+    },
+    [songs?.length, status.playing],
+  );
+
+  const stop = useCallback(() => {
+    wantPlay.current = false;
+    player.pause();
+  }, [player]);
+
+  const value = useMemo(
+    () => ({ songs, error, cur, song, status, load, toggle, pick, step, stop }),
+    [songs, error, cur, song, status, load, toggle, pick, step, stop],
+  );
+  return (
+    <SongCtx.Provider value={value}>
+      {children}
+      <SongMiniBar />
+    </SongCtx.Provider>
+  );
+}
+
+/** 다른 화면에서 듣는 동안 아래에 뜨는 작은 띠 — 누르면 결단송 화면, ❚❚ 로 멈춤 */
+function SongMiniBar() {
+  const c = useContext(SongCtx)!;
+  const theme = useTheme();
+  const path = usePathname();
+  if (!c.song || path === '/songs' || (!c.status.playing && c.status.currentTime === 0)) return null;
+  return (
+    <View pointerEvents="box-none" style={styles.wrap}>
+      <View style={[styles.bar, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
+        <Pressable onPress={() => router.push('/songs' as Href)} style={styles.title} accessibilityLabel="결단송 화면으로">
+          <ThemedText type="smallBold" numberOfLines={1}>
+            ♪ {c.song.title}
+          </ThemedText>
+        </Pressable>
+        <Pressable
+          onPress={c.toggle}
+          style={({ pressed }) => [styles.btn, { backgroundColor: theme.accent }, pressed && { opacity: 0.7 }]}
+          accessibilityLabel={c.status.playing ? '잠시 멈춤' : '듣기'}>
+          <ThemedText style={styles.btnText}>{c.status.playing ? '❚❚' : '▶'}</ThemedText>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  // 폰 앱은 아래 탭 막대 위에, 웹은 탭 막대가 위에 있으니 맨 아래에
+  wrap: { position: 'absolute', left: 0, right: 0, bottom: Platform.OS === 'web' ? 16 : 92, alignItems: 'center' },
+  bar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    maxWidth: 360,
+    width: '86%',
+    paddingLeft: 16,
+    paddingRight: 6,
+    paddingVertical: 6,
+    borderRadius: 28,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 6,
+  },
+  title: { flex: 1 },
+  btn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  btnText: { color: '#FFFFFF', fontSize: 16, lineHeight: 20 },
+});
