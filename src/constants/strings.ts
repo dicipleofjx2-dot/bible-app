@@ -340,6 +340,9 @@ export const STRINGS = {
     ko: '이 날짜의 통독 콘텐츠는 아직 준비 중입니다. 곧 업데이트됩니다.',
     en: 'Content for this day is still being prepared. It will be added soon.',
   },
+  // 성경통독 웹툰 — 이 분량을 그린 화가 있을 때만 뜬다(워드프레스 「통독 웹툰」 링크)
+  'lesson.webtoonTitle': { ko: '🖼️ 오늘 분량 웹툰', en: '🖼️ Today’s Reading as a Webtoon' },
+  'lesson.webtoonOpen': { ko: '눌러서 보기 ↗', en: 'Tap to read ↗' },
   'lesson.memorizationTitle': { ko: '오늘의 암송구절', en: 'Today’s Memory Verse' },
 
   'arch.title': { ko: '전체 아카이브', en: 'Full Archive' },

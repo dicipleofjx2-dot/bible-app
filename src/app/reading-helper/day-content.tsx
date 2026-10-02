@@ -83,7 +83,7 @@ export default function ReadingHelperDayContentScreen() {
           {loading ? (
             <ActivityIndicator style={styles.loadingSpacing} />
           ) : (
-            <DayLesson dayContent={dayContent} loading={false} error={contentError} />
+            <DayLesson dayContent={dayContent} loading={false} error={contentError} chapters={day?.chapters} />
           )}
 
           {hasQuizContent && date && (

@@ -44,4 +44,6 @@ export const APP_WINDOW = {
   bibleJourney: 'biblejourney',
   /** 말씀 웹툰 연재(워드프레스 「설교 웹툰」). 화를 넘겨 가며 읽으므로 한 창에 모은다. */
   webtoon: 'sermonwebtoon',
+  /** 성경통독 웹툰(워드프레스 「통독 웹툰」). 설교 웹툰과 다른 연재라 창도 따로 — 통독하다 열고 돌아온다. */
+  readingWebtoon: 'readingwebtoon',
 } as const;
