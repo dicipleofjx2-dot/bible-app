@@ -97,6 +97,16 @@ export default function SongsScreen() {
                 <ThemedText style={styles.ctrlText}>⏭</ThemedText>
               </Pressable>
             </View>
+            {song.mv ? (
+              <Pressable
+                onPress={() => Linking.openURL(song.mv!)}
+                style={({ pressed }) => [styles.mvBtn, { borderColor: theme.accent }, pressed && styles.pressed]}
+                accessibilityLabel="웹툰 뮤직비디오 보기">
+                <ThemedText type="smallBold" style={{ color: theme.accent, textAlign: 'center' }}>
+                  🎬 웹툰 뮤직비디오 보기
+                </ThemedText>
+              </Pressable>
+            ) : null}
             {song.youtube ? (
               <Pressable onPress={() => Linking.openURL(song.youtube!)}>
                 <ThemedText type="smallBold" style={{ color: theme.accent, textAlign: 'center' }}>
@@ -181,4 +191,5 @@ const styles = StyleSheet.create({
   rowText: { flex: 1, gap: 2 },
   rowTitle: { fontFamily: FontFamily.bold, fontWeight: "700", fontSize: 17 },
   pressed: { opacity: 0.7 },
+  mvBtn: { alignSelf: 'center', minHeight: 48, paddingHorizontal: 20, justifyContent: 'center', borderWidth: 1.5, borderRadius: 24 },
 });

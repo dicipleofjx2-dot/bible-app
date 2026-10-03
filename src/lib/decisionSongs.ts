@@ -15,6 +15,8 @@ export type DecisionSong = {
   audio: string;
   cover: string | null;
   youtube: string | null;
+  /** 결단송 웹툰 뮤직비디오(유튜브) — 말씀광산이 올린 뒤에만 */
+  mv: string | null;
   sermon: string;
   scripture: string | null;
   cues: SongCue[];
@@ -36,7 +38,7 @@ export function parseSong(r: Raw): DecisionSong | null {
   if (!m) return null;
   try {
     const d = JSON.parse(decode(m[1])) as {
-      audio?: string; cover?: string | null; youtube?: string | null; sermon?: string; scripture?: string | null; cues?: [number, number, string][];
+      audio?: string; cover?: string | null; youtube?: string | null; mv?: string | null; sermon?: string; scripture?: string | null; cues?: [number, number, string][];
     };
     if (!d.audio) return null;
     return {
@@ -47,6 +49,7 @@ export function parseSong(r: Raw): DecisionSong | null {
       audio: d.audio,
       cover: d.cover ?? null,
       youtube: d.youtube ?? null,
+      mv: d.mv ?? null,
       sermon: d.sermon ?? '',
       scripture: d.scripture ?? null,
       cues: (d.cues ?? []).map(([start, end, text]) => ({ start, end, text })),
