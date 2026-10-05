@@ -28,7 +28,8 @@ import { getPublicShepherdQt, getShepherdQtForAdmin, upsertShepherdQt, type Shep
 import { pingCheckin } from '@/db/r2m';
 import { EMPTY_QT_ANSWERS, QUESTION_GROUPS, parseQtAnswers } from '@/constants/qt-questions';
 import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
-import { qtAppUrl } from '@/lib/qtApp';
+import { withHandoff } from '@/lib/appHandoff';
+import { QT_APP_ORIGIN, qtAppUrl } from '@/lib/qtApp';
 
 function todayDateString() {
   const d = new Date();
@@ -64,9 +65,23 @@ export default function MeditationScreen() {
  */
 function QtAppRedirect({ date }: { date?: string }) {
   const theme = useTheme();
-  const url = qtAppUrl(date);
+  const plainUrl = qtAppUrl(date);
+  const [url, setUrl] = useState<string | null>(null);
+
+  // 바이블의 로그인으로 열쇠를 받아 큐티를 로그인 화면 없이 연다. 못 받으면 원래 주소.
+  useEffect(() => {
+    let alive = true;
+    const next = plainUrl.slice(QT_APP_ORIGIN.length);
+    void withHandoff(QT_APP_ORIGIN, plainUrl, next).then((u) => {
+      if (alive) setUrl(u);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [plainUrl]);
 
   useEffect(() => {
+    if (!url) return;
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       window.location.replace(url);
       return;
@@ -90,8 +105,9 @@ function QtAppRedirect({ date }: { date?: string }) {
       </ThemedText>
       <Pressable
         onPress={() => {
-          if (Platform.OS === 'web' && typeof window !== 'undefined') window.location.href = url;
-          else void Linking.openURL(url);
+          const target = url ?? plainUrl;
+          if (Platform.OS === 'web' && typeof window !== 'undefined') window.location.href = target;
+          else void Linking.openURL(target);
         }}
         style={[styles.redirectButton, { backgroundColor: theme.backgroundSelected }]}>
         <ThemedText type="smallBold">오늘의 큐티 열기</ThemedText>

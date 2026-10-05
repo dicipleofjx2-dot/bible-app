@@ -1,5 +1,27 @@
 import { Linking, Platform } from 'react-native';
 
+import { withHandoff } from '@/lib/appHandoff';
+
+/**
+ * 로그인이 따로인 우리 식구 앱. 여기 드는 앱은 누르는 순간 바이블의 로그인으로
+ * 열쇠를 받아 **로그인 화면 없이** 열린다(src/lib/appHandoff.ts).
+ */
+const HANDOFF_ORIGINS = new Set([
+  'https://prayer.dgaiworks.com',
+  'https://dg-qt.vercel.app',
+  'https://record.homeschool5.com',
+]);
+
+function handoffTarget(url: string): { origin: string; next: string } | null {
+  try {
+    const u = new URL(url);
+    if (!HANDOFF_ORIGINS.has(u.origin)) return null;
+    return { origin: u.origin, next: `${u.pathname}${u.search}` || '/' };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * 우리 식구 앱(스마트주보·교회 홈페이지)을 연다.
  *
@@ -14,10 +36,31 @@ import { Linking, Platform } from 'react-native';
  * 폰 앱에서는 창이라는 것이 없다. 그쪽은 지금처럼 기본 브라우저로 넘긴다.
  */
 export function openAppWindow(url: string, windowName: string): void {
+  const target = handoffTarget(url);
+
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    // noopener 는 주지 않는다. 그걸 주면 브라우저가 이름을 무시하고 매번 새 창을
-    // 연다 — 이름을 준 이유가 통째로 사라진다.
-    window.open(url, windowName, 'noreferrer');
+    if (!target) {
+      // noopener 는 주지 않는다. 그걸 주면 브라우저가 이름을 무시하고 매번 새 창을
+      // 연다 — 이름을 준 이유가 통째로 사라진다.
+      window.open(url, windowName, 'noreferrer');
+      return;
+    }
+    // 열쇠를 받는 동안 기다리면 브라우저가 「누른 직후가 아니다」며 새 창을 막는다.
+    // 그래서 창부터 (빈 채로) 열어 두고 열쇠가 오면 주소를 채운다.
+    // noreferrer 를 주면 창 손잡이를 못 받으므로 이 길에서는 주지 않는다 — 우리 앱끼리다.
+    const win = window.open('', windowName);
+    if (!win) {
+      window.open(url, windowName, 'noreferrer');
+      return;
+    }
+    void withHandoff(target.origin, url, target.next).then((finalUrl) => {
+      win.location.href = finalUrl;
+    });
+    return;
+  }
+
+  if (target) {
+    void withHandoff(target.origin, url, target.next).then((finalUrl) => Linking.openURL(finalUrl));
     return;
   }
   void Linking.openURL(url);
