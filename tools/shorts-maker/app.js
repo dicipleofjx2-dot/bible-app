@@ -243,7 +243,7 @@ $('btnRec').onclick = async () => {
   mrec = new MediaRecorder(mstream, mime ? { mimeType: mime } : undefined);
   mrec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
   mrec.onstop = () => {
-    clearInterval(mtimer); mstream.getTracks().forEach((t) => t.stop());
+    clearInterval(mtimer); mstream.getTracks().forEach((t) => t.stop()); const mpeak = mrec.meter.peak; mrec.meter.mc.close();
     const type = (mrec.mimeType || 'audio/webm').split(';')[0]; mrec = null;
     $('btnRec').textContent = '● 녹음 시작'; $('recLbl').textContent = '';
     // MediaRecorder 의 webm 은 길이 정보가 없어 탐색이 안 된다 → 16kHz WAV 로 바꿔 쓴다
@@ -253,14 +253,24 @@ $('btnRec').onclick = async () => {
       wr(0, 'RIFF'); dv.setUint32(4, 36 + n * 2, true); wr(8, 'WAVEfmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true);
       dv.setUint16(22, 1, true); dv.setUint32(24, 16000, true); dv.setUint32(28, 32000, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
       wr(36, 'data'); dv.setUint32(40, n * 2, true);
-      for (let i = 0; i < n; i++) dv.setInt16(44 + i * 2, Math.max(-1, Math.min(1, pcm[i])) * 32767, true);
+      let pk = 0; for (let i = 0; i < n; i++) pk = Math.max(pk, Math.abs(pcm[i]));
+      const g = pk > 0.002 ? Math.min(40, 0.9 / pk) : 1; // 작게 녹음된 소리를 키운다
+      for (let i = 0; i < n; i++) dv.setInt16(44 + i * 2, Math.max(-1, Math.min(1, pcm[i] * g)) * 32767, true);
+      if (pk <= 0.002) { loadAudio(new File([dv], 'recording.wav', { type: 'audio/wav' })); return setStatus('⚠ 녹음에 소리가 거의 없습니다. 윈도우 설정 → 시스템 → 소리 → 입력에서 마이크를 고르고, 크롬 주소창 왼쪽 자물쇠에서 마이크를 확인한 뒤 다시 녹음하세요.'); }
       loadAudio(new File([dv], 'recording.wav', { type: 'audio/wav' }));
-      setStatus('녹음 완료. 들어 본 뒤 "AI로 자동 맞춤"을 누르세요. 다시 녹음하면 덮어씁니다.');
+      setStatus((g > 1.5 ? `녹음이 작아서 ${g.toFixed(1)}배 키웠습니다. ` : '') + '녹음 완료. 들어 본 뒤 "AI로 자동 맞춤"을 누르세요. 다시 녹음하면 덮어씁니다.');
     }).catch(() => setStatus('녹음을 처리하지 못했습니다. 다시 시도하세요.'));
   };
+  const mc = new AudioContext(), an = mc.createAnalyser(), td = new Uint8Array(an.fftSize); an.fftSize = 512;
+  mc.createMediaStreamSource(mstream).connect(an); mrec.meter = { mc, an, td, peak: 0 };
   mrec.start(1000); mt0 = Date.now();
   $('btnRec').textContent = '■ 녹음 정지';
-  mtimer = setInterval(() => { $('recLbl').textContent = '🔴 ' + fmt((Date.now() - mt0) / 1000); }, 250);
+  mtimer = setInterval(() => {
+    const m = mrec.meter; m.an.getByteTimeDomainData(m.td);
+    let pk = 0; for (const v of m.td) pk = Math.max(pk, Math.abs(v - 128) / 128); m.peak = Math.max(m.peak, pk);
+    const bars = Math.min(10, Math.round(pk * 25));
+    $('recLbl').textContent = '🔴 ' + fmt((Date.now() - mt0) / 1000) + ' ' + '█'.repeat(bars) + '░'.repeat(10 - bars) + (bars === 0 ? ' 소리 안 들어옴' : '');
+  }, 150);
   setStatus('녹음 중… 대본을 보며 읽으세요.');
 };
 $('bgFile').onchange = (e) => {
@@ -443,7 +453,7 @@ $('btnExport').onclick = async () => {
     $('expStatus').textContent = '완료. 파일이 내려받아졌습니다.';
   } catch (err) {
     console.error(err); $('expStatus').textContent = '실패: ' + (err.message || err);
-  } finally { st.exporting = false; btn.disabled = false; if (st.bgVid) st.bgVid.pause(); }
+  } finally { st.exporting = false; btn.disabled = false; try { srcNode.disconnect(); srcNode.connect(actx.destination); } catch {} if (st.bgVid) st.bgVid.pause(); }
 };
 
 window.__shorts = { st, render, C };
