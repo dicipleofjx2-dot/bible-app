@@ -225,9 +225,43 @@ addEventListener('keydown', (e) => {
 
 /* ---------- 입력 ---------- */
 aud.addEventListener('loadedmetadata', () => { st.dur = aud.duration; if (st.sents.length && !st.sents[0].words[0].e) { C.evenSync(st.sents, 0, st.dur); buildTimeline(); } });
-$('audioFile').onchange = (e) => {
-  const f = e.target.files[0]; if (!f) return;
+function loadAudio(f) {
   st.audioFile = f; aud.src = URL.createObjectURL(f); setStatus(`녹음 불러옴: ${f.name}`);
+}
+$('audioFile').onchange = (e) => { const f = e.target.files[0]; if (f) loadAudio(f); };
+
+/* ---------- 마이크 녹음 ---------- */
+let mrec = null, mstream = null, mtimer = 0, mt0 = 0;
+$('btnRec').onclick = async () => {
+  if (mrec) { mrec.stop(); return; }
+  if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') return setStatus('이 브라우저는 녹음을 지원하지 않습니다. (localhost 또는 https 주소에서 PC 크롬으로 여세요)');
+  try {
+    mstream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: true } });
+  } catch (err) { return setStatus('마이크를 쓸 수 없습니다: 브라우저의 마이크 권한을 허용해 주세요.'); }
+  aud.pause();
+  const chunks = [], mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm'].find((m) => MediaRecorder.isTypeSupported(m));
+  mrec = new MediaRecorder(mstream, mime ? { mimeType: mime } : undefined);
+  mrec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+  mrec.onstop = () => {
+    clearInterval(mtimer); mstream.getTracks().forEach((t) => t.stop());
+    const type = (mrec.mimeType || 'audio/webm').split(';')[0]; mrec = null;
+    $('btnRec').textContent = '● 녹음 시작'; $('recLbl').textContent = '';
+    // MediaRecorder 의 webm 은 길이 정보가 없어 탐색이 안 된다 → 16kHz WAV 로 바꿔 쓴다
+    decode16k(new Blob(chunks, { type })).then((pcm) => {
+      const n = pcm.length, dv = new DataView(new ArrayBuffer(44 + n * 2));
+      const wr = (o, s) => [...s].forEach((c, i) => dv.setUint8(o + i, c.charCodeAt(0)));
+      wr(0, 'RIFF'); dv.setUint32(4, 36 + n * 2, true); wr(8, 'WAVEfmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true);
+      dv.setUint16(22, 1, true); dv.setUint32(24, 16000, true); dv.setUint32(28, 32000, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
+      wr(36, 'data'); dv.setUint32(40, n * 2, true);
+      for (let i = 0; i < n; i++) dv.setInt16(44 + i * 2, Math.max(-1, Math.min(1, pcm[i])) * 32767, true);
+      loadAudio(new File([dv], 'recording.wav', { type: 'audio/wav' }));
+      setStatus('녹음 완료. 들어 본 뒤 "AI로 자동 맞춤"을 누르세요. 다시 녹음하면 덮어씁니다.');
+    }).catch(() => setStatus('녹음을 처리하지 못했습니다. 다시 시도하세요.'));
+  };
+  mrec.start(1000); mt0 = Date.now();
+  $('btnRec').textContent = '■ 녹음 정지';
+  mtimer = setInterval(() => { $('recLbl').textContent = '🔴 ' + fmt((Date.now() - mt0) / 1000); }, 250);
+  setStatus('녹음 중… 대본을 보며 읽으세요.');
 };
 $('bgFile').onchange = (e) => {
   const f = e.target.files[0]; if (!f) return;
