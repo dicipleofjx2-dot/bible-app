@@ -63,6 +63,7 @@ type Room = {
 };
 
 const ROOMS: Room[] = [
+  { key: 'ranch', emoji: '🐑', name: '방주 목장', desc: '활동으로 동물이 자라요', href: '/village/ranch' },
   { key: 'chapel', emoji: '⛪', name: '예배당', desc: '이번 모임 · 말씀 · 순서', href: '/village/chapel' },
   { key: 'share', emoji: '💬', name: '소그룹실', desc: '나눔 · 소통창', href: '/village/share' },
   { key: 'nurture', emoji: '🌱', name: '양육실', desc: '과정 · 다음 만남', href: '/village/nurture' },

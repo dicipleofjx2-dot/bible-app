@@ -17,7 +17,7 @@ import {
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { nameOf, useCellRoom } from '@/hooks/use-cell-room';
-import { getCellReports, type CellReport } from '@/db/cell';
+import { createCellReport, getCellReports, removeCellReport, type CellReport } from '@/db/cell';
 import {
   createGathering,
   DEFAULT_STEPS,
@@ -61,7 +61,7 @@ export default function ChapelScreen() {
   const [current, setCurrent] = useState<Gathering | null>(null);
   const [attendance, setAtt] = useState<Attendance[]>([]);
   const [busy, setBusy] = useState(false);
-  const [mode, setMode] = useState<'view' | 'new' | 'run' | 'close'>('view');
+  const [mode, setMode] = useState<'view' | 'new' | 'run' | 'close' | 'report'>('view');
   const [stepIndex, setStepIndex] = useState(0);
 
   // 새 모임 입력칸
@@ -72,6 +72,12 @@ export default function ChapelScreen() {
   const [place, setPlace] = useState('');
   const [scripture, setScripture] = useState('');
   const [material, setMaterial] = useState('');
+
+  // 목장 보고 입력칸
+  const [repDate, setRepDate] = useState(todayString());
+  const [repCount, setRepCount] = useState('');
+  const [repBody, setRepBody] = useState('');
+  const [repError, setRepError] = useState('');
 
   // 마무리 입력칸
   const [summary, setSummary] = useState('');
@@ -118,6 +124,47 @@ export default function ChapelScreen() {
       setMaterial('');
       await load();
     }
+  }
+
+  async function submitReport() {
+    if (!cellId || !room || busy) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(repDate)) {
+      setRepError('날짜를 2026-10-11 처럼 적어 주세요.');
+      return;
+    }
+    if (!repBody.trim()) {
+      setRepError('보고 내용을 적어 주세요.');
+      return;
+    }
+    const count = repCount.trim() === '' ? null : Number(repCount);
+    if (count !== null && (!Number.isInteger(count) || count < 0)) {
+      setRepError('모인 사람 수는 숫자로 적어 주세요.');
+      return;
+    }
+    setBusy(true);
+    setRepError('');
+    const { error } = await createCellReport({
+      cellId,
+      authorId: room.userId,
+      kind: 'report',
+      metOn: repDate,
+      body: repBody.trim(),
+      attendance: count,
+    });
+    setBusy(false);
+    if (error) {
+      setRepError('올리지 못했어요. 잠시 뒤 다시 해 주세요.');
+      return;
+    }
+    setRepBody('');
+    setRepCount('');
+    setMode('view');
+    await load();
+  }
+
+  async function deleteReport(id: string) {
+    await removeCellReport(id);
+    await load();
   }
 
   async function start() {
@@ -240,6 +287,34 @@ export default function ChapelScreen() {
           <Btn label={busy ? '저장 중…' : '기록 저장하고 마치기'} onPress={finish} disabled={busy} />
           <Btn label="취소" tone="ghost" onPress={() => setMode('view')} />
         </>
+      ) : mode === 'report' ? (
+        /* ── 목장 보고 올리기 ───────────────────────────────── */
+        <>
+          <SectionTitle hint="모임을 마치고 목자가 올립니다">목장 보고 올리기</SectionTitle>
+          <Field label="모인 날 (YYYY-MM-DD)" value={repDate} onChangeText={setRepDate} />
+          <Field
+            label="모인 사람 수"
+            value={repCount}
+            onChangeText={setRepCount}
+            placeholder="예: 8"
+            hint="적고 싶을 때만 적으세요."
+          />
+          <Field
+            label="보고 내용"
+            value={repBody}
+            onChangeText={setRepBody}
+            multiline
+            placeholder="어떻게 모였고, 어떤 은혜와 일이 있었는지"
+            hint="개인 상담이나 사정은 여기 적지 마세요. 돌봄실에 따로 담깁니다."
+          />
+          {repError ? (
+            <ThemedText type="small" themeColor="support">
+              {repError}
+            </ThemedText>
+          ) : null}
+          <Btn label={busy ? '올리는 중…' : '보고 올리기'} onPress={submitReport} disabled={busy} />
+          <Btn label="취소" tone="ghost" onPress={() => setMode('view')} />
+        </>
       ) : mode === 'new' ? (
         /* ── 모임 만들기 ────────────────────────────────────── */
         <>
@@ -359,6 +434,17 @@ export default function ChapelScreen() {
           )}
 
           {canLead ? <Btn label="새 모임 만들기" onPress={() => setMode('new')} /> : null}
+          {canLead ? (
+            <Btn
+              label="목장 보고 올리기"
+              tone="quiet"
+              onPress={() => {
+                setRepDate(todayString());
+                setRepError('');
+                setMode('report');
+              }}
+            />
+          ) : null}
 
           <SectionTitle hint="모인 날 차례">지난 모임</SectionTitle>
           {list.filter((g) => g.id !== current?.id).length === 0 ? (
@@ -390,16 +476,10 @@ export default function ChapelScreen() {
               ))
           )}
 
-          {/*
-            옛 목장방(/r2m/cell)에서 올린 모임 보고.
-
-            그 화면은 없앴지만 **표(cell_reports)는 그대로 살아 있다.** 새로 쓰는
-            자리는 위의 모임 기록이라 여기서는 읽기만 한다 — 옛 글을 못 보게
-            하면 목장이 지나온 자취가 통째로 사라진다.
-          */}
+          {/* 목자가 올린 모임 보고(cell_reports). 옛 목장방에서 올린 글도 같은 표다. */}
           {oldReports.length > 0 ? (
             <>
-              <SectionTitle hint="옛 목장방에서 올린 글입니다">지난 목장 보고</SectionTitle>
+              <SectionTitle hint="모인 날 차례">목장 보고</SectionTitle>
               {oldReports.map((r) => (
                 <Card key={r.id}>
                   <ThemedText type="smallBold" themeColor="textSecondary">
@@ -411,6 +491,9 @@ export default function ChapelScreen() {
                   <ThemedText type="small" themeColor="textSecondary">
                     {nameOf(room?.names ?? new Map(), r.authorId)}
                   </ThemedText>
+                  {r.authorId === room?.userId ? (
+                    <Btn label="지우기" tone="ghost" small onPress={() => deleteReport(r.id)} />
+                  ) : null}
                 </Card>
               ))}
             </>
