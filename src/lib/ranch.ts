@@ -52,9 +52,26 @@ export const BREEDS: Breed[] = [
   { species: 'goat', key: 'nubian', label: '누비안 염소', clean: true },
 ];
 
-/** 활동 하나가 주는 먹이. 모임을 마치는 일이 가장 무겁다. */
+/** 활동 하나가 주는 먹이. 모임을 마치는 일이 가장 무겁다. 설명 글도 여기서 읽는다. */
+export const FEED_WEIGHTS: Record<keyof RanchCounts, number> = {
+  gatherings: 4,
+  reports: 4,
+  shares: 2,
+  messages: 1,
+};
+
+export const FEED_LABELS: Record<keyof RanchCounts, string> = {
+  gatherings: '목장모임을 마치고 기록하기',
+  reports: '목장 보고 올리기',
+  shares: '나눔 글 쓰기',
+  messages: '소통창에 글 남기기',
+};
+
 export function feedOf(c: RanchCounts): number {
-  return c.gatherings * 4 + c.reports * 4 + c.shares * 2 + c.messages;
+  return (Object.keys(FEED_WEIGHTS) as (keyof RanchCounts)[]).reduce(
+    (sum, k) => sum + c[k] * FEED_WEIGHTS[k],
+    0,
+  );
 }
 
 /** k번째(0부터) 동물이 오는 데 쌓여 있어야 하는 먹이 합. 6, 18, 36, 60… */

@@ -7,6 +7,7 @@ import { RanchFrame } from '@/components/RanchFrame';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Card, Empty, SectionTitle, Tag } from '@/components/village/kit';
+import { RanchGuide } from '@/components/village/RanchGuide';
 import { Spacing } from '@/constants/theme';
 import { getRanchCounts } from '@/db/ranch';
 import { useCellRoom } from '@/hooks/use-cell-room';
@@ -76,22 +77,7 @@ export default function RanchScreen() {
               <RanchFrame items={items} />
             </View>
             <ScrollView contentContainerStyle={styles.body}>
-              <Card>
-                <ThemedText type="smallBold" themeColor="textSecondary">
-                  쌓인 먹이 {ranch.feed}
-                </ThemedText>
-                {ranch.nextBreed && ranch.untilNext !== null ? (
-                  <ThemedText style={styles.big}>
-                    먹이 {ranch.untilNext}만 더 모이면 새 식구가 찾아와요
-                  </ThemedText>
-                ) : (
-                  <ThemedText style={styles.big}>방주 도감을 모두 채웠어요</ThemedText>
-                )}
-                <ThemedText type="small" themeColor="textSecondary">
-                  모임을 마치고 기록하면 4, 목장 보고 4, 나눔 글 2, 소통창 글 1이 먹이가 됩니다.
-                  한 주 쉬어도 동물은 줄어들지 않아요.
-                </ThemedText>
-              </Card>
+              <RanchGuide ranch={ranch} />
 
               <SectionTitle hint={`${ranch.animals.length} / ${BREEDS.length}`}>방주 도감</SectionTitle>
               {BREEDS.map((b, i) => {

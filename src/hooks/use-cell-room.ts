@@ -28,7 +28,7 @@ import { useAuth } from '@/lib/auth';
  *   3. 그것도 없으면 **null** — 화면이 「어느 목장을 보시겠어요」를 묻는다
  *
  * 고른 것을 AsyncStorage 에 담는 까닭: 방이 여섯인데 방마다 다시 고르게 하면
- * 예배당에서 고른 목장이 소그룹실에서 또 풀린다.
+ * 목장모임에서 고른 목장이 나눔과 소통방에서 또 풀린다.
  */
 const PICK_KEY = 'village.pickedCellId';
 

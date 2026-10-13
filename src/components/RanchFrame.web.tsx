@@ -3,9 +3,15 @@ import { View } from 'react-native';
 
 import { ranchUrl } from '@/lib/ranchUrl';
 
-export function RanchFrame({ items }: { items: [string, string, string][] }) {
+export function RanchFrame({
+  items,
+  embed = false,
+}: {
+  items: [string, string, string][];
+  embed?: boolean;
+}) {
   const ref = useRef<HTMLIFrameElement | null>(null);
-  const first = useRef(ranchUrl(items));
+  const first = useRef(ranchUrl(items, embed));
 
   // 먹이가 쌓여 동물이 늘면 판을 다시 불러오지 않고 목록만 알린다.
   useEffect(() => {

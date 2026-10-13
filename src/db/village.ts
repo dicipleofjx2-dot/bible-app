@@ -84,7 +84,7 @@ export async function getVillageStreet(villageId: string | null): Promise<Street
 }
 
 // ════════════════════════════════════════════════════════════════════
-// 예배당 — 모임
+// 목장모임 및 목장보고 — 모임
 // ════════════════════════════════════════════════════════════════════
 
 export type GatheringStep = {
@@ -324,7 +324,7 @@ export async function setAttendance(input: {
 }
 
 // ════════════════════════════════════════════════════════════════════
-// 소그룹실 — 나눔
+// 나눔과 소통방 — 나눔
 // ════════════════════════════════════════════════════════════════════
 
 export type Share = {
@@ -705,6 +705,74 @@ async function getMinistryRoles(ids: string[]): Promise<Map<string, MinistryRole
   return map;
 }
 
+export type MinistryNote = {
+  id: string;
+  ministryId: string;
+  authorId: string;
+  kind: 'grace' | 'improve';
+  body: string;
+  createdAt: string;
+};
+
+/** 사역 나눔. 표가 아직 없거나 못 읽으면 빈 목록 — 사역 화면 전체가 죽지 않게 한다. */
+export async function getMinistryNotes(ministryIds: string[]): Promise<Map<string, MinistryNote[]>> {
+  const map = new Map<string, MinistryNote[]>();
+  if (ministryIds.length === 0) return map;
+  const { data, error } = await supabase
+    .from('cell_ministry_notes')
+    .select('id, ministry_id, author_id, kind, body, created_at')
+    .in('ministry_id', ministryIds)
+    .is('deleted_at', null)
+    .order('created_at');
+  if (error) return map;
+  for (const r of (data ?? []) as Record<string, unknown>[]) {
+    const key = String(r.ministry_id);
+    const list = map.get(key) ?? [];
+    list.push({
+      id: String(r.id),
+      ministryId: key,
+      authorId: String(r.author_id),
+      kind: r.kind === 'improve' ? 'improve' : 'grace',
+      body: String(r.body ?? ''),
+      createdAt: String(r.created_at),
+    });
+    map.set(key, list);
+  }
+  return map;
+}
+
+export async function createMinistryNote(input: {
+  ministryId: string;
+  authorId: string;
+  kind: MinistryNote['kind'];
+  body: string;
+}): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('cell_ministry_notes').insert({
+    ministry_id: input.ministryId,
+    author_id: input.authorId,
+    kind: input.kind,
+    body: input.body,
+  });
+  return { error: error?.message ?? null };
+}
+
+export async function removeMinistryNote(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('cell_ministry_notes')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+function newId(): string {
+  const c = (globalThis as { crypto?: { randomUUID?: () => string } }).crypto;
+  if (c?.randomUUID) return c.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (ch) => {
+    const r = (Math.random() * 16) | 0;
+    return (ch === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+  });
+}
+
 export async function createMinistry(input: {
   cellId: string;
   createdBy: string;
@@ -716,9 +784,13 @@ export async function createMinistry(input: {
   /** 쉼표로 나눠 적은 역할. 빈 것은 버린다. */
   roleNames?: string[];
 }): Promise<{ error: string | null }> {
-  const { data, error } = await supabase
+  // 아이디를 우리가 정한다. insert().select() 는 올린 줄을 곧바로 다시 읽어야 해서
+  // 읽기 정책에 하나라도 걸리면 **쓰기까지 통째로 실패한 것처럼** 보인다.
+  const id = newId();
+  const { error } = await supabase
     .from('cell_ministries')
     .insert({
+      id,
       cell_id: input.cellId,
       created_by: input.createdBy,
       title: input.title,
@@ -726,14 +798,14 @@ export async function createMinistry(input: {
       serve_on: input.serveOn || null,
       place: input.place || null,
       supplies: input.supplies || null,
-    })
-    .select('id')
-    .maybeSingle();
+    });
   if (error) return { error: error.message };
-  const id = data ? String((data as { id: string }).id) : null;
   const names = (input.roleNames ?? []).map((n) => n.trim()).filter(Boolean);
-  if (id && names.length > 0) {
-    await supabase.from('cell_ministry_roles').insert(names.map((name) => ({ ministry_id: id, name })));
+  if (names.length > 0) {
+    const { error: roleError } = await supabase
+      .from('cell_ministry_roles')
+      .insert(names.map((name) => ({ ministry_id: id, name })));
+    if (roleError) return { error: `사역은 만들어졌지만 역할을 넣지 못했어요. ${roleError.message}` };
   }
   return { error: null };
 }

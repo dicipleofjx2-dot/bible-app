@@ -204,11 +204,11 @@ export default function ChapelScreen() {
   const steps = current?.steps ?? [];
 
   return (
-    <RoomScreen title="예배당" emoji="⛪" subtitle={room?.cell?.name ?? ''}>
+    <RoomScreen title="목장모임 및 목장보고" emoji="⛪" subtitle={room?.cell?.name ?? ''}>
       {loading ? (
         <Empty text="불러오는 중입니다…" />
       ) : !cellId ? (
-        <Empty text="목장이 정해지면 예배당이 열립니다." />
+        <Empty text="목장이 정해지면 목장모임이 열립니다." />
       ) : mode === 'run' && current ? (
         /* ── 진행 화면 — 순서를 한 장씩 ─────────────────────── */
         <>
