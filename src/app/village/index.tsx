@@ -16,8 +16,8 @@ import {
   todayString,
 } from '@/components/village/kit';
 import { RanchGuide } from '@/components/village/RanchGuide';
-import { getRanchCounts } from '@/db/ranch';
-import { computeRanch, STAGE_LABEL, type RanchCounts } from '@/lib/ranch';
+import { getRanchCounts, getRanchPoints } from '@/db/ranch';
+import { computeRanch, STAGE_LABEL, type RanchCounts, type RanchPoints } from '@/lib/ranch';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { nameOf, pickCell, useCellRoom } from '@/hooks/use-cell-room';
@@ -61,6 +61,7 @@ type Room = {
 };
 
 const ROOMS: Room[] = [
+  { key: 'support', emoji: '🌱', name: '전도와 정착 지원', desc: '새가족 · 목장 격려', href: '/village/support' },
   { key: 'ranch', emoji: '🐑', name: '방주 목장', desc: '활동으로 동물이 자라요', href: '/village/ranch' },
   { key: 'chapel', emoji: '⛪', name: '목장모임 및 목장보고', desc: '이번 모임 · 순서 · 보고 올리기', href: '/village/chapel' },
   { key: 'share', emoji: '💬', name: '나눔과 소통방', desc: '나눔 글 · 소통창', href: '/village/share' },
@@ -82,17 +83,21 @@ export default function CellHomeScreen() {
   const cellId = room?.cell?.id ?? null;
 
   const [ranchCounts, setRanchCounts] = useState<RanchCounts | null>(null);
+  const [ranchPoints, setRanchPoints] = useState<RanchPoints | null>(null);
+  const [myPoints, setMyPoints] = useState<RanchPoints | null>(null);
   useEffect(() => {
     if (!cellId) return;
     let alive = true;
     getRanchCounts(cellId)
       .then((c) => alive && setRanchCounts(c))
       .catch(() => {});
+    getRanchPoints(cellId).then((p) => alive && setRanchPoints(p));
+    getRanchPoints(cellId, true).then((p) => alive && setMyPoints(p));
     return () => {
       alive = false;
     };
   }, [cellId]);
-  const ranch = useMemo(() => (ranchCounts ? computeRanch(ranchCounts) : null), [ranchCounts]);
+  const ranch = useMemo(() => (ranchCounts ? computeRanch(ranchCounts, ranchPoints) : null), [ranchCounts, ranchPoints]);
   const ranchItems = useMemo<[string, string, string][]>(
     () => (ranch?.animals ?? []).map((a) => [a.key, a.stage, `${a.label} · ${STAGE_LABEL[a.stage]}`]),
     [ranch],
@@ -209,7 +214,7 @@ export default function CellHomeScreen() {
               방주 도감 보기 ›
             </ThemedText>
           </Pressable>
-          <RanchGuide ranch={ranch} />
+          <RanchGuide ranch={ranch} points={ranchPoints} mine={myPoints} />
           {/* ── 이번 모임 ─────────────────────────────────────── */}
           <Card>
             <View style={styles.rowBetween}>

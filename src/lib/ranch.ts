@@ -21,6 +21,85 @@ export type RanchCounts = {
   messages: number;
 };
 
+/**
+ * 활동 점수 — 예배·목장·기도·통독을 **하루에 한 번씩** 센 목장 합계(0089 ranch_activity).
+ * 누가 몇 점인지는 돌려받지 않는다. 합계와 사람 수뿐이라 순위가 만들어지지 않는다.
+ */
+export type RanchPoints = {
+  sunday: number;
+  midweek: number;
+  cell: number;
+  /** 목장모임에서 적은 기도 시간(분). 한 번에 한 사람 420분까지만 센 합. */
+  prayerMinutes: number;
+  /** 목장모임에서 적은 통독 장 수. 한 번에 한 사람 23장까지만 센 합. */
+  chapters: number;
+  /** 가장 최근 기록한 모임의 합(자른 값 아님) — 목표와 견주어 보여 주는 용 */
+  lastPrayerMinutes: number;
+  lastChapters: number;
+  lastRecorded: number;
+  membersTotal: number;
+  membersActive: number;
+};
+
+/**
+ * 목표 — 한 사람이 **한 주에** 기도 7시간, 통독 23장.
+ * 식구가 3명이면 한 주 목표는 기도 21시간, 통독 69장. 모임 때 이만큼을 적는다.
+ */
+export const HABIT_TARGET = {
+  prayerMinutesPerWeek: 420,
+  chaptersPerWeek: 23,
+} as const;
+
+/** 출석은 한 번에 이만큼. 기도·통독은 목표를 다 채우면 이만큼(비율만큼 받는다). */
+export const POINT_WEIGHTS = {
+  sunday: 10,
+  midweek: 3,
+  cell: 8,
+  prayerFullWeek: 10,
+  readingFullWeek: 10,
+} as const;
+
+export const POINT_LABELS = {
+  sunday: '주일예배 출석',
+  midweek: '수요·금요·새벽 예배 출석',
+  cell: '목장모임 출석',
+  prayerFullWeek: '기도 한 주 목표(7시간)를 채우면',
+  readingFullWeek: '통독 한 주 목표(23장)를 채우면',
+} as const;
+
+export function pointsOf(p: RanchPoints): number {
+  const prayer = (p.prayerMinutes / HABIT_TARGET.prayerMinutesPerWeek) * POINT_WEIGHTS.prayerFullWeek;
+  const reading = (p.chapters / HABIT_TARGET.chaptersPerWeek) * POINT_WEIGHTS.readingFullWeek;
+  return Math.round(
+    p.sunday * POINT_WEIGHTS.sunday +
+      p.midweek * POINT_WEIGHTS.midweek +
+      p.cell * POINT_WEIGHTS.cell +
+      prayer +
+      reading,
+  );
+}
+
+/** 모임 때 적는 시간(분)을 「7시간 30분」처럼. */
+export function formatMinutes(min: number): string {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  if (h === 0) return `${m}분`;
+  return m === 0 ? `${h}시간` : `${h}시간 ${m}분`;
+}
+
+/**
+ * 점수 → 먹이. 사람 수로 나눈다(최소 3명으로 본다). 식구가 많은 목장이 점수만으로 앞서지
+ * 않게 하고, 한두 명짜리 목장이 한 사람의 열심으로 방주를 다 채우지도 않게 한다.
+ */
+export function pointFeed(p: RanchPoints | null): number {
+  if (!p) return 0;
+  return Math.floor(pointsOf(p) / Math.max(3, p.membersTotal));
+}
+
+/** 전도·정착 지원 기준(0089 와 같아야 한다 — 신청 때 서버가 다시 센다). */
+export const SETTLE = { days: 6, weeks: 8 } as const;
+export const REWARD = { evangelism: 100000, growth: 30000 } as const;
+
 export type Species = 'sheep' | 'goat' | 'cow' | 'dog' | 'cat';
 export type Stage = 'baby' | 'young' | 'adult';
 
@@ -96,8 +175,8 @@ export type RanchState = {
   nextBreed: Breed | null;
 };
 
-export function computeRanch(counts: RanchCounts): RanchState {
-  const feed = feedOf(counts);
+export function computeRanch(counts: RanchCounts, points: RanchPoints | null = null): RanchState {
+  const feed = feedOf(counts) + pointFeed(points);
   const animals: RanchAnimal[] = [];
   for (let k = 0; k < BREEDS.length && arrivalFeed(k) <= feed; k++) {
     const eaten = feed - arrivalFeed(k);

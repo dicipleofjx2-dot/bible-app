@@ -9,10 +9,10 @@ import { ThemedView } from '@/components/themed-view';
 import { Card, Empty, SectionTitle, Tag } from '@/components/village/kit';
 import { RanchGuide } from '@/components/village/RanchGuide';
 import { Spacing } from '@/constants/theme';
-import { getRanchCounts } from '@/db/ranch';
+import { getRanchCounts, getRanchPoints } from '@/db/ranch';
 import { useCellRoom } from '@/hooks/use-cell-room';
 import { useTheme } from '@/hooks/use-theme';
-import { BREEDS, computeRanch, STAGE_LABEL, type RanchCounts } from '@/lib/ranch';
+import { BREEDS, computeRanch, STAGE_LABEL, type RanchCounts, type RanchPoints } from '@/lib/ranch';
 
 /**
  * 방주 목장 — 목장 활동으로 동물이 자란다. 규칙은 src/lib/ranch.ts.
@@ -26,6 +26,8 @@ export default function RanchScreen() {
   const cellId = room?.cell?.id ?? null;
   const [counts, setCounts] = useState<RanchCounts | null>(null);
   const [failed, setFailed] = useState(false);
+  const [points, setPoints] = useState<RanchPoints | null>(null);
+  const [myPoints, setMyPoints] = useState<RanchPoints | null>(null);
 
   useEffect(() => {
     if (!cellId) return;
@@ -33,12 +35,14 @@ export default function RanchScreen() {
     getRanchCounts(cellId)
       .then((c) => alive && setCounts(c))
       .catch(() => alive && setFailed(true));
+    getRanchPoints(cellId).then((p) => alive && setPoints(p));
+    getRanchPoints(cellId, true).then((p) => alive && setMyPoints(p));
     return () => {
       alive = false;
     };
   }, [cellId]);
 
-  const ranch = useMemo(() => (counts ? computeRanch(counts) : null), [counts]);
+  const ranch = useMemo(() => (counts ? computeRanch(counts, points) : null), [counts, points]);
   const items = useMemo<[string, string, string][]>(
     () => (ranch?.animals ?? []).map((a) => [a.key, a.stage, `${a.label} · ${STAGE_LABEL[a.stage]}`]),
     [ranch],
@@ -77,7 +81,7 @@ export default function RanchScreen() {
               <RanchFrame items={items} />
             </View>
             <ScrollView contentContainerStyle={styles.body}>
-              <RanchGuide ranch={ranch} />
+              <RanchGuide ranch={ranch} points={points} mine={myPoints} />
 
               <SectionTitle hint={`${ranch.animals.length} / ${BREEDS.length}`}>방주 도감</SectionTitle>
               {BREEDS.map((b, i) => {

@@ -18,6 +18,8 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { nameOf, useCellRoom } from '@/hooks/use-cell-room';
 import { createCellReport, getCellReports, removeCellReport, type CellReport } from '@/db/cell';
+import { getHabits, saveHabits } from '@/db/ranch';
+import { HABIT_TARGET } from '@/lib/ranch';
 import {
   createGathering,
   DEFAULT_STEPS,
@@ -79,6 +81,10 @@ export default function ChapelScreen() {
   const [repBody, setRepBody] = useState('');
   const [repError, setRepError] = useState('');
 
+  // 이번 주 기도 시간(분)·통독(장) — 식구별, 입력 중에는 글자로 든다
+  const [habits, setHabits] = useState<Record<string, { pm: string; ch: string }>>({});
+  const [habitError, setHabitError] = useState('');
+
   // 마무리 입력칸
   const [summary, setSummary] = useState('');
   const [nextCare, setNextCare] = useState('');
@@ -94,6 +100,12 @@ export default function ChapelScreen() {
     const cur = pickCurrentGathering(rows, todayString());
     setCurrent(cur);
     setAtt(cur ? await getAttendance(cur.id) : []);
+    if (cur) {
+      const rows = await getHabits(cur.id);
+      const next: Record<string, { pm: string; ch: string }> = {};
+      for (const h of rows) next[h.userId] = { pm: String(h.prayerMinutes), ch: String(h.chapters) };
+      setHabits(next);
+    }
     setSummary(cur?.summary ?? '');
     setNextCare(cur?.nextCare ?? '');
   }, [cellId]);
@@ -176,8 +188,30 @@ export default function ChapelScreen() {
   }
 
   async function finish() {
-    if (!current) return;
+    if (!current || !room) return;
+    const toInt = (v: string | undefined) => {
+      const n = Math.round(Number((v ?? '').trim() || 0));
+      return Number.isFinite(n) && n >= 0 ? n : NaN;
+    };
+    const rows = Object.entries(habits)
+      .map(([userId, v]) => ({ userId, prayerMinutes: toInt(v.pm), chapters: toInt(v.ch) }))
+      .filter((r) => r.prayerMinutes !== 0 || r.chapters !== 0);
+    if (rows.some((r) => Number.isNaN(r.prayerMinutes) || Number.isNaN(r.chapters))) {
+      setHabitError('기도 시간과 통독은 숫자로 적어 주세요.');
+      return;
+    }
+    if (rows.some((r) => r.prayerMinutes > 3000 || r.chapters > 1200)) {
+      setHabitError('숫자가 너무 커요. 기도는 분, 통독은 장 수로 적어 주세요.');
+      return;
+    }
+    setHabitError('');
     setBusy(true);
+    const saved = await saveHabits(current.id, room.userId, rows);
+    if (saved.error) {
+      setBusy(false);
+      setHabitError(`기도·통독 기록을 저장하지 못했어요. ${saved.error}`);
+      return;
+    }
     await updateGathering(current.id, {
       status: 'closed',
       summary: summary.trim() || null,
@@ -269,6 +303,47 @@ export default function ChapelScreen() {
               })}
             </View>
           </Card>
+          <SectionTitle hint={`기준: 한 주에 기도 7시간(${HABIT_TARGET.prayerMinutesPerWeek}분) · 통독 ${HABIT_TARGET.chaptersPerWeek}장`}>
+            이번 주 기도와 통독
+          </SectionTitle>
+          {attendance.filter((a) => a.attended).length === 0 ? (
+            <Empty text="위에서 모인 분을 먼저 눌러 표시해 주세요." />
+          ) : (
+            attendance
+              .filter((a) => a.attended)
+              .map((a) => (
+                <Card key={a.userId}>
+                  <ThemedText type="smallBold">{nameOf(room?.names ?? new Map(), a.userId)}</ThemedText>
+                  <View style={styles.row}>
+                    <View style={styles.grow}>
+                      <Field
+                        label="기도 (분)"
+                        value={habits[a.userId]?.pm ?? ''}
+                        onChangeText={(v) =>
+                          setHabits((h) => ({ ...h, [a.userId]: { pm: v, ch: h[a.userId]?.ch ?? '' } }))
+                        }
+                        placeholder="420"
+                      />
+                    </View>
+                    <View style={styles.grow}>
+                      <Field
+                        label="통독 (장)"
+                        value={habits[a.userId]?.ch ?? ''}
+                        onChangeText={(v) =>
+                          setHabits((h) => ({ ...h, [a.userId]: { pm: h[a.userId]?.pm ?? '', ch: v } }))
+                        }
+                        placeholder="23"
+                      />
+                    </View>
+                  </View>
+                </Card>
+              ))
+          )}
+          {habitError ? (
+            <ThemedText type="small" themeColor="support">
+              {habitError}
+            </ThemedText>
+          ) : null}
           <Field
             label="주요 나눔"
             value={summary}
