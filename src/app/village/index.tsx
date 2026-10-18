@@ -15,7 +15,6 @@ import {
   Tag,
   todayString,
 } from '@/components/village/kit';
-import { RanchGuide } from '@/components/village/RanchGuide';
 import { getRanchCounts, getRanchPoints } from '@/db/ranch';
 import { computeRanch, STAGE_LABEL, type RanchCounts, type RanchPoints } from '@/lib/ranch';
 import { Spacing } from '@/constants/theme';
@@ -84,7 +83,6 @@ export default function CellHomeScreen() {
 
   const [ranchCounts, setRanchCounts] = useState<RanchCounts | null>(null);
   const [ranchPoints, setRanchPoints] = useState<RanchPoints | null>(null);
-  const [myPoints, setMyPoints] = useState<RanchPoints | null>(null);
   useEffect(() => {
     if (!cellId) return;
     let alive = true;
@@ -92,7 +90,6 @@ export default function CellHomeScreen() {
       .then((c) => alive && setRanchCounts(c))
       .catch(() => {});
     getRanchPoints(cellId).then((p) => alive && setRanchPoints(p));
-    getRanchPoints(cellId, true).then((p) => alive && setMyPoints(p));
     return () => {
       alive = false;
     };
@@ -214,7 +211,6 @@ export default function CellHomeScreen() {
               방주 도감 보기 ›
             </ThemedText>
           </Pressable>
-          <RanchGuide ranch={ranch} points={ranchPoints} mine={myPoints} />
           {/* ── 이번 모임 ─────────────────────────────────────── */}
           <Card>
             <View style={styles.rowBetween}>
