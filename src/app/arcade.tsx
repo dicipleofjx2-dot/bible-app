@@ -48,6 +48,9 @@ export default function ArcadeScreen() {
             </ThemedText>
           </Pressable>
         )}
+        <View style={styles.frame}>
+          <ArcadeFrame signedIn={!!session} onState={onState} />
+        </View>
         <Pressable
           onPress={() => router.push('/arcade/joshua' as Href)}
           style={({ pressed }) => [
@@ -62,9 +65,6 @@ export default function ArcadeScreen() {
             열기
           </ThemedText>
         </Pressable>
-        <View style={styles.frame}>
-          <ArcadeFrame signedIn={!!session} onState={onState} />
-        </View>
       </SafeAreaView>
     </ThemedView>
   );
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.three,
-    borderBottomWidth: 1,
+    borderTopWidth: 1,
   },
   signInText: { flex: 1 },
   pressed: { opacity: 0.7 },
