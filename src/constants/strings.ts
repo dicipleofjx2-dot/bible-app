@@ -48,6 +48,7 @@ export const STRINGS = {
   // 목장마을ON 들어가는 칸. 새부대교회가 부르는 이름을 그대로 쓴다 — 「목장」은
   // 교회마다 다르게 부르지만(구역·셀·목장), 성도는 자기 교회 말로만 찾는다.
   'home.village': { ko: '신바람목장', en: 'Cell Village' },
+  'home.evangelism': { ko: '전도', en: 'Evangelism' },
   'home.campus': { ko: '디지털\n캠퍼스', en: 'Digital\nCampus' },
   'home.arena': { ko: '성경게임대전', en: 'Bible Arena' },
   // 줄바꿈을 손으로 넣는다. 바둑판 한 칸은 화면의 31.5% 라 뒤에 붙는 바깥 링크
