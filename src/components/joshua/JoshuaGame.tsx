@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { sfx } from '@/lib/joshuaSound';
 import {
   INTRO_MS,
   mulberry32,
@@ -73,6 +74,31 @@ export function JoshuaGame({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
+  // 소리: 단계가 바뀌는 순간마다 한 번. (훅이라 아래 early return 보다 위에 있어야 한다)
+  const [muted, setMuted] = useState(false);
+  const phaseKey =
+    t < 0
+      ? `c${Math.ceil(-t / 1000)}`
+      : stage >= WARS.length
+        ? 'end'
+        : `s${stage}${within < INTRO_MS ? 'i' : 'p'}`;
+  useEffect(() => {
+    if (phaseKey[0] === 'c') {
+      sfx.beep(phaseKey === 'c1');
+    } else if (phaseKey === 'end') {
+      sfx.stopDrone();
+      sfx.stageEnd();
+      sfx.victory();
+    } else if (phaseKey.endsWith('i')) {
+      if (phaseKey !== 's0i') sfx.stageEnd();
+      sfx.shofar();
+      sfx.startDrone();
+    } else {
+      sfx.go();
+    }
+  }, [phaseKey]);
+  useEffect(() => () => sfx.stopDrone(), []);
+
   const setScore = useCallback(
     (i: number) => (s: number) => {
       scores.current[i] = Math.max(0, Math.min(100, Math.round(s)));
@@ -113,6 +139,15 @@ export function JoshuaGame({
         <ThemedText type="smallBold" style={{ color: theme.accent }}>
           {stage + 1}/{WARS.length} {war.emoji} {war.title}
         </ThemedText>
+        <Pressable
+          hitSlop={8}
+          onPress={() => {
+            sfx.setMuted(!muted);
+            setMuted(!muted);
+            if (muted) sfx.startDrone();
+          }}>
+          <ThemedText type="smallBold">{muted ? '🔇' : '🔊'}</ThemedText>
+        </Pressable>
         <ThemedText type="smallBold">
           {inIntro ? '' : `${left}초 · `}
           {total()}점
@@ -220,6 +255,10 @@ function Jericho({ seed, elapsed, onScore }: StageProps) {
     setTaps(list);
     onScore(list.reduce((a, b) => a + b, 0));
     setMsg(dist < 0.05 ? '정확!' : dist < 0.12 ? '좋아요' : '빗나감');
+    const q = Math.max(0, 1 - dist / 0.22);
+    if (next === JERICHO_TAPS - 1) sfx.wallFall(q);
+    else if (q > 0.05) sfx.march(q);
+    else sfx.miss();
   };
 
   const marker = pos(elapsed);
@@ -310,12 +349,17 @@ function Ambush({ seed, elapsed, onScore }: StageProps) {
   const press = (c: number) => {
     if (phase !== 'input') return;
     setFlash(c);
+    sfx.signal(c, 0.2);
     setTimeout(() => setFlash(null), 150);
     if (c !== mySeq[idx]) {
+      sfx.wrong();
       nextRound(idx); // 틀리면 지금까지 맞춘 만큼만 인정하고 다음 판으로
       return;
     }
-    if (idx + 1 >= len) nextRound(len);
+    if (idx + 1 >= len) {
+      sfx.stageEnd();
+      nextRound(len);
+    }
     else setIdx(idx + 1);
   };
 
@@ -377,6 +421,7 @@ function Gibeon({ seed, elapsed, onScore }: StageProps) {
   onScore((s.inBand / WAR_MS) * 100 * 1.12);
 
   const pray = () => {
+    sfx.pray();
     s.v = Math.min(0.5, s.v + 0.2);
     force((n) => n + 1);
   };
@@ -439,8 +484,13 @@ function Kings({ seed, elapsed, onScore }: StageProps) {
         setHit(nextHit);
         let k = kingsDown;
         let w = wrong;
-        if (events[e].king) k += 1;
-        else w += 1;
+        if (events[e].king) {
+          k += 1;
+          sfx.king();
+        } else {
+          w += 1;
+          sfx.people();
+        }
         setKingsDown(k);
         setWrong(w);
         onScore(Math.max(0, k * 20 - w * 10));
