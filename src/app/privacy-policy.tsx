@@ -70,15 +70,22 @@ export default function PrivacyPolicyScreen() {
 
           <Section title="4. 보유 및 삭제">
             <ThemedText style={styles.paragraph}>
-              회원 탈퇴 또는 게시물 삭제를 요청하시면 지체 없이 처리합니다. 계정 삭제를 원하시면
-              아래 연락처로 이메일을 보내주세요.
+              계정 삭제는 앱 안에서 직접 하실 수 있습니다. 프로필 화면 맨 아래의
+              «계정 삭제»를 누르시면 무엇이 함께 지워지는지 확인한 뒤 지우실 수 있습니다.
+              통독·큐티·감사일기 같은 개인 기록은 계정과 함께 즉시 삭제되며 되돌릴 수 없습니다.
+              게시판·기도나무에 남기신 글은 다른 이용자의 대화가 끊기지 않도록 글은 남고
+              작성자 정보만 삭제됩니다.
+            </ThemedText>
+            <ThemedText style={styles.paragraph}>
+              앱을 지우신 뒤에도 계정 삭제를 원하시면 아래 연락처로 알려 주시면 지체 없이
+              처리합니다.
             </ThemedText>
           </Section>
 
           <Section title="5. 이용자의 권리">
             <ThemedText style={styles.paragraph}>
               이용자는 언제든지 본인의 개인정보 열람, 정정, 삭제를 요청할 수 있으며, 앱 내
-              프로필 화면에서 직접 닉네임 수정 및 로그아웃이 가능합니다.
+              프로필 화면에서 닉네임 수정, 로그아웃, 계정 삭제를 직접 하실 수 있습니다.
             </ThemedText>
           </Section>
 

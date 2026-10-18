@@ -21,7 +21,7 @@ const LOCK_NAME = 'davidbible-db';
 
 type LockManager = {
   request(name: string, options: { mode?: string; signal?: AbortSignal }, cb: () => Promise<void>): Promise<void>;
-  query(): Promise<{ held: { name?: string }[] }>;
+  query(): Promise<{ held: { name?: string }[]; pending?: { name?: string }[] }>;
 };
 
 function locks(): LockManager | null {
@@ -50,6 +50,33 @@ export async function hasOtherTab(): Promise<boolean> {
     return state.held.some((lock) => lock.name === LOCK_NAME);
   } catch {
     return false;
+  }
+}
+
+/**
+ * **우리 잠금을 달라고 줄 서 있는 탭이 있는가.**
+ *
+ * 메시지(BroadcastChannel)는 잠든 탭에게 닿지 않는다. 그런데 잠금을 기다리는
+ * 요청은 브라우저가 대신 들고 있어서, 쥐고 있는 쪽에서 물어보기만 하면 안다.
+ * 화면이 꺼진 탭이 이걸로 "누가 기다리는구나"를 알아채고 자리를 내줄 수 있다.
+ */
+export async function hasWaitingTab(): Promise<boolean> {
+  const manager = locks();
+  if (!manager) return false;
+  try {
+    const state = await manager.query();
+    return (state.pending ?? []).some((lock) => lock.name === LOCK_NAME);
+  } catch {
+    return false;
+  }
+}
+
+/** 물러난 표시를 남긴다(스스로 물러날 때 쓴다). */
+export function markYielded() {
+  try {
+    sessionStorage.setItem(YIELDED_KEY, '1');
+  } catch {
+    // 못 남겨도 잠금은 놓인다. 다시 뜬 뒤 한 번 더 뺏길 뿐이다.
   }
 }
 
@@ -147,6 +174,37 @@ function channel(): BroadcastChannel | null {
 export function hasYielded(): boolean {
   if (typeof sessionStorage === 'undefined') return false;
   return sessionStorage.getItem(YIELDED_KEY) === '1';
+}
+
+/**
+ * 물러난 표시가 남아 있는데 **실제로는 아무도 DB를 안 쥐고 있으면** 스스로 푼다.
+ *
+ * 자리를 넘겨받은 탭이 닫히면 잠금은 브라우저가 풀어 주지만, 물러난 표시는 이 탭의
+ * sessionStorage 에 그대로 남는다. 그러면 그 탭에서는 앱이 **영영 안 열린다** —
+ * 교회앱에서 링크를 눌러 들어와도 매번 "다른 탭에서 열었어요"만 보인다.
+ * (2026-09-18 확인: 상대 탭을 닫은 뒤에도 같은 화면이 계속 나왔다.)
+ *
+ * 돌려주는 값: 정말 다른 탭이 쓰고 있으면 true. 표시를 못 지웠을 때도 true 를
+ * 돌려준다 — 못 지운 채 새로고침하면 같은 화면으로 되돌아와 무한히 반복된다.
+ */
+export async function stillYielded(): Promise<boolean> {
+  if (!hasYielded()) return false;
+
+  // 한 번만 보고 판단하면 안 된다. 자리를 넘겨받는 탭은 **잠깐 잠금을 놓았다가**
+  // 다시 잡는다(빈 자리를 확인한 뒤 DB 를 여는 구조라 그렇다). 그 틈에 물어보면
+  // "아무도 없다"로 보여서, 물러난 탭이 도로 잡으러 들고 두 탭이 서로 뺏는다.
+  // 그래서 잠시 지켜보다가 **한 번이라도 잡혀 있으면** 진짜로 쓰는 중이라고 본다.
+  for (let i = 0; i < 6; i += 1) {
+    if (await hasOtherTab()) return true;
+    await new Promise((r) => setTimeout(r, 500));
+  }
+
+  try {
+    sessionStorage.removeItem(YIELDED_KEY);
+  } catch {
+    return true;
+  }
+  return hasYielded();
 }
 
 /** "여기서 다시 열기"를 누르면 물러남을 취소하고 다시 잡으러 간다. */

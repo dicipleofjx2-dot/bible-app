@@ -17,7 +17,9 @@ import {
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { nameOf, useCellRoom } from '@/hooks/use-cell-room';
-import { getCellReports, type CellReport } from '@/db/cell';
+import { createCellReport, getCellReports, removeCellReport, type CellReport } from '@/db/cell';
+import { getHabits, saveHabits } from '@/db/ranch';
+import { HABIT_TARGET } from '@/lib/ranch';
 import {
   createGathering,
   DEFAULT_STEPS,
@@ -61,7 +63,7 @@ export default function ChapelScreen() {
   const [current, setCurrent] = useState<Gathering | null>(null);
   const [attendance, setAtt] = useState<Attendance[]>([]);
   const [busy, setBusy] = useState(false);
-  const [mode, setMode] = useState<'view' | 'new' | 'run' | 'close'>('view');
+  const [mode, setMode] = useState<'view' | 'new' | 'run' | 'close' | 'report'>('view');
   const [stepIndex, setStepIndex] = useState(0);
 
   // 새 모임 입력칸
@@ -72,6 +74,16 @@ export default function ChapelScreen() {
   const [place, setPlace] = useState('');
   const [scripture, setScripture] = useState('');
   const [material, setMaterial] = useState('');
+
+  // 목장 보고 입력칸
+  const [repDate, setRepDate] = useState(todayString());
+  const [repCount, setRepCount] = useState('');
+  const [repBody, setRepBody] = useState('');
+  const [repError, setRepError] = useState('');
+
+  // 이번 주 기도 시간(분)·통독(장) — 식구별, 입력 중에는 글자로 든다
+  const [habits, setHabits] = useState<Record<string, { pm: string; ch: string }>>({});
+  const [habitError, setHabitError] = useState('');
 
   // 마무리 입력칸
   const [summary, setSummary] = useState('');
@@ -88,6 +100,12 @@ export default function ChapelScreen() {
     const cur = pickCurrentGathering(rows, todayString());
     setCurrent(cur);
     setAtt(cur ? await getAttendance(cur.id) : []);
+    if (cur) {
+      const rows = await getHabits(cur.id);
+      const next: Record<string, { pm: string; ch: string }> = {};
+      for (const h of rows) next[h.userId] = { pm: String(h.prayerMinutes), ch: String(h.chapters) };
+      setHabits(next);
+    }
     setSummary(cur?.summary ?? '');
     setNextCare(cur?.nextCare ?? '');
   }, [cellId]);
@@ -120,6 +138,47 @@ export default function ChapelScreen() {
     }
   }
 
+  async function submitReport() {
+    if (!cellId || !room || busy) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(repDate)) {
+      setRepError('날짜를 2026-10-11 처럼 적어 주세요.');
+      return;
+    }
+    if (!repBody.trim()) {
+      setRepError('보고 내용을 적어 주세요.');
+      return;
+    }
+    const count = repCount.trim() === '' ? null : Number(repCount);
+    if (count !== null && (!Number.isInteger(count) || count < 0)) {
+      setRepError('모인 사람 수는 숫자로 적어 주세요.');
+      return;
+    }
+    setBusy(true);
+    setRepError('');
+    const { error } = await createCellReport({
+      cellId,
+      authorId: room.userId,
+      kind: 'report',
+      metOn: repDate,
+      body: repBody.trim(),
+      attendance: count,
+    });
+    setBusy(false);
+    if (error) {
+      setRepError('올리지 못했어요. 잠시 뒤 다시 해 주세요.');
+      return;
+    }
+    setRepBody('');
+    setRepCount('');
+    setMode('view');
+    await load();
+  }
+
+  async function deleteReport(id: string) {
+    await removeCellReport(id);
+    await load();
+  }
+
   async function start() {
     if (!current) return;
     await updateGathering(current.id, { status: 'running' });
@@ -129,8 +188,30 @@ export default function ChapelScreen() {
   }
 
   async function finish() {
-    if (!current) return;
+    if (!current || !room) return;
+    const toInt = (v: string | undefined) => {
+      const n = Math.round(Number((v ?? '').trim() || 0));
+      return Number.isFinite(n) && n >= 0 ? n : NaN;
+    };
+    const rows = Object.entries(habits)
+      .map(([userId, v]) => ({ userId, prayerMinutes: toInt(v.pm), chapters: toInt(v.ch) }))
+      .filter((r) => r.prayerMinutes !== 0 || r.chapters !== 0);
+    if (rows.some((r) => Number.isNaN(r.prayerMinutes) || Number.isNaN(r.chapters))) {
+      setHabitError('기도 시간과 통독은 숫자로 적어 주세요.');
+      return;
+    }
+    if (rows.some((r) => r.prayerMinutes > 3000 || r.chapters > 1200)) {
+      setHabitError('숫자가 너무 커요. 기도는 분, 통독은 장 수로 적어 주세요.');
+      return;
+    }
+    setHabitError('');
     setBusy(true);
+    const saved = await saveHabits(current.id, room.userId, rows);
+    if (saved.error) {
+      setBusy(false);
+      setHabitError(`기도·통독 기록을 저장하지 못했어요. ${saved.error}`);
+      return;
+    }
     await updateGathering(current.id, {
       status: 'closed',
       summary: summary.trim() || null,
@@ -157,11 +238,11 @@ export default function ChapelScreen() {
   const steps = current?.steps ?? [];
 
   return (
-    <RoomScreen title="예배당" emoji="⛪" subtitle={room?.cell?.name ?? ''}>
+    <RoomScreen title="목장모임 및 목장보고" emoji="⛪" subtitle={room?.cell?.name ?? ''}>
       {loading ? (
         <Empty text="불러오는 중입니다…" />
       ) : !cellId ? (
-        <Empty text="목장이 정해지면 예배당이 열립니다." />
+        <Empty text="목장이 정해지면 목장모임이 열립니다." />
       ) : mode === 'run' && current ? (
         /* ── 진행 화면 — 순서를 한 장씩 ─────────────────────── */
         <>
@@ -222,6 +303,47 @@ export default function ChapelScreen() {
               })}
             </View>
           </Card>
+          <SectionTitle hint={`기준: 한 주에 기도 7시간(${HABIT_TARGET.prayerMinutesPerWeek}분) · 통독 ${HABIT_TARGET.chaptersPerWeek}장`}>
+            이번 주 기도와 통독
+          </SectionTitle>
+          {attendance.filter((a) => a.attended).length === 0 ? (
+            <Empty text="위에서 모인 분을 먼저 눌러 표시해 주세요." />
+          ) : (
+            attendance
+              .filter((a) => a.attended)
+              .map((a) => (
+                <Card key={a.userId}>
+                  <ThemedText type="smallBold">{nameOf(room?.names ?? new Map(), a.userId)}</ThemedText>
+                  <View style={styles.row}>
+                    <View style={styles.grow}>
+                      <Field
+                        label="기도 (분)"
+                        value={habits[a.userId]?.pm ?? ''}
+                        onChangeText={(v) =>
+                          setHabits((h) => ({ ...h, [a.userId]: { pm: v, ch: h[a.userId]?.ch ?? '' } }))
+                        }
+                        placeholder="420"
+                      />
+                    </View>
+                    <View style={styles.grow}>
+                      <Field
+                        label="통독 (장)"
+                        value={habits[a.userId]?.ch ?? ''}
+                        onChangeText={(v) =>
+                          setHabits((h) => ({ ...h, [a.userId]: { pm: h[a.userId]?.pm ?? '', ch: v } }))
+                        }
+                        placeholder="23"
+                      />
+                    </View>
+                  </View>
+                </Card>
+              ))
+          )}
+          {habitError ? (
+            <ThemedText type="small" themeColor="support">
+              {habitError}
+            </ThemedText>
+          ) : null}
           <Field
             label="주요 나눔"
             value={summary}
@@ -238,6 +360,34 @@ export default function ChapelScreen() {
             placeholder="누구에게 무엇을 할지 한 줄로"
           />
           <Btn label={busy ? '저장 중…' : '기록 저장하고 마치기'} onPress={finish} disabled={busy} />
+          <Btn label="취소" tone="ghost" onPress={() => setMode('view')} />
+        </>
+      ) : mode === 'report' ? (
+        /* ── 목장 보고 올리기 ───────────────────────────────── */
+        <>
+          <SectionTitle hint="모임을 마치고 목자가 올립니다">목장 보고 올리기</SectionTitle>
+          <Field label="모인 날 (YYYY-MM-DD)" value={repDate} onChangeText={setRepDate} />
+          <Field
+            label="모인 사람 수"
+            value={repCount}
+            onChangeText={setRepCount}
+            placeholder="예: 8"
+            hint="적고 싶을 때만 적으세요."
+          />
+          <Field
+            label="보고 내용"
+            value={repBody}
+            onChangeText={setRepBody}
+            multiline
+            placeholder="어떻게 모였고, 어떤 은혜와 일이 있었는지"
+            hint="개인 상담이나 사정은 여기 적지 마세요. 돌봄실에 따로 담깁니다."
+          />
+          {repError ? (
+            <ThemedText type="small" themeColor="support">
+              {repError}
+            </ThemedText>
+          ) : null}
+          <Btn label={busy ? '올리는 중…' : '보고 올리기'} onPress={submitReport} disabled={busy} />
           <Btn label="취소" tone="ghost" onPress={() => setMode('view')} />
         </>
       ) : mode === 'new' ? (
@@ -359,6 +509,17 @@ export default function ChapelScreen() {
           )}
 
           {canLead ? <Btn label="새 모임 만들기" onPress={() => setMode('new')} /> : null}
+          {canLead ? (
+            <Btn
+              label="목장 보고 올리기"
+              tone="quiet"
+              onPress={() => {
+                setRepDate(todayString());
+                setRepError('');
+                setMode('report');
+              }}
+            />
+          ) : null}
 
           <SectionTitle hint="모인 날 차례">지난 모임</SectionTitle>
           {list.filter((g) => g.id !== current?.id).length === 0 ? (
@@ -390,16 +551,10 @@ export default function ChapelScreen() {
               ))
           )}
 
-          {/*
-            옛 목장방(/r2m/cell)에서 올린 모임 보고.
-
-            그 화면은 없앴지만 **표(cell_reports)는 그대로 살아 있다.** 새로 쓰는
-            자리는 위의 모임 기록이라 여기서는 읽기만 한다 — 옛 글을 못 보게
-            하면 목장이 지나온 자취가 통째로 사라진다.
-          */}
+          {/* 목자가 올린 모임 보고(cell_reports). 옛 목장방에서 올린 글도 같은 표다. */}
           {oldReports.length > 0 ? (
             <>
-              <SectionTitle hint="옛 목장방에서 올린 글입니다">지난 목장 보고</SectionTitle>
+              <SectionTitle hint="모인 날 차례">목장 보고</SectionTitle>
               {oldReports.map((r) => (
                 <Card key={r.id}>
                   <ThemedText type="smallBold" themeColor="textSecondary">
@@ -411,6 +566,9 @@ export default function ChapelScreen() {
                   <ThemedText type="small" themeColor="textSecondary">
                     {nameOf(room?.names ?? new Map(), r.authorId)}
                   </ThemedText>
+                  {r.authorId === room?.userId ? (
+                    <Btn label="지우기" tone="ghost" small onPress={() => deleteReport(r.id)} />
+                  ) : null}
                 </Card>
               ))}
             </>

@@ -1,20 +1,57 @@
 {
-  "buildCommand": "npx expo export -p web",
+  "buildCommand": "npx expo export -p web && node scripts/fix-web-head.mjs",
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/arena/escape/:roomId", "destination": "/arena/escape/[roomId]" },
-    { "source": "/arena/duel/:duelId", "destination": "/arena/duel/[duelId]" },
-    { "source": "/arena/tournament/:tournamentId", "destination": "/arena/tournament/[tournamentId]" },
-    { "source": "/library/:id/read", "destination": "/library/[id]/read" },
-    { "source": "/library/:id", "destination": "/library/[id]" },
-    { "source": "/notice-board/:id", "destination": "/notice-board/[id]" },
-    { "source": "/plans/:slug", "destination": "/plans/[slug]" },
-    { "source": "/post/:id", "destination": "/post/[id]" },
-    { "source": "/r2m/courses/:id", "destination": "/r2m/courses/[id]" },
-    { "source": "/shepherd-letters/:id", "destination": "/shepherd-letters/[id]" },
-    { "source": "/word-notes/:id", "destination": "/word-notes/[id]" }
+    {
+      "source": "/arena/escape/:roomId",
+      "destination": "/arena/escape/[roomId]"
+    },
+    {
+      "source": "/arena/duel/:duelId",
+      "destination": "/arena/duel/[duelId]"
+    },
+    {
+      "source": "/arena/tournament/:tournamentId",
+      "destination": "/arena/tournament/[tournamentId]"
+    },
+    {
+      "source": "/library/:id/read",
+      "destination": "/library/[id]/read"
+    },
+    {
+      "source": "/library/:id",
+      "destination": "/library/[id]"
+    },
+    {
+      "source": "/notice-board/:id",
+      "destination": "/notice-board/[id]"
+    },
+    {
+      "source": "/plans/:slug",
+      "destination": "/plans/[slug]"
+    },
+    {
+      "source": "/post/:id",
+      "destination": "/post/[id]"
+    },
+    {
+      "source": "/r2m/courses/:id",
+      "destination": "/r2m/courses/[id]"
+    },
+    {
+      "source": "/shepherd-letters/:id",
+      "destination": "/shepherd-letters/[id]"
+    },
+    {
+      "source": "/word-notes/:id",
+      "destination": "/word-notes/[id]"
+    },
+    {
+      "source": "/arcade/joshua/:roomId",
+      "destination": "/arcade/joshua/[roomId]"
+    }
   ]
 }

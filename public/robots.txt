@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /claim-account
+Disallow: /profile
+
+Sitemap: https://davidbible.dgaiworks.com/sitemap.xml

@@ -1,31 +1,29 @@
 import { router, type Href } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
+import { RanchFrame } from '@/components/RanchFrame';
 import { ThemedText } from '@/components/themed-text';
 import {
   Btn,
   Card,
   ChipRow,
   Empty,
-  Field,
   formatMeetDay,
   RoomScreen,
   SectionTitle,
   Tag,
   todayString,
 } from '@/components/village/kit';
+import { RanchGuide } from '@/components/village/RanchGuide';
+import { getRanchCounts, getRanchPoints } from '@/db/ranch';
+import { computeRanch, STAGE_LABEL, type RanchCounts, type RanchPoints } from '@/lib/ranch';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { nameOf, pickCell, useCellRoom } from '@/hooks/use-cell-room';
 import {
-  createCellNotice,
   getCellMeeting,
-  getCellNotices,
-  removeCellNotice,
   type CellMeeting,
-  type CellNotice,
 } from '@/db/cell';
 import {
   getAttendance,
@@ -63,8 +61,10 @@ type Room = {
 };
 
 const ROOMS: Room[] = [
-  { key: 'chapel', emoji: '⛪', name: '예배당', desc: '이번 모임 · 말씀 · 순서', href: '/village/chapel' },
-  { key: 'share', emoji: '💬', name: '소그룹실', desc: '나눔 · 소통창', href: '/village/share' },
+  { key: 'support', emoji: '🌱', name: '전도와 정착 지원', desc: '새가족 · 목장 격려', href: '/village/support' },
+  { key: 'ranch', emoji: '🐑', name: '방주 목장', desc: '활동으로 동물이 자라요', href: '/village/ranch' },
+  { key: 'chapel', emoji: '⛪', name: '목장모임 및 목장보고', desc: '이번 모임 · 순서 · 보고 올리기', href: '/village/chapel' },
+  { key: 'share', emoji: '💬', name: '나눔과 소통방', desc: '나눔 글 · 소통창', href: '/village/share' },
   { key: 'nurture', emoji: '🌱', name: '양육실', desc: '과정 · 다음 만남', href: '/village/nurture' },
   { key: 'care', emoji: '🤲', name: '돌봄실', desc: '안부 · 연락 · 심방', href: '/village/care', leaderOnly: true },
   { key: 'ministry', emoji: '🛠️', name: '사역실', desc: '섬김 일정과 역할', href: '/village/ministry' },
@@ -78,27 +78,42 @@ export default function CellHomeScreen() {
   const [gathering, setGathering] = useState<Gathering | null>(null);
   const [attendance, setAtt] = useState<Attendance[]>([]);
   const [busy, setBusy] = useState(false);
-  const [notices, setNotices] = useState<CellNotice[]>([]);
   const [regular, setRegular] = useState<CellMeeting | null>(null);
-  const [writingNotice, setWritingNotice] = useState(false);
-  const [noticeTitle, setNoticeTitle] = useState('');
-  const [noticeBody, setNoticeBody] = useState('');
 
   const cellId = room?.cell?.id ?? null;
+
+  const [ranchCounts, setRanchCounts] = useState<RanchCounts | null>(null);
+  const [ranchPoints, setRanchPoints] = useState<RanchPoints | null>(null);
+  const [myPoints, setMyPoints] = useState<RanchPoints | null>(null);
+  useEffect(() => {
+    if (!cellId) return;
+    let alive = true;
+    getRanchCounts(cellId)
+      .then((c) => alive && setRanchCounts(c))
+      .catch(() => {});
+    getRanchPoints(cellId).then((p) => alive && setRanchPoints(p));
+    getRanchPoints(cellId, true).then((p) => alive && setMyPoints(p));
+    return () => {
+      alive = false;
+    };
+  }, [cellId]);
+  const ranch = useMemo(() => (ranchCounts ? computeRanch(ranchCounts, ranchPoints) : null), [ranchCounts, ranchPoints]);
+  const ranchItems = useMemo<[string, string, string][]>(
+    () => (ranch?.animals ?? []).map((a) => [a.key, a.stage, `${a.label} · ${STAGE_LABEL[a.stage]}`]),
+    [ranch],
+  );
 
   const loadMeeting = useCallback(async () => {
     if (!cellId) {
       setGathering(null);
       return;
     }
-    const [list, ns, reg] = await Promise.all([
+    const [list, reg] = await Promise.all([
       getGatherings(cellId, 10).catch(() => [] as Gathering[]),
-      getCellNotices(cellId).catch(() => [] as CellNotice[]),
       getCellMeeting(cellId).catch(() => null),
     ]);
     const current = pickCurrentGathering(list, todayString());
     setGathering(current);
-    setNotices(ns);
     setRegular(reg);
     setAtt(current ? await getAttendance(current.id) : []);
   }, [cellId]);
@@ -115,22 +130,6 @@ export default function CellHomeScreen() {
     await setAttendance({ gatheringId: gathering.id, userId: room.userId, reply: v });
     setAtt(await getAttendance(gathering.id));
     setBusy(false);
-  }
-
-  async function postNotice() {
-    if (!cellId || !room || busy || !noticeTitle.trim()) return;
-    setBusy(true);
-    await createCellNotice({
-      cellId,
-      title: noticeTitle.trim(),
-      body: noticeBody.trim(),
-      authorId: room.userId,
-    });
-    setBusy(false);
-    setNoticeTitle('');
-    setNoticeBody('');
-    setWritingNotice(false);
-    await loadMeeting();
   }
 
   /**
@@ -203,6 +202,19 @@ export default function CellHomeScreen() {
               ) : null}
             </Card>
           ) : null}
+          {/* ── 방주 목장: 우리 목장의 3D 모습이 이 화면의 중심이다 ─── */}
+          <View style={styles.ranchHero}>
+            <RanchFrame items={ranchItems} embed />
+          </View>
+          <Pressable
+            onPress={() => router.push('/village/ranch' as Href)}
+            accessibilityRole="button"
+            accessibilityLabel="방주 도감 열기">
+            <ThemedText type="smallBold" themeColor="accent" style={styles.ranchLink}>
+              방주 도감 보기 ›
+            </ThemedText>
+          </Pressable>
+          <RanchGuide ranch={ranch} points={ranchPoints} mine={myPoints} />
           {/* ── 이번 모임 ─────────────────────────────────────── */}
           <Card>
             <View style={styles.rowBetween}>
@@ -234,7 +246,7 @@ export default function CellHomeScreen() {
                   value={myReply}
                   onChange={reply}
                 />
-                <Btn label="예배당으로 들어가기" onPress={() => router.push('/village/chapel' as Href)} />
+                <Btn label="목장모임으로 들어가기" onPress={() => router.push('/village/chapel' as Href)} />
               </>
             ) : (
               <>
@@ -265,48 +277,6 @@ export default function CellHomeScreen() {
               </ThemedText>
             </Card>
           ) : null}
-
-          {/* ── 공지 ──────────────────────────────────────────── */}
-          <SectionTitle hint={room.isLeader ? '목자가 올립니다' : undefined}>목장 공지</SectionTitle>
-          {room.isLeader || room.canSeeAll ? (
-            writingNotice ? (
-              <Card>
-                <Field label="제목" value={noticeTitle} onChangeText={setNoticeTitle} />
-                <Field label="내용" value={noticeBody} onChangeText={setNoticeBody} multiline />
-                <Btn label={busy ? '올리는 중…' : '공지 올리기'} onPress={postNotice} disabled={busy} />
-                <Btn label="취소" tone="ghost" onPress={() => setWritingNotice(false)} />
-              </Card>
-            ) : (
-              <Btn label="공지 올리기" tone="quiet" onPress={() => setWritingNotice(true)} />
-            )
-          ) : null}
-          {notices.length === 0 ? (
-            <Empty text="올라온 공지가 없어요." />
-          ) : (
-            notices.map((n) => (
-              <Card key={n.id}>
-                <View style={styles.rowBetween}>
-                  <ThemedText style={styles.big}>{n.title}</ThemedText>
-                  {n.cellId === null ? <Tag label="교회 전체" tone="warn" /> : null}
-                </View>
-                <ThemedText>{n.body}</ThemedText>
-                {n.authorId === room.userId ? (
-                  <Btn
-                    label="지우기"
-                    small
-                    tone="ghost"
-                    onPress={async () => {
-                      await removeCellNotice(n.id);
-                      await loadMeeting();
-                    }}
-                  />
-                ) : null}
-              </Card>
-            ))
-          )}
-
-          {/* ── 건물 ──────────────────────────────────────────── */}
-          <CellBuilding name={cellName} />
 
           {/* ── 방 ────────────────────────────────────────────── */}
           <SectionTitle hint="방을 누르면 읽기 편한 화면으로 들어갑니다">방 둘러보기</SectionTitle>
@@ -365,62 +335,11 @@ export default function CellHomeScreen() {
   );
 }
 
-/**
- * 작은 교회 건물.
- *
- * 게임처럼 과장하지 않는다(기획서 §4). 햇빛이 드는 예배 공동체 — 따뜻한 석재와
- * 나무, 작은 정원. 그림은 **길을 알려 주는 표지**일 뿐이라 여기서 무엇을
- * 누르게 하지 않는다. 누르는 것은 아래 방 카드다.
- */
-function CellBuilding({ name }: { name: string }) {
-  const theme = useTheme();
-  return (
-    <View style={styles.building}>
-      <Svg viewBox="0 0 340 170" width="100%" height={170}>
-        <Defs>
-          <LinearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={theme.accentSoft} />
-            <Stop offset="1" stopColor={theme.backgroundElement} />
-          </LinearGradient>
-          <LinearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor="#F6E3D2" />
-            <Stop offset="1" stopColor="#E7CDB6" />
-          </LinearGradient>
-        </Defs>
-        <Rect x="0" y="0" width="340" height="170" rx="18" fill="url(#sky)" />
-        {/* 해 */}
-        <Circle cx="286" cy="38" r="16" fill={theme.done} opacity={0.55} />
-        {/* 언덕 */}
-        <Path d="M0 140 Q 90 108 170 132 T 340 124 L340 170 L0 170 Z" fill="#9BAF9B" opacity={0.55} />
-        {/* 본채 */}
-        <Rect x="96" y="76" width="148" height="66" rx="6" fill="url(#wall)" />
-        {/* 지붕 */}
-        <Path d="M86 78 L170 34 L254 78 Z" fill="#8C5A3C" />
-        {/* 종탑 */}
-        <Rect x="160" y="16" width="20" height="24" rx="4" fill="#8C5A3C" />
-        <Rect x="167" y="4" width="6" height="14" rx="3" fill={theme.accent} />
-        {/* 문 */}
-        <Rect x="156" y="104" width="28" height="38" rx="14" fill="#6E4A33" />
-        {/* 창 — 여섯 방을 뜻한다 */}
-        <Rect x="112" y="92" width="24" height="24" rx="4" fill={theme.accent} opacity={0.75} />
-        <Rect x="204" y="92" width="24" height="24" rx="4" fill={theme.accent} opacity={0.75} />
-        {/* 정원 */}
-        <Circle cx="66" cy="140" r="14" fill="#7E9B77" />
-        <Rect x="63" y="140" width="6" height="16" fill="#6E4A33" />
-        <Circle cx="282" cy="144" r="11" fill="#7E9B77" />
-        <Rect x="280" y="144" width="5" height="13" fill="#6E4A33" />
-      </Svg>
-      <ThemedText type="small" themeColor="textSecondary" style={styles.buildingCaption}>
-        {name}
-      </ThemedText>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   big: { fontSize: 19, lineHeight: 28, fontWeight: '700' },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  building: { gap: Spacing.one },
+  ranchHero: { height: 300, borderRadius: 16, overflow: 'hidden' },
+  ranchLink: { textAlign: 'right', paddingVertical: Spacing.one },
   buildingCaption: { textAlign: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
   roomCard: {

@@ -565,7 +565,7 @@ export default function ReadingHelperHomeScreen() {
             </Pressable>
           ) : null}
 
-          <DayLesson dayContent={dayContent} loading={contentLoading} error={contentError} />
+          <DayLesson dayContent={dayContent} loading={contentLoading} error={contentError} chapters={day?.chapters} />
 
           <Pressable
             onPress={() =>

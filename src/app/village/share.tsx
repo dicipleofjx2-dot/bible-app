@@ -35,7 +35,7 @@ import {
 } from '@/db/village';
 
 /**
- * 소그룹실 — 나눔.
+ * 나눔과 소통방 — 나눔.
  *
  * 0068 의 소통창(cell_messages)과 다른 자리다. 저기는 짧은 말이 흐르고, 여기는
  * 질문 하나에 대한 답이 모여 나중에 다시 읽힌다. 그래서 이번 모임의 나눔
@@ -117,11 +117,11 @@ export default function ShareRoomScreen() {
   }
 
   return (
-    <RoomScreen title="소그룹실" emoji="💬" subtitle={room?.cell?.name ?? ''}>
+    <RoomScreen title="나눔과 소통방" emoji="💬" subtitle={room?.cell?.name ?? ''}>
       {loading ? (
         <Empty text="불러오는 중입니다…" />
       ) : !cellId ? (
-        <Empty text="목장이 정해지면 소그룹실이 열립니다." />
+        <Empty text="목장이 정해지면 나눔과 소통방이 열립니다." />
       ) : (
         <>
           {/* ── 오늘의 질문 ───────────────────────────────────── */}

@@ -278,6 +278,21 @@ export function formatMeetDay(iso: string): string {
   return `${m}월 ${d}일 (${day})`;
 }
 
+/**
+ * 사람이 적은 날짜를 YYYY-MM-DD 로. 「2026.10.20」「10/20」「10-20」도 받는다.
+ * 연도가 없으면 올해. 날짜가 아니면 null — 빈 칸은 호출하는 쪽이 먼저 거른다.
+ */
+export function normalizeDate(input: string): string | null {
+  const m = input.trim().match(/^(?:(\d{4})[-./\s]+)?(\d{1,2})[-./\s]+(\d{1,2})$/);
+  if (!m) return null;
+  const y = m[1] ? Number(m[1]) : new Date().getFullYear();
+  const mo = Number(m[2]);
+  const d = Number(m[3]);
+  const t = new Date(y, mo - 1, d);
+  if (t.getFullYear() !== y || t.getMonth() !== mo - 1 || t.getDate() !== d) return null;
+  return `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
+
 export function todayString(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;

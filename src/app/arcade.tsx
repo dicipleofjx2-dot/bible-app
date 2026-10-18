@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -48,6 +48,20 @@ export default function ArcadeScreen() {
             </ThemedText>
           </Pressable>
         )}
+        <Pressable
+          onPress={() => router.push('/arcade/joshua' as Href)}
+          style={({ pressed }) => [
+            styles.joshuaStrip,
+            { backgroundColor: theme.backgroundElement, borderColor: theme.border },
+            pressed && styles.pressed,
+          ]}>
+          <ThemedText type="smallBold" style={styles.signInText}>
+            ⚔️ 여호수아의 전쟁 — 친구와 둘이서 (초대 코드)
+          </ThemedText>
+          <ThemedText type="smallBold" style={{ color: theme.accent }}>
+            열기
+          </ThemedText>
+        </Pressable>
         <View style={styles.frame}>
           <ArcadeFrame signedIn={!!session} onState={onState} />
         </View>
@@ -61,6 +75,15 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, width: '100%' },
   frame: { flex: 1, width: '100%' },
   signInStrip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.two,
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.three,
+    borderBottomWidth: 1,
+  },
+  joshuaStrip: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
