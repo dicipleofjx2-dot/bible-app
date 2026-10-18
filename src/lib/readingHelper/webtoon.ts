@@ -3,7 +3,7 @@ import type { PlanChapterEntry } from './readingPlan';
 
 /**
  * 성경통독 웹툰(2026-10-02) — 말씀광산 앱이 통독 하루 분량만큼 한 화씩 그려
- * 워드프레스(sermon.dgaiworks.com 「통독 웹툰」)에 연재한다. 앱은 링크만 건다.
+ * 워드프레스(biblestudy.dgaiworks.com 「통독 웹툰」)에 연재한다. 앱은 링크만 건다.
  *
  * 화마다 다루는 장이 **성경 전체 장 번호**(창세기 1장 = 1 … 요한계시록 22장 = 1189)로
  * 적혀 온다. 하루 분량이 책 경계를 넘을 때가 있어서다(창세기 50장 + 출애굽기 1~2장).
@@ -14,8 +14,10 @@ import type { PlanChapterEntry } from './readingPlan';
  * 짝: 말씀광산 `src/lib/reading-plan.ts`(같은 장 번호), 플러그인 `GET /dgcb/v1/reading-comics`.
  */
 
-export const READING_WEBTOON_LIST = 'https://sermon.dgaiworks.com/reading-comics/';
-const API = 'https://sermon.dgaiworks.com/wp-json/dgcb/v1/reading-comics';
+// 2026-10-14 통독 웹툰을 설교 사이트(sermon.dgaiworks.com)에서 「성경연구」 사이트로 옮겼다.
+// 옛 주소의 5화는 그대로 남아 있고, 말씀광산이 한동안 양쪽에 같이 올린다.
+export const READING_WEBTOON_LIST = 'https://biblestudy.dgaiworks.com/reading-comics/';
+const API = 'https://biblestudy.dgaiworks.com/wp-json/dgcb/v1/reading-comics';
 
 export type ReadingWebtoon = {
   id: number;

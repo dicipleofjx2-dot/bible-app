@@ -106,16 +106,8 @@ const HOME_TILES: HomeTile[] = [
   // 칸을 이것으로 바꾸고 바이블 저니는 그 안으로 옮겼다. 교육용 앱은 홈에 칸을
   // 늘리지 말고 /edu 에 한 줄씩 더한다.
   { key: 'edu', emoji: '📚', label: 'home.edu', href: '/edu' as Href },
-  // 디지털캠퍼스 — 다른 앱이다(davidstone-campus.vercel.app). R2M훈련 칸을 이것으로
-  // 바꿨다(2026-10-02): 훈련을 영상으로 듣는 곳이 캠퍼스이고, 카카오 로그인이 같다.
-  // R2M 대시보드는 아래 탭(/bible-reading)에 그대로 있다.
-  {
-    key: 'campus',
-    emoji: '🎓',
-    label: 'home.campus',
-    href: '/',
-    external: { url: 'https://davidstone-campus.vercel.app/davidstone', window: APP_WINDOW.campus },
-  },
+  // 디지털캠퍼스는 홈에서 빼고 데이빗에듀 안으로 옮겼다(→ /edu). R2M 대시보드는
+  // 아래 탭(/bible-reading)에 그대로 있다.
   { key: 'readingHelper', emoji: '📆', label: 'home.readingHelper', href: '/reading-helper', requiresAuth: true },
   // 성경게임대전 — 로그인 없이도 방에 들어가 볼 수 있게 두었다. 기록 저장만
   // 로그인이 필요하다(→ docs/arena/README.md). 문 앞에서 막으면 「무슨 게임인지

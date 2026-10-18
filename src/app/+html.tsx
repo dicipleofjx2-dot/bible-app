@@ -22,6 +22,35 @@ export default function Root({ children }: PropsWithChildren) {
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
         />
+        {/*
+          검색엔진과 카카오톡 공유에 필요한 것들.
+          여기 없으면 제목 없는 빈 문서로 잡혀 「데이빗바이블」로 검색해도 안 나온다.
+          expo-router 정적 내보내기는 이 껍데기를 모든 화면에 함께 쓴다.
+        */}
+        <title>데이빗바이블 — 읽고 이해하고 기억하는 성경 앱</title>
+        <meta
+          name="description"
+          content="성경을 읽고, 읽은 말씀을 이해하고 기억하도록 돕는 앱입니다. 통독 도우미·묵상·암송·성경 지도·아케이드를 한 곳에서."
+        />
+        <link rel="canonical" href="https://davidbible.dgaiworks.com/" />
+        <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1" />
+        <meta name="keywords" content="성경 앱,성경통독,성경 읽기,묵상,암송,성경 지도,큐티,데이빗바이블" />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ko_KR" />
+        <meta property="og:site_name" content="데이빗바이블" />
+        <meta property="og:title" content="데이빗바이블 — 읽고 이해하고 기억하는 성경 앱" />
+        <meta
+          property="og:description"
+          content="통독 도우미·묵상·암송·성경 지도·아케이드를 한 곳에서. 읽은 말씀이 남도록 돕습니다."
+        />
+        <meta property="og:url" content="https://davidbible.dgaiworks.com/" />
+        <meta property="og:image" content="https://davidbible.dgaiworks.com/og.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="데이빗바이블" />
+        <meta name="twitter:image" content="https://davidbible.dgaiworks.com/og.png" />
+
 
         {/* 홈 화면에 추가했을 때 쓰이는 것들 */}
         <link rel="manifest" href="/manifest.webmanifest" />

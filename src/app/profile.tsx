@@ -261,6 +261,26 @@ export default function ProfileScreen() {
               </View>
             )}
 
+            {/* 사용설명서. 앱 밖(dgaiworks.com)에 화면 사진과 함께 적어 둔 글이다.
+                로그아웃·계정삭제보다 위에 둔다 — 아래에 두면 아무도 못 본다. */}
+            <ThemedText type="small" themeColor="textSecondary" style={styles.adminNote}>
+              처음이시거나 누가 물어보면 이 글을 그대로 보내 주세요.
+            </ThemedText>
+            <Pressable
+              onPress={() =>
+                openAppWindow('https://dgaiworks.com/davidbible-guide/', APP_WINDOW.guide)
+              }
+              style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
+              <ThemedText type="smallBold">📘 사용설명서 — 데이빗바이블 ↗</ThemedText>
+            </Pressable>
+            <Pressable
+              onPress={() =>
+                openAppWindow('https://dgaiworks.com/reading-helper-guide/', APP_WINDOW.guide)
+              }
+              style={[styles.adminLinkButton, { backgroundColor: theme.backgroundElement }]}>
+              <ThemedText type="smallBold">📖 1년 성경일독 — 통독 도우미 안내 ↗</ThemedText>
+            </Pressable>
+
             {/* 이메일로 가입했다가 카카오로 옮겨 오신 분의 기록이 갈라지는 일이
                 있었다. 로그아웃 바로 위에 둔다 — 이어받으려면 로그아웃이 필요하다. */}
             <Pressable onPress={() => router.push('/claim-account')} style={styles.signOutButton}>
@@ -272,6 +292,14 @@ export default function ProfileScreen() {
             <Pressable onPress={handleSignOut} style={styles.signOutButton}>
               <ThemedText type="link" style={styles.signOutText}>
                 로그아웃
+              </ThemedText>
+            </Pressable>
+
+            {/* 구글 플레이는 «앱 안에서 계정을 지울 수 있어야 한다»고 요구한다.
+                로그아웃 아래에 둔다 — 실수로 누르지 않도록 맨 끝, 작은 글씨로. */}
+            <Pressable onPress={() => router.push('/delete-account')} style={styles.signOutButton}>
+              <ThemedText type="small" themeColor="textSecondary">
+                계정 삭제
               </ThemedText>
             </Pressable>
           </>
