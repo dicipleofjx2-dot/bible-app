@@ -99,6 +99,9 @@ const HOME_TILES: HomeTile[] = [
   // 읽고 나면 자연스레 우리 목장으로 건너간다.
   // 교적에 목장이 걸려 있어야 방이 열리므로 로그인이 필요하다.
   { key: 'village', emoji: '🏡', label: 'home.village', href: '/village' as Href, requiresAuth: true },
+  // 전도 — 이웃초청예배를 향한 전도대상자 돌봄·중보기도·교회 전략(0090).
+  // 대상자는 본인만 보므로 로그인이 필요하다.
+  { key: 'evangelism', emoji: '🕊️', label: 'home.evangelism', href: '/evangelism' as Href, requiresAuth: true },
   // 데이빗에듀 — 배우는 앱들을 모은 문(2026-10-02). 「지도로 보는 바이블 저니」
   // 칸을 이것으로 바꾸고 바이블 저니는 그 안으로 옮겼다. 교육용 앱은 홈에 칸을
   // 늘리지 말고 /edu 에 한 줄씩 더한다.
