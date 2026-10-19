@@ -96,8 +96,33 @@ export default function GrowthRecordScreen() {
       .catch((e) => setMessage(e instanceof Error ? e.message : '학생을 불러오지 못했어요.'));
   }, [schoolId, loadToday]);
 
+  /**
+   * 「적은 것이 있는가」.
+   *
+   * 예전에는 **관찰 단계나 관찰 내용**만 쳤다. 그래서 학습 영역에서 과목만
+   * 적고 저장하려 하면 단추가 흐려진 채 아무 일도 안 일어났다 — 과목만 적는
+   * 것은 학습 기록에서 가장 흔한 입력인데, 화면은 왜 막혔는지 한 줄도
+   * 말해 주지 않아서 「저장이 안 된다」로 보였다.
+   *
+   * 칸 하나라도 채웠으면 그건 기록이다. 무엇을 적어야 하는지는 사람이 정한다.
+   */
+  const hasContent = Boolean(level || body.trim() || subject.trim() || nextAction.trim());
+
   async function save() {
-    if (!userId || !schoolId || !picked.length) return;
+    // 조용히 돌아가지 않는다. 눌렀는데 아무 일도 안 일어나는 것이 이 화면에서
+    // 가장 사람을 헷갈리게 했다.
+    if (!userId || !schoolId) {
+      setMessage('학교 정보를 아직 불러오지 못했어요. 잠시 뒤 다시 눌러 주세요.');
+      return;
+    }
+    if (!picked.length) {
+      setMessage('학생을 한 명 이상 고르세요.');
+      return;
+    }
+    if (!hasContent) {
+      setMessage('관찰 단계·과목·관찰한 내용·다음 지도 가운데 하나는 적어야 저장됩니다.');
+      return;
+    }
     setBusy(true);
     try {
       const n = await addRecords(
@@ -219,10 +244,22 @@ export default function GrowthRecordScreen() {
         </GrowthCard>
 
         <PrimaryButton
-          label={picked.length ? `${picked.length}명에게 저장` : '학생을 고르세요'}
+          label={busy ? '저장하는 중…' : picked.length ? `${picked.length}명에게 저장` : '학생을 고르세요'}
           onPress={save}
-          disabled={busy || !picked.length || (!body.trim() && !level)}
+          disabled={busy || !picked.length || !hasContent}
         />
+
+        {/*
+          **막혔으면 이유를 말한다.** 흐려진 단추는 「고장」과 구별되지 않는다 —
+          실제로 「학습활동을 기록하면 저장이 안 된다」는 말이 이 자리에서 나왔다.
+        */}
+        {!busy && (!picked.length || !hasContent) ? (
+          <ThemedText themeColor="textSecondary" style={Type.itemDescription}>
+            {!picked.length
+              ? '먼저 위에서 학생을 고르세요.'
+              : '관찰 단계·과목·관찰한 내용·다음 지도 가운데 하나는 적어야 저장됩니다.'}
+          </ThemedText>
+        ) : null}
 
         {message ? (
           <ThemedText themeColor="accent" style={Type.itemTitle}>
