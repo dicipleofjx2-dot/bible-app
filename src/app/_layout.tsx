@@ -1,5 +1,13 @@
 import { useFonts } from 'expo-font';
-import { DarkTheme, DefaultTheme, Redirect, Stack, ThemeProvider, usePathname } from 'expo-router';
+import {
+  DarkTheme,
+  DefaultTheme,
+  Redirect,
+  Stack,
+  ThemeProvider,
+  useGlobalSearchParams,
+  usePathname,
+} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import Head from 'expo-router/head';
 import { SQLiteProvider } from 'expo-sqlite';
@@ -76,8 +84,16 @@ export default function RootLayout() {
   // 한 번 그려지는 동안 달라질 일이 없다.
   const yielded = hasYielded();
 
+  // 다른 앱에서 **홈으로 바로** 들어오는 길. `/?home=1` 이면 인트로를 건너뛴다.
+  //
+  // 중보기도센터처럼 밖에서 「데이빗바이블로 나가기」를 누르면 주소가 '/' 라서
+  // 늘 인트로가 떴다 — 나가려던 사람에게 「시작하기」를 한 번 더 누르게 하는 꼴이다.
+  // 인트로 자체는 그대로 둔다(앱을 처음 여는 분에게는 그 화면이 맞다).
+  const params = useGlobalSearchParams<{ home?: string }>();
+  const skipIntro = params.home === '1';
+
   const alreadyRedirected = useRef(false);
-  const shouldShowIntro = pathname === '/' && !alreadyRedirected.current;
+  const shouldShowIntro = pathname === '/' && !skipIntro && !alreadyRedirected.current;
   if (shouldShowIntro) {
     alreadyRedirected.current = true;
   }
