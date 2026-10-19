@@ -37,6 +37,8 @@ import {
 import { useTheme } from '@/hooks/use-theme';
 import { ACTION_KINDS, kindEmoji, kindLabel, type ActionKind } from '@/lib/evangelism';
 
+const RELATIONS = ['가족', '친척', '친구', '직장 동료', '이웃', '지인'];
+
 /**
  * 전도대상자 한 사람 — 걸음 기록, 이름·사정, 교회에 중보 요청으로 나누기.
  *
@@ -189,8 +191,16 @@ export default function TargetScreen() {
     <RoomScreen title={isNew ? '전도대상자 올리기' : (target?.name ?? '전도대상자')} emoji="🕊️" onBack={back}>
       {isNew || editing ? (
         <Card>
-          <Field label="이름" value={name} onChangeText={setName} placeholder="예: 김민수" hint="나만 볼 수 있어요. 교회에는 별명으로만 나눠요." />
-          <Field label="관계" value={relation} onChangeText={setRelation} placeholder="가족·친구·직장 동료·이웃" />
+          <Field label="이름" value={name} onChangeText={setName} placeholder="예: 김민수" hint="교회 전체 표에는 성만 보이고 이름은 OO로 가려져요. 메모는 나만 봐요." />
+          <ThemedText type="smallBold" themeColor="textSecondary">
+            전도자(나)와의 관계
+          </ThemedText>
+          <ChipRow
+            options={RELATIONS.map((r) => ({ value: r, label: r }))}
+            value={RELATIONS.includes(relation) ? relation : null}
+            onChange={setRelation}
+          />
+          <Field label="직접 적기" value={relation} onChangeText={setRelation} placeholder="예: 시누이, 대학 동기" />
           <Field label="메모 · 기도제목" value={note} onChangeText={setNote} multiline placeholder="어떤 마음으로 품게 되었는지, 구체적인 기도제목" />
           <View style={styles.row}>
             <Btn label={isNew ? '올리기' : '저장'} onPress={saveProfile} disabled={busy} />

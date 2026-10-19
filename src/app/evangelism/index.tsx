@@ -1,9 +1,9 @@
 import { router, useFocusEffect, type Href } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Btn, Card, Empty, RoomScreen, SectionTitle, Tag } from '@/components/village/kit';
+import { Btn, Card, ChipRow, Empty, RoomScreen, SectionTitle, Tag } from '@/components/village/kit';
 import { Spacing } from '@/constants/theme';
 import {
   getActiveCampaign,
@@ -34,6 +34,12 @@ import { useAuth } from '@/lib/auth';
  * 사람들이 어디까지 왔는지(내 대상자), 함께 기도할 사람들(중보 광장).
  * 대상자의 이름·사정은 본인에게만 보인다 — 교회에 나누려면 별명으로 따로 나눈다.
  */
+/** 「2026-10-20」→「10/20」 */
+function shortDay(iso: string): string {
+  const [, m, d] = iso.split('-').map(Number);
+  return `${m}/${d}`;
+}
+
 export default function EvangelismHome() {
   const theme = useTheme();
   const { session } = useAuth();
@@ -43,6 +49,7 @@ export default function EvangelismHome() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [targets, setTargets] = useState<Target[]>([]);
   const [shareCount, setShareCount] = useState(0);
+  const [view, setView] = useState<'card' | 'table'>('card');
 
   const load = useCallback(async () => {
     if (!session) {
@@ -121,8 +128,84 @@ export default function EvangelismHome() {
       ) : null}
 
       <SectionTitle hint={targets.length ? `${targets.length}명` : undefined}>내가 품은 사람</SectionTitle>
+      {targets.length > 0 ? (
+        <ChipRow
+          options={[
+            { value: 'card', label: '카드로 보기' },
+            { value: 'table', label: '표로 보기' },
+          ]}
+          value={view}
+          onChange={setView}
+        />
+      ) : null}
       {targets.length === 0 && !loading ? (
         <Empty text="아직 올린 분이 없어요. 하나님이 마음에 두신 한 사람의 이름을 적어 보세요." />
+      ) : view === 'table' ? (
+        <Card style={styles.tableCard}>
+          <ScrollView horizontal showsHorizontalScrollIndicator>
+            <View>
+              <View style={[styles.tr, { borderBottomColor: theme.border }]}>
+                <ThemedText type="smallBold" style={[styles.th, styles.cName]}>
+                  이름
+                </ThemedText>
+                <ThemedText type="smallBold" style={[styles.th, styles.cRel]}>
+                  관계
+                </ThemedText>
+                {ACTION_KINDS.map((k) => (
+                  <ThemedText key={k.kind} type="smallBold" style={[styles.th, styles.cStep]}>
+                    {k.label}
+                  </ThemedText>
+                ))}
+                <ThemedText type="smallBold" style={[styles.th, styles.cRel]}>
+                  중보
+                </ThemedText>
+              </View>
+              {targets.map((t) => (
+                <Pressable
+                  key={t.id}
+                  onPress={() => router.push(`/evangelism/target?id=${t.id}` as Href)}
+                  accessibilityRole="button"
+                  style={[styles.tr, { borderBottomColor: theme.border }]}>
+                  <ThemedText style={[styles.td, styles.cName, styles.tdName]} numberOfLines={1}>
+                    {t.name}
+                  </ThemedText>
+                  <ThemedText style={[styles.td, styles.cRel]} themeColor="textSecondary" numberOfLines={1}>
+                    {t.relation || '–'}
+                  </ThemedText>
+                  {ACTION_KINDS.map((k) => {
+                    const d = t.done[k.kind];
+                    return (
+                      <ThemedText
+                        key={k.kind}
+                        style={[styles.td, styles.cStep, styles.center, d ? { color: theme.done, fontWeight: '700' } : null]}
+                        themeColor={d ? undefined : 'textSecondary'}>
+                        {d ? shortDay(d) : '–'}
+                      </ThemedText>
+                    );
+                  })}
+                  <ThemedText style={[styles.td, styles.cRel, styles.center]}>{t.shareId ? '✓' : '–'}</ThemedText>
+                </Pressable>
+              ))}
+              <View style={styles.tr}>
+                <ThemedText type="small" themeColor="textSecondary" style={[styles.td, styles.cName]}>
+                  합계
+                </ThemedText>
+                <View style={styles.cRel} />
+                {ACTION_KINDS.map((k) => (
+                  <ThemedText key={k.kind} type="smallBold" style={[styles.td, styles.cStep, styles.center]}>
+                    {targets.filter((t) => t.done[k.kind]).length}
+                  </ThemedText>
+                ))}
+                <ThemedText type="smallBold" style={[styles.td, styles.cRel, styles.center]}>
+                  {targets.filter((t) => t.shareId).length}
+                </ThemedText>
+              </View>
+            </View>
+          </ScrollView>
+          <ThemedText type="small" themeColor="textSecondary">
+            칸에는 그 걸음을 가장 최근에 한 날짜가 보여요. 이름을 누르면 상세로 가요.
+          </ThemedText>
+        </Card>
       ) : (
         targets.map((t) => (
           <Card key={t.id} onPress={() => router.push(`/evangelism/target?id=${t.id}` as Href)}>
@@ -173,6 +256,13 @@ export default function EvangelismHome() {
         </ThemedText>
       </Card>
 
+      <Card onPress={() => router.push('/evangelism/roster' as Href)}>
+        <ThemedText style={styles.name}>📋 교회 전도대상자 표</ThemedText>
+        <ThemedText themeColor="textSecondary" style={styles.cardDesc}>
+          성도들이 올린 전도대상자를 한눈에 봐요. 성만 보이고 이름은 OO로 가려져요.
+        </ThemedText>
+      </Card>
+
       {summary && summary.targets > 0 ? (
         <>
           <SectionTitle hint="이름 없이 숫자만">우리 교회 전도 현황</SectionTitle>
@@ -198,6 +288,15 @@ export default function EvangelismHome() {
 }
 
 const styles = StyleSheet.create({
+  tableCard: { gap: Spacing.two },
+  tr: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: StyleSheet.hairlineWidth, minHeight: 44 },
+  th: { paddingVertical: Spacing.two },
+  td: { fontSize: 15, paddingVertical: Spacing.two },
+  tdName: { fontWeight: '700' },
+  center: { textAlign: 'center' },
+  cName: { width: 92, paddingRight: Spacing.two },
+  cRel: { width: 72, paddingRight: Spacing.two },
+  cStep: { width: 54 },
   banner: { gap: Spacing.one, alignItems: 'center', paddingVertical: Spacing.four },
   bannerDday: { color: '#FFFFFF', fontSize: 34, fontWeight: '800' },
   bannerTitle: { color: '#FFFFFF', fontSize: 20, fontWeight: '700' },

@@ -450,3 +450,39 @@ export async function deleteMessage(id: string): Promise<string | null> {
     .eq('id', id);
   return error ? '지우지 못했어요.' : null;
 }
+
+// ── 교회 전체 표(성만 보이는 이름) ──────────────────────────────────
+
+export type RosterRow = {
+  targetId: string;
+  /** 「김OO」. 이름은 DB 함수가 가려서 준다 — 여기서 다시 자르지 않는다. */
+  maskedName: string;
+  relation: string;
+  ownerName: string;
+  done: Partial<Record<ActionKind, string>>;
+};
+
+export async function getRoster(campaignId: string): Promise<RosterRow[]> {
+  const { data, error } = await supabase.rpc('evangelism_roster', { target_campaign_id: campaignId });
+  if (error || !data) return [];
+  const kinds: [ActionKind, string][] = [
+    ['pray', 'pray_on'],
+    ['contact', 'contact_on'],
+    ['gift', 'gift_on'],
+    ['meet', 'meet_on'],
+    ['invite', 'invite_on'],
+    ['attend', 'attend_on'],
+    ['settle', 'settle_on'],
+  ];
+  return (data as Record<string, unknown>[]).map((r) => {
+    const done: Partial<Record<ActionKind, string>> = {};
+    for (const [k, col] of kinds) if (r[col]) done[k] = String(r[col]);
+    return {
+      targetId: String(r.target_id),
+      maskedName: String(r.masked_name ?? ''),
+      relation: String(r.relation ?? ''),
+      ownerName: String(r.owner_name ?? '익명'),
+      done,
+    };
+  });
+}
