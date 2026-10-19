@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 
-import { getCellContext, getCellMemberNames, type Cell } from '@/db/cell';
+import { getCellContext, getCellMemberNames, getCellRoster, type Cell } from '@/db/cell';
 import { getMyVillage, amVillageLeader, isCellLeaderOf, type Village } from '@/db/village';
 import { getProfile } from '@/db/profile';
 import { useAuth } from '@/lib/auth';
@@ -48,8 +48,10 @@ export type CellRoom = {
   churchId: string | null;
   village: Village;
   isVillageLeader: boolean;
-  /** user_id → 이름. 없으면 '성도'로 부른다. */
+  /** user_id → 이름. 없으면 '성도'로 부른다. 글쓴이 이름표까지 들어 있어 **명단으로 쓰면 안 된다**. */
   names: Map<string, string>;
+  /** 교적상 이 목장 사람. 명단·참석 확인은 이것으로 거른다. 못 읽으면 null(거르지 않음). */
+  roster: Set<string> | null;
 };
 
 /** 볼 목장을 고른다. 부른 쪽에서 reload() 를 이어 부른다. */
@@ -60,6 +62,13 @@ export async function pickCell(cellId: string | null): Promise<void> {
   } catch {
     // 저장이 막혀도 이번 화면에서는 고른 대로 보인다. 다음에 다시 고르면 된다.
   }
+}
+
+/** 명단에 그릴 사람(user_id, 이름) — 교적상 이 목장 사람만. roster 를 못 읽었으면 이름표 전체. */
+export function rosterEntries(room: CellRoom | null | undefined): [string, string][] {
+  if (!room) return [];
+  const all = [...room.names.entries()];
+  return room.roster ? all.filter(([id]) => room.roster!.has(id)) : all;
 }
 
 export function useCellRoom() {
@@ -92,10 +101,11 @@ export function useCellRoom() {
       const pickedCell = picked ? (ctx.allCells.find((c) => c.id === picked) ?? null) : null;
       const cell = pickedCell ?? myCell;
 
-      const [names, villageLeader, leaderHere] = await Promise.all([
+      const [names, roster, villageLeader, leaderHere] = await Promise.all([
         cell
           ? getCellMemberNames(cell.id).catch(() => new Map<string, string>())
           : Promise.resolve(new Map<string, string>()),
+        cell ? getCellRoster(cell.id).catch(() => null) : Promise.resolve(null),
         amVillageLeader(village.id).catch(() => false),
         // 내 목장이면 이미 물어본 답이 있다. 남의 목장을 볼 때만 다시 묻는다.
         !cell
@@ -117,6 +127,7 @@ export function useCellRoom() {
         village,
         isVillageLeader: villageLeader,
         names,
+        roster,
       });
     } catch {
       setError('목장 정보를 불러오지 못했습니다.');

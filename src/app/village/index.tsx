@@ -20,7 +20,7 @@ import { getRanchCounts, getRanchPoints } from '@/db/ranch';
 import { computeRanch, STAGE_LABEL, type RanchCounts, type RanchPoints } from '@/lib/ranch';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { nameOf, pickCell, useCellRoom } from '@/hooks/use-cell-room';
+import { nameOf, pickCell, rosterEntries, useCellRoom } from '@/hooks/use-cell-room';
 import {
   getCellMeeting,
   type CellMeeting,
@@ -302,13 +302,13 @@ export default function CellHomeScreen() {
           </View>
 
           {/* ── 목장원 ────────────────────────────────────────── */}
-          <SectionTitle hint={`${room.names.size}명`}>우리 목장 식구</SectionTitle>
+          <SectionTitle hint={`${rosterEntries(room).length}명`}>우리 목장 식구</SectionTitle>
           <Card>
             <View style={styles.nameWrap}>
-              {room.names.size === 0 ? (
+              {rosterEntries(room).length === 0 ? (
                 <ThemedText themeColor="textSecondary">명단을 불러오지 못했어요.</ThemedText>
               ) : (
-                [...room.names.entries()].map(([id, n]) => (
+                rosterEntries(room).map(([id, n]) => (
                   <View
                     key={id}
                     style={[styles.namePill, { backgroundColor: theme.accentSoft }]}>
