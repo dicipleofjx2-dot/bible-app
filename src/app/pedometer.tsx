@@ -176,6 +176,7 @@ export default function PedometerScreen() {
           <View style={styles.ringWrap}>
             <Svg width={168} height={168}>
               <Circle cx={84} cy={84} r={R} stroke={theme.backgroundElement} strokeWidth={14} fill="none" />
+              {done > 0 ? (
               <Circle
                 cx={84}
                 cy={84}
@@ -188,6 +189,7 @@ export default function PedometerScreen() {
                 // 12시 방향에서 시작해 시계 방향으로 찬다.
                 transform="rotate(-90 84 84)"
               />
+              ) : null}
             </Svg>
             <View style={styles.ringCenter}>
               <ThemedText style={styles.bigNumber}>{steps.toLocaleString()}</ThemedText>
@@ -204,7 +206,7 @@ export default function PedometerScreen() {
           ) : null}
 
           {/* 수가 어디서 온 것인지 적는다 — 이것이 없으면 고장으로 오해한다. */}
-          {available === false ? (
+          {!userId ? null : available === false ? (
             <ThemedText type="small" themeColor="textSecondary" style={styles.note}>
               이 기기에서는 걸음을 셀 수 없어요. 아래에 직접 적어 주세요.
             </ThemedText>
@@ -218,7 +220,7 @@ export default function PedometerScreen() {
             </ThemedText>
           ) : (
             <ThemedText type="small" themeColor="textSecondary" style={styles.note}>
-              웹에서는 걸음을 셀 수 없어요. 휴대폰 앱에서 열거나, 아래에 직접 적어 주세요.
+              웹에서는 걸음을 셀 수 없어요. 휴대폰에 깔린 앱에서 열면 저절로 세어져요.
             </ThemedText>
           )}
 
@@ -289,9 +291,11 @@ export default function PedometerScreen() {
             </View>
           ) : null}
 
-          <ThemedText type="small" themeColor="textSecondary" style={styles.note}>
-            적힌 것보다 작은 수는 덮어쓰지 않아요 — 하루 치가 거꾸로 줄어들지 않게요.
-          </ThemedText>
+          {userId ? (
+            <ThemedText type="small" themeColor="textSecondary" style={styles.note}>
+              적힌 것보다 작은 수는 덮어쓰지 않아요 — 하루 치가 거꾸로 줄어들지 않게요.
+            </ThemedText>
+          ) : null}
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
