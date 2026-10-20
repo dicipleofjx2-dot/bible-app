@@ -29,7 +29,6 @@ const CHECKLIST_DOTS: { key: keyof DailyChecklist; labelKey: StringKey }[] = [
   { key: 'meditation', labelKey: 'r2m.short.meditation' },
   { key: 'prayer', labelKey: 'r2m.short.prayer' },
   { key: 'memorization', labelKey: 'r2m.short.memorization' },
-  { key: 'obedience', labelKey: 'r2m.short.obedience' },
   { key: 'gratitude', labelKey: 'r2m.short.gratitude' },
 ];
 
@@ -144,7 +143,7 @@ export default function R2MLeadersScreen() {
                 지난 7일 동안 며칠 했는지입니다. 뜸한 분에게 문자로 안부를 물어 주세요.
               </ThemedText>
               {devotion.map((d) => {
-                const total = d.qt + d.reading + d.meditation + d.obedience + d.gratitude;
+                const total = d.qt + d.reading + d.meditation + d.gratitude;
                 return (
                   <ThemedView key={d.userId} type="backgroundElement" style={styles.devotionCard}>
                     <View style={styles.devotionHeader}>
@@ -165,8 +164,7 @@ export default function R2MLeadersScreen() {
                       )}
                     </View>
                     <ThemedText type="small" themeColor={total === 0 ? 'textSecondary' : 'text'}>
-                      큐티 {d.qt} · 통독 {d.reading} · 묵상 {d.meditation} · 순종 {d.obedience} ·
-                      감사 {d.gratitude}
+                      큐티 {d.qt} · 통독 {d.reading} · 묵상 {d.meditation} · 감사 {d.gratitude}
                     </ThemedText>
                     <ThemedText type="small" themeColor="textSecondary">
                       성경읽기 {d.bibleReading} · 암송 {d.memorization}

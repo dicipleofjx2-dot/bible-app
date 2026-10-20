@@ -32,7 +32,6 @@ const CHECKLIST_ITEMS: ChecklistItem[] = [
   // 기도제목은 중보기도센터(prayer.dgaiworks.com)에서만 올린다.
   { key: 'prayer', labelKey: 'r2m.item.prayer', href: '/prayer-tree' },
   { key: 'memorization', labelKey: 'r2m.item.memorization', href: '/reading-helper' },
-  { key: 'obedience', labelKey: 'r2m.item.obedience', href: '/spiritual-journal' },
   { key: 'gratitude', labelKey: 'r2m.item.gratitude', href: '/r2m/gratitude' },
 ];
 
@@ -42,7 +41,6 @@ const EMPTY_CHECKLIST: DailyChecklist = {
   meditation: false,
   prayer: false,
   memorization: false,
-  obedience: false,
   gratitude: false,
 };
 

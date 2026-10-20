@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { getAllDiaryEntries, getAllGratitudeEntries, getAllMarks, getAllMeditationNotes } from '@/db/userData';
+import { getAllGratitudeEntries, getAllMarks, getAllMeditationNotes } from '@/db/userData';
 
 // ============================================================
 // 타입
@@ -68,7 +68,6 @@ export type DailyChecklist = {
   meditation: boolean;
   prayer: boolean;
   memorization: boolean;
-  obedience: boolean;
   gratitude: boolean;
 };
 
@@ -78,7 +77,6 @@ const EMPTY_CHECKLIST: DailyChecklist = {
   meditation: false,
   prayer: false,
   memorization: false,
-  obedience: false,
   gratitude: false,
 };
 
@@ -88,7 +86,6 @@ export type ProgressCounts = {
   meditation: number;
   prayer: number;
   memorization: number;
-  obedience: number;
   gratitude: number;
 };
 
@@ -278,7 +275,7 @@ export async function getMyActiveEnrollment(
 export async function pingCheckin(
   userId: string,
   date: string,
-  patch: Partial<Pick<DailyChecklist, 'qt' | 'meditation' | 'obedience' | 'gratitude'>>,
+  patch: Partial<Pick<DailyChecklist, 'qt' | 'meditation' | 'gratitude'>>,
 ): Promise<void> {
   await supabase
     .from('r2m_daily_checkins')
@@ -320,7 +317,6 @@ export async function getTodayChecklist(userId: string): Promise<DailyChecklist>
     // 성경읽기 완료는 자유 읽기 여부가 아니라 성경통독도우미 퀴즈 점수로 판정한다.
     reading: (readingHelper?.quiz_score ?? 0) >= READING_QUIZ_PASS_SCORE,
     meditation: !!checkin?.meditation,
-    obedience: !!checkin?.obedience,
     gratitude: !!checkin?.gratitude,
     prayer: prayerLogged,
     memorization: !!readingHelper?.memorization_success,
@@ -337,10 +333,9 @@ export async function getTodayChecklistCount(userId: string): Promise<number> {
 // ============================================================
 
 export async function getProgressCounts(userId: string): Promise<ProgressCounts> {
-  const [qtNotes, marks, diaryEntries, gratitudeEntries, readingResult, prayerResult, memoResult, qtAppResult] = await Promise.all([
+  const [qtNotes, marks, gratitudeEntries, readingResult, prayerResult, memoResult, qtAppResult] = await Promise.all([
     getAllMeditationNotes(),
     getAllMarks(),
-    getAllDiaryEntries(),
     getAllGratitudeEntries(),
     supabase
       .from('reading_helper_day_records')
@@ -366,7 +361,6 @@ export async function getProgressCounts(userId: string): Promise<ProgressCounts>
   return {
     qt: qtNotes.length + (qtAppResult.count ?? 0),
     meditation: marks.length,
-    obedience: diaryEntries.length,
     gratitude: gratitudeEntries.length,
     reading: readingResult.count ?? 0,
     prayer: prayerResult.count ?? 0,
@@ -469,8 +463,7 @@ export async function getEnrolledUsersStatus(
           qt: !!checkin?.qt,
           reading: (readingHelper?.quiz_score ?? 0) >= READING_QUIZ_PASS_SCORE,
           meditation: !!checkin?.meditation,
-          obedience: !!checkin?.obedience,
-          gratitude: !!checkin?.gratitude,
+                gratitude: !!checkin?.gratitude,
           prayer: prayedUsers.has(id),
           memorization: !!readingHelper?.memorization_success,
         },

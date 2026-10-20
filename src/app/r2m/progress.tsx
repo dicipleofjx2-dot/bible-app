@@ -12,7 +12,7 @@ import { useI18n } from '@/lib/i18n';
 import type { StringKey } from '@/constants/strings';
 import { getProgressCounts, type ProgressCounts } from '@/db/r2m';
 
-const EMPTY_COUNTS: ProgressCounts = { qt: 0, reading: 0, meditation: 0, prayer: 0, memorization: 0, obedience: 0, gratitude: 0 };
+const EMPTY_COUNTS: ProgressCounts = { qt: 0, reading: 0, meditation: 0, prayer: 0, memorization: 0, gratitude: 0 };
 
 // 말이 아니라 **열쇠만** 둔다. 말을 모듈 상수에 담으면 모듈을 읽을 때 굳어,
 // 언어를 바꿔도 처음 언어로 남는다.
@@ -22,7 +22,6 @@ const ROWS: { key: keyof ProgressCounts; emoji: string; labelKey: StringKey; uni
   { key: 'meditation', emoji: '💡', labelKey: 'r2m.item.meditation', unitKey: 'r2m.unit.count' },
   { key: 'prayer', emoji: '🙏', labelKey: 'r2m.item.prayer', unitKey: 'r2m.unit.times' },
   { key: 'memorization', emoji: '✍️', labelKey: 'r2m.item.memorization', unitKey: 'r2m.unit.times' },
-  { key: 'obedience', emoji: '❤️‍🔥', labelKey: 'r2m.item.obedience', unitKey: 'r2m.unit.times' },
   { key: 'gratitude', emoji: '🙌', labelKey: 'r2m.item.gratitude', unitKey: 'r2m.unit.times' },
 ];
 

@@ -137,8 +137,8 @@ const HOME_TILES: HomeTile[] = [
   // 주보와 교회 홈페이지 칸은 뺐다. 이 앱은 개인 경건훈련 자리이고, 교회 소식은
   // 스마트주보 앱이 따로 맡는다 — 홈 화면에 둘 다 두면 어느 앱을 쓰는 중인지
   // 흐려진다. 주보로 가는 길은 목자의 편지·알림마당 알림에 그대로 있다.
-  // 데이빗북스 하나만 걸던 자리를 성장 탭으로 넓혔다. 데이빗북스는 그 안에
-  // 있고, 순종일기·우선순위·천국재정도 같이 열린다.
+  // 데이빗북스 하나만 걸던 자리. 지금은 부흥의 천사들 사역 칸이고, 네 사역
+  // 신청과 중보기도·데이빗북스·전도가 그 안에 있다.
   { key: 'growth', emoji: '😇', label: 'tab.growth', href: '/growth' },
   // 게시판 칸은 스마트주보로 옮겼다. 게시판은 교회가 함께 쓰는 곳이고, 이 앱은
   // 개인 경건훈련 자리다. 주보에 「게시판 면」이 생겨 거기서 읽고 쓴다 —
@@ -300,7 +300,6 @@ export default function HomeScreen() {
     { label: t('home.meditation'), href: '/word-notes' },
     // 샬롬기도단이 없어져 R2M 체크리스트와 같은 곳(중보기도 나무)으로 보낸다.
     { label: t('home.prayer'), href: '/prayer-tree' },
-    { label: t('home.obedience'), href: '/spiritual-journal' },
   ];
 
   const todayKey = todayDateString();

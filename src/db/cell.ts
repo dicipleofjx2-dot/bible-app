@@ -292,6 +292,16 @@ export async function getCellMemberNames(cellId: string): Promise<Map<string, st
   );
 }
 
+/**
+ * 교적상 이 목장 사람의 user_id. 이름표(getCellMemberNames)와 달리 글만 쓴 관리자·교역자는
+ * 들어 있지 않다(0092). 함수가 아직 없거나 못 읽으면 null — 그때는 걸러 내지 않고 예전처럼 그린다.
+ */
+export async function getCellRoster(cellId: string): Promise<Set<string> | null> {
+  const { data, error } = await supabase.rpc('cell_roster', { target_cell_id: cellId });
+  if (error || !Array.isArray(data)) return null;
+  return new Set((data as { user_id: string }[]).map((r) => r.user_id));
+}
+
 export async function getCellMessages(cellId: string, myId: string): Promise<CellMessage[]> {
   const [{ data, error }, names] = await Promise.all([
     supabase
@@ -363,7 +373,6 @@ export type DevotionRow = {
   qt: number;
   reading: number;
   meditation: number;
-  obedience: number;
   gratitude: number;
   bibleReading: number;
   memorization: number;
@@ -392,7 +401,6 @@ export async function getDevotionBoard(cellId: string): Promise<DevotionRow[]> {
     qt: Number(r.qt ?? 0),
     reading: Number(r.reading ?? 0),
     meditation: Number(r.meditation ?? 0),
-    obedience: Number(r.obedience ?? 0),
     gratitude: Number(r.gratitude ?? 0),
     bibleReading: Number(r.bible_reading ?? 0),
     memorization: Number(r.memorization ?? 0),

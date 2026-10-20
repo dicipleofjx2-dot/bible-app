@@ -182,10 +182,6 @@ function AppStack() {
           options={{ headerShown: true, title: t('nav.maps') }}
         />
         <Stack.Screen
-          name="spiritual-journal"
-          options={{ headerShown: true, title: t('nav.obedience') }}
-        />
-        <Stack.Screen
           name="revival/index"
           options={{ headerShown: true, title: '부흥의 천사들' }}
         />
