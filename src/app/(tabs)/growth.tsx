@@ -38,13 +38,6 @@ export default function GrowthHubScreen() {
       title: t('growth.title'),
       items: [
         {
-          emoji: '🌳',
-          label: '중보기도 나무',
-          description: '기도할 사람을 열매로 심고, 응답될수록 익어 가는 나무',
-          href: '/prayer-tree',
-          requiresAuth: true,
-        },
-        {
           emoji: '🕯️',
           label: '사명기록관',
           description: '소명과 사역을 인터뷰로 받아 적어 한 권의 기록으로',
