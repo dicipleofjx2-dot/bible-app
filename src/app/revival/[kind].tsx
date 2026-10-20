@@ -1,10 +1,11 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ImageBackground, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Raised, RaisedBadge, useRaise } from '@/components/Raised';
+import { RevivalAngelsMark } from '@/components/RevivalAngelsMark';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -128,12 +129,12 @@ export default function RevivalKindScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content}>
-          {/* 머리 띠 — 포스터 그림 위에 그 사역의 색을 얹는다. */}
-          <ImageBackground
-            source={require('@/assets/images/revival-angels.webp')}
-            style={styles.hero}
-            imageStyle={styles.heroImage}
-            resizeMode="cover">
+          {/* 머리 띠 — 밤하늘 위에 그 사역의 색을 얹는다(사진을 걷어낸 까닭은 목록 화면에). */}
+          <View style={styles.hero}>
+            <LinearGradient colors={['#17326E', '#0B1D45']} style={styles.heroSky} />
+            <View style={styles.heroMark}>
+              <RevivalAngelsMark size={96} />
+            </View>
             <LinearGradient
               colors={[`${ministry.color}CC`, 'rgba(14,10,8,0.88)']}
               start={{ x: 0, y: 0 }}
@@ -147,7 +148,7 @@ export default function RevivalKindScreen() {
                 <ThemedText style={styles.heroSub}>{ministry.summary}</ThemedText>
               </View>
             </LinearGradient>
-          </ImageBackground>
+          </View>
 
           {/* ── 언제 하는가 ── */}
           <Raised>
@@ -312,7 +313,9 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 24 },
   hero: { height: 128, borderRadius: 18, overflow: 'hidden', justifyContent: 'flex-end' },
-  heroImage: { borderRadius: 18 },
+  heroSky: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+  // 글씨가 왼쪽에 서므로 표식은 오른쪽 끝에 반쯤 걸쳐 둔다.
+  heroMark: { position: 'absolute', right: -14, top: 16, opacity: 0.9 },
   heroShade: {
     flex: 1,
     flexDirection: 'row',

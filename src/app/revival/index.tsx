@@ -1,11 +1,12 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { Raised, RaisedBadge, useRaise } from '@/components/Raised';
+import { RevivalAngelsMark } from '@/components/RevivalAngelsMark';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -62,24 +63,31 @@ export default function RevivalHomeScreen() {
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content}>
           {/*
-            머리 그림 — 교회가 돌린 포스터 그대로다. 종이로 본 그림을 앱에서 다시
-            만나면 「그 사역이 이것이구나」가 설명 없이 전해진다.
-            글씨가 하늘에 묻히지 않게 아래쪽에 어둠을 깔고 그 위에 얹는다.
+            머리 띠 — 밤하늘에 천사 표식 하나.
+            ⚠️ 전에는 사진 한 장을 깔고 있었는데, 그 파일은 포스터가 아니라
+            **브라우저 창을 찍은 화면**이었다(북마크와 탭 이름까지 들어 있었다).
+            앱에 실려 그대로 공개되고 있어서 걷어냈다. 종이 포스터를 받으면
+            그때 다시 깔면 된다 — 지금은 홈 아이콘과 같은 그림으로 세운다.
           */}
-          <ImageBackground
-            source={require('@/assets/images/revival-angels.webp')}
-            style={styles.hero}
-            imageStyle={styles.heroImage}
-            resizeMode="cover">
+          <View style={styles.hero}>
             <LinearGradient
-              colors={['transparent', 'rgba(14,10,8,0.25)', 'rgba(14,10,8,0.85)']}
+              colors={['#17326E', '#0B1D45']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroSky}
+            />
+            <View style={styles.heroMark}>
+              <RevivalAngelsMark size={132} />
+            </View>
+            <LinearGradient
+              colors={['transparent', 'rgba(7,18,40,0.55)', 'rgba(7,18,40,0.92)']}
               style={styles.heroShade}>
               <ThemedText style={styles.heroTitle}>부흥의 천사들</ThemedText>
               <ThemedText style={styles.heroSub}>
                 말씀과 예언 · 치유와 축사 · 찬양과 경배 · 천국의 재정
               </ThemedText>
             </LinearGradient>
-          </ImageBackground>
+          </View>
 
           <ThemedText type="small" themeColor="textSecondary">
             네 가지 사역으로 섬깁니다. 날짜를 보시고 들어가 기도를 신청하세요.
@@ -162,7 +170,9 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 26 },
   hero: { height: 190, borderRadius: 18, overflow: 'hidden', justifyContent: 'flex-end' },
-  heroImage: { borderRadius: 18 },
+  heroSky: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+  // 표식은 가운데 위쪽에. 아래는 글씨 자리라 비워 둔다.
+  heroMark: { position: 'absolute', top: 14, left: 0, right: 0, alignItems: 'center' },
   heroShade: { paddingHorizontal: Spacing.four, paddingTop: Spacing.five, paddingBottom: Spacing.three, gap: 2 },
   heroTitle: { color: '#ffffff', fontSize: 26, fontWeight: '800' },
   heroSub: { color: 'rgba(255,255,255,0.88)', fontSize: 12 },
