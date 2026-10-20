@@ -27,10 +27,7 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf="book" md="menu_book" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="bible-reading">
-        <NativeTabs.Trigger.Label>R2M</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="target" md="track_changes" />
-      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="bible-reading" hidden />
 
       <NativeTabs.Trigger name="growth">
         <NativeTabs.Trigger.Label>{t('tab.growth')}</NativeTabs.Trigger.Label>
