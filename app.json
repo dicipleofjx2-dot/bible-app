@@ -16,7 +16,7 @@
     },
     "android": {
       "package": "com.dicipleofjx2.bibleapp",
-      "versionCode": 5,
+      "versionCode": 6,
       "adaptiveIcon": {
         "backgroundColor": "#BC5C35",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
