@@ -9,6 +9,7 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/lib/auth';
 import { ATTENDANCE_POINTS, getAttendedDates, setAttended } from '@/lib/readingHelper/db';
+import { getAllSessions, ministryOf, type RevivalSession } from '@/db/revival';
 import {
   getHebrewDayInfoForDate,
   hebrewDateHasContent,
@@ -115,6 +116,38 @@ export default function CalendarScreen() {
   );
 
   const todayString = toDateString(today.getFullYear(), today.getMonth(), today.getDate());
+
+  /*
+   * 부흥의 천사들 사역 날짜.
+   *
+   * 달력은 「그날 무엇이 있나」를 보는 자리다. 사역 날짜가 앱 안쪽 화면에만
+   * 있으면, 달력을 보던 사람은 그날이 비어 있는 줄 안다. 칸에는 그 사역의
+   * 이모지만 찍고(자리가 좁다), 눌러 열면 무슨 사역인지 적어 준다.
+   */
+  const [ministryDays, setMinistryDays] = useState<Map<string, RevivalSession[]>>(new Map());
+
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      getAllSessions()
+        .then((rows) => {
+          if (cancelled) return;
+          const map = new Map<string, RevivalSession[]>();
+          for (const r of rows) {
+            const list = map.get(r.meetsOn);
+            if (list) list.push(r);
+            else map.set(r.meetsOn, [r]);
+          }
+          setMinistryDays(map);
+        })
+        .catch(() => {
+          /* 사역 날짜를 못 읽어도 달력은 그대로 보여야 한다 */
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
 
   async function toggleAttendance(dateString: string) {
     if (!userId || saving) return;
@@ -470,6 +503,14 @@ export default function CalendarScreen() {
                     {holiday}
                   </ThemedText>
                 )}
+                {ministryDays.get(cell.dateString)?.length ? (
+                  <ThemedText numberOfLines={1} style={styles.stampLabel}>
+                    {ministryDays
+                      .get(cell.dateString)!
+                      .map((m) => ministryOf(m.kind).emoji)
+                      .join('')}
+                  </ThemedText>
+                ) : null}
                 {attended.has(cell.dateString) && (
                   <ThemedText numberOfLines={1} style={styles.stampLabel}>
                     ✅
@@ -554,6 +595,15 @@ export default function CalendarScreen() {
                       </ThemedText>
                     </View>
                   )}
+
+                  {/* 그날의 부흥의 천사들 사역. 달력 칸의 이모지가 무엇인지 여기서 풀어 준다. */}
+                  {ministryDays.get(selected.dateString)?.map((m) => (
+                    <ThemedText key={m.id} type="smallBold" themeColor="accent" style={styles.section}>
+                      {ministryOf(m.kind).emoji} {ministryOf(m.kind).name}
+                      {m.place ? ` · ${m.place}` : ''}
+                      {m.note ? ` — ${m.note}` : ''}
+                    </ThemedText>
+                  ))}
 
                   {/*
                     출석 도장. **오늘만** 찍고 뗄 수 있다 — 지난 날까지 열어 두면

@@ -19,6 +19,7 @@ import {
   isAppAdmin,
   ministryOf,
   removeSession,
+  updateSession,
   type RevivalKind,
   type RevivalRequest,
   type RevivalSession,
@@ -50,6 +51,8 @@ export default function RevivalAdminScreen() {
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  /** 고치는 중인 일정. 비어 있으면 새로 넣는 중이다. */
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const load = useCallback(() => {
     getUpcomingSessions().then(setSessions).catch(() => setSessions([]));
@@ -71,23 +74,41 @@ export default function RevivalAdminScreen() {
     }, [session, load]),
   );
 
-  async function add() {
+  /** 넣기와 고치기가 같은 칸을 쓴다 — 고칠 때 화면이 바뀌면 무엇을 고치는지 잃는다. */
+  async function save() {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(meetsOn)) {
-      setMessage('날짜는 2026-11-09 처럼 적어 주세요.');
+      setMessage('달력에서 날짜를 골라 주세요.');
       return;
     }
     setBusy(true);
     setMessage(null);
-    const result = await addSession({ kind, meetsOn, place, note });
+    const result = editingId
+      ? await updateSession(editingId, { kind, meetsOn, place, note })
+      : await addSession({ kind, meetsOn, place, note });
     setBusy(false);
     if (result.error) {
       setMessage(result.error);
       return;
     }
+    reset();
+    load();
+  }
+
+  function reset() {
+    setEditingId(null);
     setMeetsOn('');
     setPlace('');
     setNote('');
-    load();
+  }
+
+  /** 적어 둔 일정을 위 칸으로 끌어 올린다. */
+  function edit(s: RevivalSession) {
+    setEditingId(s.id);
+    setKind(s.kind);
+    setMeetsOn(s.meetsOn);
+    setPlace(s.place ?? '');
+    setNote(s.note ?? '');
+    setMessage(null);
   }
 
   if (admin === null) return <ThemedView style={styles.container} />;
@@ -114,7 +135,9 @@ export default function RevivalAdminScreen() {
 
           {/* ── 날짜 정하기 ── */}
           <Raised>
-            <ThemedText type="smallBold">이 달의 사역 날짜</ThemedText>
+            <ThemedText type="smallBold">
+              {editingId ? '날짜 고치기' : '이 달의 사역 날짜'}
+            </ThemedText>
             <View style={styles.chipRow}>
               {REVIVAL_MINISTRIES.map((m) => (
                 <Pressable
@@ -160,7 +183,7 @@ export default function RevivalAdminScreen() {
               style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
             />
             <Pressable
-              onPress={() => void add()}
+              onPress={() => void save()}
               disabled={busy}
               style={({ pressed }) => [
                 styles.primaryButton,
@@ -169,9 +192,16 @@ export default function RevivalAdminScreen() {
                 pressed && styles.pressed,
               ]}>
               <ThemedText type="smallBold" style={styles.primaryText}>
-                날짜 넣기
+                {editingId ? '이대로 고치기' : '날짜 넣기'}
               </ThemedText>
             </Pressable>
+            {editingId && (
+              <Pressable onPress={reset} hitSlop={8} style={styles.cancelRow}>
+                <ThemedText type="small" themeColor="textSecondary">
+                  그만두기 — 새 날짜 넣기로 돌아가기
+                </ThemedText>
+              </Pressable>
+            )}
             {message && (
               <ThemedText type="small" themeColor="accent">
                 {message}
@@ -180,17 +210,22 @@ export default function RevivalAdminScreen() {
 
             {sessions.map((s) => (
               <View key={s.id} style={styles.sessionRow}>
-                <ThemedText type="small">
+                <ThemedText type="small" style={styles.sessionText}>
                   {ministryOf(s.kind).emoji} {formatMeetsOn(s.meetsOn)}
                   {s.place ? ` · ${s.place}` : ''}
                 </ThemedText>
+                <Pressable onPress={() => edit(s)} hitSlop={8}>
+                  <ThemedText type="small" themeColor="accent">
+                    고치기
+                  </ThemedText>
+                </Pressable>
                 <Pressable
                   onPress={async () => {
                     await removeSession(s.id);
+                    if (editingId === s.id) reset();
                     load();
                   }}
-                  hitSlop={8}
-                  style={styles.pushRight}>
+                  hitSlop={8}>
                   <ThemedText type="small" themeColor="textSecondary">
                     지우기
                   </ThemedText>
@@ -297,7 +332,9 @@ const styles = StyleSheet.create({
   },
   primaryText: { color: '#ffffff' },
   chipOn: { color: '#ffffff' },
-  sessionRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  sessionRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  sessionText: { flex: 1 },
+  cancelRow: { alignItems: 'center', paddingVertical: Spacing.two },
   pushRight: { marginLeft: 'auto' },
   afterBox: { borderLeftWidth: 2, paddingLeft: Spacing.three, gap: 2, marginTop: Spacing.one },
   pressed: { opacity: 0.7 },

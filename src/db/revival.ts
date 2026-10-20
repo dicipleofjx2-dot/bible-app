@@ -232,6 +232,39 @@ export async function addSession(input: {
   return { error: error?.message ?? null };
 }
 
+/**
+ * 정해 둔 날짜를 고친다.
+ *
+ * 지우고 다시 넣게 하면 그 사이에 신청한 분의 글이 일정과 끊긴다
+ * (session_id 가 set null 이다). 고치는 길을 따로 두는 까닭이다.
+ */
+export async function updateSession(
+  id: string,
+  input: { kind: RevivalKind; meetsOn: string; place: string; note: string },
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('revival_sessions')
+    .update({
+      kind: input.kind,
+      meets_on: input.meetsOn,
+      place: input.place.trim() || null,
+      note: input.note.trim() || null,
+    })
+    .eq('id', id);
+  if (error?.code === '23505') return { error: '그날 그 사역은 이미 적어 두셨습니다.' };
+  return { error: error?.message ?? null };
+}
+
+/** 달력에 찍을 사역 날짜. 지난 것도 함께 — 달력은 지나간 달도 넘겨 본다. */
+export async function getAllSessions(): Promise<RevivalSession[]> {
+  const { data, error } = await supabase
+    .from('revival_sessions')
+    .select('id, kind, meets_on, place, note')
+    .order('meets_on');
+  if (error) throw error;
+  return (data ?? []).map(mapSession);
+}
+
 export async function removeSession(id: string): Promise<{ error: string | null }> {
   const { error } = await supabase.from('revival_sessions').delete().eq('id', id);
   return { error: error?.message ?? null };

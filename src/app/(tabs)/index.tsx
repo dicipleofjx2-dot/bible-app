@@ -2,7 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -48,6 +48,13 @@ type JourneyStep = { label: string; href: Href; done?: boolean };
  */
 type HomeTile = {
   emoji: string;
+  /**
+   * 이모지 대신 올릴 그림.
+   *
+   * 부흥의 천사들처럼 **교회가 이미 쓰는 그림**이 있는 칸에만 쓴다. 바둑판은
+   * 이모지로 가지런한 것이 보기 좋아서, 그림은 꼭 필요한 한두 칸에만 둔다.
+   */
+  image?: number;
   /** 문구 열쇠(STRINGS). 화면에 그릴 때 t() 를 지난다 */
   label: StringKey;
   href: Href;
@@ -130,7 +137,14 @@ const HOME_TILES: HomeTile[] = [
   // 흐려진다. 주보로 가는 길은 목자의 편지·알림마당 알림에 그대로 있다.
   // 데이빗북스 하나만 걸던 자리. 지금은 부흥의 천사들 사역 칸이고, 네 사역
   // 신청과 중보기도·데이빗북스·전도가 그 안에 있다.
-  { key: 'growth', emoji: '😇', label: 'tab.growth', href: '/growth' },
+  {
+    key: 'growth',
+    emoji: '😇',
+    // 포스터에서 딴 그림. 종이로 본 그 사역임을 한눈에 알아본다.
+    image: require('@/assets/images/revival-angels.webp'),
+    label: 'tab.growth',
+    href: '/growth',
+  },
   // 게시판 칸은 스마트주보로 옮겼다. 게시판은 교회가 함께 쓰는 곳이고, 이 앱은
   // 개인 경건훈련 자리다. 주보에 「게시판 면」이 생겨 거기서 읽고 쓴다 —
   // 표는 같은 것이라 옛 글이 그대로 이어지고, 교회 홈페이지에도 함께 보인다.
@@ -507,7 +521,11 @@ export default function HomeScreen() {
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}
                     style={[styles.tilePad, padShadow, { borderColor: padRim }]}>
-                    <ThemedText style={styles.tileEmoji}>{tile.emoji}</ThemedText>
+                    {tile.image ? (
+                      <Image source={tile.image} style={styles.tileImage} resizeMode="cover" />
+                    ) : (
+                      <ThemedText style={styles.tileEmoji}>{tile.emoji}</ThemedText>
+                    )}
                   </LinearGradient>
                   {/* ↗ 는 앱 밖으로 나간다는 뜻. 마이페이지의 바깥 링크와 같은 표시를 쓴다 —
                       눌렀을 때 다른 앱이 열리는 것을 미리 알 수 있어야 한다. */}
@@ -795,6 +813,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tileEmoji: { fontSize: 34, lineHeight: 42 },
+  // 받침을 가득 채우는 동그란 그림. 받침과 같은 반지름이라 테두리의 빛이 그대로 산다.
+  tileImage: { width: 66, height: 66, borderRadius: 33 },
   tileLabel: { textAlign: 'center' },
   tileBadge: { textAlign: 'center', fontSize: 11 },
   pressed: {
