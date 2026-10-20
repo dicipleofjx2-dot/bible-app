@@ -44,6 +44,12 @@
           }
         }
       ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "걸음 수를 세어 만보기에 보여 주기 위해 동작 정보를 사용합니다."
+        }
+      ],
       "expo-sqlite",
       [
         "expo-audio",

@@ -35,6 +35,8 @@ export type DayRecord = {
   speed_quiz_success: boolean | null;
   /** 그날 출석 도장을 찍었는지(0093) */
   attended: boolean | null;
+  /** 그날 걸음 수(0095). 만보기가 적는다. */
+  steps: number | null;
 };
 
 async function upsertDayRecord(userId: string, dateStr: string, patch: Partial<DayRecord>): Promise<void> {
@@ -52,7 +54,7 @@ export async function getDayRecord(userId: string, dateStr: string): Promise<Day
   const { data, error } = await supabase
     .from('reading_helper_day_records')
     .select(
-      'date, reading_complete, quiz_score, memorization_success, memorization_attempts, speed_quiz_success, attended',
+      'date, reading_complete, quiz_score, memorization_success, memorization_attempts, speed_quiz_success, attended, steps',
     )
     .eq('user_id', userId)
     .eq('date', dateStr)
@@ -79,6 +81,47 @@ export async function setQuizScore(userId: string, dateStr: string, score: numbe
 export async function setAttended(userId: string, dateStr: string, attended: boolean): Promise<void> {
   await upsertDayRecord(userId, dateStr, { attended });
 }
+
+/**
+ * 그날 걸음 수를 적는다.
+ *
+ * **큰 쪽을 남긴다.** 아이폰은 자정부터 지금까지를 통째로 돌려주고, 안드로이드는
+ * 앱을 켜 둔 동안 걸은 것만 센다. 들쭉날쭉한 두 값이 같은 칸에 들어오므로 그냥
+ * 덮으면 걸음 수가 거꾸로 줄어든다 — 하루 치 기록이 줄어드는 것만큼 맥 빠지는
+ * 일이 없다. 그래서 적힌 것보다 작은 값은 버린다.
+ */
+export async function saveSteps(userId: string, dateStr: string, steps: number): Promise<number> {
+  const rounded = Math.max(0, Math.round(steps));
+  const { data } = await supabase
+    .from('reading_helper_day_records')
+    .select('steps')
+    .eq('user_id', userId)
+    .eq('date', dateStr)
+    .maybeSingle();
+  const kept = Math.max(rounded, Number(data?.steps ?? 0));
+  if (kept !== Number(data?.steps ?? 0)) await upsertDayRecord(userId, dateStr, { steps: kept });
+  return kept;
+}
+
+/** 요즘 며칠간의 걸음 수. 만보기 화면의 막대 그래프와 달력이 쓴다. */
+export async function getStepsByDate(userId: string, fromDate: string, toDate: string): Promise<Map<string, number>> {
+  const { data, error } = await supabase
+    .from('reading_helper_day_records')
+    .select('date, steps')
+    .eq('user_id', userId)
+    .gte('date', fromDate)
+    .lte('date', toDate);
+  if (error) throw error;
+  const out = new Map<string, number>();
+  for (const r of data ?? []) {
+    const n = Number((r as { steps?: number }).steps ?? 0);
+    if (n > 0) out.set(r.date as string, n);
+  }
+  return out;
+}
+
+/** 하루 목표. 「만보기」라는 이름 그대로 만 걸음이다. */
+export const STEP_GOAL = 10000;
 
 /** 출석 도장을 찍은 날들. 달력이 도장을 그릴 때 쓴다. */
 export async function getAttendedDates(userId: string): Promise<Set<string>> {

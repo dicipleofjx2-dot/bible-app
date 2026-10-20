@@ -171,6 +171,7 @@ function AppStack() {
         <Stack.Screen name="post/[id]" options={{ headerShown: true, title: t('nav.post') }} />
         <Stack.Screen name="profile" options={{ headerShown: true, title: t('nav.profile') }} />
         <Stack.Screen name="calendar" options={{ headerShown: true, title: t('nav.calendar') }} />
+        <Stack.Screen name="pedometer" options={{ headerShown: true, title: '만보기' }} />
         <Stack.Screen
           name="bible-study"
           options={{ headerShown: true, title: t('nav.bibleStudy') }}
