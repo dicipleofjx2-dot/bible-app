@@ -8,7 +8,7 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { House, MoreHorizontal, Sprout, type LucideIcon } from 'lucide-react-native';
+import { BookOpen, House, MoreHorizontal, Sprout, type LucideIcon } from 'lucide-react-native';
 import { Pressable, View, ScrollView, StyleSheet } from 'react-native';
 
 import { ThemedText } from './themed-text';
@@ -25,6 +25,7 @@ import type { Href } from 'expo-router';
 // 박아 두면 영어로 바꿔도 아래 칸만 한글로 남는다.
 const TAB_ITEMS: { name: string; href: Href; label: StringKey; Icon: LucideIcon }[] = [
   { name: 'home', href: '/', label: 'tab.home', Icon: House },
+  { name: 'word', href: '/word', label: 'tab.word', Icon: BookOpen },
   { name: 'growth', href: '/growth', label: 'tab.growth', Icon: Sprout },
   { name: 'more', href: '/more', label: 'tab.more', Icon: MoreHorizontal },
 ];

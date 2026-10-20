@@ -22,7 +22,10 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf="house" md="home" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="word" hidden />
+      <NativeTabs.Trigger name="word">
+        <NativeTabs.Trigger.Label>{t('tab.word')}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="book" md="menu_book" />
+      </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="bible-reading" hidden />
 
