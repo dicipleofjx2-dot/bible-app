@@ -10,6 +10,7 @@ type AuthContextValue = {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: string | null }>;
   signInWithKakao: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 };
@@ -33,6 +34,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signIn(email: string, password: string) {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    return { error: error?.message ?? null };
+  }
+
+  /**
+   * 이메일로 새 계정 만들기.
+   *
+   * ⚠️ 한동안 닫아 두었던 길이다. 이메일과 카카오를 함께 열면 **같은 사람이 계정을
+   * 둘 갖는다** — 카카오에 걸린 이메일이 가입 이메일과 다르면 Supabase 는 다른
+   * 사람으로 본다. 그래서 통독 기록과 포인트가 갈라졌고, 열여덟 묶음 스물다섯
+   * 계정을 손으로 합쳐야 했다(2026-09-02).
+   *
+   * 그런데도 다시 여는 까닭: **카카오는 만 14세 미만이 못 쓴다.** 아이들이 들어올
+   * 길이 아예 없었다. 어른에게는 화면이 카카오를 권하고, 이 길은 카카오를 쓸 수
+   * 없는 분을 위해 둔다. 이미 카카오 계정이 있는데 이메일로 또 만든 경우에는
+   * 「예전 계정 잇기」(/claim-account)로 본인이 합칠 수 있다.
+   *
+   * 이 프로젝트는 메일 확인을 끄고 있어(mailer_autoconfirm) 가입하는 즉시 들어온다.
+   * 아이가 메일함을 열어 확인 편지를 찾을 필요가 없다 — 그게 이 길의 핵심이다.
+   */
+  async function signUp(email: string, password: string) {
+    const { error } = await supabase.auth.signUp({ email, password });
     return { error: error?.message ?? null };
   }
 
@@ -103,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, loading, signIn, signInWithKakao, signOut }}>
+    <AuthContext.Provider value={{ session, loading, signIn, signUp, signInWithKakao, signOut }}>
       {children}
     </AuthContext.Provider>
   );

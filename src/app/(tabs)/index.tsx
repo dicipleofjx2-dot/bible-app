@@ -19,6 +19,7 @@ import { getMyActiveEnrollment, getTodayChecklistCount, type ActiveEnrollment } 
 import { getMeditationNote } from '@/db/userData';
 import { hasQtRecordFor } from '@/db/qtApp';
 import { getLatestLetter, type ShepherdLetter } from '@/db/shepherdLetters';
+import { ATTENDANCE_POINTS, getAttendedDates, setAttended } from '@/lib/readingHelper/db';
 import { getMinistryLive, type MinistryLive } from '@/db/ministryLive';
 import { getLatestNotice, type Notice } from '@/db/notices';
 import { getCommunityUnread } from '@/db/community';
@@ -177,6 +178,15 @@ export default function HomeScreen() {
   const [arcadeToday, setArcadeToday] = useState(0);
   // 후원 상자의 쿠팡 링크. 관리자가 등록하기 전에는 빈 값이다.
   const [coupangUrl, setCoupangUrl] = useState('');
+  /*
+   * 출석 도장. 맨 위에 둔다 — 하루에 한 번 누르는 것이라, 달력까지 들어가야 하면
+   * 사흘이면 잊는다. 여기서 누르고 여기서 점수를 본다.
+   *
+   * 도장이 찍히는 곳은 달력과 같은 자리다(reading_helper_day_records.attended).
+   * 두 화면이 같은 기록을 보므로 한쪽에서 찍으면 다른 쪽에도 바로 보인다.
+   */
+  const [attendedDays, setAttendedDays] = useState<Set<string>>(new Set());
+  const [attendanceSaving, setAttendanceSaving] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -195,6 +205,13 @@ export default function HomeScreen() {
         const note = await getMeditationNote(today).catch(() => null);
         const doneInQtApp = session ? await hasQtRecordFor(session.user.id, today).catch(() => false) : false;
         setQtDoneToday(!!note || doneInQtApp);
+
+        if (session) {
+          // 못 읽어도 화면은 그대로 떠야 한다 — 출석은 홈의 곁가지다.
+          setAttendedDays(await getAttendedDates(session.user.id).catch(() => new Set<string>()));
+        } else {
+          setAttendedDays(new Set());
+        }
       })();
     }, [db, session]),
   );
@@ -286,12 +303,70 @@ export default function HomeScreen() {
     { label: t('home.obedience'), href: '/spiritual-journal' },
   ];
 
+  const todayKey = todayDateString();
+  const attendedToday = attendedDays.has(todayKey);
+  const attendanceDays = attendedDays.size;
+
+  /** 오늘 도장을 찍는다. 이미 찍었으면 달력으로 보낸다 — 떼는 것은 거기서 한다. */
+  async function stampToday() {
+    if (!session) {
+      router.push('/profile');
+      return;
+    }
+    if (attendedToday) {
+      router.push('/calendar');
+      return;
+    }
+    if (attendanceSaving) return;
+    setAttendanceSaving(true);
+    // 먼저 그린다 — 도장은 누른 그 순간에 찍혀야 한다.
+    setAttendedDays((cur) => new Set(cur).add(todayKey));
+    try {
+      await setAttended(session.user.id, todayKey, true);
+    } catch {
+      setAttendedDays((cur) => {
+        const next = new Set(cur);
+        next.delete(todayKey);
+        return next;
+      });
+    } finally {
+      setAttendanceSaving(false);
+    }
+  }
+
   return (
     <ThemedView style={styles.container}>
       {/* 앱을 열자마자 한 번. 기간이 지났거나 오늘 이미 닫았으면 스스로 안 뜬다. */}
       <PopupNoticeModal />
       <SafeAreaView style={styles.safeAreaOuter}>
         <ScrollView style={styles.scrollOuter} contentContainerStyle={styles.safeArea}>
+          {/*
+            0. 출석 — 화면 맨 위.
+            하루에 한 번 누르는 것이라 눈에 먼저 들어와야 하고, 여기서 바로 눌러야
+            한다. 달력까지 들어가야 하면 사흘이면 잊는다.
+            로그인 전에는 그릴 수 없다(점수가 사람에게 매인다).
+          */}
+          {session ? (
+            <Pressable
+              onPress={() => void stampToday()}
+              disabled={attendanceSaving}
+              style={({ pressed }) => [
+                styles.attendanceBar,
+                {
+                  backgroundColor: attendedToday ? theme.backgroundElement : theme.accentSoft,
+                  borderColor: attendedToday ? theme.border : theme.accent,
+                },
+                pressed && styles.pressed,
+              ]}>
+              <ThemedText type="smallBold" themeColor={attendedToday ? undefined : 'accent'}>
+                {attendedToday ? '✅ 오늘 출석했습니다' : `출석 체크 (+${ATTENDANCE_POINTS}점)`}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.attendanceScore}>
+                {attendanceDays}일 · {(attendanceDays * ATTENDANCE_POINTS).toLocaleString()}점
+              </ThemedText>
+            </Pressable>
+          ) : null}
+
           {/* 1. 오늘의 말씀 — 화면에서 가장 중요한 자리라 유일하게 그라데이션을 줘서
               다른 카드와 무게를 다르게 했다. Primary 버튼("QT 시작")도 여기 하나뿐이다. */}
           <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.heroCard}>
@@ -583,6 +658,18 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.three,
   },
   supportMore: { textAlign: 'center' },
+  attendanceBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.three,
+    borderRadius: Spacing.four,
+    borderWidth: 1,
+  },
+  attendanceScore: {
+    marginLeft: 'auto',
+  },
   heroCard: {
     borderRadius: Spacing.four,
     padding: Spacing.four,
