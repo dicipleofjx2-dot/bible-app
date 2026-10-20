@@ -1,7 +1,8 @@
+import type { Href } from 'expo-router';
+
 import { HubList, type HubSection } from '@/components/HubList';
 import { useAuth } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
-import { APP_WINDOW } from '@/lib/openExternal';
 
 // 매일 읽는 것 / 내가 쓴 것 / 찾아 보는 것으로 나눴다. 예전에는 여섯 개가
 // 한 줄로 늘어서 있어서 무엇부터 눌러야 할지 알기 어려웠다.
@@ -20,8 +21,9 @@ export default function WordHubScreen() {
           emoji: '🖼️',
           label: t('word.webtoon'),
           description: t('word.webtoonDesc'),
-          href: '/',
-          external: { url: 'https://sermon.dgaiworks.com/sermon-comics/', window: APP_WINDOW.webtoon },
+          // 바깥 사이트 대신 **앱 안 책장**으로. 전자책처럼 넘겨 읽는다.
+          // 타입 생성기(.expo/types)가 새 길을 늦게 따라온다. 이 리포가 쓰던 대로 못 박는다.
+          href: '/webtoon' as Href,
         },
       ],
     },
