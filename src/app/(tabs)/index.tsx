@@ -2,9 +2,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
-import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { RevivalAngelsMark } from '@/components/RevivalAngelsMark';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { PopupNoticeModal } from '@/components/PopupNoticeModal';
@@ -49,12 +50,12 @@ type JourneyStep = { label: string; href: Href; done?: boolean };
 type HomeTile = {
   emoji: string;
   /**
-   * 이모지 대신 올릴 그림.
+   * 이모지 대신 받침을 가득 채우는 그림.
    *
-   * 부흥의 천사들처럼 **교회가 이미 쓰는 그림**이 있는 칸에만 쓴다. 바둑판은
-   * 이모지로 가지런한 것이 보기 좋아서, 그림은 꼭 필요한 한두 칸에만 둔다.
+   * 바둑판은 이모지로 가지런한 것이 보기 좋아서 꼭 필요한 한두 칸에만 둔다.
+   * 사진이 아니라 **그려 넣는 것**이라 68px 받침 안에서도 흐려지지 않는다.
    */
-  image?: number;
+  Mark?: (props: { size: number }) => React.ReactElement;
   /** 문구 열쇠(STRINGS). 화면에 그릴 때 t() 를 지난다 */
   label: StringKey;
   href: Href;
@@ -140,8 +141,10 @@ const HOME_TILES: HomeTile[] = [
   {
     key: 'growth',
     emoji: '😇',
-    // 포스터에서 딴 그림. 종이로 본 그 사역임을 한눈에 알아본다.
-    image: require('@/assets/images/revival-angels.webp'),
+    // 포스터 사진을 줄여 걸었더니 글씨와 인물이 뭉개져 얼룩으로 보였다.
+    // 작은 받침에서도 버티도록 따로 그린 표식을 올린다 — 포스터는 사역 화면
+    // 배경에 그대로 있다.
+    Mark: RevivalAngelsMark,
     label: 'tab.growth',
     href: '/growth',
   },
@@ -521,8 +524,8 @@ export default function HomeScreen() {
                     start={{ x: 0.5, y: 0 }}
                     end={{ x: 0.5, y: 1 }}
                     style={[styles.tilePad, padShadow, { borderColor: padRim }]}>
-                    {tile.image ? (
-                      <Image source={tile.image} style={styles.tileImage} resizeMode="cover" />
+                    {tile.Mark ? (
+                      <tile.Mark size={66} />
                     ) : (
                       <ThemedText style={styles.tileEmoji}>{tile.emoji}</ThemedText>
                     )}
@@ -813,8 +816,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tileEmoji: { fontSize: 34, lineHeight: 42 },
-  // 받침을 가득 채우는 동그란 그림. 받침과 같은 반지름이라 테두리의 빛이 그대로 산다.
-  tileImage: { width: 66, height: 66, borderRadius: 33 },
   tileLabel: { textAlign: 'center' },
   tileBadge: { textAlign: 'center', fontSize: 11 },
   pressed: {
