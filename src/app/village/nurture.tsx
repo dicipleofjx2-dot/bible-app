@@ -14,7 +14,7 @@ import {
   Tag,
 } from '@/components/village/kit';
 import { Spacing } from '@/constants/theme';
-import { nameOf, useCellRoom } from '@/hooks/use-cell-room';
+import { nameOf, rosterEntries, useCellRoom } from '@/hooks/use-cell-room';
 import {
   createNurture,
   getNurtures,
@@ -162,7 +162,7 @@ export default function NurtureRoomScreen() {
                   배우는 사람
                 </ThemedText>
                 <ChipRow
-                  options={[...(room?.names.entries() ?? [])].map(([id, n]) => ({ value: id, label: n }))}
+                  options={rosterEntries(room).map(([id, n]) => ({ value: id, label: n }))}
                   value={learner}
                   onChange={setLearner}
                 />

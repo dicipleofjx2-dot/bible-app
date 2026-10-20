@@ -3,6 +3,8 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { MonthPicker } from '@/components/MonthPicker';
+import { Raised, useRaise } from '@/components/Raised';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -34,6 +36,7 @@ import {
  */
 export default function RevivalAdminScreen() {
   const theme = useTheme();
+  const { strongShadow } = useRaise();
   const { session } = useAuth();
   const [admin, setAdmin] = useState<boolean | null>(null);
   const [sessions, setSessions] = useState<RevivalSession[]>([]);
@@ -110,7 +113,7 @@ export default function RevivalAdminScreen() {
           </ThemedText>
 
           {/* ── 날짜 정하기 ── */}
-          <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
+          <Raised>
             <ThemedText type="smallBold">이 달의 사역 날짜</ThemedText>
             <View style={styles.chipRow}>
               {REVIVAL_MINISTRIES.map((m) => (
@@ -120,23 +123,28 @@ export default function RevivalAdminScreen() {
                   style={[
                     styles.chip,
                     {
-                      borderColor: kind === m.kind ? theme.accent : theme.border,
-                      backgroundColor: kind === m.kind ? theme.accentSoft : 'transparent',
+                      borderColor: kind === m.kind ? m.color : theme.border,
+                      backgroundColor: kind === m.kind ? m.color : 'transparent',
                     },
                   ]}>
-                  <ThemedText type="small" themeColor={kind === m.kind ? 'accent' : 'textSecondary'}>
+                  <ThemedText
+                    type="small"
+                    themeColor={kind === m.kind ? undefined : 'textSecondary'}
+                    style={kind === m.kind ? styles.chipOn : undefined}>
                     {m.emoji} {m.name}
                   </ThemedText>
                 </Pressable>
               ))}
             </View>
-            <TextInput
-              value={meetsOn}
-              onChangeText={setMeetsOn}
-              placeholder="2026-11-09"
-              placeholderTextColor={theme.textSecondary}
-              style={[styles.input, { color: theme.text, backgroundColor: theme.background }]}
-            />
+            {/*
+              날짜는 **달력에서 고른다.** 「2026-11-09」처럼 적게 하면 한 자리만
+              틀려도 조용히 엉뚱한 날이 되고, 폰에서는 그 열 글자를 치는 것 자체가
+              일이다. 고른 날은 아래 한 줄로 다시 확인해 준다.
+            */}
+            <MonthPicker value={meetsOn} onChange={setMeetsOn} tint={ministryOf(kind).color} />
+            <ThemedText type="small" themeColor={meetsOn ? 'accent' : 'textSecondary'}>
+              {meetsOn ? `고른 날 — ${formatMeetsOn(meetsOn)}` : '달력에서 날짜를 고르세요'}
+            </ThemedText>
             <TextInput
               value={place}
               onChangeText={setPlace}
@@ -156,7 +164,8 @@ export default function RevivalAdminScreen() {
               disabled={busy}
               style={({ pressed }) => [
                 styles.primaryButton,
-                { backgroundColor: theme.backgroundSelected, opacity: busy ? 0.6 : 1 },
+                { backgroundColor: ministryOf(kind).color, opacity: busy ? 0.6 : 1 },
+                strongShadow,
                 pressed && styles.pressed,
               ]}>
               <ThemedText type="smallBold" style={styles.primaryText}>
@@ -188,7 +197,7 @@ export default function RevivalAdminScreen() {
                 </Pressable>
               </View>
             ))}
-          </View>
+          </Raised>
 
           {/* ── 신청자 ── */}
           <ThemedText type="subtitle" style={styles.sectionTitle}>
@@ -227,7 +236,7 @@ export default function RevivalAdminScreen() {
           )}
 
           {shown.map((r) => (
-            <View key={r.id} style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
+            <Raised key={r.id}>
               <ThemedText type="small" themeColor="textSecondary">
                 {ministryOf(r.kind).emoji} {ministryOf(r.kind).name} · {r.createdAt.slice(0, 10)}
               </ThemedText>
@@ -245,7 +254,7 @@ export default function RevivalAdminScreen() {
                   받은 뒤 기록은 아직 없습니다
                 </ThemedText>
               )}
-            </View>
+            </Raised>
           ))}
         </ScrollView>
       </SafeAreaView>
@@ -287,6 +296,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   primaryText: { color: '#ffffff' },
+  chipOn: { color: '#ffffff' },
   sessionRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   pushRight: { marginLeft: 'auto' },
   afterBox: { borderLeftWidth: 2, paddingLeft: Spacing.three, gap: 2, marginTop: Spacing.one },

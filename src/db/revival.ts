@@ -14,17 +14,27 @@ import { supabase } from '@/lib/supabase';
 export const REVIVAL_KINDS = ['WORD', 'HEALING', 'WORSHIP', 'FINANCE'] as const;
 export type RevivalKind = (typeof REVIVAL_KINDS)[number];
 
+/**
+ * 사역마다의 색.
+ *
+ * 포스터의 네 동그라미에서 가져왔다 — 말씀은 파랑, 치유는 금빛, 찬양은 붉은빛,
+ * 재정은 초록. 종이로 받은 그 그림과 앱이 같은 색을 쓰면, 주보에서 보고 온 분이
+ * 화면에서 같은 사역을 한눈에 찾는다.
+ */
 export const REVIVAL_MINISTRIES: {
   kind: RevivalKind;
   emoji: string;
   name: string;
   summary: string;
+  /** 포스터의 동그라미 색 */
+  color: string;
   /** 신청 칸에 무엇을 적으면 되는지. 사역마다 묻는 것이 다르다. */
   askLabel: string;
   askPlaceholder: string;
 }[] = [
   {
     kind: 'WORD',
+    color: '#2E6BB8',
     emoji: '📖',
     name: '말씀과 예언',
     summary: '말씀으로 묻고, 주시는 말씀을 받습니다',
@@ -33,6 +43,7 @@ export const REVIVAL_MINISTRIES: {
   },
   {
     kind: 'HEALING',
+    color: '#E0A526',
     emoji: '🙌',
     name: '치유와 축사',
     summary: '몸과 마음의 아픔, 눌린 것에서 놓이도록 기도합니다',
@@ -41,6 +52,7 @@ export const REVIVAL_MINISTRIES: {
   },
   {
     kind: 'WORSHIP',
+    color: '#C8102E',
     emoji: '🎵',
     name: '찬양과 경배',
     summary: '찬양 가운데 하나님을 만나는 자리입니다',
@@ -49,6 +61,7 @@ export const REVIVAL_MINISTRIES: {
   },
   {
     kind: 'FINANCE',
+    color: '#157F3D',
     emoji: '🪙',
     name: '천국의 재정',
     summary: '재정의 막힌 것이 풀리고 하나님 나라의 길로 쓰이도록 기도합니다',

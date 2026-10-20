@@ -1,8 +1,10 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ImageBackground, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Raised, RaisedBadge, useRaise } from '@/components/Raised';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -37,6 +39,7 @@ import {
  */
 export default function RevivalKindScreen() {
   const theme = useTheme();
+  const { strongShadow } = useRaise();
   const { session } = useAuth();
   const { kind: raw } = useLocalSearchParams<{ kind: string }>();
   const kind = (REVIVAL_KINDS as readonly string[]).includes(raw ?? '')
@@ -125,15 +128,29 @@ export default function RevivalKindScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content}>
-          <ThemedText type="title" style={styles.title}>
-            {ministry.emoji} {ministry.name}
-          </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {ministry.summary}
-          </ThemedText>
+          {/* 머리 띠 — 포스터 그림 위에 그 사역의 색을 얹는다. */}
+          <ImageBackground
+            source={require('@/assets/images/revival-angels.webp')}
+            style={styles.hero}
+            imageStyle={styles.heroImage}
+            resizeMode="cover">
+            <LinearGradient
+              colors={[`${ministry.color}CC`, 'rgba(14,10,8,0.88)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroShade}>
+              <RaisedBadge tint={ministry.color} size={46}>
+                <ThemedText style={styles.heroEmoji}>{ministry.emoji}</ThemedText>
+              </RaisedBadge>
+              <View style={styles.heroTextWrap}>
+                <ThemedText style={styles.heroTitle}>{ministry.name}</ThemedText>
+                <ThemedText style={styles.heroSub}>{ministry.summary}</ThemedText>
+              </View>
+            </LinearGradient>
+          </ImageBackground>
 
           {/* ── 언제 하는가 ── */}
-          <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
+          <Raised>
             <ThemedText type="smallBold">모이는 날</ThemedText>
             {sessions.length ? (
               sessions.map((s) => (
@@ -148,10 +165,10 @@ export default function RevivalKindScreen() {
                 다음 날짜가 아직 정해지지 않았습니다. 신청은 지금 하셔도 됩니다.
               </ThemedText>
             )}
-          </View>
+          </Raised>
 
           {/* ── 신청하기 ── */}
-          <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
+          <Raised>
             <ThemedText type="smallBold">기도 신청하기</ThemedText>
             <TextInput
               value={name}
@@ -183,7 +200,8 @@ export default function RevivalKindScreen() {
               disabled={busy}
               style={({ pressed }) => [
                 styles.primaryButton,
-                { backgroundColor: theme.backgroundSelected, opacity: busy ? 0.6 : 1 },
+                { backgroundColor: ministry.color, opacity: busy ? 0.6 : 1 },
+                strongShadow,
                 pressed && styles.pressed,
               ]}>
               <ThemedText type="smallBold" style={styles.primaryText}>
@@ -195,7 +213,7 @@ export default function RevivalKindScreen() {
                 {message}
               </ThemedText>
             )}
-          </View>
+          </Raised>
 
           {/* ── 내가 낸 신청 ── */}
           {mine.length > 0 && (
@@ -204,9 +222,7 @@ export default function RevivalKindScreen() {
                 내가 신청한 기도
               </ThemedText>
               {mine.map((r) => (
-                <View
-                  key={r.id}
-                  style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
+                <Raised key={r.id}>
                   <ThemedText type="small" themeColor="textSecondary">
                     {r.createdAt.slice(0, 10)} 신청함
                   </ThemedText>
@@ -274,7 +290,7 @@ export default function RevivalKindScreen() {
                       </Pressable>
                     </View>
                   )}
-                </View>
+                </Raised>
               ))}
             </>
           )}
@@ -295,6 +311,19 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   title: { fontSize: 24 },
+  hero: { height: 128, borderRadius: 18, overflow: 'hidden', justifyContent: 'flex-end' },
+  heroImage: { borderRadius: 18 },
+  heroShade: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+    paddingHorizontal: Spacing.four,
+  },
+  heroTextWrap: { flex: 1, gap: 2 },
+  heroEmoji: { fontSize: 22 },
+  heroTitle: { color: '#ffffff', fontSize: 20, fontWeight: '800' },
+  heroSub: { color: 'rgba(255,255,255,0.85)', fontSize: 12 },
   sectionTitle: { marginTop: Spacing.three },
   card: { borderRadius: Spacing.four, padding: Spacing.four, gap: Spacing.two },
   input: {

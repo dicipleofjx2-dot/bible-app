@@ -16,7 +16,7 @@ import {
 } from '@/components/village/kit';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { nameOf, useCellRoom } from '@/hooks/use-cell-room';
+import { nameOf, rosterEntries, useCellRoom } from '@/hooks/use-cell-room';
 import { createCellReport, getCellReports, removeCellReport, type CellReport } from '@/db/cell';
 import { getHabits, saveHabits } from '@/db/ranch';
 import { HABIT_TARGET } from '@/lib/ranch';
@@ -280,7 +280,7 @@ export default function ChapelScreen() {
           <SectionTitle hint="모인 분을 눌러 표시해 주세요">참석 확인</SectionTitle>
           <Card>
             <View style={styles.nameWrap}>
-              {[...(room?.names.entries() ?? [])].map(([id, n]) => {
+              {rosterEntries(room).map(([id, n]) => {
                 const on = attendance.find((a) => a.userId === id)?.attended === true;
                 return (
                   <Pressable
@@ -306,11 +306,11 @@ export default function ChapelScreen() {
           <SectionTitle hint={`기준: 한 주에 기도 7시간(${HABIT_TARGET.prayerMinutesPerWeek}분) · 통독 ${HABIT_TARGET.chaptersPerWeek}장`}>
             이번 주 기도와 통독
           </SectionTitle>
-          {attendance.filter((a) => a.attended).length === 0 ? (
+          {attendance.filter((a) => a.attended && (!room?.roster || room.roster.has(a.userId))).length === 0 ? (
             <Empty text="위에서 모인 분을 먼저 눌러 표시해 주세요." />
           ) : (
             attendance
-              .filter((a) => a.attended)
+              .filter((a) => a.attended && (!room?.roster || room.roster.has(a.userId)))
               .map((a) => (
                 <Card key={a.userId}>
                   <ThemedText type="smallBold">{nameOf(room?.names ?? new Map(), a.userId)}</ThemedText>

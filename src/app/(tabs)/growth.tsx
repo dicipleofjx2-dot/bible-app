@@ -1,6 +1,4 @@
 import { HubList, type HubSection } from '@/components/HubList';
-import { CHURCH_ON_ORIGIN } from '@/lib/adminApps';
-import { APP_WINDOW } from '@/lib/openExternal';
 import { useAuth } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 
@@ -13,6 +11,9 @@ import { useT } from '@/lib/i18n';
  *
  * 남긴 둘은 이 사역과 결이 같아서다. 중보기도 나무는 사람을 심어 기도하는
  * 자리이고, 데이빗북스는 함께 읽는 자리다.
+ *
+ * 중보기도센터·전도는 **홈 바둑판에 이미 있어서** 여기에 두지 않는다 — 같은 문이
+ * 두 군데 있으면 어느 쪽이 본 자리인지 흐려진다. 사역 관리(교회운영ON)도 뺐다.
  *
  * ⚠️ 파일 이름과 주소(/growth)는 그대로 둔다. 바꾸면 홈 타일·탭·저쪽 앱들이
  * 거는 링크가 한꺼번에 끊긴다. 보이는 이름만 갈아입혔다(tab.growth).
@@ -38,15 +39,8 @@ export default function RevivalAngelsScreen() {
       ],
     },
     {
-      title: '함께 기도합니다',
+      title: t('growth.title'),
       items: [
-        {
-          emoji: '🕯️',
-          label: '중보기도센터',
-          description: '기도 시간을 맡고, 기도제목과 받은 감동을 나눕니다',
-          href: '/',
-          external: { url: 'https://prayer.dgaiworks.com/', window: APP_WINDOW.prayerHouse },
-        },
         {
           emoji: '🌳',
           label: '중보기도 나무',
@@ -54,34 +48,11 @@ export default function RevivalAngelsScreen() {
           href: '/prayer-tree',
           requiresAuth: true,
         },
-      ],
-    },
-    {
-      title: t('growth.title'),
-      items: [
         {
           emoji: '📕',
           label: t('growth.davidBooks'),
           description: t('growth.davidBooksDesc'),
           href: '/library',
-        },
-        {
-          emoji: '🕊️',
-          label: '전도',
-          description: '전도 대상자를 품고 걸음을 함께 봅니다',
-          href: '/evangelism',
-        },
-      ],
-    },
-    {
-      title: '사역을 꾸리는 자리',
-      items: [
-        {
-          emoji: '🗂️',
-          label: '사역 관리',
-          description: '교회운영ON에서 부서·명단·모임을 꾸립니다',
-          href: '/',
-          external: { url: `${CHURCH_ON_ORIGIN}/`, window: APP_WINDOW.churchOn },
         },
       ],
     },

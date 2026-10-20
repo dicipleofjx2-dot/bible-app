@@ -19,7 +19,7 @@ import { getRanchCounts, getRanchPoints } from '@/db/ranch';
 import { computeRanch, STAGE_LABEL, type RanchCounts, type RanchPoints } from '@/lib/ranch';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { nameOf, pickCell, useCellRoom } from '@/hooks/use-cell-room';
+import { nameOf, pickCell, rosterEntries, useCellRoom } from '@/hooks/use-cell-room';
 import {
   getCellMeeting,
   type CellMeeting,
@@ -61,7 +61,6 @@ type Room = {
 
 const ROOMS: Room[] = [
   { key: 'support', emoji: '🌱', name: '전도와 정착 지원', desc: '새가족 · 목장 격려', href: '/village/support' },
-  { key: 'ranch', emoji: '🐑', name: '방주 목장', desc: '활동으로 동물이 자라요', href: '/village/ranch' },
   { key: 'chapel', emoji: '⛪', name: '목장모임 및 목장보고', desc: '이번 모임 · 순서 · 보고 올리기', href: '/village/chapel' },
   { key: 'share', emoji: '💬', name: '나눔과 소통방', desc: '나눔 글 · 소통창', href: '/village/share' },
   { key: 'nurture', emoji: '🌱', name: '양육실', desc: '과정 · 다음 만남', href: '/village/nurture' },
@@ -298,13 +297,13 @@ export default function CellHomeScreen() {
           </View>
 
           {/* ── 목장원 ────────────────────────────────────────── */}
-          <SectionTitle hint={`${room.names.size}명`}>우리 목장 식구</SectionTitle>
+          <SectionTitle hint={`${rosterEntries(room).length}명`}>우리 목장 식구</SectionTitle>
           <Card>
             <View style={styles.nameWrap}>
-              {room.names.size === 0 ? (
+              {rosterEntries(room).length === 0 ? (
                 <ThemedText themeColor="textSecondary">명단을 불러오지 못했어요.</ThemedText>
               ) : (
-                [...room.names.entries()].map(([id, n]) => (
+                rosterEntries(room).map(([id, n]) => (
                   <View
                     key={id}
                     style={[styles.namePill, { backgroundColor: theme.accentSoft }]}>
