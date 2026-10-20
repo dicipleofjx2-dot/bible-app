@@ -692,8 +692,8 @@ export const STRINGS = {
   },
   'r2m.home.browse': { ko: '훈련과정 둘러보기', en: 'Browse the courses' },
   'r2m.home.weekProgress': {
-    ko: '{week} / {total}주차 · 이번 주 진행률 {done}/7',
-    en: 'Week {week} of {total} · this week {done}/7',
+    ko: '{week} / {total}주차',
+    en: 'Week {week} of {total}',
   },
   'r2m.home.missions': { ko: '이번 주 미션', en: 'This week’s missions' },
   'r2m.home.todayTraining': { ko: '오늘의 훈련', en: 'Today’s training' },

@@ -12,39 +12,10 @@ import {
   getLeaderScope,
   getMissionsForWeek,
   getMyActiveEnrollment,
-  getTodayChecklist,
   type ActiveEnrollment,
-  type DailyChecklist,
   type Mission,
 } from '@/db/r2m';
-import type { Href } from 'expo-router';
 import { useI18n } from '@/lib/i18n';
-import type { StringKey } from '@/constants/strings';
-
-type ChecklistItem = { key: keyof DailyChecklist; labelKey: StringKey; href: Href };
-
-// 말이 아니라 열쇠만. 모듈 상수에 말을 담으면 처음 언어로 굳는다.
-const CHECKLIST_ITEMS: ChecklistItem[] = [
-  { key: 'qt', labelKey: 'r2m.item.qt', href: '/meditation' },
-  { key: 'reading', labelKey: 'r2m.item.reading', href: '/read' },
-  { key: 'meditation', labelKey: 'r2m.item.meditation', href: '/notes' },
-  // 「기도」는 중보기도 나무로 간다 — 개인기도 훈련의 자리다. 함께 나누는
-  // 기도제목은 중보기도센터(prayer.dgaiworks.com)에서만 올린다.
-  { key: 'prayer', labelKey: 'r2m.item.prayer', href: '/prayer-tree' },
-  { key: 'memorization', labelKey: 'r2m.item.memorization', href: '/reading-helper' },
-  { key: 'obedience', labelKey: 'r2m.item.obedience', href: '/spiritual-journal' },
-  { key: 'gratitude', labelKey: 'r2m.item.gratitude', href: '/r2m/gratitude' },
-];
-
-const EMPTY_CHECKLIST: DailyChecklist = {
-  qt: false,
-  reading: false,
-  meditation: false,
-  prayer: false,
-  memorization: false,
-  obedience: false,
-  gratitude: false,
-};
 
 export default function R2MDashboardScreen() {
   const theme = useTheme();
@@ -53,7 +24,6 @@ export default function R2MDashboardScreen() {
   // 관리자뿐 아니라 리더로 지정된 회원도 리더관리에 들어간다.
   const [canLead, setCanLead] = useState(false);
   const [enrollment, setEnrollment] = useState<ActiveEnrollment | null | undefined>(undefined);
-  const [checklist, setChecklist] = useState<DailyChecklist>(EMPTY_CHECKLIST);
   const [missions, setMissions] = useState<Mission[]>([]);
 
   useFocusEffect(
@@ -61,16 +31,12 @@ export default function R2MDashboardScreen() {
       if (!session) {
         setCanLead(false);
         setEnrollment(null);
-        setChecklist(EMPTY_CHECKLIST);
         setMissions([]);
         return;
       }
       getLeaderScope(session.user.id)
         .then((s) => setCanLead(s.isAdmin || s.isLeader))
         .catch(() => setCanLead(false));
-      getTodayChecklist(session.user.id)
-        .then(setChecklist)
-        .catch(() => setChecklist(EMPTY_CHECKLIST));
       getMyActiveEnrollment(session.user.id, lang)
         .then((e) => {
           setEnrollment(e);
@@ -85,8 +51,6 @@ export default function R2MDashboardScreen() {
         .catch(() => setEnrollment(null));
     }, [session, lang]),
   );
-
-  const doneCount = Object.values(checklist).filter(Boolean).length;
 
   return (
     <ThemedView style={styles.container}>
@@ -120,7 +84,6 @@ export default function R2MDashboardScreen() {
                   {t('r2m.home.weekProgress', {
                     week: enrollment.currentWeek,
                     total: enrollment.totalWeeks,
-                    done: doneCount,
                   })}
                 </ThemedText>
                 {enrollment.leaderMessage ? (
@@ -140,38 +103,6 @@ export default function R2MDashboardScreen() {
                   ))}
                 </View>
               )}
-
-              <View style={styles.section}>
-                <ThemedText type="smallBold">{t('r2m.home.todayTraining')}</ThemedText>
-                {CHECKLIST_ITEMS.map((item) => {
-                  const done = checklist[item.key];
-                  return (
-                    <Pressable
-                      key={item.key}
-                      onPress={() => router.push(item.href)}
-                      style={({ pressed }) => [
-                        styles.checklistRow,
-                        { backgroundColor: theme.backgroundElement },
-                        pressed && styles.pressed,
-                      ]}>
-                      <View style={[styles.checklistDot, { backgroundColor: done ? theme.accent : theme.background }]}>
-                        <ThemedText
-                          type="small"
-                          themeColor={done ? undefined : 'textSecondary'}
-                          style={done ? styles.checklistDotDoneText : undefined}>
-                          {done ? '✓' : ''}
-                        </ThemedText>
-                      </View>
-                      <ThemedText type="smallBold" style={styles.checklistLabel}>
-                        {t(item.labelKey)}
-                      </ThemedText>
-                      <ThemedText type="small" themeColor="textSecondary">
-                        {done ? t('r2m.home.done') : t('r2m.home.go')}
-                      </ThemedText>
-                    </Pressable>
-                  );
-                })}
-              </View>
             </>
           )}
 
@@ -260,33 +191,10 @@ const styles = StyleSheet.create({
   section: {
     gap: Spacing.two,
   },
-  checklistRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
-    padding: Spacing.three,
-    borderRadius: Spacing.three,
-  },
-  checklistDot: {
-    width: 28,
-    height: 28,
-    borderRadius: Spacing.four,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checklistDotDoneText: {
-    color: '#ffffff',
-  },
-  checklistLabel: {
-    flex: 1,
-  },
   linksRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: Spacing.four,
     marginTop: Spacing.two,
-  },
-  pressed: {
-    opacity: 0.7,
   },
 });
