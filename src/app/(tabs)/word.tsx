@@ -1,6 +1,7 @@
 import { HubList, type HubSection } from '@/components/HubList';
 import { useAuth } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
+import { APP_WINDOW } from '@/lib/openExternal';
 
 // 매일 읽는 것 / 내가 쓴 것 / 찾아 보는 것으로 나눴다. 예전에는 여섯 개가
 // 한 줄로 늘어서 있어서 무엇부터 눌러야 할지 알기 어려웠다.
@@ -16,38 +17,11 @@ export default function WordHubScreen() {
       title: t('word.title'),
       items: [
         {
-          emoji: '📚',
-          label: t('word.bibleRead'),
-          description: t('word.bibleReadDesc'),
-          href: '/read',
-        },
-      ],
-    },
-    {
-      title: t('word.myNotes'),
-      items: [
-        {
-          emoji: '✍️',
-          label: t('word.qtNotes'),
-          description: t('word.qtNotesDesc'),
-          href: '/word-notes',
-        },
-        {
-          emoji: '💡',
-          label: t('word.verseNotes'),
-          description: t('word.myNotesDesc'),
-          href: '/notes',
-        },
-      ],
-    },
-    {
-      title: t('word.deepDive'),
-      items: [
-        {
-          emoji: '🧭',
-          label: t('word.study'),
-          description: t('word.studyDesc'),
-          href: '/bible-study',
+          emoji: '🖼️',
+          label: t('word.webtoon'),
+          description: t('word.webtoonDesc'),
+          href: '/',
+          external: { url: 'https://sermon.dgaiworks.com/sermon-comics/', window: APP_WINDOW.webtoon },
         },
       ],
     },
