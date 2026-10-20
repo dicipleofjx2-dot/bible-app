@@ -20,8 +20,10 @@ export type HubItem = {
   requiresAuth?: boolean;
   /** 바깥 앱. 있으면 `href` 대신 이 주소를 이름 붙인 창으로 연다(→ `openAppWindow`). */
   external?: { url: string; window: string };
-  /** 「NEW」처럼 제목 옆에 붙는 작은 딱지. 천천히 깜빡인다. */
-  badge?: string;
+  /** 이 시각까지 「NEW」 딱지를 붙인다(ISO 시각). 지나면 저절로 사라진다 — 코드를 다시 고칠 필요가 없다. */
+  newUntil?: string;
+  /** 새로 더한 칸을 눈에 띄게: 금빛 배지에 반짝이를 얹는다. */
+  highlight?: boolean;
 };
 
 /**
@@ -114,6 +116,7 @@ export function HubList({
               <View style={styles.rows}>
                 {section.items.map((item) => {
                   const locked = !!item.requiresAuth && !isSignedIn;
+                  const isNew = !!item.newUntil && Date.now() < new Date(item.newUntil).getTime();
                   return (
                     <Pressable
                       key={item.label}
@@ -124,14 +127,20 @@ export function HubList({
                       }}
                       style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
                       <ThemedView type="backgroundElement" style={[styles.rowInner, { borderColor: theme.border }]}>
-                        <View style={[styles.badge, { backgroundColor: theme.accentSoft }]}>
+                        <View
+                          style={[
+                            styles.badge,
+                            { backgroundColor: item.highlight ? theme.done : theme.accentSoft },
+                            item.highlight && styles.badgeHighlight,
+                          ]}>
                           <ThemedText style={styles.emoji}>{item.emoji}</ThemedText>
+                          {item.highlight ? <ThemedText style={styles.sparkle}>✨</ThemedText> : null}
                         </View>
 
                         <View style={styles.rowText}>
                           <View style={styles.titleRow}>
                             <ThemedText style={Type.itemTitle}>{item.label}</ThemedText>
-                            {item.badge ? <NewBadge label={item.badge} color={theme.accent} /> : null}
+                            {isNew ? <NewBadge label="NEW" color={theme.accent} /> : null}
                           </View>
                           <ThemedText themeColor="textSecondary" style={[Type.itemDescription, styles.description]}>
                             {item.description}
@@ -226,6 +235,25 @@ const styles = StyleSheet.create({
   emoji: {
     fontSize: 24,
     lineHeight: 30,
+  },
+  badgeHighlight: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    shadowColor: '#E9B44C',
+    shadowOpacity: 0.7,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 4,
+  },
+  sparkle: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    fontSize: 16,
+    lineHeight: 20,
   },
   rowText: {
     flex: 1,

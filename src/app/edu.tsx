@@ -31,12 +31,13 @@ export default function EduHubScreen() {
           external: { url: 'https://journey.dgaiworks.com/', window: APP_WINDOW.bibleJourney },
         },
         {
+          // 새로 연 칸이라 한 달 동안 NEW 딱지를 단다(2026-10-20 → 11-20). 지나면 저절로 사라진다.
           emoji: '🔤',
           label: '영어 성경단어장',
-          description: '마가복음(NIV)의 어려운 영어 단어를 체크하고 카드로 학습',
+          description: '마가·마태복음(NIV)의 어려운 영어 단어를 체크하고 카드로 학습',
           href: '/bible-vocab',
-          // 새로 붙인 앱이라 눈에 걸리게 둔다. 자리를 잡으면 이 한 줄만 지운다.
-          badge: 'NEW',
+          highlight: true,
+          newUntil: '2026-11-20T23:59:59+09:00',
         },
         {
           emoji: '🎓',

@@ -116,7 +116,8 @@ const HOME_TILES: HomeTile[] = [
   // 늘리지 말고 /edu 에 한 줄씩 더한다.
   { key: 'edu', emoji: '📚', label: 'home.edu', href: '/edu' as Href },
   // 디지털캠퍼스는 홈에서 빼고 데이빗에듀 안으로 옮겼다(→ /edu). R2M 대시보드는
-  // 아래 탭(/bible-reading)에 그대로 있다.
+  // 아래 탭(/bible-reading)에 있다. 통독도우미는 에듀 안에도 있지만 홈에서
+  // 매일 여는 칸이라 여기 그대로 둔다.
   { key: 'readingHelper', emoji: '📆', label: 'home.readingHelper', href: '/reading-helper', requiresAuth: true },
   // 성경게임대전 — 로그인 없이도 방에 들어가 볼 수 있게 두었다. 기록 저장만
   // 로그인이 필요하다(→ docs/arena/README.md). 문 앞에서 막으면 「무슨 게임인지

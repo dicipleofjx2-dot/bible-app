@@ -46,26 +46,37 @@ export function SongPlayerProvider({ children }: { children: ReactNode }) {
   const wantPlay = useRef(false);
   const loading = useRef(false);
 
+  const curId = useRef<number | null>(null);
+
+  // 플레이리스트를 열 때마다 새로 받는다 — 한 번만 받으면 앱을 켜 둔 동안 새로 올린 곡이 안 보였다(2026-10-03).
+  // 듣던 곡은 새 목록에서도 그 곡을 가리키게 한다(맨 위에 새 곡이 끼어도 노래가 바뀌지 않게).
   const load = useCallback(() => {
     if (loading.current) return;
     loading.current = true;
     setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true }).catch(() => {});
     fetchDecisionSongs()
-      .then(setSongs)
-      .catch((e: Error) => {
+      .then((list) => {
+        setError(null);
+        const keep = curId.current === null ? -1 : list.findIndex((s) => s.id === curId.current);
+        setSongs(list);
+        setCur(keep >= 0 ? keep : 0);
+      })
+      .catch((e: Error) => setError(e.message))
+      .finally(() => {
         loading.current = false;
-        setError(e.message);
       });
   }, []);
 
   const song = songs?.[cur] ?? null;
+  const audio = song?.audio ?? null;
+  curId.current = song?.id ?? null;
 
-  // 곡을 바꾸면 그 음원으로 — 듣던 중이었으면 이어서
+  // 곡을 바꾸면 그 음원으로 — 듣던 중이었으면 이어서. 음원 주소로만 반응한다(목록을 새로 받아도 같은 곡이면 끊지 않게)
   useEffect(() => {
-    if (!song) return;
-    player.replace({ uri: song.audio });
+    if (!audio) return;
+    player.replace({ uri: audio });
     if (wantPlay.current) player.play();
-  }, [song, player]);
+  }, [audio, player]);
 
   // 끝나면 다음 곡(마지막 뒤엔 처음으로)
   useEffect(() => {

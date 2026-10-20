@@ -7,14 +7,15 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { Type } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
-import { MARK_CHAPTERS, MARK_WORDS, type VocabWord } from '@/lib/vocab/mark';
+import { VOCAB_BOOKS } from '@/lib/vocab/books';
+import type { VocabWord } from '@/lib/vocab/types';
 import { canSpeak, speak, useVocabProgress, type VocabMark, type VocabProgress } from '@/lib/vocab/progress';
 
 /**
- * 영어 성경단어장 — 데이빗에듀 안의 화면. 지금은 마가복음(NIV)만 있다.
+ * 영어 성경단어장 — 데이빗에듀 안의 화면. 마가복음·마태복음(NIV).
  *
  * NIV 본문은 저작권이 있어 문장을 옮기지 않았다. 단어·뜻·나오는 절 번호와 직접 쓴
- * 예문뿐이다. 장을 늘릴 때는 `src/lib/vocab/` 에 장 파일을 더하고 `mark.ts` 에 한 줄 붙인다.
+ * 예문뿐이다. 책을 늘릴 때는 `src/lib/vocab/` 에 데이터를 만들고 `books.ts` 에 한 줄 붙인다.
  */
 
 type Filter = 'all' | 'unchecked' | 'learn' | 'known';
@@ -31,11 +32,13 @@ export default function BibleVocabScreen() {
   const theme = useTheme();
   const { progress, setMark } = useVocabProgress();
   const [tab, setTab] = useState<'list' | 'study'>('list');
+  const [bookId, setBookId] = useState(VOCAB_BOOKS[0].id);
   const [chapter, setChapter] = useState<number | 'all'>('all');
+  const book = VOCAB_BOOKS.find((b) => b.id === bookId) ?? VOCAB_BOOKS[0];
 
   const words = useMemo(
-    () => MARK_WORDS.filter((w) => chapter === 'all' || w.chapter === chapter),
-    [chapter],
+    () => book.words.filter((w) => chapter === 'all' || w.chapter === chapter),
+    [book, chapter],
   );
   const { known, learn } = useMemo(() => {
     let k = 0;
@@ -55,7 +58,7 @@ export default function BibleVocabScreen() {
           <View style={styles.top}>
             <ThemedText style={Type.screenTitle}>영어 성경단어장</ThemedText>
             <ThemedText themeColor="textSecondary" style={Type.itemDescription}>
-              마가복음(NIV)의 어려운 단어를 본문 순서대로 익혀요
+              {book.name}(NIV)의 어려운 단어를 본문 순서대로 익혀요
             </ThemedText>
 
             <ThemedView type="backgroundElement" style={[styles.card, { borderColor: theme.border }]}>
@@ -70,8 +73,22 @@ export default function BibleVocabScreen() {
               </View>
             </ThemedView>
 
+            <View style={styles.books}>
+              {VOCAB_BOOKS.map((b) => (
+                <Chip
+                  key={b.id}
+                  label={`${b.name} ${b.words.length}`}
+                  on={bookId === b.id}
+                  onPress={() => {
+                    setBookId(b.id);
+                    setChapter('all');
+                  }}
+                />
+              ))}
+            </View>
+
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-              {(['all', ...MARK_CHAPTERS] as (number | 'all')[]).map((c) => (
+              {(['all', ...book.chapters] as (number | 'all')[]).map((c) => (
                 <Chip key={c} label={c === 'all' ? '전체' : `${c}장`} on={chapter === c} onPress={() => setChapter(c)} />
               ))}
             </ScrollView>
@@ -97,9 +114,9 @@ export default function BibleVocabScreen() {
           </View>
 
           {tab === 'list' ? (
-            <WordList words={words} progress={progress} setMark={setMark} />
+            <WordList words={words} bookName={book.name} progress={progress} setMark={setMark} />
           ) : (
-            <Study words={words} progress={progress} setMark={setMark} />
+            <Study words={words} bookName={book.name} progress={progress} setMark={setMark} />
           )}
         </View>
       </SafeAreaView>
@@ -158,7 +175,7 @@ function MarkButtons({ id, mark, setMark, compact }: { id: string; mark?: VocabM
   );
 }
 
-function WordList({ words, progress, setMark }: { words: VocabWord[]; progress: VocabProgress; setMark: SetMark }) {
+function WordList({ words, bookName, progress, setMark }: { words: VocabWord[]; bookName: string; progress: VocabProgress; setMark: SetMark }) {
   const theme = useTheme();
   const [filter, setFilter] = useState<Filter>('all');
   const shown = words.filter((w) => {
@@ -197,7 +214,7 @@ function WordList({ words, progress, setMark }: { words: VocabWord[]; progress: 
               <Pressable onPress={() => speak(w.word)} style={styles.wordMain}>
                 <ThemedText style={styles.word}>{w.word}</ThemedText>
                 <ThemedText themeColor="textSecondary" style={Type.caption}>
-                  {w.pos} · 마가복음 {w.chapter}:{w.verse}
+                  {w.pos} · {bookName} {w.chapter}:{w.verse}
                 </ThemedText>
               </Pressable>
               <MarkButtons id={w.id} mark={m} setMark={setMark} compact />
@@ -219,7 +236,7 @@ function WordList({ words, progress, setMark }: { words: VocabWord[]; progress: 
   );
 }
 
-function Study({ words, progress, setMark }: { words: VocabWord[]; progress: VocabProgress; setMark: SetMark }) {
+function Study({ words, bookName, progress, setMark }: { words: VocabWord[]; bookName: string; progress: VocabProgress; setMark: SetMark }) {
   const theme = useTheme();
   const [scope, setScope] = useState<'unknown' | 'learn'>('unknown');
   const [index, setIndex] = useState(0);
@@ -297,7 +314,7 @@ function Study({ words, progress, setMark }: { words: VocabWord[]; progress: Voc
                   <SpeakButton text={card.example} label="문장" />
                 </View>
                 <ThemedText themeColor="textSecondary" style={Type.caption}>
-                  마가복음 {card.chapter}:{card.verse}
+                  {bookName} {card.chapter}:{card.verse}
                 </ThemedText>
               </>
             )}
@@ -335,6 +352,7 @@ const styles = StyleSheet.create({
   pct: { fontSize: 28, lineHeight: 34, fontWeight: '800' },
   bar: { height: 10, borderRadius: 5, overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 5 },
+  books: { flexDirection: 'row', gap: Spacing.two },
   chips: { gap: Spacing.two },
   chip: { paddingHorizontal: Spacing.three, paddingVertical: Spacing.two, borderRadius: 999, borderWidth: 1 },
   tabs: { flexDirection: 'row', borderRadius: 999, padding: 4 },
