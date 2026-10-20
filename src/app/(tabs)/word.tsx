@@ -16,23 +16,10 @@ export default function WordHubScreen() {
       title: t('word.title'),
       items: [
         {
-          emoji: '📖',
-          label: t('word.dailyQt'),
-          description: t('word.dailyQtDesc'),
-          href: '/meditation',
-        },
-        {
           emoji: '📚',
           label: t('word.bibleRead'),
           description: t('word.bibleReadDesc'),
           href: '/read',
-        },
-        {
-          emoji: '📆',
-          label: t('home.readingHelper'),
-          description: t('word.readingHelperDesc'),
-          href: '/reading-helper',
-          requiresAuth: true,
         },
       ],
     },
