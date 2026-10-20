@@ -186,6 +186,18 @@ function AppStack() {
           options={{ headerShown: true, title: t('nav.obedience') }}
         />
         <Stack.Screen
+          name="revival/index"
+          options={{ headerShown: true, title: '부흥의 천사들' }}
+        />
+        <Stack.Screen
+          name="revival/[kind]"
+          options={{ headerShown: true, title: '부흥의 천사들' }}
+        />
+        <Stack.Screen
+          name="revival/admin"
+          options={{ headerShown: true, title: '사역 관리' }}
+        />
+        <Stack.Screen
           name="edu"
           options={{ headerShown: true, title: '데이빗에듀' }}
         />

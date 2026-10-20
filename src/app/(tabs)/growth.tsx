@@ -27,6 +27,18 @@ export default function RevivalAngelsScreen() {
 
   const sections: HubSection[] = [
     {
+      title: '네 가지 사역',
+      items: [
+        {
+          emoji: '😇',
+          label: '사역 신청하기',
+          description: '말씀과 예언 · 치유와 축사 · 찬양과 경배 · 천국의 재정',
+          href: '/revival',
+          requiresAuth: true,
+        },
+      ],
+    },
+    {
       title: '함께 기도합니다',
       items: [
         {
