@@ -170,10 +170,56 @@ function channel(): BroadcastChannel | null {
   }
 }
 
-/** 이 탭이 자리를 내주고 물러난 상태인가. */
+/**
+ * 이 탭이 **지금** 자리를 내주고 물러난 상태인가.
+ *
+ * ⚠️ 물러난 표시는 sessionStorage 에 남는데, 그것은 **탭이 사는 동안** 그 도메인에
+ * 계속 따라다닌다. 그래서 이런 일이 생겼다(2026-10-20 사용자 보고):
+ *
+ *   ① 이 탭에서 데이빗바이블을 보다가 다른 탭에 자리를 내주고 물러났다.
+ *   ② 같은 탭으로 중보기도센터에 갔다.
+ *   ③ 거기서 「데이빗바이블」 단추를 눌러 돌아왔다.
+ *   ④ 표시가 그대로 남아 있어 **앱 대신 「다른 탭에서 열었어요」만 떴다.**
+ *
+ * ③ 은 「여기서 보겠다」는 사용자의 뜻이다. 그 뜻이 표시보다 앞선다 — 이 앱의
+ * 규칙은 **사용자가 지금 보고 있는 탭이 이긴다**이다(AppDbLock 주석).
+ *
+ * 그래서 **우리가 스스로 새로고침했을 때만** 물러난 것으로 본다. 링크를 눌러
+ * 들어왔으면 표시를 지우고 평소대로 연다(DbTabGate 가 저쪽에 자리를 달라고 한다).
+ * 어느 쪽인지 알 수 없는 브라우저에서는 지금처럼 둔다 — 모를 때 자리를 뺏으러
+ * 들면 두 탭이 서로 새로고침을 주고받을 수 있다.
+ */
 export function hasYielded(): boolean {
   if (typeof sessionStorage === 'undefined') return false;
-  return sessionStorage.getItem(YIELDED_KEY) === '1';
+  if (sessionStorage.getItem(YIELDED_KEY) !== '1') return false;
+
+  if (cameByUserNavigation()) {
+    try {
+      sessionStorage.removeItem(YIELDED_KEY);
+    } catch {
+      // 못 지웠으면 물러난 채로 둔다. 적어도 화면이 깜빡이지는 않는다.
+      return true;
+    }
+    return false;
+  }
+  return true;
+}
+
+/**
+ * 이 화면이 **링크·주소창을 거쳐** 열렸는가(= 새로고침이 아닌가).
+ *
+ * 우리가 자리를 내줄 때는 markYielded 뒤에 reload 를 부른다. 그래서 「reload」면
+ * 물러나는 중이고, 「navigate」면 사용자가 찾아온 것이다. 알 수 없으면 거짓을
+ * 돌려준다 — 모를 때는 지금 하던 대로 두는 쪽이 안전하다.
+ */
+function cameByUserNavigation(): boolean {
+  if (typeof performance === 'undefined' || !performance.getEntriesByType) return false;
+  try {
+    const entry = performance.getEntriesByType('navigation')[0] as { type?: string } | undefined;
+    return entry?.type === 'navigate';
+  } catch {
+    return false;
+  }
 }
 
 /**
