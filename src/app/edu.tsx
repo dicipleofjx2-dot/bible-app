@@ -31,6 +31,12 @@ export default function EduHubScreen() {
           external: { url: 'https://journey.dgaiworks.com/', window: APP_WINDOW.bibleJourney },
         },
         {
+          emoji: '🔤',
+          label: '영어 성경단어장',
+          description: '마가복음(NIV)의 어려운 영어 단어를 체크하고 카드로 학습',
+          href: '/bible-vocab',
+        },
+        {
           emoji: '🎓',
           label: '디지털캠퍼스',
           description: '훈련을 영상으로 듣는 곳 · 카카오 로그인 그대로',
