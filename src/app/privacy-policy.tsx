@@ -4,7 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 
-const LAST_UPDATED = '2026-07-16';
+const LAST_UPDATED = '2026-10-20';
 const CONTACT_EMAIL = 'dicipleofjx2@gmail.com';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -42,7 +42,22 @@ export default function PrivacyPolicyScreen() {
             </ThemedText>
             <ThemedText style={styles.listItem}>• 이메일 주소 (로그인 식별용)</ThemedText>
             <ThemedText style={styles.listItem}>
+              • 카카오 로그인을 이용하실 경우 카카오에서 제공하는 닉네임과 이메일 주소
+            </ThemedText>
+            <ThemedText style={styles.listItem}>
               • 닉네임/사용자명, 작성한 게시글·댓글·기도제목 등 커뮤니티 활동 내용
+            </ThemedText>
+            <ThemedText style={styles.listItem}>
+              • 만보기를 이용하실 경우 하루 걸음 수 (신체 활동)
+            </ThemedText>
+            <ThemedText style={styles.listItem}>
+              • 사진을 직접 올리시는 기능(기도나무 열매 사진 등)에서 선택하신 사진
+            </ThemedText>
+            <ThemedText style={styles.paragraph}>
+              만보기는 기기의 걸음 센서를 읽기 위해 «신체 활동» 권한을 사용합니다. 센서에서
+              읽은 값은 <ThemedText type="smallBold">하루에 걸은 걸음 수 하나</ThemedText>로만
+              저장되며, 위치·이동 경로·운동 종류는 수집하지 않습니다. 권한을 거부하셔도 앱의
+              다른 기능은 그대로 사용하실 수 있고, 걸음 수는 직접 입력하실 수 있습니다.
             </ThemedText>
             <ThemedText style={styles.paragraph}>
               말씀묵상 노트, 암송구절 등은{' '}
@@ -58,6 +73,9 @@ export default function PrivacyPolicyScreen() {
               • 성경통독방, 커뮤니티, 샬롬기도단 등 이용자 간 콘텐츠 공유 기능 제공
             </ThemedText>
             <ThemedText style={styles.listItem}>• 부적절한 게시물 신고·차단 등 운영 관리</ThemedText>
+            <ThemedText style={styles.listItem}>
+              • 만보기 — 하루 걸음 수와 지난 일주일의 기록을 본인에게 보여 주기 위함
+            </ThemedText>
           </Section>
 
           <Section title="3. 제3자 제공 및 처리위탁">
@@ -77,8 +95,9 @@ export default function PrivacyPolicyScreen() {
               작성자 정보만 삭제됩니다.
             </ThemedText>
             <ThemedText style={styles.paragraph}>
-              앱을 지우신 뒤에도 계정 삭제를 원하시면 아래 연락처로 알려 주시면 지체 없이
-              처리합니다.
+              앱을 지우신 뒤에도 웹에서 같은 계정으로 로그인해 삭제하실 수 있습니다:
+              https://davidbible.dgaiworks.com/delete-account · 아래 연락처로 알려 주셔도
+              지체 없이 처리합니다.
             </ThemedText>
           </Section>
 
