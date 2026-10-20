@@ -35,6 +35,8 @@ export default function EduHubScreen() {
           label: '영어 성경단어장',
           description: '마가복음(NIV)의 어려운 영어 단어를 체크하고 카드로 학습',
           href: '/bible-vocab',
+          // 새로 붙인 앱이라 눈에 걸리게 둔다. 자리를 잡으면 이 한 줄만 지운다.
+          badge: 'NEW',
         },
         {
           emoji: '🎓',

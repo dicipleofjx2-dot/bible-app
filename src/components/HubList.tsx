@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 import { openAppWindow } from '@/lib/openExternal';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Href } from 'expo-router';
 
@@ -19,7 +20,51 @@ export type HubItem = {
   requiresAuth?: boolean;
   /** 바깥 앱. 있으면 `href` 대신 이 주소를 이름 붙인 창으로 연다(→ `openAppWindow`). */
   external?: { url: string; window: string };
+  /** 「NEW」처럼 제목 옆에 붙는 작은 딱지. 천천히 깜빡인다. */
+  badge?: string;
 };
+
+/**
+ * 새로 생긴 것에 붙이는 딱지.
+ *
+ * **천천히** 깜빡인다(1.6초에 한 번). 빠르게 점멸하면 눈이 피로하고, 번쩍이는
+ * 화면은 빛에 민감한 분에게 해로울 수 있다. 「움직임 줄이기」를 켜 두신 분에게는
+ * 깜빡이지 않고 그대로 켜 둔다 — 딱지가 전하려는 것은 「새것」이지 움직임이 아니다.
+ */
+function NewBadge({ label, color }: { label: string; color: string }) {
+  const opacity = useRef(new Animated.Value(1)).current;
+  const [still, setStill] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((reduce) => {
+        if (alive) setStill(reduce);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (still) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, { toValue: 0.3, duration: 800, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 1, duration: 800, useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [opacity, still]);
+
+  return (
+    <Animated.View style={[styles.newBadge, { backgroundColor: color, opacity: still ? 1 : opacity }]}>
+      <ThemedText style={styles.newBadgeText}>{label}</ThemedText>
+    </Animated.View>
+  );
+}
 
 export type HubSection = {
   /** 섹션 제목. 항목이 몇 개 안 되면 생략해도 된다. */
@@ -84,7 +129,10 @@ export function HubList({
                         </View>
 
                         <View style={styles.rowText}>
-                          <ThemedText style={Type.itemTitle}>{item.label}</ThemedText>
+                          <View style={styles.titleRow}>
+                            <ThemedText style={Type.itemTitle}>{item.label}</ThemedText>
+                            {item.badge ? <NewBadge label={item.badge} color={theme.accent} /> : null}
+                          </View>
                           <ThemedText themeColor="textSecondary" style={[Type.itemDescription, styles.description]}>
                             {item.description}
                           </ThemedText>
@@ -161,6 +209,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     elevation: 1,
   },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  newBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 6,
+  },
+  newBadgeText: { color: '#ffffff', fontSize: 10, fontWeight: '800' },
   badge: {
     width: 46,
     height: 46,

@@ -135,6 +135,38 @@ begin
 end;
 $$;
 
+/**
+ * 일정도 같다 — church_id 를 화면에서 받지 않는다.
+ *
+ * ⚠️ 이것을 빠뜨렸다가 「날짜 넣기」가 바로 터졌다(2026-10-20). church_id 가
+ * not null 인데 화면은 보내지 않으니 들어갈 수가 없었다. 신청에만 트리거를 달고
+ * 일정에는 안 단 것이 화근이다 — **같은 규칙이면 같이 달아야 한다.**
+ *
+ * 신청 쪽 함수(revival_set_church)를 그대로 쓰지 않는 까닭: 그 함수는
+ * updated_at 도 건드리는데 일정 표에는 그 칸이 없다.
+ */
+create or replace function public.revival_session_defaults()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.church_id is null then
+    new.church_id := my_church_id();
+  end if;
+  if new.created_by is null then
+    new.created_by := auth.uid();
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists revival_sessions_defaults on revival_sessions;
+create trigger revival_sessions_defaults
+  before insert on revival_sessions
+  for each row execute function public.revival_session_defaults();
+
 drop trigger if exists revival_requests_set_church on revival_requests;
 create trigger revival_requests_set_church
   before insert or update on revival_requests

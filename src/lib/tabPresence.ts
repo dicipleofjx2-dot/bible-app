@@ -242,6 +242,13 @@ export async function stillYielded(): Promise<boolean> {
   // 그래서 잠시 지켜보다가 **한 번이라도 잡혀 있으면** 진짜로 쓰는 중이라고 본다.
   for (let i = 0; i < 6; i += 1) {
     if (await hasOtherTab()) return true;
+    // **줄 서 있는 탭이 있으면 그대로 물러나 있는다.**
+    //
+    // 자리를 넘겨받는 탭은 잠금을 잡기 직전에 아주 잠깐 빈 자리를 남긴다. 그 틈에
+    // 「아무도 없네」 하고 도로 잡으면, 저쪽은 다시 자리를 달라 하고 이쪽은 또
+    // 물러나고… 두 탭이 새로고침만 주고받는다. 2026-10-20 에 「자리를 넘겨받는
+    // 중입니다」가 끝나지 않던 것이 이것이다.
+    if (await hasWaitingTab()) return true;
     await new Promise((r) => setTimeout(r, 500));
   }
 

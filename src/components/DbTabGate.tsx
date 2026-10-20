@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, StyleSheet } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -37,6 +37,8 @@ export function DbTabGate({ children }: { children: React.ReactNode }) {
   const isBrowser = Platform.OS === 'web' && typeof window !== 'undefined';
   const [ready, setReady] = useState(!isBrowser);
   const [waiting, setWaiting] = useState(false);
+  /** 오래 기다렸는가. 사용자가 직접 밀고 들어올 단추를 띄운다. */
+  const [stuck, setStuck] = useState(false);
 
   useEffect(() => {
     if (!isBrowser) return;
@@ -50,7 +52,13 @@ export function DbTabGate({ children }: { children: React.ReactNode }) {
       // 다른 탭이 쥐고 있다. 자리를 달라고 하고 기다린다.
       if (!cancelled) setWaiting(true);
       claimDb();
+      // 앞선 탭이 옛 판이거나 잠들어 있으면 끝내 안 비킬 수 있다. 그때는 기다리는
+      // 화면에 갇히지 않도록 **직접 들어올 단추**를 띄운다.
+      const stuckTimer = setTimeout(() => {
+        if (!cancelled) setStuck(true);
+      }, 5000);
       await waitForDbLockFree();
+      clearTimeout(stuckTimer);
       if (!cancelled) setReady(true);
     })();
 
@@ -69,6 +77,19 @@ export function DbTabGate({ children }: { children: React.ReactNode }) {
           다른 탭에서 열려 있어 자리를 넘겨받는 중입니다.
         </ThemedText>
       ) : null}
+      {stuck ? (
+        <Pressable
+          onPress={() => {
+            // 앞선 탭이 안 비킨다. 그 탭에 물러났다는 표를 남기고 여기서 연다.
+            claimDb();
+            if (typeof window !== 'undefined') window.location.reload();
+          }}
+          style={styles.button}>
+          <ThemedText type="smallBold" style={styles.buttonText}>
+            그래도 여기서 열기
+          </ThemedText>
+        </Pressable>
+      ) : null}
     </ThemedView>
   );
 }
@@ -76,4 +97,12 @@ export function DbTabGate({ children }: { children: React.ReactNode }) {
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.three, padding: Spacing.five },
   text: { textAlign: 'center', lineHeight: 20 },
+  button: {
+    marginTop: Spacing.two,
+    paddingHorizontal: Spacing.five,
+    paddingVertical: Spacing.three,
+    borderRadius: Spacing.three,
+    backgroundColor: '#1e2a4a',
+  },
+  buttonText: { color: '#ffffff' },
 });
