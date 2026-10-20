@@ -1,0 +1,27 @@
+import type { Row } from "./types";
+
+export const CH2: Row[] = [
+  [3, "paralyzed", "adj.", "마비된, 몸을 못 움직이는", "The paralyzed man could not walk.", "마비된 남자는 걸을 수 없었다."],
+  [4, "roof", "n.", "지붕", "A cat sat on the roof.", "고양이가 지붕 위에 앉아 있었다."],
+  [4, "dig through", "v.", "뚫고 들어가다, 파헤치다", "They dug through the dirt to find the pipe.", "그들은 흙을 파헤쳐 파이프를 찾았다."],
+  [4, "mat", "n.", "매트, 깔개", "He lay on a mat on the floor.", "그는 바닥의 깔개 위에 누워 있었다."],
+  [5, "forgive", "v.", "용서하다", "Please forgive me for being late.", "늦은 것을 용서해 주세요."],
+  [6, "reason", "v.", "따져 생각하다", "She tried to reason with her brother.", "그녀는 오빠를 이치로 설득하려 했다."],
+  [7, "blasphemy", "n.", "신성 모독", "They said his words were blasphemy.", "그들은 그의 말이 신성 모독이라고 했다."],
+  [14, "tax collector", "n.", "세리, 세금 걷는 사람", "A tax collector sat at his booth.", "세리가 자기 세관에 앉아 있었다."],
+  [15, "sinner", "n.", "죄인", "Everyone is a sinner who needs grace.", "모든 사람은 은혜가 필요한 죄인이다."],
+  [17, "physician", "n.", "의사", "A physician cares for sick people.", "의사는 아픈 사람을 돌본다."],
+  [17, "righteous", "adj.", "의로운, 올바른", "He was a righteous man.", "그는 의로운 사람이었다."],
+  [18, "fast", "v.", "금식하다", "Some people fast and pray.", "어떤 사람들은 금식하며 기도한다."],
+  [19, "bridegroom", "n.", "신랑", "The bridegroom stood at the front.", "신랑이 앞에 서 있었다."],
+  [21, "patch", "n.", "헝겊 조각, 덧대는 천", "Mom sewed a patch on my jeans.", "엄마가 내 청바지에 천을 덧대 기워 주셨다."],
+  [21, "unshrunk", "adj.", "줄지 않은(빨아도 안 줄어든)", "Unshrunk cloth gets smaller when washed.", "줄지 않은 천은 빨면 작아진다."],
+  [22, "wineskin", "n.", "포도주 가죽 부대", "They kept wine in a wineskin.", "그들은 포도주를 가죽 부대에 담아 두었다."],
+  [22, "ruin", "v.", "망치다", "Rain will ruin our picnic.", "비가 우리 소풍을 망칠 것이다."],
+  [23, "grainfield", "n.", "곡식 밭", "They walked through the grainfield.", "그들은 곡식 밭을 지나 걸었다."],
+  [23, "pick", "v.", "따다, 꺾다", "We pick apples in the fall.", "우리는 가을에 사과를 딴다."],
+  [24, "lawful", "adj.", "법에 맞는, 허용된", "Is it lawful to cross here?", "여기서 건너는 것이 허용되나요?"],
+  [26, "consecrated", "adj.", "하나님께 바쳐진, 거룩하게 구별된", "The consecrated bread was only for priests.", "거룩히 구별된 빵은 제사장만을 위한 것이었다."],
+  [26, "high priest", "n.", "대제사장", "The high priest led the ceremony.", "대제사장이 예식을 이끌었다."],
+  [27, "Lord", "n.", "주(主), 주인", "They called him Lord.", "그들은 그를 주님이라 불렀다."],
+];

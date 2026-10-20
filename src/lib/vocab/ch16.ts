@@ -1,0 +1,25 @@
+import type { Row } from "./types";
+
+export const CH16: Row[] = [
+  [1, "spices", "n.", "향품, 향료", "The women bought spices.", "여인들은 향품을 샀다."],
+  [2, "sunrise", "n.", "해돋이", "They went at sunrise.", "그들은 해 뜰 때 갔다."],
+  [4, "roll away", "v.", "굴려 치우다", "The stone had been rolled away.", "돌이 굴려져 치워져 있었다."],
+  [5, "alarmed", "adj.", "깜짝 놀란, 겁먹은", "The women were alarmed.", "여인들은 깜짝 놀랐다."],
+  [6, "risen", "adj.", "다시 일어나신", "He has risen!", "그가 살아나셨다!"],
+  [8, "trembling", "adj.", "떨고 있는", "They fled, trembling.", "그들은 떨며 도망쳤다."],
+  [8, "bewildered", "adj.", "어리둥절한", "They were bewildered.", "그들은 어리둥절했다."],
+  [9, "Magdalene", "n.", "막달라 (사람)", "Mary Magdalene saw him first.", "막달라 마리아가 그를 먼저 보았다."],
+  [10, "mourn", "v.", "슬퍼하다", "They mourned and wept.", "그들은 슬퍼하며 울었다."],
+  [11, "refuse", "v.", "거부하다", "They refused to believe.", "그들은 믿기를 거부했다."],
+  [12, "appear", "v.", "나타나다", "He appeared in a different form.", "그는 다른 모습으로 나타나셨다."],
+  [14, "stubborn", "adj.", "고집스러운", "He rebuked their stubborn refusal.", "그는 그들의 고집스러운 불신을 꾸짖으셨다."],
+  [15, "creation", "n.", "피조물, 창조 세계", "Preach the gospel to all creation.", "온 창조물에게 복음을 전하라."],
+  [16, "condemn", "v.", "정죄하다", "Whoever does not believe will be condemned.", "믿지 않는 사람은 정죄받을 것이다."],
+  [17, "tongues", "n.", "방언, 언어", "They will speak in new tongues.", "새 방언을 말할 것이다."],
+  [18, "snake", "n.", "뱀", "A snake slid under the log.", "뱀이 통나무 밑으로 기어갔다."],
+  [18, "poison", "n.", "독", "Poison is dangerous.", "독은 위험하다."],
+  [18, "lay hands on", "v.", "손을 얹다", "They will lay hands on sick people.", "그들이 병자에게 손을 얹을 것이다."],
+  [19, "taken up", "adj.", "들려 올라간", "He was taken up into heaven.", "그는 하늘로 올려지셨다."],
+  [19, "right hand", "n.", "오른쪽, 우편", "He sat at the right hand of God.", "그는 하나님의 오른편에 앉으셨다."],
+  [20, "confirm", "v.", "확증하다, 확인하다", "The signs confirmed the message.", "표적들이 말씀을 확증했다."],
+];

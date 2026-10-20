@@ -198,6 +198,10 @@ function AppStack() {
           options={{ headerShown: true, title: '데이빗에듀' }}
         />
         <Stack.Screen
+          name="bible-vocab"
+          options={{ headerShown: true, title: '영어 성경단어장' }}
+        />
+        <Stack.Screen
           name="prayer-tree"
           options={{ headerShown: true, title: '중보기도 나무' }}
         />
