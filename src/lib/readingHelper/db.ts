@@ -33,6 +33,8 @@ export type DayRecord = {
   memorization_attempts: number | null;
   /** 3초 OX 퀴즈를 10문제 다 맞혔는지 */
   speed_quiz_success: boolean | null;
+  /** 그날 출석 도장을 찍었는지(0093) */
+  attended: boolean | null;
 };
 
 async function upsertDayRecord(userId: string, dateStr: string, patch: Partial<DayRecord>): Promise<void> {
@@ -49,7 +51,9 @@ async function upsertDayRecord(userId: string, dateStr: string, patch: Partial<D
 export async function getDayRecord(userId: string, dateStr: string): Promise<DayRecord | null> {
   const { data, error } = await supabase
     .from('reading_helper_day_records')
-    .select('date, reading_complete, quiz_score, memorization_success, memorization_attempts, speed_quiz_success')
+    .select(
+      'date, reading_complete, quiz_score, memorization_success, memorization_attempts, speed_quiz_success, attended',
+    )
     .eq('user_id', userId)
     .eq('date', dateStr)
     .maybeSingle();
@@ -63,6 +67,28 @@ export async function setReadingComplete(userId: string, dateStr: string, comple
 
 export async function setQuizScore(userId: string, dateStr: string, score: number): Promise<void> {
   await upsertDayRecord(userId, dateStr, { quiz_score: score });
+}
+
+/**
+ * 그날 출석 도장. 찍고 지울 수 있다 — 잘못 눌렀을 때 되돌릴 길이 없으면 안 된다.
+ *
+ * 통독 기록과 같은 표에 담는다. 날짜마다 한 줄이라는 모양이 이미 있고, 포인트를
+ * 세는 DB 함수 다섯이 모두 그 표를 보고 있어서, 여기에 칸 하나를 더하는 것이
+ * 「출석만 따로 세는 표」를 새로 만드는 것보다 어긋날 자리가 적다.
+ */
+export async function setAttended(userId: string, dateStr: string, attended: boolean): Promise<void> {
+  await upsertDayRecord(userId, dateStr, { attended });
+}
+
+/** 출석 도장을 찍은 날들. 달력이 도장을 그릴 때 쓴다. */
+export async function getAttendedDates(userId: string): Promise<Set<string>> {
+  const { data, error } = await supabase
+    .from('reading_helper_day_records')
+    .select('date')
+    .eq('user_id', userId)
+    .eq('attended', true);
+  if (error) throw error;
+  return new Set((data ?? []).map((r) => r.date as string));
 }
 
 /** 3초 OX 퀴즈 결과. 다 맞혔을 때만 기록한다 — 틀린 판은 남기지 않는다.
@@ -154,6 +180,17 @@ export function quizPoints(score: number | null | undefined): number {
   return 0;
 }
 
+/**
+ * 그날 출석 도장을 찍으면 주는 포인트.
+ *
+ * ⚠️ **DB 도 같은 숫자를 센다.** points_balance_of · shop_balance ·
+ * reading_helper_ranking · reading_helper_my_rank · reading_helper_admin_board 이
+ * 다섯이 `case when r.attended then 50 else 0 end` 로 같은 값을 더한다
+ * (0093_attendance.sql). 한 군데만 고치면 화면과 순위표가 어긋난다 —
+ * 큐티 30점이 순위표에만 들어갔던 일이 그래서 생겼다.
+ */
+export const ATTENDANCE_POINTS = 50;
+
 /** 연속으로 빠진 날이 3의 배수가 되는 날에 매기는 큰 벌점 */
 export const MISS_PENALTY_BIG = 50;
 
@@ -166,6 +203,10 @@ export type PointsSummary = {
   quiz: number;
   memorization: number;
   speedQuiz: number;
+  /** 출석 도장으로 번 점수 */
+  attendance: number;
+  /** 출석한 날 수 */
+  attendanceCount: number;
   /**
    * 데이빗 큐티에서 번 점수.
    *
@@ -198,7 +239,7 @@ export async function getPointsSummary(userId: string): Promise<PointsSummary> {
   const [{ data, error }, qtResult] = await Promise.all([
     supabase
       .from('reading_helper_day_records')
-      .select('date, quiz_score, memorization_success, speed_quiz_success')
+      .select('date, quiz_score, memorization_success, speed_quiz_success, attended')
       .eq('user_id', userId)
       .gte('date', POINTS_START_DATE),
     // 큐티는 따로 도는 앱이지만 같은 데이터베이스를 쓴다. qt_records 는 본인
@@ -218,6 +259,8 @@ export async function getPointsSummary(userId: string): Promise<PointsSummary> {
     quiz: 0,
     memorization: 0,
     speedQuiz: 0,
+    attendance: 0,
+    attendanceCount: 0,
     qt: 0,
     qtCount: 0,
     quizCount: 0,
@@ -235,6 +278,10 @@ export async function getPointsSummary(userId: string): Promise<PointsSummary> {
     if (row.memorization_success) {
       summary.memorization += MEMORIZATION_POINTS;
       summary.memorizationCount += 1;
+    }
+    if (row.attended) {
+      summary.attendance += ATTENDANCE_POINTS;
+      summary.attendanceCount += 1;
     }
     if (row.speed_quiz_success) {
       summary.speedQuiz += SPEED_QUIZ_POINTS;
@@ -283,7 +330,12 @@ export async function getPointsSummary(userId: string): Promise<PointsSummary> {
 
   // 0 에서 막는다. 음수를 보면 다시 시작할 엄두가 안 난다.
   summary.total = Math.max(
-    summary.quiz + summary.memorization + summary.speedQuiz + summary.qt - summary.penalty,
+    summary.quiz +
+      summary.memorization +
+      summary.speedQuiz +
+      summary.attendance +
+      summary.qt -
+      summary.penalty,
     0,
   );
   return summary;

@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,6 +7,8 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useAuth } from '@/lib/auth';
+import { ATTENDANCE_POINTS, getAttendedDates, setAttended } from '@/lib/readingHelper/db';
 import {
   getHebrewDayInfoForDate,
   hebrewDateHasContent,
@@ -75,6 +77,78 @@ export default function CalendarScreen() {
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selected, setSelected] = useState<DayCell | null>(null);
+
+  /*
+   * 출석 도장.
+   *
+   * **오늘만 찍는다.** 지난 날까지 열어 두면 한 해를 한꺼번에 찍어 18,250점을
+   * 만들 수 있고, 그러면 출석이라는 말이 아무 뜻도 없어진다. 못 찍은 날은
+   * 못 찍은 대로 둔다 — 그것이 출석이다.
+   *
+   * 도장은 통독 기록과 같은 표에 담긴다(reading_helper_day_records.attended).
+   * 포인트를 세는 DB 함수 다섯이 이미 그 표를 보고 있어서, 칸 하나를 더하는 것이
+   * 표를 새로 만드는 것보다 어긋날 자리가 적다.
+   */
+  const { session } = useAuth();
+  const userId = session?.user.id;
+  const [attended, setAttendedDays] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) {
+        setAttendedDays(new Set());
+        return;
+      }
+      let cancelled = false;
+      getAttendedDates(userId)
+        .then((set) => {
+          if (!cancelled) setAttendedDays(set);
+        })
+        .catch(() => {
+          /* 달력은 출석과 상관없이 보여야 한다. 못 읽으면 도장만 안 그린다. */
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, [userId]),
+  );
+
+  const todayString = toDateString(today.getFullYear(), today.getMonth(), today.getDate());
+
+  async function toggleAttendance(dateString: string) {
+    if (!userId || saving) return;
+    const on = !attended.has(dateString);
+    setSaving(true);
+    // 먼저 그려 준다 — 도장은 누른 그 순간에 찍혀야 한다.
+    setAttendedDays((cur) => {
+      const next = new Set(cur);
+      if (on) next.add(dateString);
+      else next.delete(dateString);
+      return next;
+    });
+    try {
+      await setAttended(userId, dateString, on);
+    } catch {
+      // 못 담았으면 되돌린다. 찍힌 척하고 넘어가면 점수가 어긋난다.
+      setAttendedDays((cur) => {
+        const next = new Set(cur);
+        if (on) next.delete(dateString);
+        else next.add(dateString);
+        return next;
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // 이 달의 출석 — 달력 위에 적는다. 점수는 하루 50점이다.
+  const monthAttendance = useMemo(() => {
+    const prefix = `${viewYear}-${pad(viewMonth + 1)}-`;
+    let n = 0;
+    for (const d of attended) if (d.startsWith(prefix)) n += 1;
+    return n;
+  }, [attended, viewYear, viewMonth]);
 
   const cells = useMemo(() => buildMonthGrid(viewYear, viewMonth), [viewYear, viewMonth]);
 
@@ -317,6 +391,21 @@ export default function CalendarScreen() {
           </Pressable>
         </View>
 
+        {/* 이 달 출석 — 달력 바로 위에 적는다. 점수가 보여야 도장을 찍는다. */}
+        {userId ? (
+          <View style={[styles.attendanceBar, { backgroundColor: theme.backgroundElement }]}>
+            <ThemedText type="smallBold">
+              이 달 출석 {monthAttendance}일
+            </ThemedText>
+            <ThemedText type="small" themeColor="accent">
+              {(monthAttendance * ATTENDANCE_POINTS).toLocaleString()}점
+            </ThemedText>
+            <ThemedText type="small" themeColor="textSecondary" style={styles.attendanceHint}>
+              하루 {ATTENDANCE_POINTS}점
+            </ThemedText>
+          </View>
+        ) : null}
+
         <View style={styles.weekdayRow}>
           {WEEKDAYS.map((w, i) => (
             <View key={w} style={styles.weekdayCell}>
@@ -379,6 +468,11 @@ export default function CalendarScreen() {
                       !cell.inMonth && styles.dimmed,
                     ]}>
                     {holiday}
+                  </ThemedText>
+                )}
+                {attended.has(cell.dateString) && (
+                  <ThemedText numberOfLines={1} style={styles.stampLabel}>
+                    ✅
                   </ThemedText>
                 )}
                 {readsTorahToday && (
@@ -460,6 +554,39 @@ export default function CalendarScreen() {
                       </ThemedText>
                     </View>
                   )}
+
+                  {/*
+                    출석 도장. **오늘만** 찍고 뗄 수 있다 — 지난 날까지 열어 두면
+                    한 해를 한꺼번에 찍을 수 있어 출석이라는 말이 뜻을 잃는다.
+                  */}
+                  {userId && selected.dateString === todayString ? (
+                    <Pressable
+                      onPress={() => void toggleAttendance(selected.dateString)}
+                      disabled={saving}
+                      style={({ pressed }) => [
+                        styles.attendanceButton,
+                        {
+                          backgroundColor: attended.has(selected.dateString)
+                            ? theme.backgroundElement
+                            : theme.backgroundSelected,
+                          opacity: pressed || saving ? 0.7 : 1,
+                        },
+                      ]}>
+                      <ThemedText
+                        type="smallBold"
+                        style={
+                          attended.has(selected.dateString) ? undefined : { color: '#ffffff' }
+                        }>
+                        {attended.has(selected.dateString)
+                          ? '✅ 오늘 출석했습니다 — 다시 누르면 취소'
+                          : `오늘 출석 체크 (+${ATTENDANCE_POINTS}점)`}
+                      </ThemedText>
+                    </Pressable>
+                  ) : userId && attended.has(selected.dateString) ? (
+                    <ThemedText type="smallBold" themeColor="accent" style={styles.section}>
+                      ✅ 이 날 출석했습니다 (+{ATTENDANCE_POINTS}점)
+                    </ThemedText>
+                  ) : null}
 
                   <ThemedText type="small" themeColor="textSecondary" style={styles.footnote}>
                     유대력의 하루는 전날 해 질 때 시작합니다. 절기를 지킬 때는 하루 앞당겨 보세요.
@@ -554,6 +681,28 @@ const styles = StyleSheet.create({
   },
   holidayLabel: {
     fontSize: 10,
+  },
+  stampLabel: {
+    fontSize: 11,
+  },
+  attendanceBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    marginHorizontal: Spacing.three,
+    marginBottom: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+    borderRadius: Spacing.three,
+  },
+  attendanceHint: {
+    marginLeft: 'auto',
+  },
+  attendanceButton: {
+    marginTop: Spacing.three,
+    paddingVertical: Spacing.three,
+    borderRadius: Spacing.three,
+    alignItems: 'center',
   },
   dimmed: {
     opacity: 0.35,
