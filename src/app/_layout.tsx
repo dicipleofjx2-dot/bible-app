@@ -186,14 +186,6 @@ function AppStack() {
           options={{ headerShown: true, title: t('nav.obedience') }}
         />
         <Stack.Screen
-          name="priorities"
-          options={{ headerShown: true, title: t('nav.priority') }}
-        />
-        <Stack.Screen
-          name="kingdom-finance"
-          options={{ headerShown: true, title: t('nav.finance') }}
-        />
-        <Stack.Screen
           name="edu"
           options={{ headerShown: true, title: '데이빗에듀' }}
         />

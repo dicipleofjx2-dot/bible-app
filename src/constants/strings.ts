@@ -24,7 +24,8 @@ export const STRINGS = {
   // ── 아래 칸(탭) ───────────────────────────────────────────────
   'tab.home': { ko: '홈', en: 'Home' },
   'tab.word': { ko: '말씀', en: 'Word' },
-  'tab.growth': { ko: '성장', en: 'Growth' },
+  // 「성장」이던 자리. 부흥의 천사들 사역이 이 칸을 쓴다(2026-10-20).
+  'tab.growth': { ko: '부흥의 천사들', en: 'Revival Angels' },
   'tab.more': { ko: '더보기', en: 'More' },
 
   // ── 홈 ───────────────────────────────────────────────────────
@@ -106,22 +107,9 @@ export const STRINGS = {
   'word.deepDive': { ko: '깊이 보기', en: 'Go Deeper' },
 
   // ── 성장 ─────────────────────────────────────────────────────
-  'growth.recordDay': { ko: '하루를 기록하기', en: 'Record Your Day' },
-  'growth.title': { ko: '함께 자라기', en: 'Grow Together' },
-  'growth.obedienceDiary': { ko: '순종일기', en: 'Obedience Diary' },
-  'growth.obedienceDiaryDesc': {
-    ko: '말씀을 따라 산 하루를 기록',
-    en: 'Record a day lived by the Word',
-  },
-  'growth.priority': { ko: '우선순위', en: 'Priorities' },
-  'growth.priorityDesc': { ko: '오늘 우선해야 할 일 정리', en: "Sort out today's priorities" },
+  'growth.title': { ko: '함께 기도하고 함께 읽기', en: 'Pray and read together' },
   'growth.davidBooks': { ko: '데이빗북스', en: 'David Books' },
   'growth.davidBooksDesc': { ko: '전자책 서재', en: 'E-book library' },
-  'growth.finance': { ko: '천국재정', en: 'Kingdom Finance' },
-  'growth.financeDesc': {
-    ko: '재정을 하나님 나라 관점으로',
-    en: 'Money through a Kingdom lens',
-  },
 
   // ── 더보기 ───────────────────────────────────────────────────
   'more.myPage': { ko: '마이페이지', en: 'My Page' },
@@ -491,8 +479,6 @@ export const STRINGS = {
   'nav.commentary': { ko: '주석', en: 'Commentary' },
   'nav.maps': { ko: '성경지도', en: 'Bible Maps' },
   'nav.obedience': { ko: '순종일기', en: 'Obedience Diary' },
-  'nav.priority': { ko: '우선순위', en: 'Priorities' },
-  'nav.finance': { ko: '천국재정', en: 'Kingdom Finance' },
   'nav.privacy': { ko: '개인정보처리방침', en: 'Privacy Policy' },
   'nav.todaysWord': { ko: '오늘의 말씀', en: 'Today\'s Word' },
   'nav.qtNotes': { ko: 'Q.T묵상', en: 'QT Notes' },

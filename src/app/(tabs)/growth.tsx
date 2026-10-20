@@ -1,42 +1,41 @@
 import { HubList, type HubSection } from '@/components/HubList';
+import { CHURCH_ON_ORIGIN } from '@/lib/adminApps';
+import { APP_WINDOW } from '@/lib/openExternal';
 import { useAuth } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 
-// 혼자 쓰는 기록과 함께하는 자리를 갈랐다.
-//
-// 문구를 상수로 두지 않고 함수 안에서 만든다 — 모듈을 읽을 때 한 번 만들어
-// 두면 처음 언어로 굳어 언어를 바꿔도 안 따라온다.
-export default function GrowthHubScreen() {
+/**
+ * 부흥의 천사들 — 사역을 위한 자리.
+ *
+ * 2026-10-20 에 「성장」 칸을 이 사역에 내주었다. 거기 있던 순종일기·우선순위·
+ * 천국재정은 걷었다(우선순위와 천국재정은 화면째 지웠고, 순종일기는 R2M
+ * 「오늘의 훈련」의 순종 체크가 그 화면에서만 찍히므로 화면은 남겨 두었다 —
+ * 여기서 가는 길만 없앴다).
+ *
+ * 남긴 둘은 이 사역과 결이 같아서다. 중보기도 나무는 사람을 심어 기도하는
+ * 자리이고, 데이빗북스는 함께 읽는 자리다.
+ *
+ * ⚠️ 파일 이름과 주소(/growth)는 그대로 둔다. 바꾸면 홈 타일·탭·저쪽 앱들이
+ * 거는 링크가 한꺼번에 끊긴다. 보이는 이름만 갈아입혔다(tab.growth).
+ *
+ * 문구를 모듈 상수로 두지 않고 함수 안에서 만든다 — 모듈을 읽을 때 한 번 만들어
+ * 두면 처음 언어로 굳어 언어를 바꿔도 안 따라온다.
+ */
+export default function RevivalAngelsScreen() {
   const { session } = useAuth();
   const t = useT();
 
   const sections: HubSection[] = [
     {
-      title: t('growth.recordDay'),
+      title: '함께 기도합니다',
       items: [
         {
-          emoji: '❤️‍🔥',
-          label: t('growth.obedienceDiary'),
-          description: t('growth.obedienceDiaryDesc'),
-          href: '/spiritual-journal',
+          emoji: '🕯️',
+          label: '중보기도센터',
+          description: '기도 시간을 맡고, 기도제목과 받은 감동을 나눕니다',
+          href: '/',
+          external: { url: 'https://prayer.dgaiworks.com/', window: APP_WINDOW.prayerHouse },
         },
-        {
-          emoji: '📊',
-          label: t('growth.priority'),
-          description: t('growth.priorityDesc'),
-          href: '/priorities',
-        },
-        {
-          emoji: '🪙',
-          label: t('growth.finance'),
-          description: t('growth.financeDesc'),
-          href: '/kingdom-finance',
-        },
-      ],
-    },
-    {
-      title: t('growth.title'),
-      items: [
         {
           emoji: '🌳',
           label: '중보기도 나무',
@@ -44,11 +43,34 @@ export default function GrowthHubScreen() {
           href: '/prayer-tree',
           requiresAuth: true,
         },
+      ],
+    },
+    {
+      title: t('growth.title'),
+      items: [
         {
           emoji: '📕',
           label: t('growth.davidBooks'),
           description: t('growth.davidBooksDesc'),
           href: '/library',
+        },
+        {
+          emoji: '🕊️',
+          label: '전도',
+          description: '전도 대상자를 품고 걸음을 함께 봅니다',
+          href: '/evangelism',
+        },
+      ],
+    },
+    {
+      title: '사역을 꾸리는 자리',
+      items: [
+        {
+          emoji: '🗂️',
+          label: '사역 관리',
+          description: '교회운영ON에서 부서·명단·모임을 꾸립니다',
+          href: '/',
+          external: { url: `${CHURCH_ON_ORIGIN}/`, window: APP_WINDOW.churchOn },
         },
       ],
     },
