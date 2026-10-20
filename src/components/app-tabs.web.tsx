@@ -8,7 +8,7 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { BookOpen, House, MoreHorizontal, Sprout, Target, type LucideIcon } from 'lucide-react-native';
+import { BookOpen, House, MoreHorizontal, Sprout, type LucideIcon } from 'lucide-react-native';
 import { Pressable, View, ScrollView, StyleSheet } from 'react-native';
 
 import { ThemedText } from './themed-text';
@@ -26,7 +26,6 @@ import type { Href } from 'expo-router';
 const TAB_ITEMS: { name: string; href: Href; label: StringKey; Icon: LucideIcon }[] = [
   { name: 'home', href: '/', label: 'tab.home', Icon: House },
   { name: 'word', href: '/word', label: 'tab.word', Icon: BookOpen },
-  { name: 'bible-reading', href: '/bible-reading', label: 'tab.r2m', Icon: Target },
   { name: 'growth', href: '/growth', label: 'tab.growth', Icon: Sprout },
   { name: 'more', href: '/more', label: 'tab.more', Icon: MoreHorizontal },
 ];

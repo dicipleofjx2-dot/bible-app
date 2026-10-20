@@ -82,6 +82,8 @@ export const STRINGS = {
 
   // ── 말씀 ─────────────────────────────────────────────────────
   'word.title': { ko: '오늘의 말씀', en: "Today's Word" },
+  'word.webtoon': { ko: '말씀웹툰', en: 'Sermon Webtoon' },
+  'word.webtoonDesc': { ko: '주일 설교를 그린 연재', en: 'Sunday sermons as a comic series' },
   'word.dailyQt': { ko: '매일Q.T', en: 'Daily QT' },
   'word.dailyQtDesc': {
     ko: '오늘의 QT 본문과 묵상 노트',

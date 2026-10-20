@@ -121,16 +121,7 @@ const HOME_TILES: HomeTile[] = [
   // 자리라면 아케이드는 혼자 하는 자리다. 오늘 받은 포인트가 있으면 딱지로
   // 붙는다(아래 badge) — 아이콘 한 칸에 더 적을 자리는 없다.
   { key: 'arcade', emoji: '🕹️', label: 'home.arcade', href: '/arcade' as Href },
-  // 말씀 웹툰 — 주일 설교를 「목사님과 한 제자」의 이야기로 그린 연재(2026-10-02).
-  // 말씀광산 앱이 한 화씩 워드프레스(sermon.dgaiworks.com 「설교 웹툰」)에 올린다.
-  // 연재 목록으로 바로 연다 — 새 화가 올라오면 앱을 고치지 않아도 그대로 보인다.
-  {
-    key: 'webtoon',
-    emoji: '🖼️',
-    label: 'home.webtoon',
-    href: '/',
-    external: { url: 'https://sermon.dgaiworks.com/sermon-comics/', window: APP_WINDOW.webtoon },
-  },
+  // 말씀 웹툰은 말씀 탭(word.tsx)으로 옮겼다(2026-10-20).
   // 결단송 — 주일 설교마다 만든 찬양을 새 곡부터 차례로 흘려 듣는다(2026-10-02).
   // 바깥 창이 아니라 앱 안 화면(/songs)이다 — 화면을 꺼도 이어 듣고, 가사가 노래를 따라간다.
   { key: 'songs', emoji: '🎵', label: 'home.songs', href: '/songs' as Href },
