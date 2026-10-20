@@ -1,0 +1,25 @@
+import type { Row } from "../types";
+
+export const CH6: Row[] = [
+  [1, "practice", "v.", "행하다, 실천하다", "Practice your faith in secret.", "믿음을 은밀히 실천하라."],
+  [2, "trumpet", "n.", "나팔", "Do not blow a trumpet to show off.", "자랑하려고 나팔을 불지 마라."],
+  [7, "babble", "v.", "중얼중얼 되풀이하다", "Do not babble like pagans.", "이방인처럼 중언부언하지 마라."],
+  [11, "daily", "adj.", "매일의", "Give us our daily bread.", "일용할 양식을 주옵소서."],
+  [12, "debt", "n.", "빚, 죄", "Forgive us our debts.", "우리의 빚을 용서해 주옵소서."],
+  [13, "deliver", "v.", "구해 내다", "Deliver us from the evil one.", "악한 자에게서 구하옵소서."],
+  [16, "disfigure", "v.", "(얼굴을) 일그러뜨리다", "They disfigure their faces to look sad.", "그들은 슬퍼 보이려고 얼굴을 일그러뜨린다."],
+  [19, "moth", "n.", "나방, 좀", "Moths destroy clothes.", "좀이 옷을 먹어 버린다."],
+  [19, "rust", "n.", "녹", "Rust ruins old tools.", "녹이 낡은 도구를 망친다."],
+  [19, "break in", "v.", "침입하다", "Thieves break in and steal.", "도둑이 침입해 훔쳐 간다."],
+  [22, "healthy", "adj.", "건강한, 성한", "If your eyes are healthy, your body is full of light.", "눈이 성하면 온몸이 밝다."],
+  [24, "master", "n.", "주인", "No one can serve two masters.", "아무도 두 주인을 섬길 수 없다."],
+  [25, "worry", "v.", "걱정하다", "Do not worry about tomorrow.", "내일 일을 걱정하지 마라."],
+  [26, "sow", "v.", "씨를 뿌리다", "Birds do not sow or reap.", "새는 씨를 뿌리지도 거두지도 않는다."],
+  [26, "reap", "v.", "거두다, 수확하다", "We reap what we sow.", "우리는 뿌린 대로 거둔다."],
+  [26, "barn", "n.", "곳간, 헛간", "They store food in barns.", "그들은 곳간에 양식을 쌓아 둔다."],
+  [28, "lily", "n.", "백합", "See how the lilies grow.", "백합이 어떻게 자라는지 보라."],
+  [28, "toil", "v.", "수고하다, 애써 일하다", "They do not toil or spin.", "그들은 수고도 길쌈도 하지 않는다."],
+  [30, "grass", "n.", "풀", "God clothes the grass of the field.", "하나님은 들풀도 입히신다."],
+  [30, "oven", "n.", "아궁이, 오븐", "The grass is thrown into the oven.", "풀은 아궁이에 던져진다."],
+  [33, "seek", "v.", "구하다, 찾다", "Seek first his kingdom.", "먼저 그의 나라를 구하라."],
+];
