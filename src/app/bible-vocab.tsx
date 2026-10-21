@@ -12,7 +12,7 @@ import type { VocabWord } from '@/lib/vocab/types';
 import { canSpeak, say, speak, stopSpeaking, useVocabProgress, type VocabMark, type VocabProgress } from '@/lib/vocab/progress';
 
 /**
- * 영어 성경단어장 — 데이빗에듀 안의 화면. 복음서·여호수아(NIV).
+ * 영어 성경단어장 — 데이빗에듀 안의 화면. 복음서·여호수아·사사기(NIV).
  *
  * NIV 본문은 저작권이 있어 문장을 옮기지 않았다. 단어·뜻·나오는 절 번호와 직접 쓴
  * 예문뿐이다. 책을 늘릴 때는 `src/lib/vocab/` 에 데이터를 만들고 `books.ts` 에 한 줄 붙인다.
