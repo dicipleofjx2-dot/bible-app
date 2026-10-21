@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -51,48 +51,31 @@ export default function BibleVocabScreen() {
   }, [words, progress]);
   const pct = words.length ? Math.round((known / words.length) * 100) : 0;
 
+  const header = (
+    <VocabHeader
+      bookId={bookId}
+      setBookId={(id) => {
+        setBookId(id);
+        setChapter('all');
+      }}
+      chapters={book.chapters}
+      chapter={chapter}
+      setChapter={setChapter}
+      bookName={book.name}
+      total={words.length}
+      known={known}
+      learn={learn}
+      pct={pct}
+    />
+  );
+
+  // 고정되는 것은 탭 한 줄뿐이다. 진도·책·장 고르기는 내용과 함께 스크롤된다 —
+  // 위쪽이 화면을 다 차지하면 단어를 볼 자리가 모자란다.
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <View style={styles.frame}>
           <View style={styles.top}>
-            <ThemedText style={Type.screenTitle}>영어 성경단어장</ThemedText>
-            <ThemedText themeColor="textSecondary" style={Type.itemDescription}>
-              {book.name} 단어를 본문 순서대로 익혀요
-            </ThemedText>
-
-            <ThemedView type="backgroundElement" style={[styles.card, { borderColor: theme.border }]}>
-              <View style={styles.progressRow}>
-                <ThemedText style={[styles.pct, { color: theme.accent }]}>{pct}%</ThemedText>
-                <ThemedText themeColor="textSecondary" style={Type.caption}>
-                  알아요 {known} · 더 학습 {learn} · 미체크 {words.length - known - learn}
-                </ThemedText>
-              </View>
-              <View style={[styles.bar, { backgroundColor: theme.accentSoft }]}>
-                <View style={[styles.barFill, { backgroundColor: theme.done, width: `${pct}%` }]} />
-              </View>
-            </ThemedView>
-
-            <View style={styles.books}>
-              {VOCAB_BOOKS.map((b) => (
-                <Chip
-                  key={b.id}
-                  label={`${b.name} ${b.words.length}`}
-                  on={bookId === b.id}
-                  onPress={() => {
-                    setBookId(b.id);
-                    setChapter('all');
-                  }}
-                />
-              ))}
-            </View>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-              {(['all', ...book.chapters] as (number | 'all')[]).map((c) => (
-                <Chip key={c} label={c === 'all' ? '전체' : `${c}장`} on={chapter === c} onPress={() => setChapter(c)} />
-              ))}
-            </ScrollView>
-
             <View style={[styles.tabs, { backgroundColor: theme.accentSoft }]}>
               {(
                 [
@@ -104,8 +87,7 @@ export default function BibleVocabScreen() {
                   key={k}
                   onPress={() => setTab(k)}
                   style={[styles.tab, tab === k && { backgroundColor: theme.accent }]}>
-                  <ThemedText
-                    style={[Type.itemTitle, { color: tab === k ? '#FFFFFF' : theme.textSecondary }]}>
+                  <ThemedText style={[Type.itemDescription, { fontWeight: '700', color: tab === k ? '#FFFFFF' : theme.textSecondary }]}>
                     {label}
                   </ThemedText>
                 </Pressable>
@@ -114,13 +96,77 @@ export default function BibleVocabScreen() {
           </View>
 
           {tab === 'list' ? (
-            <WordList words={words} bookName={book.name} progress={progress} setMark={setMark} />
+            <WordList header={header} words={words} bookName={book.name} progress={progress} setMark={setMark} />
           ) : (
-            <Study words={words} bookName={book.name} progress={progress} setMark={setMark} />
+            <Study header={header} words={words} bookName={book.name} progress={progress} setMark={setMark} />
           )}
         </View>
       </SafeAreaView>
     </ThemedView>
+  );
+}
+
+/**
+ * 진도 한 줄 + 책·장 고르기. 평소에는 접혀 있어 한 줄만 차지하고, 눌러야 펼쳐진다.
+ */
+function VocabHeader({
+  bookId,
+  setBookId,
+  chapters,
+  chapter,
+  setChapter,
+  bookName,
+  total,
+  known,
+  learn,
+  pct,
+}: {
+  bookId: string;
+  setBookId: (id: string) => void;
+  chapters: number[];
+  chapter: number | 'all';
+  setChapter: (c: number | 'all') => void;
+  bookName: string;
+  total: number;
+  known: number;
+  learn: number;
+  pct: number;
+}) {
+  const theme = useTheme();
+  const [open, setOpen] = useState(false);
+  return (
+    <View style={styles.header}>
+      <Pressable
+        onPress={() => setOpen((o) => !o)}
+        style={[styles.summary, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
+        <View style={styles.summaryText}>
+          <ThemedText style={Type.itemTitle}>
+            {bookName} · {chapter === 'all' ? '전체' : `${chapter}장`}
+          </ThemedText>
+          <ThemedText themeColor="textSecondary" style={Type.caption}>
+            {pct}% · 알아요 {known} · 더 학습 {learn} · 미체크 {total - known - learn}
+          </ThemedText>
+        </View>
+        <ThemedText style={{ color: theme.accent, fontWeight: '700' }}>{open ? '닫기 ▴' : '책·장 바꾸기 ▾'}</ThemedText>
+      </Pressable>
+      <View style={[styles.bar, { backgroundColor: theme.accentSoft }]}>
+        <View style={[styles.barFill, { backgroundColor: theme.done, width: `${pct}%` }]} />
+      </View>
+      {open ? (
+        <View style={styles.pickers}>
+          <View style={styles.books}>
+            {VOCAB_BOOKS.map((b) => (
+              <Chip key={b.id} label={`${b.name} ${b.words.length}`} on={bookId === b.id} onPress={() => setBookId(b.id)} />
+            ))}
+          </View>
+          <View style={styles.books}>
+            {(['all', ...chapters] as (number | 'all')[]).map((c) => (
+              <Chip key={c} label={c === 'all' ? '전체' : `${c}장`} on={chapter === c} onPress={() => setChapter(c)} />
+            ))}
+          </View>
+        </View>
+      ) : null}
+    </View>
   );
 }
 
@@ -175,7 +221,7 @@ function MarkButtons({ id, mark, setMark, compact }: { id: string; mark?: VocabM
   );
 }
 
-function WordList({ words, bookName, progress, setMark }: { words: VocabWord[]; bookName: string; progress: VocabProgress; setMark: SetMark }) {
+function WordList({ header, words, bookName, progress, setMark }: { header: ReactNode; words: VocabWord[]; bookName: string; progress: VocabProgress; setMark: SetMark }) {
   const theme = useTheme();
   const [filter, setFilter] = useState<Filter>('all');
   // 예문은 눌러야 펼쳐진다 — 목록은 단어와 뜻만 보여야 차례대로 훑으며 체크하기 쉽다.
@@ -192,11 +238,14 @@ function WordList({ words, bookName, progress, setMark }: { words: VocabWord[]; 
       contentContainerStyle={styles.list}
       initialNumToRender={12}
       ListHeaderComponent={
-        <View style={styles.filters}>
-          {FILTERS.map(([k, label]) => (
-            <Chip key={k} label={label} on={filter === k} onPress={() => setFilter(k)} />
-          ))}
-        </View>
+        <>
+          {header}
+          <View style={styles.filters}>
+            {FILTERS.map(([k, label]) => (
+              <Chip key={k} label={label} on={filter === k} onPress={() => setFilter(k)} />
+            ))}
+          </View>
+        </>
       }
       ListEmptyComponent={
         <ThemedText themeColor="textSecondary" style={styles.empty}>
@@ -245,7 +294,7 @@ function WordList({ words, bookName, progress, setMark }: { words: VocabWord[]; 
   );
 }
 
-function Study({ words, bookName, progress, setMark }: { words: VocabWord[]; bookName: string; progress: VocabProgress; setMark: SetMark }) {
+function Study({ header, words, bookName, progress, setMark }: { header: ReactNode; words: VocabWord[]; bookName: string; progress: VocabProgress; setMark: SetMark }) {
   const theme = useTheme();
   const [scope, setScope] = useState<'unknown' | 'learn'>('unknown');
   const [index, setIndex] = useState(0);
@@ -274,6 +323,7 @@ function Study({ words, bookName, progress, setMark }: { words: VocabWord[]; boo
 
   return (
     <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
+      {header}
       <View style={styles.filters}>
         <Chip label="모르는 단어 전부" on={scope === 'unknown'} onPress={() => { setScope('unknown'); setIndex(0); setFlipped(false); }} />
         <Chip label="더 학습만" on={scope === 'learn'} onPress={() => { setScope('learn'); setIndex(0); setFlipped(false); }} />
@@ -355,7 +405,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center' },
   safeArea: { flex: 1, width: '100%' },
   frame: { flex: 1, width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center' },
-  top: { paddingHorizontal: Spacing.four, paddingTop: Spacing.four, gap: Spacing.three },
+  top: { paddingHorizontal: Spacing.four, paddingTop: Spacing.three },
+  header: { gap: Spacing.two },
+  summary: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.two, borderWidth: 1, borderRadius: 16, paddingHorizontal: Spacing.three, paddingVertical: Spacing.two },
+  summaryText: { flex: 1 },
+  pickers: { gap: Spacing.two, paddingTop: Spacing.one },
   card: { borderRadius: 20, borderWidth: 1, padding: Spacing.three, gap: Spacing.two },
   progressRow: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.three },
   pct: { fontSize: 28, lineHeight: 34, fontWeight: '800' },
@@ -365,7 +419,7 @@ const styles = StyleSheet.create({
   chips: { gap: Spacing.two },
   chip: { paddingHorizontal: Spacing.three, paddingVertical: Spacing.two, borderRadius: 999, borderWidth: 1 },
   tabs: { flexDirection: 'row', borderRadius: 999, padding: 4 },
-  tab: { flex: 1, alignItems: 'center', paddingVertical: Spacing.two + 2, borderRadius: 999 },
+  tab: { flex: 1, alignItems: 'center', paddingVertical: Spacing.two, borderRadius: 999 },
   list: { paddingHorizontal: Spacing.four, paddingTop: Spacing.three, paddingBottom: BottomTabInset + Spacing.five, gap: Spacing.three },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginBottom: Spacing.one },
   empty: { textAlign: 'center', paddingVertical: Spacing.six },
