@@ -7,7 +7,6 @@ import {
   ScrollView,
   StyleSheet,
   useWindowDimensions,
-  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,7 +14,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { allWebtoons, webtoonImages, type ReadingWebtoon } from '@/lib/readingHelper/webtoon';
+import { episodeImages, episodesOf, seriesOf, type WebtoonEpisode, type WebtoonSeriesKey } from '@/lib/webtoon';
 
 /**
  * 한 화 읽기 — 전자책처럼.
@@ -28,22 +27,26 @@ import { allWebtoons, webtoonImages, type ReadingWebtoon } from '@/lib/readingHe
  * 한다 — 뒤로 가서 책장을 다시 찾게 하면 거기서 멈춘다.
  */
 export default function WebtoonReaderScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { series, id } = useLocalSearchParams<{ series: string; id: string }>();
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const [images, setImages] = useState<string[] | null>(null);
   /** 그림마다의 세로 비율(높이 ÷ 너비). 받아 오는 대로 채운다. */
   const [ratios, setRatios] = useState<Record<string, number>>({});
-  const [list, setList] = useState<ReadingWebtoon[]>([]);
+  const [list, setList] = useState<WebtoonEpisode[]>([]);
 
+  const info = seriesOf(series);
+  const key = (info?.key ?? 'reading') as WebtoonSeriesKey;
   const numericId = Number(id);
-  const here = list.find((w) => w.id === numericId) ?? null;
-  const next = here ? list.find((w) => w.from > here.from) ?? null : null;
+  const at = list.findIndex((w) => w.id === numericId);
+  const next = at >= 0 ? list[at + 1] ?? null : null;
+  const here = at >= 0 ? list[at] : null;
 
   useEffect(() => {
     let cancelled = false;
     setImages(null);
-    webtoonImages(numericId)
+    setRatios({});
+    episodeImages(key, numericId)
       .then((urls) => {
         if (cancelled) return;
         setImages(urls);
@@ -59,7 +62,7 @@ export default function WebtoonReaderScreen() {
         }
       })
       .catch(() => setImages([]));
-    allWebtoons()
+    episodesOf(key)
       .then((rows) => {
         if (!cancelled) setList(rows);
       })
@@ -67,7 +70,7 @@ export default function WebtoonReaderScreen() {
     return () => {
       cancelled = true;
     };
-  }, [numericId]);
+  }, [key, numericId]);
 
   const pageWidth = Math.min(width, MaxContentWidth);
 
@@ -106,20 +109,20 @@ export default function WebtoonReaderScreen() {
 
           {next && (
             <Pressable
-              onPress={() => router.replace(`/webtoon/${next.id}` as Href)}
+              onPress={() => router.replace(`/webtoon/${key}/${next.id}` as Href)}
               style={({ pressed }) => [
                 styles.nextButton,
                 { backgroundColor: theme.backgroundSelected },
                 pressed && styles.pressed,
               ]}>
               <ThemedText type="smallBold" style={styles.nextText}>
-                다음 화 — {next.episode}화
+                다음 화{next.episode ? ` — ${next.episode}화` : ''}
               </ThemedText>
             </Pressable>
           )}
 
           <Pressable
-            onPress={() => router.push('/webtoon' as Href)}
+            onPress={() => router.push(`/webtoon/${key}` as Href)}
             style={({ pressed }) => [styles.shelfLink, pressed && styles.pressed]}>
             <ThemedText type="small" themeColor="textSecondary">
               목록으로
