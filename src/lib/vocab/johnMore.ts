@@ -1,0 +1,243 @@
+import type { Row } from "./types";
+
+/** 요한복음 보강 단어. `john.ts` 가 장별로 합쳐 절 순서로 정렬한다. */
+export const JOHN_MORE: Row[][] = [
+  // 1
+  [
+    [4, "life", "n.", "생명", "In him was life.", "그 안에 생명이 있었다."],
+    [7, "testify", "v.", "증언하다", "He came to testify concerning that light.", "그는 그 빛에 대해 증언하러 왔다."],
+    [11, "receive", "v.", "영접하다", "His own did not receive him.", "그의 백성이 그를 영접하지 않았다."],
+    [13, "descent", "n.", "혈통", "Children not born of natural descent.", "혈통으로 난 자녀가 아니라."],
+    [17, "truth", "n.", "진리", "Grace and truth came through Jesus Christ.", "은혜와 진리가 예수 그리스도로 말미암아 왔다."],
+    [18, "close", "adj.", "가까운", "God the only Son is at the Father's side.", "독생자는 아버지 품 안에 계신다."],
+    [23, "voice", "n.", "소리", "I am the voice of one calling in the wilderness.", "나는 광야에서 외치는 자의 소리다."],
+    [32, "remain", "v.", "머물다", "The Spirit came down and remained on him.", "성령이 내려와 그 위에 머무셨다."],
+    [47, "deceit", "n.", "속임", "Here truly is an Israelite in whom there is no deceit.", "여기 속임 없는 참 이스라엘 사람이 있다."],
+  ],
+  // 2
+  [
+    [3, "run out", "v.", "떨어지다", "When the wine was gone...", "포도주가 떨어졌을 때..."],
+    [7, "fill", "v.", "채우다", "Fill the jars with water.", "항아리에 물을 채워라."],
+    [9, "taste", "v.", "맛보다", "The master of the banquet tasted the water.", "연회장이 물을 맛보았다."],
+    [11, "glory", "n.", "영광", "He thus revealed his glory.", "그가 자기 영광을 나타내셨다."],
+    [14, "sacrifice", "v.", "제사 드리다", "In the temple courts he found people selling animals for sacrifice.", "성전 뜰에서 제물용 짐승을 파는 사람들을 보셨다."],
+    [16, "market", "n.", "장사하는 곳", "Stop turning my Father's house into a market!", "내 아버지의 집을 장사하는 집으로 만들지 마라!"],
+    [20, "forty-six", "n.", "마흔여섯", "It has taken forty-six years to build this temple.", "이 성전을 짓는 데 마흔여섯 해가 걸렸다."],
+  ],
+  // 3
+  [
+    [2, "miraculous signs", "n.", "기적의 표적", "No one could perform the signs you are doing.", "아무도 당신이 행하는 표적을 행할 수 없다."],
+    [4, "enter", "v.", "들어가다", "Surely he cannot enter a second time into his mother's womb!", "어머니 배 속에 다시 들어갈 수는 없지 않습니까!"],
+    [5, "water and Spirit", "n.", "물과 성령", "No one can enter the kingdom unless born of water and the Spirit.", "물과 성령으로 나지 않으면 나라에 들어갈 수 없다."],
+    [18, "condemned", "adj.", "정죄받은", "Whoever does not believe stands condemned already.", "믿지 않는 사람은 이미 정죄받았다."],
+    [21, "truth", "n.", "진리", "Whoever lives by the truth comes into the light.", "진리를 행하는 사람은 빛으로 나아온다."],
+    [27, "heaven", "n.", "하늘", "A person can receive only what is given from heaven.", "사람은 하늘이 주신 것만 받을 수 있다."],
+    [36, "wrath", "n.", "진노", "God's wrath remains on them.", "하나님의 진노가 그들 위에 머문다."],
+  ],
+  // 4
+  [
+    [9, "Jew", "n.", "유대인", "How can you ask me, a Samaritan, for a drink?", "유대인이 어떻게 사마리아 여자에게 마실 것을 청합니까?"],
+    [18, "husband", "n.", "남편", "The man you now have is not your husband.", "지금 있는 사람은 네 남편이 아니다."],
+    [19, "prophet", "n.", "선지자", "Sir, I can see that you are a prophet.", "선생님이 선지자인 줄 알겠습니다."],
+    [23, "worshiper", "n.", "예배하는 사람", "True worshipers will worship the Father in spirit and truth.", "참된 예배자가 영과 진리로 예배할 것이다."],
+    [27, "surprised", "adj.", "놀란", "His disciples were surprised to find him talking with a woman.", "제자들은 그가 여자와 말씀하시는 것을 보고 놀랐다."],
+    [34, "food", "n.", "음식, 양식", "My food is to do the will of him who sent me.", "나의 양식은 나를 보내신 분의 뜻을 행하는 것이다."],
+    [35, "ripe", "adj.", "익은", "The fields are ripe for harvest.", "밭이 추수할 만큼 익었다."],
+    [50, "go", "v.", "가다", "Go, your son will live.", "가라, 네 아들이 살 것이다."],
+  ],
+  // 5
+  [
+    [3, "blind", "adj.", "눈먼", "Here a great number of disabled people used to lie.", "많은 병자가 누워 있었다."],
+    [6, "learn", "v.", "알다", "When Jesus saw him and learned that he had been in that condition...", "예수님은 그가 오래된 병자임을 아시고..."],
+    [14, "stop sinning", "v.", "죄짓기를 그치다", "Stop sinning or something worse may happen to you.", "다시는 죄를 짓지 마라."],
+    [17, "working", "adj.", "일하시는", "My Father is always at his work.", "내 아버지께서 지금까지 일하신다."],
+    [21, "give life", "v.", "살리다", "The Son gives life to whom he is pleased to give it.", "아들도 원하는 사람을 살린다."],
+    [24, "eternal life", "n.", "영생", "Whoever hears my word has eternal life.", "내 말을 듣는 사람은 영생을 얻는다."],
+    [28, "grave", "n.", "무덤", "All who are in their graves will hear his voice.", "무덤 속에 있는 모든 사람이 그의 음성을 들을 것이다."],
+    [35, "burning lamp", "n.", "타오르는 등불", "John was a lamp that burned and gave light.", "요한은 타오르며 빛을 내는 등불이었다."],
+    [46, "wrote", "v.", "기록했다", "Moses wrote about me.", "모세가 나에 대해 기록했다."],
+  ],
+  // 6
+  [
+    [5, "huge crowd", "n.", "큰 무리", "He saw a great crowd coming toward him.", "큰 무리가 오는 것을 보셨다."],
+    [7, "wages", "n.", "품삯", "It would take more than half a year's wages to buy enough bread.", "반 년 품삯으로도 충분한 빵을 살 수 없다."],
+    [12, "pieces", "n.", "남은 조각", "Gather the pieces that are left over.", "남은 조각을 거두어라."],
+    [14, "prophet", "n.", "선지자", "Surely this is the Prophet who is to come.", "이분이 오실 그 선지자다."],
+    [27, "labor", "v.", "일하다", "Do not work for food that spoils.", "썩는 양식을 위해 일하지 마라."],
+    [32, "bread from heaven", "n.", "하늘에서 내린 떡", "It is my Father who gives you the true bread from heaven.", "내 아버지가 하늘에서 내린 참 떡을 주신다."],
+    [37, "drive away", "v.", "쫓아내다", "Whoever comes to me I will never drive away.", "내게 오는 사람을 쫓아내지 않는다."],
+    [51, "live forever", "v.", "영원히 살다", "Whoever eats this bread will live forever.", "이 떡을 먹으면 영원히 살 것이다."],
+    [63, "spirit", "n.", "영", "The Spirit gives life.", "영이 살리는 것이다."],
+    [69, "Holy One", "n.", "거룩하신 분", "You are the Holy One of God.", "당신은 하나님의 거룩하신 분입니다."],
+  ],
+  // 7
+  [
+    [4, "publicly", "adv.", "공개적으로", "No one who wants to be known publicly acts in secret.", "알려지길 원하는 사람은 숨어서 행하지 않는다."],
+    [13, "fear", "n.", "두려움", "No one would say anything publicly for fear of the leaders.", "지도자들이 두려워 아무도 공개적으로 말하지 못했다."],
+    [19, "obey", "v.", "지키다", "Not one of you keeps the law.", "너희 중 아무도 율법을 지키지 않는다."],
+    [24, "judge", "v.", "판단하다", "Stop judging by mere appearances.", "겉모습으로 판단하지 마라."],
+    [30, "seize", "v.", "붙잡다", "They tried to seize him.", "그들은 그를 잡으려 했다."],
+    [37, "thirsty", "adj.", "목마른", "Let anyone who is thirsty come to me and drink.", "목마른 사람은 내게 와서 마셔라."],
+    [43, "divided", "adj.", "갈라진", "The people were divided because of Jesus.", "예수님 때문에 사람들이 갈라졌다."],
+    [46, "speak", "v.", "말하다", "No one ever spoke the way this man does.", "이 사람처럼 말한 사람은 없었다."],
+  ],
+  // 8
+  [
+    [3, "stand", "v.", "세우다", "They made her stand before the group.", "그들이 여자를 가운데 세웠다."],
+    [6, "trap", "n.", "올무, 함정", "They were using this question as a trap.", "그들은 이 질문을 함정으로 삼았다."],
+    [11, "leave", "v.", "떠나다", "Go now and leave your life of sin.", "가서 다시는 죄를 짓지 마라."],
+    [15, "human standards", "n.", "사람의 기준", "You judge by human standards.", "너희는 사람의 기준으로 판단한다."],
+    [20, "treasury", "n.", "헌금함", "He spoke these words near the place where the offerings were put.", "그는 헌금함이 있는 곳에서 말씀하셨다."],
+    [24, "die", "v.", "죽다", "You will die in your sins.", "너희가 죄 가운데서 죽을 것이다."],
+    [31, "hold to", "v.", "지키다", "If you hold to my teaching, you are really my disciples.", "내 말에 거하면 참 제자다."],
+    [39, "descendant", "n.", "자손", "We are Abraham's descendants.", "우리는 아브라함의 자손이다."],
+    [48, "demon", "n.", "귀신", "You are a Samaritan and demon-possessed.", "너는 사마리아 사람이고 귀신 들렸다."],
+    [59, "pick up stones", "v.", "돌을 집다", "They picked up stones to stone him.", "그들은 그를 치려고 돌을 집었다."],
+  ],
+  // 9
+  [
+    [2, "who sinned", "n.", "누가 죄를 지었나", "Who sinned, this man or his parents?", "누가 죄를 지었습니까? 이 사람입니까, 부모입니까?"],
+    [4, "work", "n.", "일", "We must do the works of him who sent me.", "우리는 나를 보내신 분의 일을 해야 한다."],
+    [11, "wash", "v.", "씻다", "He told me to go to Siloam and wash.", "그가 실로암에 가서 씻으라고 했다."],
+    [16, "divided", "adj.", "갈라진", "So they were divided.", "그래서 의견이 갈라졌다."],
+    [24, "give glory", "v.", "영광을 돌리다", "Give glory to God by telling the truth.", "하나님께 영광을 돌려라."],
+    [30, "remarkable", "adj.", "놀라운", "Now that is remarkable!", "참 놀라운 일이군요!"],
+    [39, "judgment", "n.", "심판", "For judgment I have come into this world.", "내가 심판하러 이 세상에 왔다."],
+  ],
+  // 10
+  [
+    [4, "voice", "n.", "음성", "His sheep follow him because they know his voice.", "양들은 그의 음성을 알므로 따른다."],
+    [5, "stranger", "n.", "낯선 사람", "They will never follow a stranger.", "양은 낯선 사람을 따르지 않는다."],
+    [9, "pasture", "n.", "꼴, 풀밭", "They will find pasture.", "그들은 꼴을 얻을 것이다."],
+    [10, "abundant", "adj.", "풍성한", "I have come that they may have life, and have it abundantly.", "내가 온 것은 양이 생명을 얻되 더 풍성히 얻게 하려는 것이다."],
+    [15, "lay down", "v.", "버리다", "I lay down my life for the sheep.", "나는 양을 위해 목숨을 버린다."],
+    [16, "one flock", "n.", "한 무리", "There shall be one flock and one shepherd.", "한 무리, 한 목자가 될 것이다."],
+    [20, "raving mad", "adj.", "미친", "Many of them said, He is demon-possessed and raving mad.", "많은 사람이 그가 귀신 들려 미쳤다고 했다."],
+    [24, "suspense", "n.", "마음 졸임", "How long will you keep us in suspense?", "언제까지 우리 마음을 졸이게 하시렵니까?"],
+    [30, "one", "adj.", "하나", "I and the Father are one.", "나와 아버지는 하나다."],
+    [39, "escape", "v.", "벗어나다", "He escaped their grasp.", "그가 그들의 손에서 벗어나셨다."],
+  ],
+  // 11
+  [
+    [4, "glory", "n.", "영광", "This sickness is for God's glory.", "이 병은 하나님의 영광을 위한 것이다."],
+    [8, "stone", "v.", "돌로 치다", "The Jews were just trying to stone you.", "유대인들이 당신을 돌로 치려 했습니다."],
+    [25, "resurrection", "n.", "부활", "I am the resurrection and the life.", "나는 부활이요 생명이다."],
+    [33, "deeply moved", "adj.", "깊이 감동한", "He was deeply moved in spirit.", "그는 마음이 깊이 아프셨다."],
+    [35, "weep", "v.", "눈물 흘리다", "Jesus wept.", "예수님이 눈물을 흘리셨다."],
+    [38, "cave", "n.", "동굴", "It was a cave with a stone laid across the entrance.", "그것은 돌로 막은 동굴이었다."],
+    [43, "loud voice", "n.", "큰 소리", "He called in a loud voice, Lazarus, come out!", "그가 큰 소리로 나사로야 나오라 하셨다."],
+    [48, "take away", "v.", "빼앗다", "The Romans will come and take away our temple.", "로마 사람들이 와서 우리 성전을 빼앗을 것이다."],
+    [57, "order", "n.", "명령", "The chief priests had given orders.", "대제사장들이 명령을 내렸다."],
+  ],
+  // 12
+  [
+    [3, "fragrance", "n.", "향기", "The house was filled with the fragrance.", "집에 향기가 가득했다."],
+    [5, "year's wages", "n.", "일 년 품삯", "It was worth a year's wages.", "그것은 일 년 품삯 값이었다."],
+    [7, "leave alone", "v.", "그냥 두다", "Leave her alone.", "그녀를 그냥 두어라."],
+    [19, "world", "n.", "세상", "Look how the whole world has gone after him!", "온 세상이 그를 따르는구나!"],
+    [24, "produce", "v.", "맺다", "It produces many seeds.", "많은 열매를 맺는다."],
+    [25, "hate", "v.", "미워하다", "Anyone who hates their life in this world will keep it.", "이 세상에서 자기 목숨을 미워하는 사람은 보존할 것이다."],
+    [32, "draw", "v.", "이끌다", "I will draw all people to myself.", "내가 모든 사람을 내게로 이끌겠다."],
+    [35, "walk", "v.", "다니다", "Walk while you have the light.", "빛이 있을 동안 다녀라."],
+    [43, "approval", "n.", "인정", "They loved human praise more than praise from God.", "그들은 하나님의 인정보다 사람의 칭찬을 더 사랑했다."],
+  ],
+  // 13
+  [
+    [1, "end", "n.", "끝", "He loved them to the end.", "그가 끝까지 사랑하셨다."],
+    [2, "supper", "n.", "저녁 식사", "The evening meal was being served.", "저녁 식사가 차려졌다."],
+    [10, "clean", "adj.", "깨끗한", "A person who has had a bath needs only to wash his feet.", "목욕한 사람은 발만 씻으면 온몸이 깨끗하다."],
+    [14, "wash feet", "v.", "발을 씻기다", "You also should wash one another's feet.", "너희도 서로 발을 씻겨 주어라."],
+    [16, "messenger", "n.", "보냄을 받은 자", "No messenger is greater than the one who sent him.", "보낸 이보다 보냄 받은 자가 크지 않다."],
+    [21, "troubled", "adj.", "괴로워하는", "Jesus was troubled in spirit.", "예수님은 마음이 괴로우셨다."],
+    [27, "Satan", "n.", "사탄", "Satan entered into him.", "사탄이 그에게 들어갔다."],
+    [30, "night", "n.", "밤", "And it was night.", "때는 밤이었다."],
+    [36, "follow", "v.", "따르다", "You cannot follow now.", "지금은 따라올 수 없다."],
+  ],
+  // 14
+  [
+    [6, "way", "n.", "길", "I am the way and the truth and the life.", "내가 길이요 진리요 생명이다."],
+    [9, "seen", "adj.", "본", "Anyone who has seen me has seen the Father.", "나를 본 사람은 아버지를 본 것이다."],
+    [12, "greater", "adj.", "더 큰", "They will do even greater things.", "그들이 더 큰 일도 할 것이다."],
+    [15, "keep", "v.", "지키다", "If you love me, keep my commands.", "나를 사랑하면 내 계명을 지켜라."],
+    [17, "accept", "v.", "받아들이다", "The world cannot accept him.", "세상은 그를 받아들일 수 없다."],
+    [26, "remind", "v.", "생각나게 하다", "He will remind you of everything I have said.", "그가 내가 말한 모든 것을 생각나게 하실 것이다."],
+    [30, "ruler", "n.", "통치자", "The prince of this world is coming.", "이 세상의 통치자가 온다."],
+  ],
+  // 15
+  [
+    [3, "clean", "adj.", "깨끗한", "You are already clean because of the word.", "너희는 이미 말씀으로 깨끗하다."],
+    [5, "bear fruit", "v.", "열매를 맺다", "Apart from me you can do nothing.", "나를 떠나서는 아무것도 할 수 없다."],
+    [6, "withered", "adj.", "시든", "Such branches are picked up, thrown into the fire.", "그런 가지는 모아 불에 던져진다."],
+    [9, "love", "n.", "사랑", "Remain in my love.", "내 사랑 안에 거하라."],
+    [11, "complete", "adj.", "충만한", "That your joy may be complete.", "너희 기쁨이 충만하게 하려는 것이다."],
+    [15, "servant", "n.", "종", "I no longer call you servants.", "이제는 너희를 종이라 하지 않는다."],
+    [18, "hate", "v.", "미워하다", "If the world hates you, keep in mind that it hated me first.", "세상이 너희를 미워하면 나를 먼저 미워한 줄 알아라."],
+    [26, "Counselor", "n.", "보혜사", "When the Counselor comes, he will testify about me.", "보혜사가 오면 나에 대해 증언하실 것이다."],
+  ],
+  // 16
+  [
+    [1, "fall away", "v.", "넘어지다", "So that you will not fall away.", "너희가 넘어지지 않게 하려는 것이다."],
+    [7, "advantage", "n.", "유익", "It is for your good that I am going away.", "내가 가는 것이 너희에게 유익하다."],
+    [12, "bear", "v.", "감당하다", "You cannot bear them now.", "지금은 너희가 감당할 수 없다."],
+    [20, "weep", "v.", "울다", "You will weep and mourn.", "너희는 울며 슬퍼할 것이다."],
+    [22, "rejoice", "v.", "기뻐하다", "Your hearts will rejoice.", "너희 마음이 기뻐할 것이다."],
+    [25, "figurative", "adj.", "비유로", "Though I have been speaking figuratively...", "비유로 말했지만..."],
+    [32, "leave alone", "v.", "홀로 두다", "You will leave me all alone.", "너희가 나를 홀로 두고 갈 것이다."],
+    [33, "trouble", "n.", "환난", "In this world you will have trouble.", "세상에서 너희는 환난을 당할 것이다."],
+  ],
+  // 17
+  [
+    [1, "heaven", "n.", "하늘", "Jesus looked toward heaven and prayed.", "예수님이 하늘을 우러러 기도하셨다."],
+    [3, "know", "v.", "알다", "This is eternal life: that they know you.", "영생은 그들이 아버지를 아는 것이다."],
+    [6, "reveal", "v.", "나타내다", "I have revealed you to those you gave me.", "내가 아버지를 그들에게 나타냈다."],
+    [12, "lost", "adj.", "멸망한", "None has been lost except the one doomed to destruction.", "멸망의 자식 외에는 아무도 잃지 않았다."],
+    [15, "evil one", "n.", "악한 자", "Protect them from the evil one.", "그들을 악한 자에게서 보호하소서."],
+    [20, "message", "n.", "말", "Those who will believe in me through their message.", "그들의 말로 나를 믿을 사람들."],
+    [24, "creation", "n.", "창조", "Before the creation of the world.", "창세 전부터."],
+  ],
+  // 18
+  [
+    [2, "meet", "v.", "모이다", "Jesus had often met there with his disciples.", "예수님이 제자들과 자주 거기 모이셨다."],
+    [6, "draw back", "v.", "물러서다", "They drew back and fell to the ground.", "그들이 물러나 땅에 엎드러졌다."],
+    [11, "sheath", "n.", "칼집", "Put your sword away!", "칼을 칼집에 꽂아라!"],
+    [15, "disciple", "n.", "제자", "Another disciple was known to the high priest.", "다른 제자는 대제사장과 아는 사이였다."],
+    [20, "openly", "adv.", "공개적으로", "I have spoken openly to the world.", "내가 세상에 공개적으로 말했다."],
+    [22, "strike", "v.", "때리다", "One of the officials slapped him in the face.", "관리 하나가 그의 뺨을 쳤다."],
+    [37, "king", "n.", "왕", "You are a king, then!", "그러면 당신은 왕이군요!"],
+    [38, "truth", "n.", "진리", "What is truth? retorted Pilate.", "진리가 무엇이냐? 빌라도가 되물었다."],
+    [40, "rebel", "n.", "반란자", "Barabbas had taken part in a rebellion.", "바라바는 반란에 가담한 사람이었다."],
+  ],
+  // 19
+  [
+    [2, "crown", "n.", "관", "The soldiers twisted together a crown of thorns.", "군인들이 가시로 관을 엮었다."],
+    [5, "behold", "v.", "보라", "Here is the man!", "보라, 이 사람이로다!"],
+    [11, "power", "n.", "권한", "You would have no power over me if it were not given.", "위에서 주지 않으면 네게 권한이 없다."],
+    [19, "notice", "n.", "죄패", "Pilate had a notice prepared and fastened to the cross.", "빌라도가 죄패를 써서 십자가에 붙였다."],
+    [24, "tear", "v.", "찢다", "Let's not tear it.", "찢지 말자."],
+    [26, "mother", "n.", "어머니", "Dear woman, here is your son.", "여자여, 보소서 아들입니다."],
+    [30, "finished", "adj.", "다 이루어진", "It is finished.", "다 이루었다."],
+    [38, "secret", "adj.", "비밀의", "Joseph was a disciple, but secretly.", "요셉은 비밀리에 제자가 된 사람이었다."],
+    [40, "spices", "n.", "향품", "They wrapped it with the spices.", "그들이 향품을 넣어 싸 두었다."],
+  ],
+  // 20
+  [
+    [1, "early", "adv.", "일찍", "Early on the first day of the week...", "주간 첫날 이른 아침에..."],
+    [2, "run", "v.", "달려가다", "So she came running to Simon Peter.", "그녀가 시몬 베드로에게 달려왔다."],
+    [8, "believe", "v.", "믿다", "He saw and believed.", "그가 보고 믿었다."],
+    [11, "stoop", "v.", "몸을 굽히다", "As she wept, she bent over to look into the tomb.", "울다가 몸을 굽혀 무덤 안을 보았다."],
+    [17, "cling", "v.", "붙잡다", "Do not hold on to me.", "나를 붙들지 마라."],
+    [23, "retain", "v.", "그대로 두다", "If you do not forgive them, they are not forgiven.", "용서하지 않으면 용서되지 않는다."],
+    [25, "put my finger", "v.", "손가락을 넣다", "Unless I put my finger where the nails were.", "내가 못 자국에 손가락을 넣어 보지 않으면."],
+    [31, "life", "n.", "생명", "That by believing you may have life in his name.", "믿어 그 이름으로 생명을 얻게 하려는 것이다."],
+  ],
+  // 21
+  [
+    [3, "go out", "v.", "나가다", "I'm going out to fish.", "나는 고기 잡으러 간다."],
+    [6, "throw", "v.", "던지다", "Throw your net on the right side of the boat.", "배 오른편에 그물을 던져라."],
+    [7, "wrap", "v.", "두르다", "He wrapped his outer garment around him.", "그는 겉옷을 두르고."],
+    [9, "fire", "n.", "불", "They saw a fire of burning coals.", "숯불이 피워져 있는 것을 보았다."],
+    [15, "lambs", "n.", "어린 양", "Feed my lambs.", "내 어린 양을 먹여라."],
+    [20, "turn", "v.", "돌아서다", "Peter turned and saw the disciple following.", "베드로가 돌아서서 제자가 따라오는 것을 보았다."],
+    [25, "world", "n.", "세상", "The whole world would not have room for the books.", "세상도 그 책들을 다 두기에 부족할 것이다."],
+  ],
+];

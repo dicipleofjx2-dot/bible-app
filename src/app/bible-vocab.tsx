@@ -12,7 +12,7 @@ import type { VocabWord } from '@/lib/vocab/types';
 import { canSpeak, speak, useVocabProgress, type VocabMark, type VocabProgress } from '@/lib/vocab/progress';
 
 /**
- * 영어 성경단어장 — 데이빗에듀 안의 화면. 마가복음·마태복음(NIV).
+ * 영어 성경단어장 — 데이빗에듀 안의 화면. 복음서·여호수아(NIV).
  *
  * NIV 본문은 저작권이 있어 문장을 옮기지 않았다. 단어·뜻·나오는 절 번호와 직접 쓴
  * 예문뿐이다. 책을 늘릴 때는 `src/lib/vocab/` 에 데이터를 만들고 `books.ts` 에 한 줄 붙인다.
@@ -58,7 +58,7 @@ export default function BibleVocabScreen() {
           <View style={styles.top}>
             <ThemedText style={Type.screenTitle}>영어 성경단어장</ThemedText>
             <ThemedText themeColor="textSecondary" style={Type.itemDescription}>
-              {book.name}(NIV)의 어려운 단어를 본문 순서대로 익혀요
+              {book.name} 단어를 본문 순서대로 익혀요
             </ThemedText>
 
             <ThemedView type="backgroundElement" style={[styles.card, { borderColor: theme.border }]}>
@@ -178,6 +178,8 @@ function MarkButtons({ id, mark, setMark, compact }: { id: string; mark?: VocabM
 function WordList({ words, bookName, progress, setMark }: { words: VocabWord[]; bookName: string; progress: VocabProgress; setMark: SetMark }) {
   const theme = useTheme();
   const [filter, setFilter] = useState<Filter>('all');
+  // 예문은 눌러야 펼쳐진다 — 목록은 단어와 뜻만 보여야 차례대로 훑으며 체크하기 쉽다.
+  const [open, setOpen] = useState<Record<string, boolean>>({});
   const shown = words.filter((w) => {
     const m = progress[w.id];
     return filter === 'all' || (filter === 'unchecked' ? !m : m === filter);
@@ -220,15 +222,22 @@ function WordList({ words, bookName, progress, setMark }: { words: VocabWord[]; 
               <MarkButtons id={w.id} mark={m} setMark={setMark} compact />
             </View>
             <ThemedText style={[Type.itemTitle, { color: theme.accent }]}>{w.ko}</ThemedText>
-            <Pressable onPress={() => speak(w.example)} style={[styles.example, { backgroundColor: theme.accentSoft }]}>
-              <ThemedText style={Type.itemDescription}>
-                {canSpeak() ? '🔊 ' : ''}
-                {w.example}
-              </ThemedText>
+            <Pressable onPress={() => setOpen((o) => ({ ...o, [w.id]: !o[w.id] }))} hitSlop={8}>
               <ThemedText themeColor="textSecondary" style={Type.caption}>
-                {w.exampleKo}
+                예문 {open[w.id] ? '접기 ▴' : '보기 ▾'}
               </ThemedText>
             </Pressable>
+            {open[w.id] ? (
+              <Pressable onPress={() => speak(w.example)} style={[styles.example, { backgroundColor: theme.accentSoft }]}>
+                <ThemedText style={Type.itemDescription}>
+                  {canSpeak() ? '🔊 ' : ''}
+                  {w.example}
+                </ThemedText>
+                <ThemedText themeColor="textSecondary" style={Type.caption}>
+                  {w.exampleKo}
+                </ThemedText>
+              </Pressable>
+            ) : null}
           </ThemedView>
         );
       }}
@@ -352,7 +361,7 @@ const styles = StyleSheet.create({
   pct: { fontSize: 28, lineHeight: 34, fontWeight: '800' },
   bar: { height: 10, borderRadius: 5, overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 5 },
-  books: { flexDirection: 'row', gap: Spacing.two },
+  books: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
   chips: { gap: Spacing.two },
   chip: { paddingHorizontal: Spacing.three, paddingVertical: Spacing.two, borderRadius: 999, borderWidth: 1 },
   tabs: { flexDirection: 'row', borderRadius: 999, padding: 4 },
