@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,7 +9,7 @@ import { Type } from '@/constants/typography';
 import { useTheme } from '@/hooks/use-theme';
 import { VOCAB_BOOKS } from '@/lib/vocab/books';
 import type { VocabWord } from '@/lib/vocab/types';
-import { canSpeak, speak, useVocabProgress, type VocabMark, type VocabProgress } from '@/lib/vocab/progress';
+import { canSpeak, say, speak, stopSpeaking, useVocabProgress, type VocabMark, type VocabProgress } from '@/lib/vocab/progress';
 
 /**
  * 영어 성경단어장 — 데이빗에듀 안의 화면. 복음서·여호수아(NIV).
@@ -307,8 +307,50 @@ function Study({ header, words, bookName, progress, setMark }: { header: ReactNo
   const card = deck[pos];
   const front = reverse ? flipped : !flipped;
 
+  // 순서대로 쭉 읽어 주기. 지금 카드부터 덱 끝까지 한 단어씩 읽고, 읽는 카드가 화면에 뜬다.
+  // token 은 「멈춤」을 알리는 표시다 — 값이 바뀌면 돌고 있던 반복이 그 자리에서 끝난다.
+  const [playing, setPlaying] = useState(false);
+  const [withMeaning, setWithMeaning] = useState(true);
+  const [withExample, setWithExample] = useState(false);
+  const token = useRef(0);
+
+  function stop() {
+    token.current++;
+    stopSpeaking();
+    setPlaying(false);
+  }
+
+  async function playAll() {
+    if (!deck.length) return;
+    const my = ++token.current;
+    const list = deck;
+    setPlaying(true);
+    setFlipped(false);
+    for (let i = pos; i < list.length; i++) {
+      if (token.current !== my) return;
+      setIndex(i);
+      const w = list[i];
+      await say(w.word, 'en-US');
+      if (token.current !== my) return;
+      if (withMeaning) await say(w.ko, 'ko-KR', 1);
+      if (token.current !== my) return;
+      if (withExample) await say(w.example, 'en-US');
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    if (token.current === my) setPlaying(false);
+  }
+
+  // 화면을 떠나거나 책·장이 바뀌면 소리도 멈춘다.
+  useEffect(() => {
+    return () => {
+      token.current++;
+      stopSpeaking();
+    };
+  }, [words]);
+
   function answer(m: VocabMark) {
     if (!card) return;
+    if (playing) stop();
     setMark(card.id, m);
     setFlipped(false);
     // known 이면 덱에서 빠지므로 같은 자리가 곧 다음 카드. learn 이면 한 칸 간다.
@@ -317,6 +359,7 @@ function Study({ header, words, bookName, progress, setMark }: { header: ReactNo
   }
 
   function move(d: number) {
+    if (playing) stop();
     setFlipped(false);
     setIndex((i) => (deck.length ? (i + d + deck.length) % deck.length : 0));
   }
@@ -325,10 +368,24 @@ function Study({ header, words, bookName, progress, setMark }: { header: ReactNo
     <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
       {header}
       <View style={styles.filters}>
-        <Chip label="모르는 단어 전부" on={scope === 'unknown'} onPress={() => { setScope('unknown'); setIndex(0); setFlipped(false); }} />
-        <Chip label="더 학습만" on={scope === 'learn'} onPress={() => { setScope('learn'); setIndex(0); setFlipped(false); }} />
+        <Chip label="모르는 단어 전부" on={scope === 'unknown'} onPress={() => { stop(); setScope('unknown'); setIndex(0); setFlipped(false); }} />
+        <Chip label="더 학습만" on={scope === 'learn'} onPress={() => { stop(); setScope('learn'); setIndex(0); setFlipped(false); }} />
         <Chip label="뜻 → 영어" on={reverse} onPress={() => { setReverse((r) => !r); setFlipped(false); }} />
       </View>
+
+      {canSpeak() && card ? (
+        <View style={styles.player}>
+          <Pressable
+            onPress={playing ? stop : playAll}
+            style={[styles.playBtn, { backgroundColor: playing ? theme.textSecondary : theme.accent }]}>
+            <ThemedText style={[Type.itemTitle, { color: '#FFFFFF' }]}>
+              {playing ? '■ 멈춤' : `▶ 순서대로 듣기 (${deck.length - pos}개)`}
+            </ThemedText>
+          </Pressable>
+          <Chip label="뜻 읽기" on={withMeaning} onPress={() => setWithMeaning((v) => !v)} />
+          <Chip label="예문 읽기" on={withExample} onPress={() => setWithExample((v) => !v)} />
+        </View>
+      ) : null}
 
       {!card ? (
         <ThemedText themeColor="textSecondary" style={styles.empty}>
@@ -409,6 +466,8 @@ const styles = StyleSheet.create({
   header: { gap: Spacing.two },
   summary: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.two, borderWidth: 1, borderRadius: 16, paddingHorizontal: Spacing.three, paddingVertical: Spacing.two },
   summaryText: { flex: 1 },
+  player: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: Spacing.two, marginBottom: Spacing.one },
+  playBtn: { borderRadius: 999, paddingHorizontal: Spacing.three, paddingVertical: Spacing.two },
   pickers: { gap: Spacing.two, paddingTop: Spacing.one },
   card: { borderRadius: 20, borderWidth: 1, padding: Spacing.three, gap: Spacing.two },
   progressRow: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.three },

@@ -55,3 +55,20 @@ export function speak(text: string) {
   u.rate = 0.85;
   window.speechSynthesis.speak(u);
 }
+
+/** 소리를 내고 끝날 때까지 기다린다. 중간에 멈추면(`stopSpeaking`) 곧바로 끝난 것으로 친다. */
+export function say(text: string, lang: 'en-US' | 'ko-KR', rate = 0.85): Promise<void> {
+  return new Promise((resolve) => {
+    if (!canSpeak()) return resolve();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang;
+    u.rate = rate;
+    u.onend = () => resolve();
+    u.onerror = () => resolve();
+    window.speechSynthesis.speak(u);
+  });
+}
+
+export function stopSpeaking() {
+  if (canSpeak()) window.speechSynthesis.cancel();
+}
