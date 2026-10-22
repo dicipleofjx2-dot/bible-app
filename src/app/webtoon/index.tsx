@@ -1,4 +1,3 @@
-import { router, type Href } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,14 +6,15 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { openAppWindow } from '@/lib/openExternal';
 import { WEBTOON_SERIES } from '@/lib/webtoon';
 
 /**
  * 말씀웹툰 책장 — 어느 연재를 볼지 고르는 자리.
  *
- * 전에는 이 화면이 곧 성경통독 웹툰의 화 목록이었다. 연재가 둘이 되면서
- * 「말씀웹툰」을 눌렀는데 통독 웹툰만 나오는 어긋남이 생겼다. 한 칸을 둘로
- * 가르고, 고른 뒤에 화 목록으로 들어간다.
+ * 고르면 **연재가 올라오는 워드프레스로 나간다.** 그림을 앱으로 받아 오지
+ * 않는다 — 한 화가 4MB 가까이 되고 저장소가 담아 두지 말라고 내주어서, 다시
+ * 열 때마다 그만큼을 또 받았다(→ `@/lib/webtoon`).
  *
  * 연재가 더 늘어도 이 화면은 고치지 않는다 — `WEBTOON_SERIES` 에 한 줄 더하면
  * 여기 한 칸이 저절로 생긴다.
@@ -27,13 +27,13 @@ export default function WebtoonShelfScreen() {
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.content}>
           <ThemedText type="small" themeColor="textSecondary">
-            보고 싶은 연재를 고르세요. 앱 안에서 전자책처럼 넘겨 읽습니다.
+            보고 싶은 연재를 고르세요. 연재 사이트가 열립니다.
           </ThemedText>
 
           {WEBTOON_SERIES.map((s) => (
             <Pressable
               key={s.key}
-              onPress={() => router.push(`/webtoon/${s.key}` as Href)}
+              onPress={() => openAppWindow(s.site, s.window)}
               style={({ pressed }) => [pressed && styles.pressed]}>
               <Raised>
                 <View style={styles.row}>
@@ -46,8 +46,9 @@ export default function WebtoonShelfScreen() {
                       {s.description}
                     </ThemedText>
                   </View>
+                  {/* ↗ 는 앱 밖으로 나간다는 뜻. 마이페이지의 바깥 링크와 같은 표시다. */}
                   <ThemedText themeColor="textSecondary" style={styles.chevron}>
-                    ›
+                    ↗
                   </ThemedText>
                 </View>
               </Raised>

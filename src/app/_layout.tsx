@@ -187,14 +187,6 @@ function AppStack() {
           options={{ headerShown: true, title: '말씀웹툰' }}
         />
         <Stack.Screen
-          name="webtoon/[series]/index"
-          options={{ headerShown: true, title: '말씀웹툰' }}
-        />
-        <Stack.Screen
-          name="webtoon/[series]/[id]"
-          options={{ headerShown: true, title: '말씀웹툰' }}
-        />
-        <Stack.Screen
           name="revival/index"
           options={{ headerShown: true, title: '부흥의 천사들' }}
         />

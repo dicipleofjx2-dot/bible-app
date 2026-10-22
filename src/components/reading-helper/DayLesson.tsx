@@ -1,5 +1,4 @@
 import { Image } from 'expo-image';
-import { router, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
@@ -7,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/lib/i18n';
+import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
 import type { PlanChapterEntry } from '@/lib/readingHelper/readingPlan';
 import { webtoonsForChapters, type ReadingWebtoon } from '@/lib/readingHelper/webtoon';
@@ -63,9 +63,8 @@ export function DayLesson({ dayContent, loading, error, chapters }: Props) {
             <Pressable
               key={w.id}
               accessibilityRole="link"
-              // 바깥 사이트 대신 **앱 안 뷰어**로 연다(2026-10-21). 같은 화인데
-              // 여기서만 밖으로 나가면, 돌아오는 길을 사용자가 찾아야 했다.
-              onPress={() => router.push(`/webtoon/reading/${w.id}` as Href)}
+              // 연재 사이트에서 읽는다 — 웹툰 그림은 앱으로 받지 않는다(→ @/lib/webtoon).
+              onPress={() => openAppWindow(w.link, APP_WINDOW.readingWebtoon)}
               style={({ pressed }) => [
                 styles.webtoonRow,
                 { backgroundColor: theme.background },
