@@ -7,6 +7,7 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/lib/i18n';
 import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
+import { BlogLink } from './BlogLink';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
 import type { PlanChapterEntry } from '@/lib/readingHelper/readingPlan';
 import { webtoonsForChapters, type ReadingWebtoon } from '@/lib/readingHelper/webtoon';
@@ -51,6 +52,8 @@ export function DayLesson({ dayContent, loading, error, chapters }: Props) {
           </ThemedText>
         )}
       </View>
+
+      <BlogLink chapter={dayContent?.firstChapter} label="blog365.lessonMore" />
 
       {/* 성경통독 웹툰 — 이 분량을 그린 화가 워드프레스에 올라와 있을 때만. 아직 없는 날에
           「준비 중」을 매일 띄우면 소음이라 아예 그리지 않는다. */}

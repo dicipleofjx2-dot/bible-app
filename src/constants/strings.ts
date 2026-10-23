@@ -341,6 +341,11 @@ export const STRINGS = {
   // 성경통독 웹툰 — 이 분량을 그린 화가 있을 때만 뜬다(워드프레스 「통독 웹툰」 링크)
   'lesson.webtoonTitle': { ko: '🖼️ 오늘 분량 웹툰', en: '🖼️ Today’s Reading as a Webtoon' },
   'lesson.webtoonOpen': { ko: '눌러서 보기 ↗', en: 'Tap to read ↗' },
+  // 블로그 「성경통독 365」로 가는 단추 — 궁금해지는 바로 그 자리에 둔다
+  'blog365.site': { ko: '성경통독 365 블로그', en: 'Bible 365 blog (Korean)' },
+  'blog365.lessonMore': { ko: '장소·연대·해석이 갈리는 점 보기', en: 'Places, dates and debated points' },
+  'blog365.quizMore': { ko: '해설·지도·배경 더 보기', en: 'More notes, maps and background' },
+  'blog365.oxMore': { ko: '오늘 본문 이야기 자세히 보기', en: "Read more about today's passage" },
   'lesson.memorizationTitle': { ko: '오늘의 암송구절', en: 'Today’s Memory Verse' },
 
   'arch.title': { ko: '전체 아카이브', en: 'Full Archive' },

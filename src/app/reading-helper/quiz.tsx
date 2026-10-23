@@ -19,6 +19,7 @@ import {
 import { scoreOf } from '@/lib/readingHelper/grade';
 import { currentDayNumber, dayNumberForDate, todayDateString } from '@/lib/readingHelper/readingPlan';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
+import { BlogLink } from '@/components/reading-helper/BlogLink';
 import { guestDayContent } from '@/lib/readingHelper/guestRange';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
 
@@ -220,6 +221,8 @@ export default function ReadingHelperQuizScreen() {
               </Pressable>
             </View>
           ) : null}
+
+          <BlogLink chapter={content.firstChapter} label="blog365.quizMore" />
 
           <Pressable
             onPress={() =>

@@ -12,6 +12,7 @@ import { useAuth } from '@/lib/auth';
 import { useI18n, useT } from '@/lib/i18n';
 import { getStartDate, setSpeedQuizSuccess, SPEED_QUIZ_POINTS } from '@/lib/readingHelper/db';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
+import { BlogLink } from '@/components/reading-helper/BlogLink';
 import { guestDay, guestDayContent } from '@/lib/readingHelper/guestRange';
 import { currentDayNumber, dayNumberForDate, todayDateString } from '@/lib/readingHelper/readingPlan';
 import {
@@ -44,6 +45,7 @@ export default function ReadingHelperSpeedQuizScreen() {
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<SpeedQuestion[] | null>(null);
   const [dayNumber, setDayNumber] = useState(0);
+  const [firstChapter, setFirstChapter] = useState<number | undefined>(undefined);
 
   useFocusEffect(
     useCallback(() => {
@@ -57,6 +59,7 @@ export default function ReadingHelperSpeedQuizScreen() {
           const [gd, gc] = await Promise.all([guestDay(), guestDayContent(lang)]);
           if (cancelled) return;
           setDayNumber(gd?.dayNumber ?? 1);
+          setFirstChapter(gc?.firstChapter);
           setQuestions(gc ? buildSpeedQuiz(gc.questions) : []);
           setLoading(false);
           return;
@@ -70,6 +73,7 @@ export default function ReadingHelperSpeedQuizScreen() {
         const content = await getDayContentForDay(startDate, day, lang);
         if (cancelled) return;
         setDayNumber(day);
+        setFirstChapter(content?.firstChapter);
         setQuestions(content ? buildSpeedQuiz(content.questions) : []);
         setLoading(false);
       })();
@@ -114,6 +118,7 @@ export default function ReadingHelperSpeedQuizScreen() {
       key={`${dayNumber}-${reviewDate ?? 'today'}`}
       questions={questions}
       dayNumber={dayNumber}
+      firstChapter={firstChapter}
       isReview={isReview}
       userId={userId}
       onRestart={() => setQuestions(questions.length ? shuffleAgain(questions) : questions)}
@@ -135,12 +140,14 @@ function shuffleAgain(questions: SpeedQuestion[]): SpeedQuestion[] {
 function SpeedGame({
   questions,
   dayNumber,
+  firstChapter,
   isReview,
   userId,
   onRestart,
 }: {
   questions: SpeedQuestion[];
   dayNumber: number;
+  firstChapter: number | undefined;
   isReview: boolean;
   userId: string | undefined;
   onRestart: () => void;
@@ -284,6 +291,7 @@ function SpeedGame({
               {t('ox.retry')}
             </ThemedText>
           </Pressable>
+          <BlogLink chapter={firstChapter} label="blog365.oxMore" />
           <Pressable
             onPress={() => router.back()}
             style={({ pressed }) => [

@@ -28,6 +28,8 @@ export type MemorizationVerse = {
  * 앱도 함께 멈춰서 자체 보관으로 옮겼다). */
 export type DayQuizContent = {
   dayNumber: number;
+  /** 그날 첫 장의 성경 전체 장 번호(창 1장 = 1) — 블로그 「성경통독 365」로 보내는 열쇠 */
+  firstChapter?: number;
   narrative: string;
   questions: QuizQuestion[];
   memorization: MemorizationVerse;

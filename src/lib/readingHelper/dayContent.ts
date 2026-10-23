@@ -4,6 +4,7 @@ import { BOOK_NAMES_EN } from './bibleBooks';
 import type { Lang } from '@/lib/i18n';
 import type { DayQuizContent, MemorizationVerse, QuizQuestion } from './quizTypes';
 import { shuffleQuestionChoices } from './shuffleChoices';
+import { globalChapter } from './webtoon';
 
 /** 하루 퀴즈에 내보내는 최대 문항 수. 주일은 5장을 읽어서 장별 문제를 다 모으면
  * 너무 길어진다 — 장마다 고르게 뽑아 이 수에 맞춘다. */
@@ -110,6 +111,7 @@ export async function getDayContent(
 
   const content: DayQuizContent = {
     dayNumber,
+    firstChapter: globalChapter(chapters[0].bookId, chapters[0].chapter),
     narrative: rows
       .map((r) => {
         const c = pick(r, lang);
