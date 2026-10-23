@@ -83,6 +83,11 @@ export const STRINGS = {
   // ── 말씀 ─────────────────────────────────────────────────────
   'word.title': { ko: '오늘의 말씀', en: "Today's Word" },
   'word.webtoon': { ko: '말씀웹툰', en: 'Sermon Webtoon' },
+  'word.davidWebtoon': { ko: '데이빗웹툰창고', en: 'David Webtoon' },
+  'word.davidWebtoonDesc': {
+    ko: '주일 · 성경통독 · 주제별 웹툰을 한곳에서',
+    en: 'Sunday, Bible-reading and topic webtoons in one place',
+  },
   'word.webtoonDesc': {
     ko: '주일설교 웹툰 · 성경통독 웹툰',
     en: 'Sermon webtoon and Bible-reading webtoon',

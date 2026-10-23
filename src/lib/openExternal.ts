@@ -91,4 +91,6 @@ export const APP_WINDOW = {
   webtoon: 'sermonwebtoon',
   /** 성경통독 웹툰(워드프레스 「통독 웹툰」). 설교 웹툰과 다른 연재라 창도 따로 — 통독하다 열고 돌아온다. */
   readingWebtoon: 'readingwebtoon',
+  /** 데이빗웹툰(webtoon.dgaiworks.com) — 주일·통독·주제별 웹툰을 다 모은 본진. 서가를 오가며 읽으므로 한 창에 모은다. */
+  davidWebtoon: 'davidwebtoon',
 } as const;
