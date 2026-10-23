@@ -201,6 +201,11 @@ export const STRINGS = {
     ko: '둘러보는 중입니다 — 오늘 시작하면 읽을 1일차예요.',
     en: 'Just looking around — this is Day 1, what you would read if you started today.',
   },
+  // 블로그 「성경통독 365」 하루 글의 단추로 들어왔을 때 — 1일차가 아니라 그 글의 범위다
+  'rh.guestBannerLinked': {
+    ko: '블로그에서 연 범위예요 — 로그인 없이 문제를 풀고 외워 볼 수 있어요.',
+    en: 'Opened from the blog — try the quiz and memory verse without signing in.',
+  },
   'rh.guestBannerSignIn': { ko: '로그인하면', en: 'Sign in' },
   'rh.guestBannerRest': {
     ko: ' 내 진도와 포인트가 이어집니다.',

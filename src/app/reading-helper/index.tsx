@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -44,7 +44,8 @@ import {
   type PlanChapterEntry,
 } from '@/lib/readingHelper/readingPlan';
 
-import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
+import { getDayContent, getDayContentForDay } from '@/lib/readingHelper/dayContent';
+import { guestDay, setGuestRange } from '@/lib/readingHelper/guestRange';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
 import { APP_WINDOW, openAppWindow } from '@/lib/openExternal';
 
@@ -53,6 +54,8 @@ export default function ReadingHelperHomeScreen() {
   const { session } = useAuth();
   const { lang, t } = useI18n();
   const userId = session?.user.id;
+  // 블로그 「성경통독 365」 하루 글에서 들어오면 그 글의 범위(성경 전체 장 번호)
+  const { from: linkFrom, to: linkTo } = useLocalSearchParams<{ from?: string; to?: string }>();
 
   const [checking, setChecking] = useState(true);
   const [day, setDay] = useState<PlanDay | null>(null);
@@ -90,10 +93,12 @@ export default function ReadingHelperHomeScreen() {
     // 있다. 그래서 **오늘 시작한 사람 기준(1일차)**으로 그대로 보여 준다. 저장이
     // 필요한 것(통독 완료·포인트·점수)만 로그인으로 안내한다.
     if (!userId) {
-      const guestStart = todayDateString();
-      const guestDay = buildFullPlan(guestStart)[0] ?? null;
+      // 블로그 링크로 왔으면 그 범위를, 아니면 오늘 시작한 사람의 1일차를 보여 준다.
+      // 퀴즈·암송 화면도 같은 범위를 쓰도록 여기서 기억해 둔다.
+      await setGuestRange(linkFrom, linkTo);
+      const gDay = await guestDay();
       if (loadIdRef.current !== loadId) return;
-      setDay(guestDay);
+      setDay(gDay);
       setReadingCompleteState(false);
       setTodayQuizScore(0);
       setPoints(null);
@@ -101,15 +106,15 @@ export default function ReadingHelperHomeScreen() {
       setChecking(false);
       getTogetherToday().then(setTogether).catch(() => {});
       getWeeklyRanking().then(setRanking).catch(() => {});
-      if (!guestDay) {
+      if (!gDay) {
         setContentLoading(false);
         return;
       }
-      setChapters(guestDay.chapters);
+      setChapters(gDay.chapters);
       setContentLoading(true);
       setContentError(false);
       try {
-        const content = await getDayContentForDay(guestStart, 1, lang);
+        const content = await getDayContent(gDay.dayNumber, gDay.chapters, lang);
         if (loadIdRef.current === loadId) setDayContent(content);
       } catch {
         if (loadIdRef.current === loadId) setContentError(true);
@@ -185,7 +190,7 @@ export default function ReadingHelperHomeScreen() {
     } finally {
       if (loadIdRef.current === loadId) setContentLoading(false);
     }
-  }, [userId, lang]);
+  }, [userId, lang, linkFrom, linkTo]);
 
   useFocusEffect(
     useCallback(() => {
@@ -303,7 +308,7 @@ export default function ReadingHelperHomeScreen() {
                 pressed && styles.pressed,
               ]}>
               <ThemedText type="small">
-                {t('rh.guestBanner')}{'\n'}
+                {t(linkFrom ? 'rh.guestBannerLinked' : 'rh.guestBanner')}{'\n'}
                 <ThemedText type="smallBold">{t('rh.guestBannerSignIn')}</ThemedText>
                 {t('rh.guestBannerRest')}
               </ThemedText>

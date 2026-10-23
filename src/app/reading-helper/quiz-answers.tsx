@@ -11,6 +11,7 @@ import { useAuth } from '@/lib/auth';
 import { getStartDate } from '@/lib/readingHelper/db';
 import { currentDayNumber, dayNumberForDate } from '@/lib/readingHelper/readingPlan';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
+import { guestDayContent } from '@/lib/readingHelper/guestRange';
 import { isAnswerCorrect } from '@/lib/readingHelper/grade';
 import { useI18n } from '@/lib/i18n';
 import type { StringKey } from '@/constants/strings';
@@ -56,7 +57,15 @@ export default function ReadingHelperQuizAnswersScreen() {
     useCallback(() => {
       let cancelled = false;
       (async () => {
-        if (!userId) return;
+        if (!userId) {
+          // 손님도 방금 푼 문제의 정답을 본다. 예전에는 여기서 돌아가 버려 빙글빙글만 돌았다.
+          const guest = await guestDayContent(lang);
+          if (!cancelled) {
+            setContent(guest);
+            setLoading(false);
+          }
+          return;
+        }
         const startDate = await getStartDate(userId);
         if (!startDate) {
           router.replace('/reading-helper/onboarding');

@@ -13,6 +13,7 @@ import { useI18n, useT } from '@/lib/i18n';
 import { getStartDate, MEMORIZATION_POINTS, setMemorizationResult } from '@/lib/readingHelper/db';
 import { currentDayNumber, dayNumberForDate, todayDateString } from '@/lib/readingHelper/readingPlan';
 import { getDayContentForDay } from '@/lib/readingHelper/dayContent';
+import { guestDayContent } from '@/lib/readingHelper/guestRange';
 import type { DayQuizContent } from '@/lib/readingHelper/quizTypes';
 
 const MAX_ATTEMPTS = 10;
@@ -52,7 +53,16 @@ export default function ReadingHelperMemorizeScreen() {
         // 로그인 없이 들어와도 풀 수 있다. 문제는 「몇 일차인가」로 정해지고
         // 점수 저장만 로그인이 필요하다(아래 저장 자리에서 이미 거른다).
         // 예전에는 여기서 그냥 돌아가 버려 화면이 영원히 로딩 중이었다.
-        const startDate = userId ? await getStartDate(userId) : todayDateString();
+        if (!userId) {
+          // 손님 — 블로그 링크가 넘긴 범위(없으면 1일차)
+          const guest = await guestDayContent(lang);
+          if (!cancelled) {
+            setContent(guest);
+            setLoading(false);
+          }
+          return;
+        }
+        const startDate = await getStartDate(userId);
         if (!startDate) {
           router.replace('/reading-helper/onboarding');
           return;
