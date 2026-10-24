@@ -34,6 +34,14 @@ export default function WordHubScreen() {
           href: '/webtoon' as Href, // external 이 있으면 쓰지 않는다(타입이 요구해서 둔다)
           external: { url: 'https://webtoon.dgaiworks.com/', window: APP_WINDOW.davidWebtoon },
         },
+        {
+          emoji: '🌘',
+          label: t('word.endtimeSigns'),
+          description: t('word.endtimeSignsDesc'),
+          // 마지막 때의 징조들(2026-10-24 사장님 요청) — 2000년 재난 기록·하늘의 징조·종말론 글이 있는 바깥 사이트.
+          href: '/webtoon' as Href, // external 이 있으면 쓰지 않는다(타입이 요구해서 둔다)
+          external: { url: 'https://signs.dgaiworks.com/', window: APP_WINDOW.endtimeSigns },
+        },
       ],
     },
   ];

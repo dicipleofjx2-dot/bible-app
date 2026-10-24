@@ -88,6 +88,11 @@ export const STRINGS = {
     ko: '주일 · 성경통독 · 주제별 웹툰을 한곳에서',
     en: 'Sunday, Bible-reading and topic webtoons in one place',
   },
+  'word.endtimeSigns': { ko: '마지막 때의 징조들', en: 'Signs of the End Times' },
+  'word.endtimeSignsDesc': {
+    ko: '2000년의 지진·전쟁·기근·하늘의 징조를 말씀과 함께',
+    en: '2,000 years of earthquakes, wars, famines and signs in the sky, read with Scripture',
+  },
   'word.webtoonDesc': {
     ko: '주일설교 웹툰 · 성경통독 웹툰',
     en: 'Sermon webtoon and Bible-reading webtoon',

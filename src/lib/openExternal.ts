@@ -95,4 +95,6 @@ export const APP_WINDOW = {
   readingWebtoon: 'readingwebtoon',
   /** 데이빗웹툰(webtoon.dgaiworks.com) — 주일·통독·주제별 웹툰을 다 모은 본진. 서가를 오가며 읽으므로 한 창에 모은다. */
   davidWebtoon: 'davidwebtoon',
+  /** 마지막 때의 징조들(signs.dgaiworks.com). 연표·지도·글을 오가며 읽으므로 한 창에 모은다. */
+  endtimeSigns: 'endtimesigns',
 } as const;
