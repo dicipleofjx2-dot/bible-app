@@ -372,16 +372,72 @@ export async function getProgressCounts(userId: string): Promise<ProgressCounts>
 // 리더관리 (admin 전용 — 완료 여부만, 콘텐츠 컬럼 select 없음)
 // ============================================================
 
-/** 리더관리 화면에 들어올 수 있는지 — 관리자이거나 리더이면 된다. */
+/**
+ * 내 교적 줄과 목장.
+ *
+ * 계정 하나에 교적 줄 하나다. 교적과 안 이어진 계정(교회에 처음 온 분, 아이들)도
+ * 있어서 null 이 나올 수 있다 — 그때는 목자가 아닌 것으로 본다.
+ */
+async function myMemberRow(userId: string): Promise<{ id: string; cellId: string | null } | null> {
+  const { data } = await supabase
+    .from('members')
+    .select('id, cell_id')
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .limit(1)
+    .maybeSingle();
+  if (!data) return null;
+  return { id: String((data as any).id), cellId: ((data as any).cell_id as string) ?? null };
+}
+
+/**
+ * 리더관리 화면에 들어올 수 있는지 — 관리자이거나 **목자**이면 된다.
+ *
+ * 전에는 r2m_leaders 라는 따로 둔 표를 봤다. 그런데 그 표는 교적의 목장과 따로
+ * 놀아서, 목장을 옮겨도 여기는 그대로였고 아무도 배정하지 않으면 모두가
+ * 「속한 목장 없음」이 됐다(실제로 85명 전원이 비어 있었다).
+ *
+ * **목장 하나에 목자 하나**라는 교적의 사실을 그대로 쓴다(2026-10-24, 사용자 결정).
+ * 교적부에서 목장을 옮기면 이 화면도 저절로 따라온다 — 두 군데를 맞출 일이 없다.
+ */
 export async function getLeaderScope(userId: string): Promise<LeaderScope> {
-  const [adminResult, leaderResult] = await Promise.all([
+  const [adminResult, me] = await Promise.all([
     supabase.from('profiles').select('is_admin').eq('id', userId).maybeSingle(),
-    supabase.from('r2m_leaders').select('user_id').eq('user_id', userId).maybeSingle(),
+    myMemberRow(userId),
   ]);
-  return {
-    isAdmin: !!(adminResult.data as any)?.is_admin,
-    isLeader: !!leaderResult.data,
-  };
+  let isLeader = false;
+  if (me) {
+    const { data } = await supabase
+      .from('org_units')
+      .select('id')
+      .eq('leader_member_id', me.id)
+      .eq('unit_type', 'cell')
+      .limit(1)
+      .maybeSingle();
+    isLeader = !!data;
+  }
+  return { isAdmin: !!(adminResult.data as any)?.is_admin, isLeader };
+}
+
+/**
+ * 내 목장 식구들의 **계정 번호**.
+ *
+ * 교적에는 있지만 앱을 안 쓰는 분도 있다 — 그런 분은 볼 기록이 없으므로 뺀다.
+ * 나 자신도 뺀다. 목자가 자기 이름을 자기 명단에서 보는 것은 어색하고, 자기
+ * 기록은 홈 화면에서 이미 본다.
+ */
+async function myCellMemberUserIds(userId: string): Promise<string[]> {
+  const me = await myMemberRow(userId);
+  if (!me?.cellId) return [];
+  const { data } = await supabase
+    .from('members')
+    .select('user_id')
+    .eq('cell_id', me.cellId)
+    .is('deleted_at', null)
+    .not('user_id', 'is', null);
+  return (data ?? [])
+    .map((r: any) => String(r.user_id))
+    .filter((id) => id !== userId);
 }
 
 /**
@@ -398,10 +454,9 @@ export async function getEnrolledUsersStatus(
   scope: LeaderScope,
   lang: 'ko' | 'en' = 'ko',
 ): Promise<EnrolledUserStatus[]> {
-  // 리더는 배정표가 곧 명단이다. 관리자는 등록자와 배정된 멤버를 합쳐서 본다.
-  const assignmentQuery = supabase.from('r2m_leader_members').select('member_id');
-  const [assignmentResult, enrollmentResult] = await Promise.all([
-    scope.isAdmin ? assignmentQuery : assignmentQuery.eq('leader_id', userId),
+  // 목자는 **내 목장 식구**가 곧 명단이다. 관리자는 등록자 전부를 본다.
+  const [cellMemberIds, enrollmentResult] = await Promise.all([
+    scope.isAdmin ? Promise.resolve([] as string[]) : myCellMemberUserIds(userId),
     supabase
       .from('r2m_enrollments')
       .select('user_id, started_at, r2m_courses(title, title_en)')
@@ -410,10 +465,7 @@ export async function getEnrolledUsersStatus(
   ]);
   if (enrollmentResult.error) throw enrollmentResult.error;
 
-  // 배정표 조회 실패는 치명적으로 다루지 않는다. 앱은 배포되었는데 0035
-  // 마이그레이션이 아직 안 돌았으면 이 테이블이 없어서 실패하는데, 그때 통째로
-  // 던지면 지금까지 잘 되던 관리자 명단까지 같이 못 보게 된다.
-  const assignedIds = (assignmentResult.data ?? []).map((r: any) => r.member_id);
+  const assignedIds = cellMemberIds;
   const enrollmentByUser = new Map<string, any>(
     (enrollmentResult.data ?? []).map((r: any) => [r.user_id, r]),
   );
