@@ -25,7 +25,8 @@ import {
   type Evangelism,
   type EvangelismStatus,
 } from '@/db/ranch';
-import { getCellMembers } from '@/db/village';
+import { addTarget } from '@/db/evangelism';
+import { getCellMembers, postVillagePrayer } from '@/db/village';
 import { useCellRoom } from '@/hooks/use-cell-room';
 import { REWARD, SETTLE } from '@/lib/ranch';
 
@@ -60,7 +61,23 @@ export default function SupportScreen() {
   const [mine, setMine] = useState<Evangelism[] | null | undefined>(undefined);
   const [all, setAll] = useState<Evangelism[] | null>(null);
   const [members, setMembers] = useState<{ id: string; name: string }[]>([]);
-  const [mode, setMode] = useState<'view' | 'new'>('view');
+  const [mode, setMode] = useState<'view' | 'new' | 'target'>('view');
+
+  /*
+   * 전도대상자 — 아직 교회에 오지 않은 분이다.
+   *
+   * 새가족과 **다른 자리**다. 새가족은 이미 와서 정착하는 분이라 교적에서 고르지만,
+   * 전도대상자는 교적에 없다. 그래서 이름을 손으로 적는다.
+   *
+   * 이름은 **내 전도 목록에만** 남는다(evangelism_targets, 올린 사람만 본다).
+   * 목장에는 「김OO」처럼 가린 이름으로 기도제목만 올라간다 — 아직 교회에 오지
+   * 않은 분의 이름이 목장 게시판에 그대로 서면, 그분이 나중에 오셨을 때
+   * 「내 이야기가 다 적혀 있었구나」가 된다.
+   */
+  const [tName, setTName] = useState('');
+  const [tRelation, setTRelation] = useState('');
+  const [tPrayer, setTPrayer] = useState('');
+  const [tShare, setTShare] = useState(true);
   const [newcomer, setNewcomer] = useState<string | null>(null);
   const [referrer, setReferrer] = useState<string | null>(null);
   const [since, setSince] = useState(todayString());
@@ -90,6 +107,54 @@ export default function SupportScreen() {
     }
     done?.();
     await load();
+  }
+
+  /** 「김민수」→「김OO」. 성만 남긴다 — 전도 화면이 교회 전체 표에서 쓰는 그 규칙이다. */
+  function masked(name: string): string {
+    const n = name.trim();
+    if (n.length <= 1) return n;
+    return n[0] + 'O'.repeat(Math.max(1, n.length - 1));
+  }
+
+  async function createTarget() {
+    if (!tName.trim()) {
+      setMessage('이름을 적어 주세요.');
+      return;
+    }
+    setBusy(true);
+    setMessage(null);
+    try {
+      const { error } = await addTarget({
+        campaignId: null,
+        name: tName,
+        relation: tRelation,
+        note: tPrayer,
+      });
+      if (error) {
+        setMessage(error);
+        return;
+      }
+      // 목장과 함께 기도하기 — 가린 이름으로 목장 기도제목에 올린다.
+      if (tShare && room?.churchId && cellId) {
+        await postVillagePrayer({
+          churchId: room.churchId,
+          villageId: room.village.id,
+          cellId,
+          authorId: room.userId,
+          title: `전도대상자 ${masked(tName)} 님을 위해`,
+          body: tPrayer.trim() || '이분이 주님을 만나도록 함께 기도해 주세요.',
+        });
+      }
+      setTName('');
+      setTRelation('');
+      setTPrayer('');
+      setMode('view');
+      setMessage(
+        tShare ? '기록했어요. 목장 기도제목에도 올렸습니다.' : '기록했어요. 전도 화면에서 걸음을 이어 가세요.',
+      );
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function create() {
@@ -191,8 +256,47 @@ export default function SupportScreen() {
             </>
           ) : null}
 
+          {/* ── 전도대상자 ─────────────────────────────────── */}
+          {mode === 'target' ? (
+            <>
+              <SectionTitle hint="아직 교회에 오지 않은 분">전도대상자 적기</SectionTitle>
+              <Field label="이름" value={tName} onChangeText={setTName} placeholder="예: 김민수" />
+              <Field
+                label="나와의 관계"
+                value={tRelation}
+                onChangeText={setTRelation}
+                placeholder="가족 · 친구 · 직장 동료 · 이웃"
+              />
+              <Field
+                label="기도 제목"
+                value={tPrayer}
+                onChangeText={setTPrayer}
+                placeholder="무엇을 위해 기도할까요"
+                multiline
+                hint="목장과 함께 기도하면 이 글이 목장 기도제목으로 올라갑니다."
+              />
+              <ChipRow
+                options={[
+                  { value: 'share', label: '목장과 함께 기도하기' },
+                  { value: 'alone', label: '나만 보기' },
+                ]}
+                value={tShare ? 'share' : 'alone'}
+                onChange={(v) => setTShare(v === 'share')}
+              />
+              <ThemedText type="small" themeColor="textSecondary">
+                이름은 내 전도 목록에만 남습니다. 목장에는{' '}
+                <ThemedText type="smallBold">{tName.trim() ? masked(tName) : '김OO'}</ThemedText> 처럼 가려서
+                올라갑니다.
+              </ThemedText>
+              <Btn label={busy ? '기록하는 중…' : '기록하기'} onPress={createTarget} disabled={busy} />
+              <Btn label="취소" tone="ghost" onPress={() => setMode('view')} />
+            </>
+          ) : null}
+
           {/* ── 우리 목장 ──────────────────────────────────── */}
-          <SectionTitle hint={canLead ? '목자가 기록합니다' : undefined}>우리 목장의 새가족</SectionTitle>
+          {mode === 'target' ? null : (
+            <SectionTitle hint={canLead ? '목자가 기록합니다' : undefined}>우리 목장의 새가족</SectionTitle>
+          )}
           {mode === 'new' ? (
             <>
               <ThemedText type="smallBold" themeColor="textSecondary">
@@ -219,9 +323,11 @@ export default function SupportScreen() {
               <Btn label={busy ? '기록하는 중…' : '새가족 기록하기'} onPress={create} disabled={busy} />
               <Btn label="취소" tone="ghost" onPress={() => setMode('view')} />
             </>
-          ) : (
+          ) : mode === 'view' ? (
             <>
               {canLead ? <Btn label="새가족 기록하기" onPress={() => setMode('new')} /> : null}
+              {/* 전도대상자는 **누구나** 적는다 — 목자만 할 일이 아니다. */}
+              <Btn label="전도대상자 기록하기" tone="ghost" onPress={() => setMode('target')} />
               {mine === undefined ? (
                 <Empty text="불러오는 중입니다…" />
               ) : mine === null ? (
@@ -268,7 +374,7 @@ export default function SupportScreen() {
                 })
               )}
             </>
-          )}
+          ) : null}
         </>
       )}
     </RoomScreen>
