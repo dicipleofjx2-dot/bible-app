@@ -28,6 +28,16 @@ export default function EduHubScreen() {
     {
       items: [
         {
+          /*
+           * 성경통독도우미 — 홈 바둑판에서 이리로 옮겼다(2026-10-27 사장님 요청).
+           * 퀴즈를 풀며 통독을 이어 가는 곳이니 배우는 자리가 맞다.
+           */
+          emoji: '📆',
+          label: '성경통독도우미',
+          description: '퀴즈로 짚어 가며 성경을 끝까지 읽는 도우미',
+          href: '/reading-helper',
+        },
+        {
           emoji: '🗺️',
           label: '바이블 저니',
           description: '성경과 세계사를 위성지도·3D 지형 위에서 따라가는 여행',

@@ -27,6 +27,17 @@ export default function WordHubScreen() {
           href: '/webtoon' as Href,
         },
         {
+          /*
+           * 결단송 — 홈 바둑판에서 말씀 섹션으로 옮겼다(2026-10-27 사장님 요청).
+           * 주일 설교마다 만든 찬양이니 설교 웹툰과 같은 줄이 맞다.
+           * 바깥 창이 아니라 앱 안 화면이다 — 화면을 꺼도 이어 듣고, 가사가 노래를 따라간다.
+           */
+          emoji: '🎵',
+          label: t('home.songs'),
+          description: '주일 설교마다 지은 찬양을 새 곡부터 차례로',
+          href: '/songs' as Href,
+        },
+        {
           emoji: '📚',
           label: t('word.davidWebtoon'),
           description: t('word.davidWebtoonDesc'),

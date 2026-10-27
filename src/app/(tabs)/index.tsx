@@ -82,15 +82,17 @@ type HomeTile = {
 // 공지사항은 바둑판에 넣지 않는다 — 제목이 바로 보이는 한 줄 띠가 위에 따로
 // 있고, 그게 아이콘 한 칸보다 훨씬 잘 읽힌다.
 const HOME_TILES: HomeTile[] = [
-  // 성경읽기·QT 묵상·성경연구 세 칸을 뺐다(2026-09-23).
+  // 순서를 사장님이 다시 정하셨다(2026-10-27). 기도 → 전도 → 목장 → 배움 →
+  // 사귐 → 사역 → 소식. 교회가 성도에게 바라는 걸음의 차례이기도 하다.
   //
-  // 셋 다 **말씀 탭에 그대로 있고**(word.tsx), QT 는 이 화면 맨 위의 「QT 시작하기」
-  // 카드가 이미 같은 곳으로 보낸다. 바둑판에 또 두면 같은 문이 한 화면에 두 번
-  // 생기는 셈이라, 정작 한 번밖에 없는 칸들이 아래로 밀렸다.
-  // 지운 것은 이 세 칸뿐이다 — 화면(/read·/meditation·/bible-study)은 그대로다.
+  // 성경읽기·QT 묵상·성경연구는 **말씀 탭에 그대로 있다**(word.tsx). QT 는 이
+  // 화면 맨 위의 「QT 시작하기」 카드가 이미 같은 곳으로 보낸다.
+  //
+  // 목자의 편지 칸은 뺐다 — 새 편지는 알림마당이 띄우고, 이 화면 위쪽 띠에도
+  // 제목이 그대로 보인다. 화면(/shepherd-letters)은 그대로 살아 있다.
+
   // 중보기도센터(옛 24시간 기도의 집) — 다른 앱이다(prayer.dgaiworks.com).
-  // 영성부 사역의 핵심(중보기도·부흥기도회)이고, 교회의 기도제목은 **여기서만** 올린다(2026-10-02).
-  // 그래서 샬롬기도단 화면과 스마트주보의 기도제목 올리기를 걷어냈다 —
+  // 영성부 사역의 핵심이고, 교회의 기도제목은 **여기서만** 올린다(2026-10-02).
   // 기도제목이 여러 곳에 흩어지면 어느 곳에서도 다 모아 기도하지 못한다.
   // 계정은 같은 카카오라 따로 가입하지 않는다.
   {
@@ -100,51 +102,21 @@ const HOME_TILES: HomeTile[] = [
     href: '/',
     external: { url: 'https://prayer.dgaiworks.com/', window: APP_WINDOW.prayerHouse },
   },
-  // 목자의 편지는 교회로 갈린다. 로그인 전에는 어느 교회인지 알 수 없어 목록이
-  // 비므로(→ `@/lib/churchScope`) 빈 화면을 보여 주기보다 로그인으로 안내한다.
-  { key: 'shepherdLetter', emoji: '💌', label: 'home.shepherdLetter', href: '/shepherd-letters', requiresAuth: true },
-  // New Wine — 새부대 소식을 꾸준히 듣는 자리(2026-10-27 사장님 요청).
-  // 목자의 편지 바로 뒤에 둔다: 둘 다 교회가 성도에게 건네는 말이고, 편지가
-  // 이번 주의 말이라면 New Wine 은 한 달을 묶은 말이다.
-  // 매거진과 방송을 한 칸에 욱여넣지 않고 /newwine 이라는 문을 하나 둔다 —
-  // 소식은 읽는 것과 듣는 것으로 오는데, 한 칸이면 다른 하나는 안 보인다.
-  { key: 'newWine', emoji: '🍇', label: 'home.newWine', href: '/newwine' as Href },
-  // 신바람목장(목장마을ON) — 우리 목장이 「작은 교회」가 되고, 목장들이 모여
-  // 마을이 된다. 목자의 편지 바로 뒤에 둔 이유: 둘 다 목양의 자리이고, 편지를
-  // 읽고 나면 자연스레 우리 목장으로 건너간다.
-  // 교적에 목장이 걸려 있어야 방이 열리므로 로그인이 필요하다.
-  { key: 'village', emoji: '🏡', label: 'home.village', href: '/village' as Href, requiresAuth: true },
-  // 전도 — 이웃초청예배를 향한 전도대상자 돌봄·중보기도·교회 전략(0090).
+  // 복음전도 — 이웃초청예배를 향한 전도대상자 돌봄·중보기도·교회 전략(0090).
   // 대상자는 본인만 보므로 로그인이 필요하다.
   { key: 'evangelism', emoji: '🕊️', label: 'home.evangelism', href: '/evangelism' as Href, requiresAuth: true },
-  // 데이빗에듀 — 배우는 앱들을 모은 문(2026-10-02). 「지도로 보는 바이블 저니」
-  // 칸을 이것으로 바꾸고 바이블 저니는 그 안으로 옮겼다. 교육용 앱은 홈에 칸을
-  // 늘리지 말고 /edu 에 한 줄씩 더한다.
+  // 신바람목장(목장마을ON) — 우리 목장이 「작은 교회」가 되고, 목장들이 모여
+  // 마을이 된다. 교적에 목장이 걸려 있어야 방이 열리므로 로그인이 필요하다.
+  { key: 'village', emoji: '🏡', label: 'home.village', href: '/village' as Href, requiresAuth: true },
+  // 새부대에듀센터 — 배우는 것을 모은 문. 성경통독도우미도 이 안으로 들어갔다
+  // (2026-10-27). 배우는 앱이 하나씩 늘 때마다 홈에 칸을 더하면 바둑판이 끝없이
+  // 길어진다 — 늘어나는 것은 /edu 에 한 줄씩 더한다.
   { key: 'edu', emoji: '📚', label: 'home.edu', href: '/edu' as Href },
-  // 디지털캠퍼스는 홈에서 빼고 데이빗에듀 안으로 옮겼다(→ /edu). R2M 대시보드는
-  // 아래 탭(/bible-reading)에 있다. 통독도우미는 에듀 안에도 있지만 홈에서
-  // 매일 여는 칸이라 여기 그대로 둔다.
-  { key: 'readingHelper', emoji: '📆', label: 'home.readingHelper', href: '/reading-helper' },
-  // 성경게임대전 — 로그인 없이도 방에 들어가 볼 수 있게 두었다. 기록 저장만
-  // 로그인이 필요하다(→ docs/arena/README.md). 문 앞에서 막으면 「무슨 게임인지
-  // 보지도 못하고」 돌아간다.
-  // `as Href` 인 이유: expo-router 의 라우트 타입(.expo/types/router.d.ts)은 개발
-  // 서버가 돌 때 다시 만들어진다. 새 화면을 더한 직후에는 아직 그 목록에 없어서
-  // 타입 검사가 막힌다. 서버가 한 번 돌면 캐스팅 없이도 통과한다.
-  { key: 'arena', emoji: '🏆', label: 'home.arena', href: '/arena' as Href },
-  // 성경 아케이드 — 대전 바로 옆에 둔다. 둘 다 게임이고, 대전이 겨루는
-  // 자리라면 아케이드는 혼자 하는 자리다. 오늘 받은 포인트가 있으면 딱지로
-  // 붙는다(아래 badge) — 아이콘 한 칸에 더 적을 자리는 없다.
-  { key: 'arcade', emoji: '🕹️', label: 'home.arcade', href: '/arcade' as Href },
-  // 말씀 웹툰은 말씀 탭(word.tsx)으로 옮겼다(2026-10-20).
-  // 결단송 — 주일 설교마다 만든 찬양을 새 곡부터 차례로 흘려 듣는다(2026-10-02).
-  // 바깥 창이 아니라 앱 안 화면(/songs)이다 — 화면을 꺼도 이어 듣고, 가사가 노래를 따라간다.
-  { key: 'songs', emoji: '🎵', label: 'home.songs', href: '/songs' as Href },
-  // 주보와 교회 홈페이지 칸은 뺐다. 이 앱은 개인 경건훈련 자리이고, 교회 소식은
-  // 스마트주보 앱이 따로 맡는다 — 홈 화면에 둘 다 두면 어느 앱을 쓰는 중인지
-  // 흐려진다. 주보로 가는 길은 목자의 편지·알림마당 알림에 그대로 있다.
-  // 데이빗북스 하나만 걸던 자리. 지금은 부흥의 천사들 사역 칸이고, 네 사역
-  // 신청과 중보기도·데이빗북스·전도가 그 안에 있다.
+  // 코이노니아 — 함께 겨루고 노는 자리(2026-10-27). 성경게임대전과 성경
+  // 아케이드를 여기 모았다. 둘 다 게임이라 홈에 각각 칸을 두면 바둑판의
+  // 두 칸이 같은 성격으로 붙어 있게 된다.
+  { key: 'koinonia', emoji: '🤝', label: 'home.koinonia', href: '/koinonia' as Href },
+  // 부흥의 천사들 — 네 사역 신청과 중보기도·데이빗북스·전도가 그 안에 있다.
   {
     key: 'growth',
     emoji: '😇',
@@ -155,9 +127,11 @@ const HOME_TILES: HomeTile[] = [
     label: 'tab.growth',
     href: '/growth',
   },
-  // 게시판 칸은 스마트주보로 옮겼다. 게시판은 교회가 함께 쓰는 곳이고, 이 앱은
-  // 개인 경건훈련 자리다. 주보에 「게시판 면」이 생겨 거기서 읽고 쓴다 —
-  // 표는 같은 것이라 옛 글이 그대로 이어지고, 교회 홈페이지에도 함께 보인다.
+  // 새부대매거진(New Wine) — 매거진과 새부대 방송, 교회 홈페이지가 그 안에 있다.
+  // 소식은 읽는 것과 듣는 것으로 오므로 한 칸에 욱여넣지 않는다.
+  { key: 'newWine', emoji: '🍇', label: 'home.newWine', href: '/newwine' as Href },
+  // 게시판은 스마트주보에도 같은 표로 떠 있다. 여기서 읽고 쓴 글이 거기에도
+  // 그대로 보인다.
   { key: 'community', emoji: '💬', label: 'home.community', href: '/community', requiresAuth: true },
 ];
 
@@ -523,14 +497,12 @@ export default function HomeScreen() {
           <View style={styles.tileGrid}>
             {HOME_TILES.map((tile) => {
               const badge =
-                tile.key === 'shepherdLetter'
-                  ? letterUnseen
-                    ? 'NEW'
-                    : null
-                  : tile.key === 'r2m' && enrollment
-                    ? `${checklistCount}/7`
-                    : tile.key === 'arcade' && session && arcadeToday > 0
-                      ? `${arcadeToday}점`
+                tile.key === 'r2m' && enrollment
+                  ? `${checklistCount}/7`
+                  : // 아케이드 점수는 코이노니아 칸에 붙인다 — 아케이드가 그 안으로
+                    // 들어갔으니(2026-10-27), 딱지도 그 문 앞에 서야 보인다.
+                    tile.key === 'koinonia' && session && arcadeToday > 0
+                    ? `${arcadeToday}점`
                     : tile.key === 'community' && communityUnread > 0
                       ? // 99를 넘으면 「99+」로 적는다. 세 자리가 되면 아이콘을 덮는다.
                         communityUnread > 99
