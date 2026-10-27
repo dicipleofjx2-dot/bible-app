@@ -112,9 +112,9 @@ const HOME_TILES: HomeTile[] = [
   // (2026-10-27). 배우는 앱이 하나씩 늘 때마다 홈에 칸을 더하면 바둑판이 끝없이
   // 길어진다 — 늘어나는 것은 /edu 에 한 줄씩 더한다.
   { key: 'edu', emoji: '📚', label: 'home.edu', href: '/edu' as Href },
-  // 코이노니아 — 함께 겨루고 노는 자리(2026-10-27). 성경게임대전과 성경
-  // 아케이드를 여기 모았다. 둘 다 게임이라 홈에 각각 칸을 두면 바둑판의
-  // 두 칸이 같은 성격으로 붙어 있게 된다.
+  // 코이노니아 — 함께 겨루고 놀고 이야기하는 자리(2026-10-27). 성경게임대전·
+  // 성경 아케이드와 커뮤니티를 여기 모았다. 셋 다 혼자가 아니라 함께 하는
+  // 것이어서 홈에 각각 칸을 두면 같은 성격의 칸이 바둑판에 흩어져 붙는다.
   { key: 'koinonia', emoji: '🤝', label: 'home.koinonia', href: '/koinonia' as Href },
   // 부흥의 천사들 — 네 사역 신청과 중보기도·데이빗북스·전도가 그 안에 있다.
   {
@@ -130,9 +130,6 @@ const HOME_TILES: HomeTile[] = [
   // 새부대매거진(New Wine) — 매거진과 새부대 방송, 교회 홈페이지가 그 안에 있다.
   // 소식은 읽는 것과 듣는 것으로 오므로 한 칸에 욱여넣지 않는다.
   { key: 'newWine', emoji: '🍇', label: 'home.newWine', href: '/newwine' as Href },
-  // 게시판은 스마트주보에도 같은 표로 떠 있다. 여기서 읽고 쓴 글이 거기에도
-  // 그대로 보인다.
-  { key: 'community', emoji: '💬', label: 'home.community', href: '/community', requiresAuth: true },
 ];
 
 export default function HomeScreen() {
@@ -496,18 +493,22 @@ export default function HomeScreen() {
           {/* 4. 바둑판 — 나머지 기능을 한눈에 */}
           <View style={styles.tileGrid}>
             {HOME_TILES.map((tile) => {
+              /*
+               * 딱지는 칸마다 하나뿐이다. 아케이드와 커뮤니티가 둘 다 코이노니아
+               * 안으로 들어갔으니(2026-10-27) 딱지도 그 한 문 앞에서 다툰다 —
+               * **안 읽은 글을 먼저** 보여 준다. 오늘 점수는 내가 이미 아는 것이고,
+               * 안 읽은 글은 누가 나에게 말을 걸어 둔 것이다.
+               */
               const badge =
                 tile.key === 'r2m' && enrollment
                   ? `${checklistCount}/7`
-                  : // 아케이드 점수는 코이노니아 칸에 붙인다 — 아케이드가 그 안으로
-                    // 들어갔으니(2026-10-27), 딱지도 그 문 앞에 서야 보인다.
-                    tile.key === 'koinonia' && session && arcadeToday > 0
-                    ? `${arcadeToday}점`
-                    : tile.key === 'community' && communityUnread > 0
-                      ? // 99를 넘으면 「99+」로 적는다. 세 자리가 되면 아이콘을 덮는다.
-                        communityUnread > 99
-                        ? '99+'
-                        : String(communityUnread)
+                  : tile.key === 'koinonia' && communityUnread > 0
+                    ? // 99를 넘으면 「99+」로 적는다. 세 자리가 되면 아이콘을 덮는다.
+                      communityUnread > 99
+                      ? '99+'
+                      : String(communityUnread)
+                    : tile.key === 'koinonia' && session && arcadeToday > 0
+                      ? `${arcadeToday}점`
                       : null;
               return (
                 <Pressable
