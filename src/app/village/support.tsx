@@ -122,7 +122,7 @@ export default function SupportScreen() {
       return;
     }
     setBusy(true);
-    setMessage(null);
+    setMessage('');
     try {
       const { error } = await addTarget({
         campaignId: null,

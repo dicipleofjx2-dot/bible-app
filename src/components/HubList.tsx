@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { openAppWindow } from '@/lib/openExternal';
-import { AccessibilityInfo, Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Animated, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Href } from 'expo-router';
 
@@ -20,6 +20,14 @@ export type HubItem = {
   requiresAuth?: boolean;
   /** 바깥 앱. 있으면 `href` 대신 이 주소를 이름 붙인 창으로 연다(→ `openAppWindow`). */
   external?: { url: string; window: string };
+  /**
+   * 이모지 배지 대신 올릴 **대문 그림**(require 로 넣는다).
+   *
+   * 글을 읽으러 가는 칸에만 쓴다 — 사이트의 첫 화면을 그대로 띄워 두면
+   * 「어디로 가는 문인가」가 설명보다 먼저 전해진다. 앱에 담아 나가는 그림이라
+   * 받아 오는 양은 없다.
+   */
+  image?: number;
   /** 이 시각까지 「NEW」 딱지를 붙인다(ISO 시각). 지나면 저절로 사라진다 — 코드를 다시 고칠 필요가 없다. */
   newUntil?: string;
   /** 새로 더한 칸을 눈에 띄게: 금빛 배지에 반짝이를 얹는다. */
@@ -127,15 +135,19 @@ export function HubList({
                       }}
                       style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
                       <ThemedView type="backgroundElement" style={[styles.rowInner, { borderColor: theme.border }]}>
-                        <View
-                          style={[
-                            styles.badge,
-                            { backgroundColor: item.highlight ? theme.done : theme.accentSoft },
-                            item.highlight && styles.badgeHighlight,
-                          ]}>
-                          <ThemedText style={styles.emoji}>{item.emoji}</ThemedText>
-                          {item.highlight ? <ThemedText style={styles.sparkle}>✨</ThemedText> : null}
-                        </View>
+                        {item.image ? (
+                          <Image source={item.image} style={styles.cover} resizeMode="cover" />
+                        ) : (
+                          <View
+                            style={[
+                              styles.badge,
+                              { backgroundColor: item.highlight ? theme.done : theme.accentSoft },
+                              item.highlight && styles.badgeHighlight,
+                            ]}>
+                            <ThemedText style={styles.emoji}>{item.emoji}</ThemedText>
+                            {item.highlight ? <ThemedText style={styles.sparkle}>✨</ThemedText> : null}
+                          </View>
+                        )}
 
                         <View style={styles.rowText}>
                           <View style={styles.titleRow}>
@@ -225,6 +237,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   newBadgeText: { color: '#ffffff', fontSize: 10, fontWeight: '800' },
+  // 대문 그림은 배지보다 넓다 — 가로로 긴 띠라 그 비율을 살려야 글자가 읽힌다.
+  cover: { width: 92, height: 52, borderRadius: 10 },
   badge: {
     width: 46,
     height: 46,

@@ -42,6 +42,21 @@ export default function WordHubScreen() {
           href: '/webtoon' as Href, // external 이 있으면 쓰지 않는다(타입이 요구해서 둔다)
           external: { url: 'https://signs.dgaiworks.com/', window: APP_WINDOW.endtimeSigns },
         },
+        {
+          /*
+           * 천국의 재정원리 — 워드프레스 연재 「이삭의 밭」(2026-10-27 사장님 요청).
+           *
+           * 대문 그림은 그 사이트 첫 화면을 찍어 **앱에 담아** 쓴다(720×253, 28KB).
+           * 받아 오지 않으니 여는 데 드는 전송량이 없고, 어디로 가는 문인지가
+           * 설명보다 먼저 전해진다.
+           */
+          emoji: '🌾',
+          label: '천국의 재정원리',
+          description: '흉년에 순종한 이삭처럼 — 하늘의 부를 누리는 삶',
+          image: require('@/assets/images/kingdom-finance.jpg'),
+          href: '/webtoon' as Href, // external 이 있으면 쓰지 않는다(타입이 요구해서 둔다)
+          external: { url: 'https://isaacfields.dgaiworks.com/', window: APP_WINDOW.kingdomFinance },
+        },
       ],
     },
   ];

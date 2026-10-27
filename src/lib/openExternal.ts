@@ -105,4 +105,6 @@ export const APP_WINDOW = {
   gospelRoad: 'gospelroad',
   /** New Wine — 교회 매거진(newwine.dgaiworks.com). 글을 오가며 읽으므로 한 창에 모은다. */
   newWine: 'newwine',
+  /** 천국의 재정원리 「이삭의 밭」(isaacfields.dgaiworks.com). 연재를 오가며 읽는다. */
+  kingdomFinance: 'kingdomfinance',
 } as const;
