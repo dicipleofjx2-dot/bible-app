@@ -78,13 +78,6 @@ export default function EduHubScreen() {
           external: { url: 'https://gospelroad.dgaiworks.com/', window: APP_WINDOW.gospelRoad },
         },
         {
-          emoji: '🕰️',
-          label: '마지막 때의 징조들',
-          description: '2000년의 지진·화산 기록과 이번 주 소식을 말씀과 함께',
-          href: '/',
-          external: { url: 'https://signs.dgaiworks.com/', window: APP_WINDOW.endtimeSigns },
-        },
-        {
           emoji: '🎓',
           label: '디지털캠퍼스',
           description: '훈련을 영상으로 듣는 곳 · 카카오 로그인 그대로',
