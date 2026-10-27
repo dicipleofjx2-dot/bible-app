@@ -16,6 +16,10 @@ import { APP_WINDOW } from '@/lib/openExternal';
  *
  * 새 앱을 붙일 때: 바깥 앱이면 `external` 에 주소와 창 이름(`APP_WINDOW`)을,
  * 이 앱 안 화면이면 `href` 만 적는다.
+ *
+ * 워드프레스로 쓴 **배우는 블로그**도 여기 건다(2026-10-27). 글은 그쪽 사이트에
+ * 있고 앱은 주소만 건다 — 글과 그림을 앱으로 받아 오면 그만큼이 우리 저장소에서
+ * 나가고, 블로그는 글이 계속 늘어나는 곳이라 그 양이 끝이 없다.
  */
 export default function EduHubScreen() {
   const { session } = useAuth();
@@ -38,6 +42,34 @@ export default function EduHubScreen() {
           href: '/bible-vocab',
           highlight: true,
           newUntil: '2026-11-20T23:59:59+09:00',
+        },
+        {
+          emoji: '🦉',
+          label: '희귀동물 백과사전',
+          description: '멸종위기 동물을 등급·서식지·분류로 살펴보는 도감',
+          href: '/',
+          external: { url: 'https://rareanimals.dgaiworks.com/', window: APP_WINDOW.rareAnimals },
+        },
+        {
+          emoji: '🌌',
+          label: '우주가 찬양한다',
+          description: '해와 달과 별이 노래하는 창조주 하나님',
+          href: '/',
+          external: { url: 'https://amazingcosmos.dgaiworks.com/', window: APP_WINDOW.amazingCosmos },
+        },
+        {
+          emoji: '🛤️',
+          label: '복음이 온 길',
+          description: '조선의 서학 서적에서 오늘까지, 한국 기독교 선교 역사',
+          href: '/',
+          external: { url: 'https://gospelroad.dgaiworks.com/', window: APP_WINDOW.gospelRoad },
+        },
+        {
+          emoji: '🕰️',
+          label: '마지막 때의 징조들',
+          description: '2000년의 지진·화산 기록과 이번 주 소식을 말씀과 함께',
+          href: '/',
+          external: { url: 'https://signs.dgaiworks.com/', window: APP_WINDOW.endtimeSigns },
         },
         {
           emoji: '🎓',

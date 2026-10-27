@@ -97,4 +97,10 @@ export const APP_WINDOW = {
   davidWebtoon: 'davidwebtoon',
   /** 마지막 때의 징조들(signs.dgaiworks.com). 연표·지도·글을 오가며 읽으므로 한 창에 모은다. */
   endtimeSigns: 'endtimesigns',
+  /** 희귀동물 백과사전(rareanimals.dgaiworks.com). 도감을 넘겨 가며 보므로 한 창에 모은다. */
+  rareAnimals: 'rareanimals',
+  /** 우주가 찬양한다(amazingcosmos.dgaiworks.com). */
+  amazingCosmos: 'amazingcosmos',
+  /** 복음이 온 길(gospelroad.dgaiworks.com) — 한국 기독교 선교 역사. 지도와 글을 오간다. */
+  gospelRoad: 'gospelroad',
 } as const;
