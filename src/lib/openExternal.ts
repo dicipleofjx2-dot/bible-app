@@ -103,4 +103,6 @@ export const APP_WINDOW = {
   amazingCosmos: 'amazingcosmos',
   /** 복음이 온 길(gospelroad.dgaiworks.com) — 한국 기독교 선교 역사. 지도와 글을 오간다. */
   gospelRoad: 'gospelroad',
+  /** New Wine — 교회 매거진(newwine.dgaiworks.com). 글을 오가며 읽으므로 한 창에 모은다. */
+  newWine: 'newwine',
 } as const;
