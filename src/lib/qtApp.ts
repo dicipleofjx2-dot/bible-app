@@ -20,8 +20,14 @@ import { Platform } from 'react-native';
 /** 데이빗 큐티 주소. 바뀌면 여기만 고친다. */
 export const QT_APP_ORIGIN = 'https://dg-qt.vercel.app';
 
-/** 큐티를 마치고 돌아올 곳. 큐티 앱이 허용 목록으로 검사한다. */
-const RETURN_ORIGIN = 'https://dicipleofjx-bible.vercel.app';
+/**
+ * 큐티를 마치고 돌아올 곳. 큐티 앱이 허용 목록으로 검사한다.
+ *
+ * **지금 쓰는 주소여야 한다.** 옛 vercel.app 주소도 같은 앱을 띄우지만 브라우저가
+ * 보기에는 다른 출처(origin)라 저장소가 따로다 — 그쪽으로 돌아가면 성경 DB(30MB)를
+ * 다시 받고 인트로 화면부터 시작해서, 「내 앱이 초기화됐다」로 보인다.
+ */
+const RETURN_ORIGIN = 'https://davidbible.dgaiworks.com';
 
 function returnUrl(): string {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
