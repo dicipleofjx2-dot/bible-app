@@ -50,11 +50,25 @@ const BIBLE_DB_ASSET_SOURCE = { assetId: require('../../assets/bible-data/bible.
 // v9→v10: 전도 주간(10/23~10/30) 여드레를 큐티에 끼워 넣었다. 에스겔은 건너뛰지
 //     않고 **여드레 뒤로 밀었다** — 10/31 이 멈춘 자리(40:17)에서 그대로 이어진다.
 //     이번에는 DB 만 고치고 끝내지 않고 이름을 같이 올린다(v7 의 실수).
-const BIBLE_DB_NAME = 'bible-v10.db';
+// v10→v11: **그 여드레를 되돌렸다.** 일정표가 두 벌이었던 것이 문제다 — 큐티는
+//     데이빗 큐티 앱(dg-qt)이 자기 일정표(src/data/qt-schedule.json)로 펼치고,
+//     데이빗바이블 홈은 이 DB 의 qt_schedule 로 「오늘의 말씀」을 적는다. 한쪽에만
+//     여드레를 끼워 넣었으니 홈은 요한복음을, 큐티 앱은 에스겔을 가리켰다.
+//     밖에 적힌 주소와 안에 열리는 본문이 다르면 사람은 둘 중 무엇도 믿지 않는다.
+//     이 DB 를 85c0b80 이전(=큐티 앱과 같은 2178일)으로 되돌려 둘을 맞춘다.
+//     **다음에 큐티 일정을 고칠 때는 두 곳을 같이 고칠 것.**
+const BIBLE_DB_NAME = 'bible-v11.db';
 
 // 이름을 올리면 옛 파일(약 30MB)이 그대로 남는다. 웹은 OPFS 용량이 넉넉하지
 // 않으므로 한 번 지워 준다. 이미 없으면 조용히 넘어간다.
-const STALE_BIBLE_DB_NAMES = ['bible-v5.db', 'bible-v6.db', 'bible-v7.db', 'bible-v8.db', 'bible-v9.db'];
+const STALE_BIBLE_DB_NAMES = [
+  'bible-v5.db',
+  'bible-v6.db',
+  'bible-v7.db',
+  'bible-v8.db',
+  'bible-v9.db',
+  'bible-v10.db',
+];
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
