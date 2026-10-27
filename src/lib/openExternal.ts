@@ -107,4 +107,8 @@ export const APP_WINDOW = {
   newWine: 'newwine',
   /** 천국의 재정원리 「이삭의 밭」(isaacfields.dgaiworks.com). 연재를 오가며 읽는다. */
   kingdomFinance: 'kingdomfinance',
+  /** 새부대 방송 — 교회 유튜브 채널. 영상을 이어 보므로 한 창에 모은다. */
+  churchBroadcast: 'churchbroadcast',
+  /** 새부대교회 홈페이지(newwineskin.co.kr). */
+  churchHome: 'churchhome',
 } as const;

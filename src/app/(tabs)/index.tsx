@@ -103,6 +103,12 @@ const HOME_TILES: HomeTile[] = [
   // 목자의 편지는 교회로 갈린다. 로그인 전에는 어느 교회인지 알 수 없어 목록이
   // 비므로(→ `@/lib/churchScope`) 빈 화면을 보여 주기보다 로그인으로 안내한다.
   { key: 'shepherdLetter', emoji: '💌', label: 'home.shepherdLetter', href: '/shepherd-letters', requiresAuth: true },
+  // New Wine — 새부대 소식을 꾸준히 듣는 자리(2026-10-27 사장님 요청).
+  // 목자의 편지 바로 뒤에 둔다: 둘 다 교회가 성도에게 건네는 말이고, 편지가
+  // 이번 주의 말이라면 New Wine 은 한 달을 묶은 말이다.
+  // 매거진과 방송을 한 칸에 욱여넣지 않고 /newwine 이라는 문을 하나 둔다 —
+  // 소식은 읽는 것과 듣는 것으로 오는데, 한 칸이면 다른 하나는 안 보인다.
+  { key: 'newWine', emoji: '🍇', label: 'home.newWine', href: '/newwine' as Href },
   // 신바람목장(목장마을ON) — 우리 목장이 「작은 교회」가 되고, 목장들이 모여
   // 마을이 된다. 목자의 편지 바로 뒤에 둔 이유: 둘 다 목양의 자리이고, 편지를
   // 읽고 나면 자연스레 우리 목장으로 건너간다.

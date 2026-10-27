@@ -56,6 +56,7 @@ export const STRINGS = {
   // 옛 이름 「24시간 기도의 집」 → 영성부 중보기도센터(2026-10-02).
   'home.prayerHouse': { ko: '중보기도\n센터', en: 'Intercessory\nPrayer Center' },
   'home.edu': { ko: '데이빗에듀', en: 'David Edu' },
+  'home.newWine': { ko: 'New Wine', en: 'New Wine' },
   'home.arcade': { ko: '성경 아케이드', en: 'Bible Arcade' },
   'home.webtoon': { ko: '말씀웹툰', en: 'Sermon\nWebtoon' },
   'home.songs': { ko: '결단송', en: 'Decision\nSongs' },

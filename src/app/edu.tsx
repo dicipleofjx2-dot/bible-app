@@ -28,19 +28,6 @@ export default function EduHubScreen() {
     {
       items: [
         {
-          /*
-           * New Wine — 교회 매거진(2026-10-27).
-           *
-           * 이름은 교회 이름에서 왔다: 새 포도주는 새 부대에(마 9:17). 부대가
-           * 교회라면 그 안에 담기는 것이 이 매거진이다.
-           */
-          emoji: '🍇',
-          label: 'New Wine 매거진',
-          description: '새 부대에 담기는 새 포도주 — 교회가 띄우는 글',
-          href: '/',
-          external: { url: 'https://newwine.dgaiworks.com/', window: APP_WINDOW.newWine },
-        },
-        {
           emoji: '🗺️',
           label: '바이블 저니',
           description: '성경과 세계사를 위성지도·3D 지형 위에서 따라가는 여행',
