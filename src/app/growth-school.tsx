@@ -27,6 +27,8 @@ import {
   type GrowthNotice,
   type GrowthRecordRow,
   type GrowthStudent,
+  listMemoryChecks,
+  type GrowthMemoryCheck,
 } from '@/db/growth';
 import { Bar, Field, GrowthCard, PrimaryButton, SectionTitle } from '@/features/growth/ui';
 import { useSchool } from '@/features/growth/useSchool';
@@ -40,6 +42,7 @@ import {
   levelLabel,
   studentDayState,
 } from '@/lib/growth';
+import { memoryDaySummary, weekdayOf } from '@/lib/growthMemory';
 
 /**
  * 오늘의 학교 — 성장ON 의 첫 화면(기획서 §5.1).
@@ -62,6 +65,7 @@ export default function GrowthSchoolScreen() {
   const [attendance, setAttendance] = useState<GrowthAttendanceRow[]>([]);
   const [notices, setNotices] = useState<GrowthNotice[]>([]);
   const [photos, setPhotos] = useState<GrowthDailyPhoto[]>([]);
+  const [memory, setMemory] = useState<GrowthMemoryCheck[]>([]);
   // 서명 주소는 한 시간짜리라 담아 두지 않고 화면을 열 때마다 받는다.
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [shownPhoto, setShownPhoto] = useState<string | null>(null);
@@ -80,12 +84,15 @@ export default function GrowthSchoolScreen() {
       const rows = await listStudents(schoolId);
       setStudents(rows);
       const ids = rows.map((s) => s.id);
-      const [recs, atts, nots, pics] = await Promise.all([
+      const [recs, atts, nots, pics, mem] = await Promise.all([
         listRecords(ids, today, today),
         listAttendance(ids, today, today),
         listNotices(schoolId),
         listDayPhotos(schoolId, today),
+        // 0096 전이면 표가 없다. 암송 띠 하나 때문에 대문 전체가 안 열리면 안 된다.
+        listMemoryChecks(ids, today, today).catch(() => [] as GrowthMemoryCheck[]),
       ]);
+      setMemory(mem);
       setRecords(recs);
       setAttendance(atts);
       setNotices(nots);
@@ -388,6 +395,38 @@ export default function GrowthSchoolScreen() {
                 <QuickButton label="⚙️ 학교 설정" onPress={() => router.push('/growth-school/setup')} />
               </View>
             </GrowthCard>
+          ) : null}
+
+          {students.length ? (
+            <Pressable onPress={() => router.push('/growth-school/memory')}>
+              <GrowthCard>
+                <SectionTitle hint="누르면 오늘 구절과 통과 확인으로 갑니다.">📖 점심 전 암송</SectionTitle>
+                {weekdayOf(today) ? (
+                  (() => {
+                    const m = memoryDaySummary(ids, memory, today);
+                    return (
+                      <>
+                        <ThemedText style={Type.body}>
+                          {isStaff
+                            ? `통과 ${m.passed}/${m.total} · 다시 도전 ${m.retry}`
+                            : students
+                                .map((s) => {
+                                  const c = memory.find((x) => x.student_id === s.id);
+                                  return `${s.name} ${c?.status === 'passed' ? '통과 🍚' : c?.status === 'retry' ? '다시 도전 중' : '아직'}`;
+                                })
+                                .join(' · ')}
+                        </ThemedText>
+                        {isStaff ? <Bar value={m.passed} max={Math.max(1, m.total)} /> : null}
+                      </>
+                    );
+                  })()
+                ) : (
+                  <ThemedText themeColor="textSecondary" style={Type.body}>
+                    주말입니다. 이번 주 구절을 다시 볼 수 있어요.
+                  </ThemedText>
+                )}
+              </GrowthCard>
+            </Pressable>
           ) : null}
 
           {notices.length ? (

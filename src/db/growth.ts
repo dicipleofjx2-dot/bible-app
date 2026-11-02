@@ -10,6 +10,7 @@ import type {
   RecordVisibility,
 } from '@/lib/growth';
 import { makeInviteCode, normalizeInviteCode } from '@/lib/growth';
+import type { MemoryStatus } from '@/lib/growthMemory';
 
 /**
  * 성장ON 데이터 (0084).
@@ -705,5 +706,82 @@ export async function setDayPhotoCaption(id: string, caption: string): Promise<v
  */
 export async function removeDayPhoto(id: string): Promise<void> {
   const { error } = await supabase.from('growth_daily_photos').delete().eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
+// ───────────────────────── 점심 전 암송 (0096) ─────────────────────────
+
+export type GrowthMemoryCheck = {
+  id: string;
+  student_id: string;
+  on_date: string;
+  verse_key: string;
+  status: MemoryStatus;
+  tries: number;
+};
+
+/**
+ * 몇 주차를 셀 기준일. 0096 을 아직 안 돌렸으면 칼럼이 없어 오류가 난다 —
+ * 그때는 null 을 돌려 화면이 「이번 주 = 1주차」로 물러선다. 성장ON 의
+ * 다른 화면(myMemberships)에는 이 칼럼을 섞지 않았다: 섞으면 마이그레이션
+ * 하나 빠진 것으로 학교 전체가 안 열린다.
+ */
+export async function getMemoryStart(schoolId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('growth_schools')
+    .select('memory_start')
+    .eq('id', schoolId)
+    .maybeSingle();
+  if (error) return null;
+  return (data as { memory_start: string | null } | null)?.memory_start ?? null;
+}
+
+export async function setMemoryStart(schoolId: string, start: string): Promise<void> {
+  const { error } = await supabase.from('growth_schools').update({ memory_start: start }).eq('id', schoolId);
+  if (error) throw new Error(error.message);
+}
+
+export async function listMemoryChecks(studentIds: string[], from: string, to: string) {
+  if (!studentIds.length) return [] as GrowthMemoryCheck[];
+  return unwrap(
+    await supabase
+      .from('growth_memory_checks')
+      .select('id, student_id, on_date, verse_key, status, tries')
+      .in('student_id', studentIds)
+      .gte('on_date', from)
+      .lte('on_date', to),
+  ) as unknown as GrowthMemoryCheck[];
+}
+
+/** `(student_id, on_date)` 하나에 한 줄. 「다시」를 누를 때마다 tries 가 오른다. */
+export async function setMemoryCheck(
+  studentId: string,
+  date: string,
+  verseKey: string,
+  status: MemoryStatus,
+  tries: number,
+  userId: string,
+): Promise<void> {
+  const { error } = await supabase.from('growth_memory_checks').upsert(
+    {
+      student_id: studentId,
+      on_date: date,
+      verse_key: verseKey,
+      status,
+      tries,
+      checked_by: userId,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'student_id,on_date' },
+  );
+  if (error) throw new Error(error.message);
+}
+
+export async function clearMemoryCheck(studentId: string, date: string): Promise<void> {
+  const { error } = await supabase
+    .from('growth_memory_checks')
+    .delete()
+    .eq('student_id', studentId)
+    .eq('on_date', date);
   if (error) throw new Error(error.message);
 }
