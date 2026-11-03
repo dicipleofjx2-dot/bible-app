@@ -73,10 +73,16 @@ export function PopupNoticeModal() {
       <View style={styles.backdrop}>
         <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
           <ScrollView contentContainerStyle={styles.cardContent}>
+            {notice.kind === 'word_card' ? (
+              <ThemedText type="smallBold" themeColor="accent" style={styles.title}>
+                📖 오늘의 말씀카드
+              </ThemedText>
+            ) : null}
             {notice.imageUrl ? (
               <Image
                 source={{ uri: notice.imageUrl }}
-                style={styles.image}
+                // 말씀카드는 그림이 곧 본문이다 — 공지 사진 높이(220)에 두면 글씨가 안 읽힌다.
+                style={[styles.image, notice.kind === 'word_card' && styles.cardImage]}
                 // 그림 비율을 모르므로 잘라내지 않고 통째로 보여 준다. 잘라내면
                 // 안내문이 적힌 포스터의 글씨가 잘려 나간다.
                 resizeMode="contain"
@@ -142,6 +148,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 220,
     borderRadius: Spacing.three,
+  },
+  cardImage: {
+    height: undefined,
+    aspectRatio: 4 / 5,
   },
   title: {
     textAlign: 'center',

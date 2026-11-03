@@ -9,6 +9,8 @@ import { supabase } from '@/lib/supabase';
  */
 export type PopupNotice = {
   id: string;
+  /** 'word_card' = 주일 설교 말씀카드(0098). 그림을 크게 세운다. */
+  kind: 'notice' | 'word_card';
   churchId: string | null;
   title: string;
   body: string | null;
@@ -24,6 +26,7 @@ export type PopupNotice = {
 function mapRow(row: any): PopupNotice {
   return {
     id: row.id,
+    kind: row.kind === 'word_card' ? 'word_card' : 'notice',
     churchId: row.church_id ?? null,
     title: row.title ?? '',
     body: row.body ?? null,
