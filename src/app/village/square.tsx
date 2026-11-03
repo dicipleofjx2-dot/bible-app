@@ -202,6 +202,9 @@ export default function VillageSquareScreen() {
 
           {/* ── 목장 거리 ─────────────────────────────────────── */}
           {tab === 'street' ? (
+            <Btn label="💡 목장 보고 현황판" tone="ghost" onPress={() => router.push('/village/report-board' as Href)} />
+          ) : null}
+          {tab === 'street' ? (
             street.length === 0 ? (
               <Empty text="이 마을에 등록된 목장이 아직 없어요." />
             ) : (

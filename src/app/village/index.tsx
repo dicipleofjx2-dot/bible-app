@@ -324,6 +324,12 @@ export default function CellHomeScreen() {
               다른 목장의 소식과 함께 드리는 기도, 연합 모임과 사역이 있습니다.
             </ThemedText>
           </Card>
+          <Card onPress={() => router.push('/village/report-board' as Href)}>
+            <ThemedText style={styles.big}>💡 목장 보고 현황판</ThemedText>
+            <ThemedText themeColor="textSecondary">
+              지난주 모임 보고를 올린 목장에 불이 켜집니다.
+            </ThemedText>
+          </Card>
         </>
       )}
     </RoomScreen>

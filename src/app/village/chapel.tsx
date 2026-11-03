@@ -17,7 +17,17 @@ import {
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { nameOf, rosterEntries, useCellRoom } from '@/hooks/use-cell-room';
-import { createCellReport, getCellReports, removeCellReport, type CellReport } from '@/db/cell';
+import {
+  addReportComment,
+  amAppAdmin,
+  createCellReport,
+  getCellReports,
+  getReportComments,
+  removeCellReport,
+  removeReportComment,
+  type CellReport,
+  type CellReportComment,
+} from '@/db/cell';
 import { getHabits, saveHabits } from '@/db/ranch';
 import { HABIT_TARGET } from '@/lib/ranch';
 import {
@@ -60,6 +70,10 @@ export default function ChapelScreen() {
 
   const [list, setList] = useState<Gathering[]>([]);
   const [oldReports, setOldReports] = useState<CellReport[]>([]);
+  const [comments, setComments] = useState<Map<string, CellReportComment[]>>(new Map());
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [commentError, setCommentError] = useState<Record<string, string>>({});
   const [current, setCurrent] = useState<Gathering | null>(null);
   const [attendance, setAtt] = useState<Attendance[]>([]);
   const [busy, setBusy] = useState(false);
@@ -97,6 +111,12 @@ export default function ChapelScreen() {
     ]);
     setList(rows);
     setOldReports(reports);
+    const [cm, admin] = await Promise.all([
+      getReportComments(reports.map((r) => r.id)).catch(() => new Map<string, CellReportComment[]>()),
+      amAppAdmin().catch(() => false),
+    ]);
+    setComments(cm);
+    setIsAdmin(admin);
     const cur = pickCurrentGathering(rows, todayString());
     setCurrent(cur);
     setAtt(cur ? await getAttendance(cur.id) : []);
@@ -171,6 +191,33 @@ export default function ChapelScreen() {
     setRepBody('');
     setRepCount('');
     setMode('view');
+    await load();
+  }
+
+  async function sendComment(reportId: string) {
+    const body = (drafts[reportId] ?? '').trim();
+    if (!room?.userId) {
+      setCommentError((e) => ({ ...e, [reportId]: '로그인 정보를 아직 못 읽었어요.' }));
+      return;
+    }
+    if (!body) {
+      setCommentError((e) => ({ ...e, [reportId]: '댓글 내용을 적어 주세요.' }));
+      return;
+    }
+    setBusy(true);
+    const { error } = await addReportComment({ reportId, authorId: room.userId, body });
+    setBusy(false);
+    if (error) {
+      setCommentError((e) => ({ ...e, [reportId]: '댓글을 올리지 못했어요. 관리자 계정인지 확인해 주세요.' }));
+      return;
+    }
+    setCommentError((e) => ({ ...e, [reportId]: '' }));
+    setDrafts((d) => ({ ...d, [reportId]: '' }));
+    await load();
+  }
+
+  async function deleteComment(id: string) {
+    await removeReportComment(id);
     await load();
   }
 
@@ -568,6 +615,34 @@ export default function ChapelScreen() {
                   </ThemedText>
                   {r.authorId === room?.userId ? (
                     <Btn label="지우기" tone="ghost" small onPress={() => deleteReport(r.id)} />
+                  ) : null}
+                  {(comments.get(r.id) ?? []).map((c) => (
+                    <View key={c.id} style={[styles.note, { borderTopColor: theme.border }]}>
+                      <ThemedText type="small" themeColor="accent">
+                        💬 관리자 답글
+                      </ThemedText>
+                      <ThemedText>{c.body}</ThemedText>
+                      {isAdmin ? (
+                        <Btn label="댓글 지우기" tone="ghost" small onPress={() => deleteComment(c.id)} />
+                      ) : null}
+                    </View>
+                  ))}
+                  {isAdmin ? (
+                    <View style={styles.field}>
+                      <Field
+                        label="댓글 (관리자만 쓸 수 있어요)"
+                        value={drafts[r.id] ?? ''}
+                        onChangeText={(t) => setDrafts((d) => ({ ...d, [r.id]: t }))}
+                        placeholder="목자에게 한마디"
+                        multiline
+                      />
+                      {commentError[r.id] ? (
+                        <ThemedText type="small" themeColor="support">
+                          {commentError[r.id]}
+                        </ThemedText>
+                      ) : null}
+                      <Btn label="댓글 달기" small disabled={busy} onPress={() => sendComment(r.id)} />
+                    </View>
                   ) : null}
                 </Card>
               ))}

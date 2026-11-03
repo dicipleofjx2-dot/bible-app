@@ -407,3 +407,97 @@ export async function getDevotionBoard(cellId: string): Promise<DevotionRow[]> {
     lastActive: (r.last_active as string | null) ?? null,
   }));
 }
+
+// ════════════════════════════════════════════════════════════════════
+// 보고 댓글 — 관리자만 쓴다(0097). 읽기는 보고를 볼 수 있는 사람 모두.
+// ════════════════════════════════════════════════════════════════════
+
+export type CellReportComment = {
+  id: string;
+  reportId: string;
+  authorId: string;
+  body: string;
+  createdAt: string;
+};
+
+export async function getReportComments(reportIds: string[]): Promise<Map<string, CellReportComment[]>> {
+  const out = new Map<string, CellReportComment[]>();
+  if (reportIds.length === 0) return out;
+  const { data, error } = await supabase
+    .from('cell_report_comments')
+    .select('id, report_id, author_id, body, created_at')
+    .in('report_id', reportIds)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  for (const r of (data ?? []) as Record<string, unknown>[]) {
+    const c: CellReportComment = {
+      id: String(r.id),
+      reportId: String(r.report_id),
+      authorId: String(r.author_id),
+      body: String(r.body ?? ''),
+      createdAt: String(r.created_at),
+    };
+    const list = out.get(c.reportId) ?? [];
+    list.push(c);
+    out.set(c.reportId, list);
+  }
+  return out;
+}
+
+export async function addReportComment(input: {
+  reportId: string;
+  authorId: string;
+  body: string;
+}): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('cell_report_comments').insert({
+    report_id: input.reportId,
+    author_id: input.authorId,
+    body: input.body,
+  });
+  return { error: error?.message ?? null };
+}
+
+export async function removeReportComment(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('cell_report_comments')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id);
+  return { error: error?.message ?? null };
+}
+
+/** 댓글 단추를 보일지만 정한다. 막는 것은 정책(am_app_admin)이 한다. */
+export async function amAppAdmin(): Promise<boolean> {
+  const { data } = await supabase.rpc('am_app_admin');
+  return data === true;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// 보고 현황판 — 목장마다 그 주에 모임 보고를 올렸나(0097). 본문은 안 온다.
+// ════════════════════════════════════════════════════════════════════
+
+export type ReportBoardRow = {
+  cellId: string;
+  cellName: string;
+  leaderName: string | null;
+  weekStart: string;
+  reported: boolean;
+  reportedOn: string | null;
+};
+
+/** weekStart(월요일, YYYY-MM-DD)를 비우면 서버가 「지난주」로 잡는다(서울 기준). */
+export async function getReportBoard(churchId: string, weekStart?: string): Promise<ReportBoardRow[]> {
+  const { data, error } = await supabase.rpc('cell_report_board', {
+    target_church_id: churchId,
+    target_week_start: weekStart ?? null,
+  });
+  if (error) throw error;
+  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+    cellId: String(r.cell_id),
+    cellName: String(r.cell_name ?? ''),
+    leaderName: (r.leader_name as string | null) ?? null,
+    weekStart: String(r.week_start),
+    reported: r.reported === true,
+    reportedOn: (r.reported_on as string | null) ?? null,
+  }));
+}
