@@ -48,7 +48,9 @@ const problems = [];
 for (const c of chapters) {
   const at = `${c.book}:${c.chapter}`;
   if (!c.summary?.ko || !c.summary?.en) problems.push(`${at} 요약이 한쪽 비었습니다.`);
-  if (c.questions.length !== 7) problems.push(`${at} 문항이 ${c.questions.length}개입니다(7개여야 합니다).`);
+  // 7문항이 기본이다. 다만 몇 절 안 되는 장(시편 117편은 두 절)에서 7개를 채우면
+  // 본문에 없는 것을 지어내게 된다 — 그런 장은 3개까지 내려가도 된다.
+  if (c.questions.length < 3 || c.questions.length > 7) problems.push(`${at} 문항이 ${c.questions.length}개입니다(3~7개여야 합니다).`);
   c.questions.forEach((q, i) => {
     const no = `${at} ${i + 1}번`;
     if (!q.question?.ko || !q.question?.en) problems.push(`${no} 질문이 한쪽 비었습니다.`);
