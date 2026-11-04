@@ -126,6 +126,6 @@ fs.writeFileSync(koPath, build('ko'), 'utf8');
 fs.writeFileSync(enPath, build('en'), 'utf8');
 
 const verses = chapters.filter((c) => c.memoryVerse).length;
-console.log(`${name} — ${chapters.length}장, 문항 ${chapters.length * 7}개, 암송구절 ${verses}장`);
+console.log(`${name} — ${chapters.length}장, 문항 ${chapters.reduce((n, c) => n + c.questions.length, 0)}개, 암송구절 ${verses}장`);
 console.log(`  ${path.relative(process.cwd(), koPath)}`);
 console.log(`  ${path.relative(process.cwd(), enPath)}`);
