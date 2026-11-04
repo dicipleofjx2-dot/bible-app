@@ -1,0 +1,326 @@
+module.exports = [
+  {
+    book: 45,
+    chapter: 9,
+    memoryVerse: 16,
+    summary: {
+      ko: '바울은 골육의 친척 이스라엘을 위하여 큰 근심과 그치지 않는 고통이 있다고 고백합니다. 그들을 위해서라면 자신이 저주를 받아 그리스도에게서 끊어질지라도 원한다고 말합니다. 그들에게는 양자 됨과 영광과 언약들과 율법과 예배와 약속들이 있고, 육신으로 하면 그리스도가 그들에게서 나셨습니다. 그러나 하나님의 말씀이 폐하여진 것이 아닙니다. 이스라엘에게서 난 자가 다 이스라엘이 아니요, 육신의 자녀가 아니라 약속의 자녀가 씨로 여기심을 받습니다. 리브가의 쌍둥이가 나기도 전, 선이나 악을 행하기도 전에 「큰 자가 어린 자를 섬기리라」 하신 것은 택하심이 행위가 아니라 부르시는 이로 말미암게 하려 함입니다. 하나님께 불의가 있습니까? 그럴 수 없습니다. 「원하는 자로 말미암음도 아니요 달음박질하는 자로 말미암음도 아니요 오직 긍휼히 여기시는 하나님으로 말미암음이니라」 바로도 하나님의 능력을 보이시려고 세우신 자였습니다. 지음 받은 것이 지은 자에게 반문할 수 없으니, 토기장이는 진흙 한 덩이로 귀히 쓸 그릇과 천히 쓸 그릇을 만들 권한이 있습니다. 긍휼의 그릇은 유대인뿐 아니라 이방인 중에서도 부르신 우리입니다. 호세아와 이사야의 말대로 남은 자만 구원을 받습니다. 의를 따르지 않은 이방인은 믿음에서 난 의를 얻었으나, 이스라엘은 믿음이 아니라 행위를 의지하여 부딪칠 돌에 부딪쳤습니다.',
+      en: 'Paul confesses great sorrow and unceasing anguish for his own people Israel — he could wish himself cursed and cut off from Christ for their sake. Theirs are the adoption, the glory, the covenants, the law, the worship and the promises, and from them, according to the flesh, came the Christ. Yet God’s word has not failed. Not all who are descended from Israel are Israel; it is not the children of the flesh but the children of the promise who are counted as offspring. Before Rebekah’s twins were born or had done anything good or bad, she was told, “The older will serve the younger,” so that God’s purpose in election might stand — not by works but by him who calls. Is God unjust? Not at all! “It does not depend on human desire or effort, but on God’s mercy.” Even Pharaoh was raised up so that God’s power might be displayed. The thing formed cannot talk back to the one who formed it: the potter has the right to make from the same lump of clay one vessel for honour and another for common use. The vessels of mercy are us, called not only from the Jews but also from the Gentiles. As Hosea and Isaiah said, only a remnant will be saved. The Gentiles, who did not pursue righteousness, obtained a righteousness that is by faith, but Israel pursued it as if by works and stumbled over the stumbling stone.',
+    },
+    questions: [
+      {
+        question: { ko: '바울이 큰 근심과 그치지 않는 고통을 품은 것은 누구 때문입니까?', en: 'For whom did Paul have great sorrow and unceasing anguish?' },
+        choices: [
+          { ko: '골육의 친척인 이스라엘', en: 'His own people, Israel' },
+          { ko: '로마의 황제', en: 'The Roman emperor' },
+          { ko: '고린도 교회', en: 'The church in Corinth' },
+          { ko: '이방의 철학자들', en: 'Gentile philosophers' },
+        ],
+        explanation: { ko: '그들을 위해 자신이 그리스도에게서 끊어질지라도 원한다고 말합니다.', en: 'He would even be cut off from Christ for their sake.' },
+      },
+      {
+        question: { ko: '바울은 누가 아브라함의 씨로 여기심을 받는다고 합니까?', en: 'Who, according to Paul, are counted as Abraham’s offspring?' },
+        choices: [
+          { ko: '약속의 자녀', en: 'The children of the promise' },
+          { ko: '육신의 자녀 모두', en: 'All the children of the flesh' },
+          { ko: '율법을 지킨 자들', en: 'Those who kept the law' },
+          { ko: '할례 받은 자들 모두', en: 'All who were circumcised' },
+        ],
+        explanation: { ko: '이스라엘에게서 난 자가 다 이스라엘이 아니라고 합니다.', en: 'Not all who are descended from Israel are Israel.' },
+      },
+      {
+        question: { ko: '리브가의 자식들이 나기도 전에 하나님께서 하신 말씀은 무엇입니까?', en: 'What was said before Rebekah’s children were born?' },
+        choices: [
+          { ko: '큰 자가 어린 자를 섬기리라', en: 'The older will serve the younger' },
+          { ko: '어린 자가 큰 자를 섬기리라', en: 'The younger will serve the older' },
+          { ko: '둘이 함께 다스리리라', en: 'The two will rule together' },
+          { ko: '둘 다 왕이 되리라', en: 'Both will become kings' },
+        ],
+        explanation: { ko: '택하심이 행위가 아니라 부르시는 이로 말미암게 하려 함입니다.', en: 'So that election would rest not on works but on him who calls.' },
+      },
+      {
+        question: { ko: '구원은 무엇으로 말미암는다고 합니까?', en: 'On what, according to Paul, does it depend?' },
+        choices: [
+          { ko: '긍휼히 여기시는 하나님', en: 'God, who has mercy' },
+          { ko: '원하는 자의 소원', en: 'The desire of the one who wills' },
+          { ko: '달음박질하는 자의 노력', en: 'The effort of the one who runs' },
+          { ko: '조상의 공로', en: 'The merit of the ancestors' },
+        ],
+        explanation: { ko: '「오직 긍휼히 여기시는 하나님으로 말미암음이니라」', en: '“It depends on God, who has mercy.”' },
+      },
+      {
+        question: { ko: '바울이 지은 자와 지음 받은 것의 관계를 설명하려고 든 비유는 무엇입니까?', en: 'What image does Paul use for the Maker and the made?' },
+        choices: [
+          { ko: '진흙 한 덩이로 그릇을 만드는 토기장이', en: 'A potter making vessels from one lump of clay' },
+          { ko: '양을 치는 목자', en: 'A shepherd tending sheep' },
+          { ko: '집을 짓는 건축자', en: 'A builder building a house' },
+          { ko: '그물을 던지는 어부', en: 'A fisherman casting a net' },
+        ],
+        explanation: { ko: '토기장이는 귀히 쓸 그릇과 천히 쓸 그릇을 만들 권한이 있습니다.', en: 'The potter may make one vessel for honour and another for common use.' },
+      },
+      {
+        question: { ko: '긍휼의 그릇으로 부르신 자들은 누구입니까?', en: 'Who are the vessels of mercy whom God called?' },
+        choices: [
+          { ko: '유대인과 이방인 중에서 부르신 우리', en: 'Us, called from both Jews and Gentiles' },
+          { ko: '유대인 제사장들만', en: 'Only the Jewish priests' },
+          { ko: '로마 시민들만', en: 'Only Roman citizens' },
+          { ko: '선지자들만', en: 'Only the prophets' },
+        ],
+        explanation: { ko: '호세아가 「내 백성 아닌 자를 내 백성이라」 부르리라 한 것과 같습니다.', en: 'As Hosea said, “I will call them my people who were not my people.”' },
+      },
+      {
+        question: { ko: '이스라엘이 의의 법에 이르지 못한 까닭은 무엇입니까?', en: 'Why did Israel not attain righteousness?' },
+        choices: [
+          { ko: '믿음을 의지하지 않고 행위를 의지했기 때문', en: 'They relied on works rather than faith' },
+          { ko: '율법을 받지 못했기 때문', en: 'They never received the law' },
+          { ko: '이방인이 막았기 때문', en: 'The Gentiles blocked them' },
+          { ko: '선지자가 없었기 때문', en: 'They had no prophets' },
+        ],
+        explanation: { ko: '그들은 부딪칠 돌에 부딪쳤습니다.', en: 'They stumbled over the stumbling stone.' },
+      },
+    ],
+  },
+  {
+    book: 45,
+    chapter: 10,
+    memoryVerse: 17,
+    summary: {
+      ko: '바울이 마음에 원하고 하나님께 구하는 것은 이스라엘의 구원입니다. 그들이 하나님께 열심은 있으나 올바른 지식을 따른 것이 아니어서, 하나님의 의를 모르고 자기 의를 세우려 하였습니다. 「그리스도는 모든 믿는 자에게 의를 이루기 위하여 율법의 마침이 되시니라」 믿음으로 말미암는 의는 그리스도를 모셔 내리려고 하늘에 올라가거나 무저갱에 내려갈 필요가 없다고 말합니다. 말씀이 가까워 우리 입과 마음에 있으니, 곧 우리가 전파하는 믿음의 말씀입니다. 「네가 만일 네 입으로 예수를 주로 시인하며 하나님께서 그를 죽은 자 가운데서 살리신 것을 네 마음에 믿으면 구원을 받으리라」 사람이 마음으로 믿어 의에 이르고 입으로 시인하여 구원에 이릅니다. 유대인이나 헬라인이나 차별이 없으니 누구든지 주의 이름을 부르는 자는 구원을 받습니다. 그러나 듣지 못한 이를 어찌 믿으며, 전파하는 자 없이 어찌 듣고, 보내심을 받지 않고 어찌 전파하겠습니까? 「아름답도다 좋은 소식을 전하는 자들의 발이여」 그러므로 믿음은 들음에서 나며 들음은 그리스도의 말씀으로 말미암습니다. 이스라엘이 듣지 못한 것이 아니니 그 소리가 온 땅에 퍼졌습니다. 하나님은 찾지 아니한 자들에게 나타나셨고, 순종하지 않고 거슬러 말하는 백성에게 종일 손을 벌리셨습니다.',
+      en: 'Paul’s heart’s desire and prayer to God is that Israel be saved. They are zealous for God, but not according to knowledge; not knowing God’s righteousness, they sought to establish their own. “Christ is the end of the law for righteousness to everyone who believes.” The righteousness that is by faith says there is no need to go up into heaven to bring Christ down, or down into the abyss to bring him up. The word is near you, in your mouth and in your heart — the word of faith we proclaim. “If you declare with your mouth, ‘Jesus is Lord,’ and believe in your heart that God raised him from the dead, you will be saved.” With the heart one believes and is justified, and with the mouth one confesses and is saved. There is no difference between Jew and Greek, for everyone who calls on the name of the Lord will be saved. But how can they believe in one they have not heard of, and how can they hear without someone preaching, and how can anyone preach unless sent? “How beautiful are the feet of those who bring good news!” So faith comes from hearing, and hearing through the word of Christ. Israel did hear — their voice has gone out into all the earth. God was found by those who did not seek him, and all day long he held out his hands to a disobedient and contrary people.',
+    },
+    questions: [
+      {
+        question: { ko: '바울이 이스라엘에 대하여 증언한 그들의 문제는 무엇입니까?', en: 'What problem does Paul testify about Israel?' },
+        choices: [
+          { ko: '열심은 있으나 올바른 지식을 따르지 않았다', en: 'They had zeal for God, but not according to knowledge' },
+          { ko: '하나님께 아무 열심이 없었다', en: 'They had no zeal for God at all' },
+          { ko: '율법을 전혀 몰랐다', en: 'They knew nothing of the law' },
+          { ko: '이방 신을 섬겼다', en: 'They worshipped foreign gods' },
+        ],
+        explanation: { ko: '하나님의 의를 모르고 자기 의를 세우려 하였습니다.', en: 'Ignorant of God’s righteousness, they sought to establish their own.' },
+      },
+      {
+        question: { ko: '바울은 그리스도가 모든 믿는 자에게 의를 이루기 위하여 무엇이 되셨다고 합니까?', en: 'What does Paul say Christ is, for righteousness to all who believe?' },
+        choices: [
+          { ko: '율법의 마침', en: 'The end of the law' },
+          { ko: '새 율법의 시작', en: 'The beginning of a new law' },
+          { ko: '율법의 수호자', en: 'The guardian of the law' },
+          { ko: '율법의 해석자', en: 'The interpreter of the law' },
+        ],
+        explanation: { ko: '「그리스도는 모든 믿는 자에게 의를 이루기 위하여 율법의 마침이 되시니라」', en: '“Christ is the end of the law for righteousness to everyone who believes.”' },
+      },
+      {
+        question: { ko: '구원을 받는 길로 바울이 말한 것은 무엇입니까?', en: 'What does Paul say leads to salvation?' },
+        choices: [
+          { ko: '입으로 예수를 주로 시인하고 하나님이 그를 살리신 것을 마음에 믿는 것', en: 'Confessing Jesus as Lord and believing God raised him from the dead' },
+          { ko: '하늘에 올라가 그리스도를 모셔 내리는 것', en: 'Going up to heaven to bring Christ down' },
+          { ko: '율법의 의를 행하는 것', en: 'Doing the righteousness of the law' },
+          { ko: '예루살렘에 가서 제사하는 것', en: 'Going to Jerusalem to offer sacrifice' },
+        ],
+        explanation: { ko: '마음으로 믿어 의에 이르고 입으로 시인하여 구원에 이릅니다.', en: 'With the heart one believes unto righteousness, with the mouth one confesses unto salvation.' },
+      },
+      {
+        question: { ko: '바울은 유대인과 헬라인 사이에 무엇이 없다고 합니까?', en: 'What does Paul say there is none of between Jew and Greek?' },
+        choices: [
+          { ko: '차별', en: 'Distinction' },
+          { ko: '언어의 차이', en: 'Difference of language' },
+          { ko: '죄', en: 'Sin' },
+          { ko: '소망', en: 'Hope' },
+        ],
+        explanation: { ko: '누구든지 주의 이름을 부르는 자는 구원을 받습니다.', en: 'Everyone who calls on the name of the Lord will be saved.' },
+      },
+      {
+        question: { ko: '「아름답도다」 하고 노래한 것은 무엇입니까?', en: 'What is called “beautiful”?' },
+        choices: [
+          { ko: '좋은 소식을 전하는 자들의 발', en: 'The feet of those who bring good news' },
+          { ko: '성전의 기둥', en: 'The pillars of the temple' },
+          { ko: '시온의 성벽', en: 'The walls of Zion' },
+          { ko: '제사장의 옷', en: 'The garments of the priest' },
+        ],
+        explanation: { ko: '보내심을 받지 않으면 어찌 전파하겠느냐는 말 끝에 나온 인용입니다.', en: 'It follows the question, how can they preach unless they are sent?' },
+      },
+      {
+        question: { ko: '믿음은 어디에서 난다고 합니까?', en: 'Where does faith come from?' },
+        choices: [
+          { ko: '들음에서, 그리고 들음은 그리스도의 말씀으로', en: 'From hearing, and hearing through the word of Christ' },
+          { ko: '표적을 보는 데서', en: 'From seeing signs' },
+          { ko: '율법을 행하는 데서', en: 'From doing the law' },
+          { ko: '스스로 깨닫는 데서', en: 'From one’s own insight' },
+        ],
+        explanation: { ko: '「믿음은 들음에서 나며 들음은 그리스도의 말씀으로 말미암았느니라」', en: '“Faith comes from hearing, and hearing through the word of Christ.”' },
+      },
+      {
+        question: { ko: '하나님은 순종하지 않고 거슬러 말하는 백성에게 어떻게 하셨다고 합니까?', en: 'What did God do toward a disobedient and contrary people?' },
+        choices: [
+          { ko: '종일 손을 벌리셨다', en: 'Held out his hands all day long' },
+          { ko: '즉시 멸하셨다', en: 'Destroyed them at once' },
+          { ko: '영원히 잊으셨다', en: 'Forgot them forever' },
+          { ko: '얼굴을 숨기고 침묵하셨다', en: 'Hid his face and kept silent' },
+        ],
+        explanation: { ko: '이사야를 인용하여 하나님의 오래 참으심을 보여 줍니다.', en: 'Quoting Isaiah, Paul shows God’s patient appeal.' },
+      },
+    ],
+  },
+  {
+    book: 45,
+    chapter: 11,
+    memoryVerse: 36,
+    summary: {
+      ko: '「하나님이 자기 백성을 버리셨느냐」 바울은 「그럴 수 없느니라」 하고, 자신도 아브라함의 씨요 베냐민 지파인 이스라엘인이라고 말합니다. 엘리야가 「나만 남았다」 하였을 때 하나님은 바알에게 무릎 꿇지 않은 칠천 명을 남겨 두셨다고 답하셨습니다. 이처럼 지금도 은혜로 택하심을 따라 남은 자가 있으니, 은혜로 된 것이면 행위로 말미암지 않습니다. 이스라엘이 넘어진 것은 아주 넘어지게 하려 함이 아니라, 그 넘어짐으로 구원이 이방인에게 이르러 이스라엘로 시기나게 하려 함입니다. 바울은 이방인의 사도로서 자기 직분을 영광스럽게 여깁니다. 이어 감람나무의 비유를 듭니다. 원 가지 얼마가 꺾이고 돌감람나무인 이방인이 접붙임을 받아 참감람나무 뿌리의 진액을 받게 되었으니, 가지들을 향하여 자랑하지 말라 합니다. 뿌리가 너를 보전하는 것입니다. 그들은 믿지 아니하므로 꺾이고 너는 믿으므로 섰으니 높은 마음을 품지 말고 두려워하라, 하나님의 인자하심과 준엄하심을 보라 합니다. 이방인의 충만한 수가 들어오기까지 이스라엘의 더러는 우둔하게 되었으나 그리하여 온 이스라엘이 구원을 받을 것입니다. 하나님의 은사와 부르심에는 후회하심이 없습니다. 바울은 찬양으로 마칩니다. 「깊도다 하나님의 지혜와 지식의 풍성함이여」 「만물이 주에게서 나오고 주로 말미암고 주에게로 돌아감이라」',
+      en: '“Has God rejected his people?” Paul answers, “By no means!” — he himself is an Israelite, a descendant of Abraham, of the tribe of Benjamin. When Elijah complained, “I alone am left,” God answered that he had kept for himself seven thousand who had not bowed the knee to Baal. So too at the present time there is a remnant chosen by grace — and if by grace, then no longer by works. Israel did not stumble so as to fall beyond recovery; rather, through their transgression salvation has come to the Gentiles to make Israel envious. Paul, as apostle to the Gentiles, magnifies his ministry. Then comes the olive tree: some of the natural branches were broken off, and the Gentiles, a wild olive shoot, were grafted in to share the nourishing sap of the root. Do not boast over those branches — you do not support the root; the root supports you. They were broken off because of unbelief, and you stand by faith; do not be arrogant, but fear. Consider the kindness and sternness of God. Israel has experienced a hardening in part until the full number of the Gentiles has come in, and in this way all Israel will be saved, for God’s gifts and his call are irrevocable. Paul ends in praise: “Oh, the depth of the riches of the wisdom and knowledge of God!” “For from him and through him and to him are all things.”',
+    },
+    questions: [
+      {
+        question: { ko: '바울은 자신이 어느 지파라고 말합니까?', en: 'Of which tribe does Paul say he is?' },
+        choices: [
+          { ko: '베냐민 지파', en: 'Benjamin' },
+          { ko: '유다 지파', en: 'Judah' },
+          { ko: '레위 지파', en: 'Levi' },
+          { ko: '에브라임 지파', en: 'Ephraim' },
+        ],
+        explanation: { ko: '하나님이 자기 백성을 버리지 않으셨다는 증거로 자신을 듭니다.', en: 'He points to himself as proof that God has not rejected his people.' },
+      },
+      {
+        question: { ko: '엘리야에게 하나님은 바알에게 무릎 꿇지 않은 사람을 몇 명 남겨 두셨다고 하셨습니까?', en: 'How many did God tell Elijah he had kept who had not bowed to Baal?' },
+        choices: [
+          { ko: '칠천 명', en: 'Seven thousand' },
+          { ko: '칠백 명', en: 'Seven hundred' },
+          { ko: '사백 명', en: 'Four hundred' },
+          { ko: '일만 명', en: 'Ten thousand' },
+        ],
+        explanation: { ko: '지금도 은혜로 택하심을 따라 남은 자가 있습니다.', en: 'So now too there is a remnant chosen by grace.' },
+      },
+      {
+        question: { ko: '이스라엘의 넘어짐으로 일어난 일은 무엇입니까?', en: 'What came about through Israel’s stumbling?' },
+        choices: [
+          { ko: '구원이 이방인에게 이르렀다', en: 'Salvation came to the Gentiles' },
+          { ko: '율법이 폐하여졌다', en: 'The law was abolished' },
+          { ko: '성전이 다시 세워졌다', en: 'The temple was rebuilt' },
+          { ko: '이스라엘이 영원히 버림받았다', en: 'Israel was rejected forever' },
+        ],
+        explanation: { ko: '이는 이스라엘로 시기나게 하려 함입니다.', en: 'This was to make Israel envious.' },
+      },
+      {
+        question: { ko: '감람나무 비유에서 이방인은 무엇에 비유됩니까?', en: 'In the olive tree image, what are the Gentiles compared to?' },
+        choices: [
+          { ko: '접붙임을 받은 돌감람나무 가지', en: 'Wild olive branches grafted in' },
+          { ko: '참감람나무의 뿌리', en: 'The root of the cultivated olive' },
+          { ko: '꺾인 원 가지', en: 'The natural branches broken off' },
+          { ko: '열매 맺지 못한 무화과나무', en: 'A barren fig tree' },
+        ],
+        explanation: { ko: '참감람나무 뿌리의 진액을 함께 받는 자가 되었습니다.', en: 'They now share the nourishing sap of the olive root.' },
+      },
+      {
+        question: { ko: '접붙임을 받은 가지에게 바울이 경고한 것은 무엇입니까?', en: 'What does Paul warn the grafted branches?' },
+        choices: [
+          { ko: '원 가지들을 향하여 자랑하지 말라', en: 'Do not boast over the natural branches' },
+          { ko: '뿌리를 잘라 내라', en: 'Cut off the root' },
+          { ko: '다른 나무로 옮겨 가라', en: 'Move to another tree' },
+          { ko: '열매를 맺지 말라', en: 'Do not bear fruit' },
+        ],
+        explanation: { ko: '네가 뿌리를 보전하는 것이 아니요 뿌리가 너를 보전합니다.', en: 'You do not support the root; the root supports you.' },
+      },
+      {
+        question: { ko: '이스라엘의 더러는 언제까지 우둔하게 되었다고 합니까?', en: 'Until when has part of Israel been hardened?' },
+        choices: [
+          { ko: '이방인의 충만한 수가 들어오기까지', en: 'Until the full number of the Gentiles has come in' },
+          { ko: '성전이 무너지기까지', en: 'Until the temple falls' },
+          { ko: '율법이 다시 주어지기까지', en: 'Until the law is given again' },
+          { ko: '바울이 죽기까지', en: 'Until Paul dies' },
+        ],
+        explanation: { ko: '그리하여 온 이스라엘이 구원을 받으리라 합니다.', en: 'And in this way all Israel will be saved.' },
+      },
+      {
+        question: { ko: '하나님의 은사와 부르심에 대하여 바울은 무엇이라 합니까?', en: 'What does Paul say about God’s gifts and calling?' },
+        choices: [
+          { ko: '후회하심이 없다', en: 'They are irrevocable' },
+          { ko: '행위에 따라 거두신다', en: 'He withdraws them according to works' },
+          { ko: '이방인에게로만 옮겨졌다', en: 'They passed only to the Gentiles' },
+          { ko: '때가 지나면 끝난다', en: 'They expire in time' },
+        ],
+        explanation: { ko: '「하나님의 은사와 부르심에는 후회하심이 없느니라」', en: '“God’s gifts and his call are irrevocable.”' },
+      },
+    ],
+  },
+  {
+    book: 45,
+    chapter: 12,
+    memoryVerse: 2,
+    summary: {
+      ko: '바울은 하나님의 모든 자비하심으로 권합니다. 「너희 몸을 하나님이 기뻐하시는 거룩한 산 제물로 드리라 이는 너희가 드릴 영적 예배니라」 이 세대를 본받지 말고 마음을 새롭게 함으로 변화를 받아 하나님의 선하시고 기뻐하시고 온전하신 뜻을 분별하라 합니다. 마땅히 생각할 그 이상의 생각을 품지 말고, 하나님이 나누어 주신 믿음의 분량대로 지혜롭게 생각하라 합니다. 한 몸에 많은 지체가 있으나 기능이 다르듯, 우리는 그리스도 안에서 한 몸이 되어 서로 지체가 되었습니다. 받은 은사가 각각 다르니 예언, 섬기는 일, 가르치는 일, 위로하는 일을 그대로 하고, 구제는 성실함으로, 다스림은 부지런함으로, 긍휼은 즐거움으로 하라 합니다. 이어 사랑의 삶을 그립니다. 사랑에는 거짓이 없으니 악을 미워하고 선에 속하며, 형제를 사랑하여 존경하기를 서로 먼저 하고, 소망 중에 즐거워하며 환난 중에 참으며 기도에 항상 힘쓰라 합니다. 박해하는 자를 축복하고, 즐거워하는 자들과 함께 즐거워하며 우는 자들과 함께 울라 합니다. 아무에게도 악을 악으로 갚지 말고, 할 수 있거든 모든 사람과 화목하며, 원수 갚는 것은 하나님께 맡기라 합니다. 원수가 주리면 먹이고 목마르면 마시게 하라. 「악에게 지지 말고 선으로 악을 이기라」',
+      en: 'Paul urges his readers in view of God’s mercies: “Offer your bodies as a living sacrifice, holy and pleasing to God — this is your spiritual worship.” Do not be conformed to this age, but be transformed by the renewing of your mind, so that you can discern God’s good, pleasing and perfect will. Do not think of yourself more highly than you ought, but with sober judgment, according to the measure of faith God has given. Just as one body has many members with different functions, so we, though many, are one body in Christ and members of one another. We have different gifts according to grace — prophecy, serving, teaching, encouraging — and giving should be done with generosity, leading with diligence, showing mercy with cheerfulness. Then Paul sketches a life of love. Love must be sincere: hate what is evil, cling to what is good; be devoted to one another, honouring one another above yourselves; be joyful in hope, patient in affliction, faithful in prayer. Bless those who persecute you; rejoice with those who rejoice and weep with those who weep. Repay no one evil for evil; if it is possible, live at peace with everyone; do not take revenge, but leave room for God’s wrath. If your enemy is hungry, feed him; if he is thirsty, give him something to drink. “Do not be overcome by evil, but overcome evil with good.”',
+    },
+    questions: [
+      {
+        question: { ko: '바울은 우리 몸을 무엇으로 드리라고 합니까?', en: 'As what does Paul urge us to offer our bodies?' },
+        choices: [
+          { ko: '하나님이 기뻐하시는 거룩한 산 제물', en: 'A living sacrifice, holy and pleasing to God' },
+          { ko: '불에 태우는 번제물', en: 'A burnt offering consumed by fire' },
+          { ko: '율법의 종', en: 'Slaves of the law' },
+          { ko: '세상의 일꾼', en: 'Workers for the world' },
+        ],
+        explanation: { ko: '이것이 우리가 드릴 영적 예배입니다.', en: 'This is our spiritual worship.' },
+      },
+      {
+        question: { ko: '하나님의 선하시고 온전하신 뜻을 분별하려면 어떻게 하라고 합니까?', en: 'How are we to discern God’s good and perfect will?' },
+        choices: [
+          { ko: '이 세대를 본받지 말고 마음을 새롭게 함으로 변화를 받으라', en: 'Not conforming to this age, but being transformed by renewing the mind' },
+          { ko: '이 세대의 지혜를 배우라', en: 'Learn the wisdom of this age' },
+          { ko: '표적을 구하라', en: 'Seek for signs' },
+          { ko: '사람들의 의견을 따르라', en: 'Follow popular opinion' },
+        ],
+        explanation: { ko: '변화를 받아 하나님의 뜻을 분별하도록 하라 합니다.', en: 'Be transformed so that you can test and approve God’s will.' },
+      },
+      {
+        question: { ko: '바울은 교회를 무엇에 비유합니까?', en: 'To what does Paul compare the church?' },
+        choices: [
+          { ko: '많은 지체를 가진 한 몸', en: 'One body with many members' },
+          { ko: '포도원', en: 'A vineyard' },
+          { ko: '군대', en: 'An army' },
+          { ko: '배', en: 'A ship' },
+        ],
+        explanation: { ko: '우리 많은 사람이 그리스도 안에서 한 몸이 되어 서로 지체가 되었습니다.', en: 'We, though many, are one body in Christ and members of one another.' },
+      },
+      {
+        question: { ko: '긍휼을 베푸는 자는 어떻게 하라고 합니까?', en: 'How should the one who shows mercy do it?' },
+        choices: [
+          { ko: '즐거움으로', en: 'With cheerfulness' },
+          { ko: '부지런함으로', en: 'With diligence' },
+          { ko: '두려움으로', en: 'With fear' },
+          { ko: '은밀히 마지못해', en: 'Secretly and reluctantly' },
+        ],
+        explanation: { ko: '구제는 성실함으로, 다스림은 부지런함으로, 긍휼은 즐거움으로 하라 합니다.', en: 'Giving with sincerity, leading with diligence, mercy with cheerfulness.' },
+      },
+      {
+        question: { ko: '소망과 환난과 기도에 대하여 바울이 권한 것은 무엇입니까?', en: 'What does Paul urge concerning hope, affliction and prayer?' },
+        choices: [
+          { ko: '소망 중에 즐거워하며 환난 중에 참으며 기도에 항상 힘쓰라', en: 'Be joyful in hope, patient in affliction, faithful in prayer' },
+          { ko: '환난을 피하고 기도는 쉬라', en: 'Avoid affliction and rest from prayer' },
+          { ko: '소망을 버리고 현실에 만족하라', en: 'Abandon hope and be content with the present' },
+          { ko: '환난 중에는 기도하지 말라', en: 'Do not pray in times of affliction' },
+        ],
+        explanation: { ko: '사랑의 삶을 그리는 권면 가운데 한 줄입니다.', en: 'One of the exhortations describing a life of love.' },
+      },
+      {
+        question: { ko: '박해하는 자에게 어떻게 하라고 합니까?', en: 'What are we to do to those who persecute us?' },
+        choices: [
+          { ko: '축복하고 저주하지 말라', en: 'Bless and do not curse' },
+          { ko: '피하여 숨으라', en: 'Flee and hide' },
+          { ko: '똑같이 갚으라', en: 'Repay them in kind' },
+          { ko: '관원에게 고소하라', en: 'Bring them before the magistrates' },
+        ],
+        explanation: { ko: '「너희를 박해하는 자를 축복하라 축복하고 저주하지 말라」', en: '“Bless those who persecute you; bless and do not curse.”' },
+      },
+      {
+        question: { ko: '원수가 주리면 어떻게 하라고 합니까?', en: 'If your enemy is hungry, what should you do?' },
+        choices: [
+          { ko: '먹이라', en: 'Feed him' },
+          { ko: '모른 체하라', en: 'Ignore him' },
+          { ko: '하나님께 벌을 구하라', en: 'Ask God to punish him' },
+          { ko: '대가를 받고 팔라', en: 'Sell him food at a price' },
+        ],
+        explanation: { ko: '악에게 지지 말고 선으로 악을 이기라 합니다.', en: 'Do not be overcome by evil, but overcome evil with good.' },
+      },
+    ],
+  },
+]
