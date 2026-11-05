@@ -54,6 +54,8 @@ export const STRINGS = {
   // 줄바꿈을 손으로 넣는다. 바둑판 한 칸은 화면의 31.5% 라 뒤에 붙는 바깥 링크
   // 표시 ↗ 까지 한 줄에 넣으면 끝이 잘린다.
   // 옛 이름 「24시간 기도의 집」 → 영성부 중보기도센터(2026-10-02).
+  // 홈 첫 칸(2026-11-05). 장년·다음세대·청년 예배와 예배별 보고서가 그 안에 있다.
+  'home.worship': { ko: '예배', en: 'Worship' },
   'home.prayerHouse': { ko: '중보기도\n센터', en: 'Intercessory\nPrayer Center' },
   'home.edu': { ko: '새부대에듀\n센터', en: 'New Wineskin\nEdu Center' },
   'home.newWine': { ko: '새부대매거진', en: 'New Wine\nMagazine' },

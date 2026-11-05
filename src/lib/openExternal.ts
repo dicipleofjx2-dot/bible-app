@@ -109,6 +109,8 @@ export const APP_WINDOW = {
   kingdomFinance: 'kingdomfinance',
   /** 새부대 방송 — 교회 유튜브 채널. 영상을 이어 보므로 한 창에 모은다. */
   churchBroadcast: 'churchbroadcast',
+  /** 예배 영상 — 예배 칸에 걸린 생중계·지난 영상. 예배를 옮겨 가며 보므로 한 창에 모은다. */
+  worship: 'worshipvideo',
   /** 새부대교회 홈페이지(newwineskin.co.kr). */
   churchHome: 'churchhome',
 } as const;
