@@ -204,9 +204,10 @@ export default function WorshipManageScreen() {
       {meetings.length === 0 ? (
         <Card>
           <ThemedText type="small" themeColor="textSecondary">
-            흔히 드리는 예배 한 벌을 한 번에 넣을 수 있어요. 이름·시각·링크는 넣은 뒤에 고치면 됩니다.
+            주일장년예배 · 주일다음세대예배 · 주일청년예배 · 수요예배 · 금요예배를 한 번에 넣습니다.
+            시각과 링크는 비어 있으니 넣은 뒤에 「고치기」로 채워 주세요.
           </ThemedText>
-          <Btn label="기본 예배 한 번에 넣기" tone="quiet" onPress={() => void putDefaults()} disabled={busy} />
+          <Btn label="예배 다섯 한 번에 넣기" tone="quiet" onPress={() => void putDefaults()} disabled={busy} />
         </Card>
       ) : null}
 

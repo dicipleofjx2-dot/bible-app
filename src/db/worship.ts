@@ -352,21 +352,20 @@ export async function canReadWorshipPrivate(): Promise<boolean> {
 }
 
 /**
- * 교회에서 흔히 드리는 예배 한 벌.
+ * 새부대교회가 드리는 예배 한 벌(2026-11-05 사장님이 적어 주신 다섯).
  *
  * 관리 화면에서 **단추를 눌러야** 들어간다. 마이그레이션에서 넣지 않는 까닭:
- * 교회마다 예배 이름과 시각이 다르고, 틀린 줄이 저절로 들어와 있으면 지우는
- * 일부터 해야 한다. 이름·시각·링크는 넣은 뒤에 고치면 된다.
+ * 교회가 둘 이상이고, 틀린 줄이 저절로 들어와 있으면 지우는 일부터 해야 한다.
+ *
+ * 시각은 비워 두었다 — 몇 시에 드리는지 듣지 못했고, 틀린 시각이 적혀 있으면
+ * 없는 것보다 나쁘다. 관리 화면에서 「고치기」로 채운다.
  */
 export const DEFAULT_MEETINGS: Omit<MeetingInput, 'isActive'>[] = [
-  { congregation: 'adult', name: '주일 1부 예배', meetsAt: '주일 오전 9:00', linkUrl: '', linkLabel: '', sortOrder: 10 },
-  { congregation: 'adult', name: '주일 2부 예배', meetsAt: '주일 오전 11:00', linkUrl: '', linkLabel: '', sortOrder: 20 },
-  { congregation: 'adult', name: '수요예배', meetsAt: '수요일 저녁 7:30', linkUrl: '', linkLabel: '', sortOrder: 30 },
-  { congregation: 'adult', name: '금요성령집회', meetsAt: '금요일 저녁 8:00', linkUrl: '', linkLabel: '', sortOrder: 40 },
-  { congregation: 'adult', name: '새벽기도회', meetsAt: '화~토 오전 5:30', linkUrl: '', linkLabel: '', sortOrder: 50 },
-  { congregation: 'next', name: '주일학교', meetsAt: '주일 오전 11:00', linkUrl: '', linkLabel: '', sortOrder: 10 },
-  { congregation: 'next', name: '중고등부 예배', meetsAt: '주일 오후 1:00', linkUrl: '', linkLabel: '', sortOrder: 20 },
-  { congregation: 'youth', name: '청년예배', meetsAt: '주일 오후 2:00', linkUrl: '', linkLabel: '', sortOrder: 10 },
+  { congregation: 'adult', name: '주일장년예배', meetsAt: '주일', linkUrl: '', linkLabel: '', sortOrder: 10 },
+  { congregation: 'adult', name: '수요예배', meetsAt: '수요일', linkUrl: '', linkLabel: '', sortOrder: 20 },
+  { congregation: 'adult', name: '금요예배', meetsAt: '금요일', linkUrl: '', linkLabel: '', sortOrder: 30 },
+  { congregation: 'next', name: '주일다음세대예배', meetsAt: '주일', linkUrl: '', linkLabel: '', sortOrder: 10 },
+  { congregation: 'youth', name: '주일청년예배', meetsAt: '주일', linkUrl: '', linkLabel: '', sortOrder: 10 },
 ];
 
 /** 기본 예배를 한 번에 넣는다. 이미 있는 이름은 건너뛴다. */
