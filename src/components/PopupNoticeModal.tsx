@@ -31,6 +31,7 @@ export function PopupNoticeModal() {
   const theme = useTheme();
   const [notice, setNotice] = useState<PopupNotice | null>(null);
   const [visible, setVisible] = useState(false);
+  const [ratio, setRatio] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -48,6 +49,29 @@ export function PopupNoticeModal() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  /**
+   * 그림의 가로세로 비율을 그림에게 물어본다.
+   *
+   * 높이를 220 으로 박아 두었더니 세로 포스터가 그 안에 다 들어가느라 글씨가
+   * 깨알만 해졌다 — 포스터를 올리는 뜻이 사라진다. 비율을 알면 폭을 꽉 채우고
+   * 높이는 그림이 정하게 할 수 있다. 넘치는 만큼은 카드 안에서 스크롤된다.
+   */
+  useEffect(() => {
+    const url = notice?.imageUrl;
+    if (!url) return;
+    let alive = true;
+    Image.getSize(
+      url,
+      (w, h) => {
+        if (alive && h > 0) setRatio(w / h);
+      },
+      () => {},
+    );
+    return () => {
+      alive = false;
+    };
+  }, [notice?.imageUrl]);
 
   function close() {
     setVisible(false);
@@ -68,6 +92,11 @@ export function PopupNoticeModal() {
 
   if (!notice) return null;
 
+  // 포스터 한 장에 할 말이 다 적혀 있는 공지가 있다. 그 위에 제목을 또 얹으면
+  // 같은 말이 두 번 나오고, 폰에서는 큰 글씨가 두 줄로 접혀 포스터를 밀어낸다.
+  // 그래서 **그림이 있고 쓴 글이 없으면 그림만** 보여 준다.
+  const pictureOnly = !!notice.imageUrl && !notice.body;
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
       <View style={styles.backdrop}>
@@ -76,16 +105,19 @@ export function PopupNoticeModal() {
             {notice.imageUrl ? (
               <Image
                 source={{ uri: notice.imageUrl }}
-                style={styles.image}
-                // 그림 비율을 모르므로 잘라내지 않고 통째로 보여 준다. 잘라내면
-                // 안내문이 적힌 포스터의 글씨가 잘려 나간다.
+                // 비율을 아직 모를 때는 세로 포스터 쪽으로 잡아 둔다. 거의 다
+                // 세로이고, 틀려도 잘라내지 않으므로 잠깐 여백이 생길 뿐이다.
+                style={[styles.image, { aspectRatio: ratio ?? 3 / 4 }]}
+                // 잘라내지 않는다. 잘라내면 안내문의 글씨가 잘려 나간다.
                 resizeMode="contain"
               />
             ) : null}
 
-            <ThemedText type="subtitle" style={styles.title}>
-              {notice.title}
-            </ThemedText>
+            {pictureOnly ? null : (
+              <ThemedText type="subtitle" style={styles.title}>
+                {notice.title}
+              </ThemedText>
+            )}
 
             {notice.body ? (
               <ThemedText style={styles.body} themeColor="textSecondary">
@@ -130,7 +162,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 420,
     // 긴 안내문이 와도 화면을 넘지 않게. 넘치는 만큼은 안에서 스크롤된다.
-    maxHeight: '80%',
+    maxHeight: '88%',
     borderRadius: Spacing.four,
     overflow: 'hidden',
   },
@@ -140,7 +172,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: 220,
+    // 높이는 aspectRatio 가 정한다 — 그림이 스스로 키를 말한다.
     borderRadius: Spacing.three,
   },
   title: {
