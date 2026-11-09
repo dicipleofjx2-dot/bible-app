@@ -19,6 +19,17 @@ Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
 
+## 이어서 (2026-11-09) — 성경맥잡기 1단계 신약편 (전자책 + PPT)
+
+앱 화면이 아니라 **교재**다. 원고 하나 `content/bible-flow/nt.cjs` 에서 전자책(A5 .docx)과
+과별 PPT 여섯(.pptx, 발표자 메모 = 원고 본문·질문 답)을 `scripts/bible-flow/build.cjs` 가
+굽는다. 결과물은 `content/bible-flow/out/`. 사용법·원고 규칙은 `content/bible-flow/README.md`.
+- 6과: 중간기 → 사복음서 → 사도행전 → 바울서신(사도행전 시간표 위에) → 일반서신 → 계시록.
+- 본문은 개역한글(`ko_ko` 정리본). **DB 의 `krv` 는 실은 개역개정이다** — 배포물에 쓰지 말 것.
+- `docx`·`pptxgenjs` 는 앱 의존성에 넣지 않았다(`npm i --no-save`).
+- 검증: LibreOffice 로 PDF 렌더해 전 쪽·전 슬라이드를 눈으로 봄, pptx 검증기 6/6 통과.
+  **Word·PowerPoint 실물로는 못 봤다**(이 환경 글꼴은 맑은 고딕이 아니다).
+
 ## 이어서 (2026-09-30) — 데이빗스톤 성장ON (대안학교 성장기록)
 
 기획서(「데이빗스톤 성장기록 앱 통합 기획서」)의 **1단계 MVP**를 이 앱 안에
