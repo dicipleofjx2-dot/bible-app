@@ -29,6 +29,9 @@ const C = {
   바다라: [29.32, 36.27, 0, 20, 'middle'], 무라: [29.99, 36.26, 4, 20, 'start'], 미항: [24.8, 34.93, 0, 22, 'middle'],
   멜리데: [14.4, 35.9, 0, 22, 'middle'], 수라구사: [15.29, 37.08, 10, 4, 'start'], 레기온: [15.65, 38.11, 10, 4, 'start'],
   보디올: [14.12, 40.82, 10, 12, 'start'], 로마: [12.5, 41.89, 0, -14, 'middle'],
+  밧모: [26.55, 37.32, -10, 18, 'end'], 서머나: [27.14, 38.42, -10, 4, 'end'], 버가모: [27.18, 39.12, -10, 4, 'end'],
+  두아디라: [27.84, 38.92, 10, -6, 'start'], 사데: [28.04, 38.49, 10, 4, 'start'], 빌라델비아: [28.52, 38.35, 10, 16, 'start'],
+  라오디게아: [29.11, 37.84, 10, 4, 'start'],
 };
 const REGIONS = [
   ['마게도냐', 22.6, 41.5], ['아가야', 22.2, 38.6], ['아시아', 28.7, 38.9], ['갈라디아(로마 속주)', 32.9, 39.05],
@@ -182,7 +185,7 @@ function drawMap(s, { ext, box, journeys, labels = 'all', id = 'm' }) {
   }
   s.push('</g>');
   s.push(`<rect x="${mx0}" y="${my0}" width="${mx1 - mx0}" height="${my1 - my0}" rx="10" fill="none" stroke="${COAST}"/>`);
-  return { t, mx0, my0, mx1, my1 };
+  return { t, P, mx0, my0, mx1, my1 };
 }
 
 function legend(s, x, y, f = 1, color = '#6B5C52') {
@@ -269,3 +272,82 @@ single(1, EAST, 'paul-1.svg', '1차 전도여행', '안디옥에서 소아시아
 single(2, EAST, 'paul-2.svg', '2차 전도여행', '복음이 유럽으로 건너가다');
 single(3, EAST, 'paul-3.svg', '3차 전도여행', '에베소 3년, 그리고 예루살렘으로');
 single(4, ROME, 'paul-4-rome.svg', '로마로 가는 길', '죄수의 몸으로 땅 끝(로마)까지');
+
+// 비바울서신 — 쓴 곳 → 받는 곳
+function generalMap(file) {
+  const s = svgStart();
+  const ext = { lon0: 9.5, lon1: 42.5, lat0: 29.8, lat1: 43.8 };
+  const { t, P } = drawMap(s, { ext, box: { x: 470, y: 20, w: 1110, h: 860 }, journeys: [], id: 'g' });
+  const arrow = (from, to, color, dash = '') => {
+    const [x1, y1] = P(...from), [x2, y2] = P(...to);
+    const mx = (x1 + x2) / 2 - (y2 - y1) * 0.12, my = (y1 + y2) / 2 + (x2 - x1) * 0.12;
+    s.push(`<path d="M${x1},${y1} Q${mx},${my} ${x2},${y2}" fill="none" stroke="${color}" stroke-width="3.5" ${dash ? `stroke-dasharray="${dash}"` : ''} marker-end="url(#g${color.slice(1)})"/>`);
+  };
+  const COLORS = ['#9A6510', '#952B38', '#2F7466', '#4A3F38'];
+  s.push('<defs>' + COLORS.map((c) => `<marker id="g${c.slice(1)}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="${c}"/></marker>`).join('') + '</defs>');
+  const dot = (lo, la, name, c, big = false, dx = 10, dy = 5, an = 'start') => {
+    const [x, y] = P(lo, la);
+    s.push(`<circle cx="${x}" cy="${y}" r="${big ? 9 : 6}" fill="${big ? c : '#FFFFFF'}" stroke="${c}" stroke-width="3"/>`);
+    t(x + dx, y + dy, name, big ? 18 : 14, big ? c : INK, 700, an, ' paint-order="stroke" stroke="#FFFFFF" stroke-width="4"');
+  };
+  // 야고보서: 예루살렘 → 흩어진 열두 지파 (사방)
+  const JER = [35.23, 31.78];
+  for (const to of [[31.2, 30.2], [36.3, 36.6], [41.5, 33.6], [33.0, 35.2]]) arrow(JER, to, COLORS[0], '8 6');
+  // 베드로전후서: 로마 → 소아시아 북부 다섯 지역
+  const ROM = [12.5, 41.89];
+  const PETER = [['비두니아', 30.2, 40.6], ['본도', 36.2, 41.0], ['갈라디아', 32.8, 39.6], ['갑바도기아', 35.2, 38.7], ['아시아', 30.0, 39.35]];
+  for (const [, lo, la] of PETER) arrow(ROM, [lo, la], COLORS[1]);
+  for (const [n, lo, la] of PETER) { const [x, y] = P(lo, la); s.push(`<rect x="${x - n.length * 8 - 8}" y="${y - 14}" width="${n.length * 16 + 16}" height="26" rx="13" fill="${COLORS[1]}"/>`); t(x, y + 5, n, 14, '#FFFFFF', 700, 'middle'); }
+  // 요한계시록: 밧모 → 일곱 교회
+  const SEVEN = ['에베소', '서머나', '버가모', '두아디라', '사데', '빌라델비아', '라오디게아'];
+  // 큰 지도에는 밧모와 일곱 교회 지역 상자만, 자세한 것은 확대 지도로
+  const [bx0, by0] = P(26.0, 39.4), [bx1, by1] = P(29.4, 37.6);
+  s.push(`<rect x="${bx0}" y="${by0}" width="${bx1 - bx0}" height="${by1 - by0}" fill="none" stroke="${COLORS[2]}" stroke-width="2.5" stroke-dasharray="6 4" rx="6"/>`);
+  dot(...C['밧모'].slice(0, 2), '밧모 섬', COLORS[2], true, -12, 22, 'end');
+  const INS = { x: 600, y: 610, w: 420, h: 250 };
+  s.push(`<line x1="${bx0}" y1="${by1}" x2="${INS.x + INS.w}" y2="${INS.y}" stroke="${COLORS[2]}" stroke-width="2" stroke-dasharray="6 4"/>`);
+  s.push(`<rect x="${INS.x - 6}" y="${INS.y - 36}" width="${INS.w + 12}" height="${INS.h + 42}" rx="12" fill="#FFFFFF" stroke="${COLORS[2]}" stroke-width="2.5"/>`);
+  t(INS.x + 6, INS.y - 12, '확대 — 밧모 섬과 아시아 일곱 교회 (계 1:11)', 15, COLORS[2], 700);
+  const z = drawMap(s, { ext: { lon0: 25.9, lon1: 29.7, lat0: 36.95, lat1: 39.45 }, box: INS, journeys: [], id: 'z' });
+  const zp = (n) => z.P(C[n][0], C[n][1]);
+  const [px, py] = zp('밧모');
+  SEVEN.forEach((n, i) => {
+    const [x, y] = zp(n);
+    s.push(`<line x1="${px}" y1="${py}" x2="${x}" y2="${y}" stroke="${COLORS[2]}" stroke-width="2" opacity="0.6"/>`);
+  });
+  SEVEN.forEach((n, i) => {
+    const [x, y] = zp(n);
+    s.push(`<circle cx="${x}" cy="${y}" r="11" fill="${COLORS[2]}"/>`);
+    t(x, y + 4.5, String(i + 1), 12, '#FFFFFF', 700, 'middle');
+    const right = ['두아디라', '사데', '빌라델비아', '라오디게아'].includes(n);
+    t(x + (right ? 15 : -15), y + 5, n, 13.5, INK, 700, right ? 'start' : 'end', ' paint-order="stroke" stroke="#FFFFFF" stroke-width="4"');
+  });
+  s.push(`<circle cx="${px}" cy="${py}" r="9" fill="${COLORS[2]}" stroke="#FFFFFF" stroke-width="2"/>`);
+  t(px - 14, py + 5, '밧모', 14, COLORS[2], 700, 'end', ' paint-order="stroke" stroke="#FFFFFF" stroke-width="4"');
+  // 히브리서: 이달리야 → ? (점선 물음표)
+  dot(...JER, '예루살렘', COLORS[0], true, -14, 6, 'end');
+  dot(...ROM, '로마 — 「바벨론」(벧전 5:13)', COLORS[1], true, 0, -18, 'middle');
+  t(P(39.2, 32.6)[0], P(39.2, 32.6)[1], '흩어져 있는 열 두 지파 (약 1:1)', 14, COLORS[0], 700, 'middle', ' paint-order="stroke" stroke="#FFFFFF" stroke-width="4"');
+  // 설명판
+  t(48, 78, '비바울서신 — 쓴 곳과 받는 곳', 30, INK, 700);
+  t(48, 110, '편지가 어디서 출발해 어디로 갔나', 15, MUTED);
+  const rows = [
+    [COLORS[0], '야고보서', '예루살렘 → 흩어진 열두 지파', '어느 한 곳이 아니라 사방의 유대인 그리스도인'],
+    [COLORS[1], '베드로전서 · 후서', '로마 → 소아시아 북부 다섯 지역', '본도 · 갈라디아 · 갑바도기아 · 아시아 · 비두니아(벧전 1:1)'],
+    [COLORS[2], '요한계시록', '밧모 섬 → 아시아 일곱 교회', '에베소 · 서머나 · 버가모 · 두아디라 · 사데 · 빌라델비아 · 라오디게아(1:11)'],
+    [COLORS[2], '요한일서 · 이서 · 삼서', '에베소 (전통) → 아시아의 교회들', '일곱 교회가 있는 바로 그 지역'],
+    [COLORS[3], '히브리서 · 유다서', '쓴 곳 · 받는 곳이 본문에 분명치 않음', '히브리서 — 「이달리야에서 온 자들도 너희에게 문안」(13:24)'],
+  ];
+  let y = 160;
+  for (const [c, name, route, sub] of rows) {
+    s.push(`<rect x="48" y="${y}" width="8" height="74" rx="4" fill="${c}"/>`);
+    t(70, y + 22, name, 18, c, 700);
+    t(70, y + 46, route, 14.5, INK, 700);
+    const w = sub.length > 30 ? [sub.slice(0, sub.lastIndexOf(' ', 30)), sub.slice(sub.lastIndexOf(' ', 30) + 1)] : [sub];
+    w.forEach((ln, k) => t(70, y + 68 + k * 18, ln, 12.5, MUTED));
+    y += 96 + (w.length - 1) * 18;
+  }
+  t(48, 852, '위치는 대략 · 화살표 = 편지가 간 방향', 13, MUTED);
+  save(s, file);
+}
+generalMap('general-map.svg');
