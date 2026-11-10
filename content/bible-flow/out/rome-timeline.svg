@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" font-family="'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo','Noto Sans KR','WenQuanYi Zen Hei',sans-serif">
+<rect x="0.0" y="0.0" width="1600.0" height="1000.0" rx="0" fill="#FFFFFF" stroke="none"/>
+<text x="40.0" y="52.0" font-size="32" fill="#2A211B" font-weight="700" text-anchor="start">로마의 역사와 신약 시대</text>
+<text x="40.0" y="82.0" font-size="15" fill="#6B5C52" font-weight="400" text-anchor="start">연대는 모두 「약」 · 위는 로마 역사 전체, 아래는 그중 신약 시대를 확대한 것</text>
+<text x="40.0" y="173.0" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start">로마 전체</text>
+<rect x="170.0" y="140.0" width="273.0" height="50.0" rx="8" fill="#B8ADA4" stroke="none"/>
+<text x="308.0" y="172.0" font-size="18" fill="#FFFFFF" font-weight="700" text-anchor="middle">왕정</text>
+<rect x="446.0" y="140.0" width="542.1" height="50.0" rx="8" fill="#8C7B6E" stroke="none"/>
+<text x="718.5" y="172.0" font-size="18" fill="#FFFFFF" font-weight="700" text-anchor="middle">공화정</text>
+<rect x="991.1" y="140.0" width="565.9" height="50.0" rx="8" fill="#952B38" stroke="none"/>
+<text x="1275.6" y="172.0" font-size="18" fill="#FFFFFF" font-weight="700" text-anchor="middle">제정 (황제 시대)</text>
+<line x1="170.0" y1="190.0" x2="170.0" y2="202.0" stroke="#6B5C52" stroke-width="1.5"/>
+<text x="170.0" y="220.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">BC 753 건국</text>
+<line x1="446.0" y1="190.0" x2="446.0" y2="202.0" stroke="#6B5C52" stroke-width="1.5"/>
+<text x="446.0" y="220.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="middle">BC 509</text>
+<line x1="991.1" y1="190.0" x2="991.1" y2="202.0" stroke="#6B5C52" stroke-width="1.5"/>
+<text x="991.1" y="220.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="middle">BC 27 첫 황제</text>
+<line x1="1375.6" y1="190.0" x2="1375.6" y2="202.0" stroke="#6B5C52" stroke-width="1.5"/>
+<text x="1375.6" y="220.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="middle">AD 313 기독교 공인</text>
+<line x1="1560.0" y1="190.0" x2="1560.0" y2="202.0" stroke="#6B5C52" stroke-width="1.5"/>
+<text x="1560.0" y="220.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="end">AD 476 서로마 멸망</text>
+<line x1="1375.6" y1="134.0" x2="1375.6" y2="190.0" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="4 3"/>
+<rect x="942.5" y="130.0" width="192.3" height="70.0" rx="4" fill="none" stroke="#2F7466" stroke-width="3"/>
+<text x="1038.6" y="122.0" font-size="15" fill="#2F7466" font-weight="700" text-anchor="middle">신약 시대</text>
+<path d="M942.5,200 L170,250 L1560,250 L1134.7,200 Z" fill="#D9EAE6" opacity="0.55"/>
+<line x1="170.0" y1="278.0" x2="170.0" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="170.0" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">BC 70</text>
+<line x1="251.8" y1="278.0" x2="251.8" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="251.8" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">BC 60</text>
+<line x1="333.5" y1="278.0" x2="333.5" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="333.5" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">BC 50</text>
+<line x1="415.3" y1="278.0" x2="415.3" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="415.3" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">BC 40</text>
+<line x1="497.1" y1="278.0" x2="497.1" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="497.1" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">BC 30</text>
+<line x1="578.8" y1="278.0" x2="578.8" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="578.8" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">BC 20</text>
+<line x1="660.6" y1="278.0" x2="660.6" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="660.6" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">BC 10</text>
+<line x1="824.1" y1="278.0" x2="824.1" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="824.1" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">AD 10</text>
+<line x1="905.9" y1="278.0" x2="905.9" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="905.9" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">AD 20</text>
+<line x1="987.6" y1="278.0" x2="987.6" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="987.6" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">AD 30</text>
+<line x1="1069.4" y1="278.0" x2="1069.4" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="1069.4" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">AD 40</text>
+<line x1="1151.2" y1="278.0" x2="1151.2" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="1151.2" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">AD 50</text>
+<line x1="1232.9" y1="278.0" x2="1232.9" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="1232.9" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">AD 60</text>
+<line x1="1314.7" y1="278.0" x2="1314.7" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="1314.7" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">AD 70</text>
+<line x1="1396.5" y1="278.0" x2="1396.5" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="1396.5" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">AD 80</text>
+<line x1="1478.2" y1="278.0" x2="1478.2" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="1478.2" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">AD 90</text>
+<line x1="1560.0" y1="278.0" x2="1560.0" y2="930.0" stroke="#EEE9E4" stroke-width="1"/>
+<text x="1560.0" y="272.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">AD 100</text>
+<line x1="742.4" y1="278.0" x2="742.4" y2="930.0" stroke="#6B5C52" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="742.4" y="950.0" font-size="13" fill="#6B5C52" font-weight="700" text-anchor="middle">BC | AD</text>
+<text x="40.0" y="316.0" font-size="17" fill="#952B38" font-weight="700" text-anchor="start">로마</text>
+<rect x="170.0" y="290.0" width="349.6" height="34.0" rx="5" fill="#8C7B6E" stroke="none"/>
+<text x="345.8" y="312.0" font-size="14" fill="#FFFFFF" font-weight="700" text-anchor="middle">공화정 (BC 63 예루살렘 점령)</text>
+<rect x="521.6" y="290.0" width="774.8" height="34.0" rx="5" fill="#952B38" stroke="none"/>
+<text x="910.0" y="312.0" font-size="14" fill="#FFFFFF" font-weight="700" text-anchor="middle">율리우스–클라우디우스 왕조</text>
+<rect x="1298.4" y="290.0" width="6.2" height="34.0" rx="5" fill="#B8ADA4" stroke="none"/>
+<rect x="1306.5" y="290.0" width="218.8" height="34.0" rx="5" fill="#6E1F2A" stroke="none"/>
+<text x="1416.9" y="312.0" font-size="14" fill="#FFFFFF" font-weight="700" text-anchor="middle">플라비우스 왕조</text>
+<rect x="1527.3" y="290.0" width="30.7" height="34.0" rx="5" fill="#B8ADA4" stroke="none"/>
+<rect x="521.6" y="336.0" width="333.2" height="30.0" rx="5" fill="#E7C3C8" stroke="none"/>
+<text x="689.2" y="355.7" font-size="13" fill="#952B38" font-weight="700" text-anchor="middle">아우구스투스</text>
+<rect x="856.8" y="336.0" width="186.1" height="30.0" rx="5" fill="#F1DCDF" stroke="none"/>
+<text x="950.9" y="355.7" font-size="13" fill="#952B38" font-weight="700" text-anchor="middle">티베리우스</text>
+<rect x="1044.9" y="336.0" width="30.7" height="30.0" rx="5" fill="#E7C3C8" stroke="none"/>
+<text x="1061.2" y="383.0" font-size="12" fill="#952B38" font-weight="700" text-anchor="middle">칼리굴라</text>
+<rect x="1077.6" y="336.0" width="104.3" height="30.0" rx="5" fill="#F1DCDF" stroke="none"/>
+<text x="1130.7" y="355.7" font-size="13" fill="#952B38" font-weight="700" text-anchor="middle">클라우디우스</text>
+<rect x="1183.9" y="336.0" width="112.5" height="30.0" rx="5" fill="#E7C3C8" stroke="none"/>
+<text x="1241.1" y="355.7" font-size="13" fill="#952B38" font-weight="700" text-anchor="middle">네로</text>
+<rect x="1306.5" y="336.0" width="79.8" height="30.0" rx="5" fill="#F1DCDF" stroke="none"/>
+<text x="1333.4" y="383.0" font-size="12" fill="#952B38" font-weight="700" text-anchor="end">베스파시아누스</text>
+<rect x="1388.3" y="336.0" width="14.4" height="30.0" rx="5" fill="#E7C3C8" stroke="none"/>
+<text x="1410.5" y="399.0" font-size="12" fill="#952B38" font-weight="700" text-anchor="start">티투스</text>
+<rect x="1404.6" y="336.0" width="120.6" height="30.0" rx="5" fill="#F1DCDF" stroke="none"/>
+<text x="1466.0" y="355.7" font-size="13" fill="#952B38" font-weight="700" text-anchor="middle">도미티아누스</text>
+<text x="40.0" y="357.0" font-size="14" fill="#6B5C52" font-weight="700" text-anchor="start">황제</text>
+<text x="40.0" y="450.0" font-size="17" fill="#9A6510" font-weight="700" text-anchor="start">유대 통치</text>
+<rect x="170.0" y="424.0" width="55.2" height="34.0" rx="5" fill="#C9B48A" stroke="none"/>
+<text x="174.0" y="418.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="start">하스몬 왕조</text>
+<rect x="227.2" y="424.0" width="210.6" height="34.0" rx="5" fill="#C9B48A" stroke="none"/>
+<text x="333.5" y="445.7" font-size="13" fill="#2A211B" font-weight="400" text-anchor="middle">로마 아래 하스몬</text>
+<rect x="439.8" y="424.0" width="267.8" height="34.0" rx="5" fill="#9A6510" stroke="none"/>
+<text x="574.7" y="446.0" font-size="14" fill="#FFFFFF" font-weight="700" text-anchor="middle">헤롯 대왕</text>
+<rect x="709.6" y="424.0" width="79.8" height="34.0" rx="5" fill="#B98A3A" stroke="none"/>
+<text x="750.5" y="445.7" font-size="13" fill="#FFFFFF" font-weight="700" text-anchor="middle">아켈라오</text>
+<rect x="791.4" y="424.0" width="284.2" height="34.0" rx="5" fill="#7A6A5E" stroke="none"/>
+<text x="934.5" y="445.3" font-size="12" fill="#FFFFFF" font-weight="700" text-anchor="middle">로마 총독 · 빌라도(26–36)</text>
+<rect x="1077.6" y="424.0" width="22.5" height="34.0" rx="5" fill="#9A6510" stroke="none"/>
+<rect x="1102.1" y="424.0" width="177.9" height="34.0" rx="5" fill="#7A6A5E" stroke="none"/>
+<text x="1192.1" y="445.3" font-size="12" fill="#FFFFFF" font-weight="700" text-anchor="middle">총독 벨릭스·베스도</text>
+<rect x="1282.0" y="424.0" width="55.2" height="34.0" rx="5" fill="#4A3F38" stroke="none"/>
+<text x="1310.6" y="445.3" font-size="12" fill="#FFFFFF" font-weight="700" text-anchor="middle">전쟁</text>
+<rect x="1339.2" y="424.0" width="218.8" height="34.0" rx="5" fill="#B8ADA4" stroke="none"/>
+<text x="1449.6" y="445.3" font-size="12" fill="#2A211B" font-weight="400" text-anchor="middle">로마 직할</text>
+<text x="40.0" y="488.0" font-size="14" fill="#6B5C52" font-weight="700" text-anchor="start">갈릴리 · 기타</text>
+<rect x="709.6" y="468.0" width="349.6" height="28.0" rx="5" fill="#F3E7D2" stroke="none"/>
+<text x="885.4" y="486.7" font-size="13" fill="#9A6510" font-weight="700" text-anchor="middle">헤롯 안디바 (갈릴리) · 빌립 (북동쪽)</text>
+<rect x="1077.6" y="468.0" width="22.5" height="28.0" rx="5" fill="#9A6510" stroke="none"/>
+<text x="1089.9" y="514.0" font-size="12" fill="#9A6510" font-weight="700" text-anchor="middle">아그립바 1세 (행 12장)</text>
+<rect x="1175.7" y="468.0" width="325.1" height="28.0" rx="5" fill="#F3E7D2" stroke="none"/>
+<text x="1339.2" y="486.7" font-size="13" fill="#9A6510" font-weight="700" text-anchor="middle">아그립바 2세 (행 25–26장)</text>
+<text x="40.0" y="590.0" font-size="17" fill="#2F7466" font-weight="700" text-anchor="start">신약</text>
+<rect x="693.3" y="564.0" width="14.4" height="34.0" rx="5" fill="#2F7466" stroke="none"/>
+<text x="701.5" y="618.0" font-size="13" fill="#2F7466" font-weight="700" text-anchor="middle">예수님 탄생</text>
+<text x="701.5" y="634.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">BC 6–4</text>
+<rect x="963.1" y="564.0" width="22.5" height="34.0" rx="5" fill="#2F7466" stroke="none"/>
+<text x="975.4" y="618.0" font-size="13" fill="#2F7466" font-weight="700" text-anchor="middle">공생애 · 십자가 · 부활</text>
+<text x="975.4" y="634.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="middle">AD 27–30</text>
+<rect x="987.6" y="564.0" width="259.6" height="34.0" rx="5" fill="#D9EAE6" stroke="none"/>
+<text x="1118.5" y="585.7" font-size="13" fill="#2F7466" font-weight="700" text-anchor="middle">사도행전 (AD 30–62)</text>
+<text x="40.0" y="674.0" font-size="14" fill="#6B5C52" font-weight="700" text-anchor="start">신약이 쓰인 때</text>
+<rect x="1134.8" y="654.0" width="153.4" height="28.0" rx="5" fill="#3E8E7D" stroke="none"/>
+<text x="1212.5" y="672.7" font-size="13" fill="#FFFFFF" font-weight="700" text-anchor="middle">바울서신 13권</text>
+<rect x="1192.1" y="690.0" width="325.1" height="28.0" rx="5" fill="#7FB5A8" stroke="none"/>
+<text x="1355.6" y="708.7" font-size="13" fill="#2A211B" font-weight="400" text-anchor="middle">복음서 · 공동서신</text>
+<rect x="1502.8" y="726.0" width="22.5" height="28.0" rx="5" fill="#2F7466" stroke="none"/>
+<text x="1494.8" y="746.0" font-size="13" fill="#2F7466" font-weight="700" text-anchor="end">요한계시록 AD 95</text>
+<line x1="439.8" y1="286.0" x2="439.8" y2="762.0" stroke="#C2410C" stroke-width="2.5" stroke-dasharray="7 4"/>
+<text x="447.8" y="784.0" font-size="15" fill="#C2410C" font-weight="700" text-anchor="start">헤롯 가문 유대 통치 시작 · BC 37</text>
+<text x="447.8" y="802.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="start">BC 40 로마 원로원이 「유대인의 왕」 임명 → BC 37 로마군과 예루살렘 차지</text>
+<line x1="1314.7" y1="286.0" x2="1314.7" y2="762.0" stroke="#952B38" stroke-width="2.5" stroke-dasharray="7 4"/>
+<text x="1306.7" y="784.0" font-size="15" fill="#952B38" font-weight="700" text-anchor="end">AD 70 예루살렘 성전 파괴</text>
+<text x="1306.7" y="802.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="end">티투스 → 개선문(81) · 콜로세움 완공(80)</text>
+<circle cx="439.8" cy="441" r="11" fill="#C2410C" stroke="#FFFFFF" stroke-width="3"/>
+</svg>
