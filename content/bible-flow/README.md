@@ -31,3 +31,14 @@ node scripts/bible-flow/build.cjs
 - 연대는 모두 「약」. 본문이 아닌 전통·학설에 기대는 것은 (전통)·(견해)로 밝힌다.
 - 학설이 갈리는 곳(갈라디아서 연대, 옥중서신 장소, 계시록 연대·해석)은 한쪽을 단정하지 않는다.
 - 글꼴은 맑은 고딕(Windows·Office 기본). 다른 글꼴로 바꾸면 PPT 칸 넘침을 다시 봐야 한다.
+
+## 도식 · 지도 다시 굽기
+
+```bash
+python3 scripts/bible-flow/rome-timeline.py     # 로마 역사와 신약 시대
+python3 scripts/bible-flow/gospel-chunks.py     # 스토리 청크 막대 (앱 성경 DB 로 절 수를 센다)
+python3 scripts/bible-flow/acts-flow.py         # 행 1:8 · 사울의 길
+npm i --no-save world-atlas@2 topojson-client@3 && node scripts/bible-flow/paul-maps.cjs   # 바울의 전도여행 지도
+```
+
+모두 `out/*.svg` 를 만든다. PNG 는 브라우저로 SVG 를 열어 캡처하거나 playwright 로 굽는다(1600×900, 2배).
