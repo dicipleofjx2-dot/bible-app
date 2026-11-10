@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="'Malgun Gothic','맑은 고딕','Noto Sans KR','WenQuanYi Zen Hei',sans-serif">
+<rect width="1600" height="900" fill="#FFFFFF"/>
+<text x="60.0" y="70.0" font-size="36" fill="#2A211B" font-weight="700" text-anchor="start">스토리 청크로 본 네 복음서</text>
+<text x="60.0" y="106.0" font-size="17" fill="#6B5C52" font-weight="400" text-anchor="start">막대 길이 = 절 수 · 칸 안의 숫자 = 그 복음서에서 차지하는 비율</text>
+<rect x="60" y="140" width="26" height="26" rx="6" fill="#C7A15A"/>
+<text x="73.0" y="159.0" font-size="15" fill="#FFFFFF" font-weight="700" text-anchor="middle">1</text>
+<text x="94.0" y="159.0" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start">탄생</text>
+<rect x="164" y="140" width="26" height="26" rx="6" fill="#8C7B6E"/>
+<text x="177.0" y="159.0" font-size="15" fill="#FFFFFF" font-weight="700" text-anchor="middle">2</text>
+<text x="198.0" y="159.0" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start">세례 요한</text>
+<rect x="319" y="140" width="26" height="26" rx="6" fill="#5B8A72"/>
+<text x="332.0" y="159.0" font-size="15" fill="#FFFFFF" font-weight="700" text-anchor="middle">3</text>
+<text x="353.0" y="159.0" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start">갈릴리 사역</text>
+<rect x="491" y="140" width="26" height="26" rx="6" fill="#3E7C9A"/>
+<text x="504.0" y="159.0" font-size="15" fill="#FFFFFF" font-weight="700" text-anchor="middle">4</text>
+<text x="525.0" y="159.0" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start">오병이어</text>
+<rect x="629" y="140" width="26" height="26" rx="6" fill="#B5532F"/>
+<text x="642.0" y="159.0" font-size="15" fill="#FFFFFF" font-weight="700" text-anchor="middle">5</text>
+<text x="663.0" y="159.0" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start">수난 예고</text>
+<rect x="784" y="140" width="26" height="26" rx="6" fill="#64457F"/>
+<text x="797.0" y="159.0" font-size="15" fill="#FFFFFF" font-weight="700" text-anchor="middle">6</text>
+<text x="818.0" y="159.0" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start">예루살렘 사역</text>
+<rect x="973" y="140" width="26" height="26" rx="6" fill="#952B38"/>
+<text x="986.0" y="159.0" font-size="15" fill="#FFFFFF" font-weight="700" text-anchor="middle">7</text>
+<text x="1007.0" y="159.0" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start">십자가와 부활</text>
+<text x="60.0" y="277.0" font-size="24" fill="#2A211B" font-weight="700" text-anchor="start">마태복음</text>
+<text x="60.0" y="301.0" font-size="14" fill="#6B5C52" font-weight="400" text-anchor="start">1071절</text>
+<rect x="200.0" y="230" width="53.9" height="78" rx="6" fill="#C7A15A"/>
+<text x="226.9" y="264.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">1</text>
+<text x="226.9" y="288.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">4%</text>
+<rect x="255.9" y="230" width="30.6" height="78" rx="6" fill="#8C7B6E"/>
+<text x="271.2" y="276.0" font-size="15" fill="#FFFFFF" font-weight="700" text-anchor="middle">2</text>
+<rect x="288.5" y="230" width="436.9" height="78" rx="6" fill="#5B8A72"/>
+<text x="506.9" y="264.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">3</text>
+<text x="506.9" y="288.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">35%</text>
+<rect x="727.4" y="230" width="99.3" height="78" rx="6" fill="#3E7C9A"/>
+<text x="777.0" y="264.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">4</text>
+<text x="777.0" y="288.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">8%</text>
+<rect x="828.7" y="230" width="163.3" height="78" rx="6" fill="#B5532F"/>
+<text x="910.3" y="264.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">5</text>
+<text x="910.3" y="288.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">13%</text>
+<rect x="994.0" y="230" width="304.2" height="78" rx="6" fill="#64457F"/>
+<text x="1146.1" y="264.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">6</text>
+<text x="1146.1" y="288.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">25%</text>
+<rect x="1300.2" y="230" width="144.7" height="78" rx="6" fill="#952B38"/>
+<text x="1372.5" y="264.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">7</text>
+<text x="1372.5" y="288.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">12%</text>
+<text x="60.0" y="437.0" font-size="24" fill="#2A211B" font-weight="700" text-anchor="start">마가복음</text>
+<text x="60.0" y="461.0" font-size="14" fill="#6B5C52" font-weight="400" text-anchor="start">678절</text>
+<rect x="200.0" y="390" width="13.1" height="78" rx="6" fill="#8C7B6E"/>
+<text x="206.6" y="436.0" font-size="15" fill="#FFFFFF" font-weight="700" text-anchor="middle">2</text>
+<rect x="215.1" y="390" width="221.5" height="78" rx="6" fill="#5B8A72"/>
+<text x="325.9" y="424.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">3</text>
+<text x="325.9" y="448.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">28%</text>
+<rect x="438.7" y="390" width="121.4" height="78" rx="6" fill="#3E7C9A"/>
+<text x="499.4" y="424.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">4</text>
+<text x="499.4" y="448.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">16%</text>
+<rect x="562.1" y="390" width="130.7" height="78" rx="6" fill="#B5532F"/>
+<text x="627.4" y="424.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">5</text>
+<text x="627.4" y="448.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">17%</text>
+<rect x="694.8" y="390" width="166.8" height="78" rx="6" fill="#64457F"/>
+<text x="778.2" y="424.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">6</text>
+<text x="778.2" y="448.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">21%</text>
+<rect x="863.6" y="390" width="123.7" height="78" rx="6" fill="#952B38"/>
+<text x="925.5" y="424.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">7</text>
+<text x="925.5" y="448.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">16%</text>
+<text x="60.0" y="597.0" font-size="24" fill="#2A211B" font-weight="700" text-anchor="start">누가복음</text>
+<text x="60.0" y="621.0" font-size="14" fill="#6B5C52" font-weight="400" text-anchor="start">1151절</text>
+<rect x="200.0" y="550" width="151.7" height="78" rx="6" fill="#C7A15A"/>
+<text x="275.8" y="584.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">1</text>
+<text x="275.8" y="608.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">11%</text>
+<rect x="353.7" y="550" width="57.4" height="78" rx="6" fill="#8C7B6E"/>
+<text x="382.4" y="584.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">2</text>
+<text x="382.4" y="608.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">4%</text>
+<rect x="413.0" y="550" width="270.4" height="78" rx="6" fill="#5B8A72"/>
+<text x="548.3" y="584.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">3</text>
+<text x="548.3" y="608.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">20%</text>
+<rect x="685.5" y="550" width="7.3" height="78" rx="6" fill="#3E7C9A"/>
+<text x="689.1" y="596.0" font-size="15" fill="#FFFFFF" font-weight="700" text-anchor="middle">4</text>
+<rect x="694.8" y="550" width="510.3" height="78" rx="6" fill="#B5532F"/>
+<text x="949.9" y="584.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">5</text>
+<text x="949.9" y="608.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">38%</text>
+<rect x="1207.0" y="550" width="165.6" height="78" rx="6" fill="#64457F"/>
+<text x="1289.9" y="584.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">6</text>
+<text x="1289.9" y="608.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">13%</text>
+<rect x="1374.7" y="550" width="163.3" height="78" rx="6" fill="#952B38"/>
+<text x="1456.3" y="584.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">7</text>
+<text x="1456.3" y="608.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">12%</text>
+<text x="60.0" y="757.0" font-size="24" fill="#2A211B" font-weight="700" text-anchor="start">요한복음</text>
+<text x="60.0" y="781.0" font-size="14" fill="#6B5C52" font-weight="400" text-anchor="start">879절</text>
+<rect x="200.0" y="710" width="19.0" height="78" rx="6" fill="#D9D2CB"/>
+<rect x="221.0" y="710" width="36.4" height="78" rx="6" fill="#8C7B6E"/>
+<text x="239.2" y="756.0" font-size="15" fill="#FFFFFF" font-weight="700" text-anchor="middle">2</text>
+<rect x="259.4" y="710" width="186.6" height="78" rx="6" fill="#5B8A72"/>
+<text x="352.7" y="744.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">3</text>
+<text x="352.7" y="768.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">18%</text>
+<rect x="448.0" y="710" width="80.7" height="78" rx="6" fill="#3E7C9A"/>
+<text x="488.3" y="744.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">4</text>
+<text x="488.3" y="768.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">8%</text>
+<rect x="530.6" y="710" width="291.4" height="78" rx="6" fill="#B5532F"/>
+<text x="676.3" y="744.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">5</text>
+<text x="676.3" y="768.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">29%</text>
+<rect x="824.0" y="710" width="236.7" height="78" rx="6" fill="#64457F"/>
+<text x="942.3" y="744.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">6</text>
+<text x="942.3" y="768.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">23%</text>
+<rect x="1062.7" y="710" width="158.7" height="78" rx="6" fill="#952B38"/>
+<text x="1142.0" y="744.0" font-size="20" fill="#FFFFFF" font-weight="700" text-anchor="middle">7</text>
+<text x="1142.0" y="768.0" font-size="15" fill="#FFFFFF" font-weight="400" text-anchor="middle">16%</text>
+<text x="210.5" y="810.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="middle">서언</text>
+<path d="M694.8,640 L694.8,650 L1205.0,650 L1205.0,640" fill="none" stroke="#B5532F" stroke-width="3"/>
+<text x="949.9" y="674.0" font-size="17" fill="#B5532F" font-weight="700" text-anchor="middle">누가의 특징 — 수난 예고 청크가 38%</text>
+<text x="949.9" y="693.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="middle">9:51 부터 「예루살렘으로 올라가는 길」 · 선한 사마리아인 · 탕자 등 누가에만 있는 이야기</text>
+<path d="M824.0,800 L824.0,810 L1221.3,810 L1221.3,800" fill="none" stroke="#64457F" stroke-width="3"/>
+<text x="1022.7" y="834.0" font-size="17" fill="#64457F" font-weight="700" text-anchor="middle">요한의 특징 — 마지막 한 주간이 21장 중 10장</text>
+<text x="1022.7" y="853.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="middle">12–21장 · 마지막 유월절 · 절 수로는 39%</text>
+</svg>
