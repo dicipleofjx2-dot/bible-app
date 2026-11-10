@@ -8,14 +8,16 @@
 <text x="201.6" y="208.0" font-size="21" fill="#FFFFFF" font-weight="700" text-anchor="middle">1차 전도여행 뒤</text>
 <text x="201.6" y="234.0" font-size="14" fill="#FFFFFF" font-weight="400" text-anchor="middle">약 AD 48–49</text>
 <text x="201.6" y="282" font-size="15" fill="#B5532F" font-weight="700" text-anchor="middle">1권</text>
-<rect x="60.0" y="300" width="283.2" height="114" rx="12" fill="#F2F0EE"/>
+<rect x="60.0" y="300" width="283.2" height="152" rx="12" fill="#F2F0EE"/>
 <rect x="76.0" y="320" width="22" height="15" rx="2" fill="#B5532F"/><path d="M76.0,320 L87.0,329 L98.0,320" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
-<text x="108.0" y="334.0" font-size="18" fill="#2A211B" font-weight="700" text-anchor="start">갈라디아서 *</text>
-<text x="76.0" y="360.0" font-size="14" fill="#B5532F" font-weight="700" text-anchor="start">쓴 곳 — 안디옥</text>
-<text x="76.0" y="384.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">복음의 자유 — 「다른 복음은</text>
-<text x="76.0" y="403.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">없다」</text>
-<text x="64.0" y="840.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">* 남갈라디아설. 북갈라디아설이면</text>
-<text x="64.0" y="859.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">3차 여행 중(에베소 · 마게도냐)</text>
+<text x="108.0" y="334.0" font-size="18" fill="#2A211B" font-weight="700" text-anchor="start">갈라디아서</text>
+<text x="76.0" y="360.0" font-size="14" fill="#B5532F" font-weight="700" text-anchor="start">쓴 곳 — 안디옥 (돌아와서)</text>
+<text x="76.0" y="384.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">1차 여행에서 세운 갈라디아</text>
+<text x="76.0" y="403.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">속주 교회들에게 — 「다른 복음</text>
+<text x="76.0" y="422.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">좇는 것을 이상히 여기노라」(갈</text>
+<text x="76.0" y="441.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">1:6)</text>
+<text x="64.0" y="840.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">남갈라디아설을 따름 — 예루살렘</text>
+<text x="64.0" y="859.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">회의(행 15장) 전</text>
 <circle cx="500.8" cy="150" r="10" fill="#2F7466" stroke="#FFFFFF" stroke-width="3"/>
 <rect x="359.2" y="176" width="283.2" height="74" rx="12" fill="#2F7466"/>
 <text x="500.8" y="208.0" font-size="21" fill="#FFFFFF" font-weight="700" text-anchor="middle">2차 전도여행</text>

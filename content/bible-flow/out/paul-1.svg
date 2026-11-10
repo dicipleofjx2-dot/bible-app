@@ -50,10 +50,10 @@
 <text x="1294.8" y="411.4" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">더베</text>
 <circle cx="1136.9263157894734" cy="429.92333844874855" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1130.9" y="447.9" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">앗달리아</text>
-<line x1="1440.3873684210523" y1="477.69194696724287" x2="1362.5473684210524" y2="517.6919469672429" stroke="#2A211B" stroke-width="1.5"/>
-<rect x="1250.3873684210523" y="502.69194696724287" width="224.32000000000002" height="30" rx="15" fill="#2A211B"/>
+<line x1="1440.3873684210523" y1="477.69194696724287" x2="1349.6673684210523" y2="517.6919469672429" stroke="#2A211B" stroke-width="1.5"/>
+<rect x="1250.3873684210523" y="502.69194696724287" width="198.56" height="30" rx="15" fill="#2A211B"/>
 <rect x="1262.3873684210523" y="511.69194696724287" width="18" height="12" fill="#FFFFFF" rx="1.5"/><path d="M1262.3873684210523,511.69194696724287 L1271.3873684210523,518.8919469672429 L1280.3873684210523,511.69194696724287" fill="none" stroke="#2A211B" stroke-width="1.3"/>
-<text x="1286.4" y="522.7" font-size="14" fill="#FFFFFF" font-weight="700" text-anchor="start">갈라디아서 * (돌아와서)</text>
+<text x="1286.4" y="522.7" font-size="14" fill="#FFFFFF" font-weight="700" text-anchor="start">갈라디아서 (돌아와서)</text>
 </g>
 <rect x="520" y="55.389755716784634" width="1056" height="789.2204885664307" rx="10" fill="none" stroke="#B9AE9F"/>
 <text x="48.0" y="78.0" font-size="32" fill="#2A211B" font-weight="700" text-anchor="start">1차 전도여행</text>
@@ -74,10 +74,8 @@
 <text x="56.0" y="496.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 안디옥 돌아와 「오래」(14:28)</text>
 <text x="56.0" y="520.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 비시디아 안디옥 두 안식일 넘게(13:44)</text>
 <text x="48.0" y="554.0" font-size="14" fill="#B5532F" font-weight="700" text-anchor="start">이 길에서 쓴 편지</text>
-<text x="56.0" y="580.0" font-size="14" fill="#2A211B" font-weight="700" text-anchor="start">· 안디옥에서 — 갈라디아서 * (돌아와서)</text>
-<text x="56.0" y="606.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="start">* 여행을 마치고 안디옥에 돌아와서(14:26) 쓴 것으로 보는 남갈라디아설.</text>
-<text x="64.0" y="626.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="start">세운 교회들(비시디아 안디옥 · 이고니온 · 루스드라 · 더베)이 로마의 갈라디아 속주</text>
-<text x="64.0" y="646.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="start">북갈라디아설이면 2·3차에 들른 북쪽 갈라디아(16:6, 18:23) — 3차 여행 중</text>
+<text x="56.0" y="580.0" font-size="14" fill="#2A211B" font-weight="700" text-anchor="start">· 안디옥에서 — 갈라디아서 (돌아와서)</text>
+<text x="56.0" y="606.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="start">여행을 마치고 안디옥에 돌아와서(14:26) — 세운 교회들이 로마의 갈라디아 속주(남갈라디아설)</text>
 <text x="48.0" y="800.0" font-size="13" fill="#B5532F" font-weight="700" text-anchor="start">원의 크기 = 머문 기간</text>
 <circle cx="52.25" cy="826" r="4.25" fill="#B5532F" fill-opacity="0.18" stroke="#B5532F" stroke-width="1.5"/>
 <text x="62.5" y="831" font-size="11.049999999999999" fill="#2A211B">지나감</text>
