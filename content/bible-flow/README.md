@@ -6,7 +6,7 @@
 | 결과물 | 파일 |
 |---|---|
 | 전자책 (A4, 본문 세로 · 도식 가로 쪽) | `out/성경맥잡기1-신약편.docx` |
-| 과별 PPT 8개 (16:9, 발표자 메모 = 선생님 말씀 · 질문 답) | `out/성경맥잡기1-신약-N과-*.pptx` |
+| PPT 한 파일 (16:9, 117장, 과마다 구역 · 발표자 메모 = 선생님 말씀 · 질문 답) | `out/성경맥잡기1-신약편.pptx` |
 | 도식 (입체 · 글씨체 입힌 PNG) | `out/png/*.png` (원본 SVG 는 `out/*.svg`) |
 | 사진 (위키미디어 공용, 퍼블릭 도메인 · CC) | `photos/*.jpg` · 출처는 `photos/credits.json` → 전자책 끝 「사진 출처」 · PPT 사진 아래 |
 
@@ -37,7 +37,7 @@ python3 scripts/bible-flow/rome-periods.py   # …도식 스크립트들 (rome-t
 node scripts/bible-flow/paul-maps.cjs        # 지도
 node scripts/bible-flow/render.cjs           # out/*.svg → out/png/*.png (입체 · 글씨체)
 python3 scripts/bible-flow/fetch-photos.py   # 사진 (이미 받은 것은 건너뜀) — commons.wikimedia.org 접속 필요
-node scripts/bible-flow/build.cjs            # 전자책 + PPT 8개
+node scripts/bible-flow/build.cjs            # 전자책 + PPT 한 파일
 ```
 
 ## 원고 규칙

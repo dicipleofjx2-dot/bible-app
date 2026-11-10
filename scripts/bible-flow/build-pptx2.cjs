@@ -1,5 +1,5 @@
 /**
- * 성경맥잡기 1단계 신약편 (맥점 순서판) — 과마다 PPT 하나 (16:9)
+ * 성경맥잡기 1단계 신약편 (맥점 순서판) — 8과를 PPT 한 파일로 (16:9, 과마다 구역)
  * 원고 content/bible-flow/nt2.cjs · 도식 out/png · 사진 photos/
  * 글씨: 제목 · 맥점 · 성경 구절 = 바탕(명조) · 본문 = 맑은 고딕 · 카드 = 그림자로 입체감
  */
@@ -23,11 +23,39 @@ function imgSize(file) {
   return { w: 4, h: 3 };
 }
 
+const pres = new pptxgen();
+pres.layout = 'LAYOUT_16x9';
+pres.title = `${META.series} ${META.title}`;
+pres.theme = { headFontFace: SERIF, bodyFontFace: SANS };
+
+// 책 표지 + 차례(맥점 여덟)
+function front() {
+  pres.addSection({ title: '표지 · 차례' });
+  const add = () => pres.addSlide({ sectionTitle: '표지 · 차례' });
+  const T = (s, txt, o) => s.addText(txt, { isTextBox: true, fontFace: SANS, color: INK, margin: 0, ...o });
+  {
+    const s = add(); s.background = { color: DARK };
+    T(s, META.series, { x: 0.8, y: 1.3, w: 8.4, h: 0.5, fontSize: 18, bold: true, color: 'C9B98F' });
+    T(s, META.title, { x: 0.8, y: 1.9, w: 8.4, h: 1.1, fontFace: SERIF, fontSize: 48, bold: true, color: 'FFFFFF' });
+    T(s, '맥점 여덟 개로 신약 27권을 잡는다', { x: 0.8, y: 3.1, w: 8.4, h: 0.5, fontSize: 18, color: 'E9DCC0' });
+    T(s, META.byline, { x: 0.8, y: 4.8, w: 8.4, h: 0.3, fontSize: 11, color: 'B8ADA4' });
+  }
+  {
+    const s = add(); s.background = { color: 'FFFFFF' };
+    T(s, '차례 — 맥점 여덟', { x: 0.5, y: 0.28, w: 9, h: 0.6, fontFace: SERIF, fontSize: 24, bold: true });
+    LESSONS.forEach((l, i) => {
+      const col = i < 4 ? 0 : 1, row = i % 4, x = 0.5 + col * 4.6, y = 1.1 + row * 1.0;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: 0.75, h: 0.75, rectRadius: 0.1, fill: { color: COLORS[i] }, line: { type: 'none' }, shadow: shadow() });
+      T(s, `${l.no}과`, { x, y, w: 0.75, h: 0.75, fontSize: 15, bold: true, color: 'FFFFFF', align: 'center', valign: 'middle', fontFace: SERIF });
+      T(s, [{ text: l.maek, options: { fontFace: SERIF, fontSize: 16, bold: true, breakLine: true } }, { text: l.title, options: { fontSize: 11, color: MUTED } }], { x: x + 0.9, y, w: 3.6, h: 0.75, valign: 'middle' });
+    });
+  }
+}
+
 function deck(l) {
-  const pres = new pptxgen();
-  pres.layout = 'LAYOUT_16x9';
-  pres.title = `${META.series} ${META.title} ${l.no}과 ${l.title}`;
-  pres.theme = { headFontFace: SERIF, bodyFontFace: SANS };
+  const sec = `${l.no}과 ${l.title}`;
+  pres.addSection({ title: sec });
+  const add = () => pres.addSlide({ sectionTitle: sec });
   const c = COLORS[l.no - 1];
   const T = (s, txt, o) => s.addText(txt, { isTextBox: true, fontFace: SANS, color: INK, margin: 0, ...o });
   const card = (s, x, y, w, h, fill = 'FFFFFF', line) => s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h, rectRadius: 0.12, fill: { color: fill }, line: line ? { color: line, width: 1.5 } : { type: 'none' }, shadow: shadow() });
@@ -36,7 +64,7 @@ function deck(l) {
 
   // 표지
   {
-    const s = pres.addSlide(); s.background = { color: DARK };
+    const s = add(); s.background = { color: DARK };
     T(s, `${META.series} · ${META.title}`, { x: 0.6, y: 0.5, w: 8, h: 0.4, fontSize: 14, bold: true, color: 'C9B98F' });
     card(s, 0.6, 1.35, 1.6, 1.6, c);
     T(s, [{ text: String(l.no), options: { fontSize: 54, bold: true, breakLine: true } }, { text: '과', options: { fontSize: 15 } }], { x: 0.6, y: 1.4, w: 1.6, h: 1.5, color: 'FFFFFF', align: 'center', valign: 'middle', fontFace: SERIF });
@@ -47,17 +75,17 @@ function deck(l) {
   }
   for (const b of l.blocks) {
     if (b.t === 'say') {
-      const s = pres.addSlide(); head(s, '선생님 말씀');
+      const s = add(); head(s, '선생님 말씀');
       card(s, 0.6, 1.05, 8.8, 3.95, 'FFFFFF', c);
       T(s, '“', { x: 0.8, y: 0.95, w: 1, h: 1, fontFace: SERIF, fontSize: 60, color: c, bold: true });
       T(s, b.p.map((p, i) => ({ text: p, options: { breakLine: i < b.p.length - 1, paraSpaceAfter: 10 } })), { x: 1.3, y: 1.25, w: 7.8, h: 3.55, fontSize: b.p.join('').length > 160 ? 17 : 20, bold: true, valign: 'middle', lineSpacingMultiple: 1.15 });
       s.addNotes(b.p.join('\n'));
     } else if (b.t === 'text') {
-      const s = pres.addSlide(); head(s, b.h || l.title);
+      const s = add(); head(s, b.h || l.title);
       card(s, 0.6, 1.1, 8.8, 3.9, TINT);
       T(s, b.p.join('\n\n'), { x: 0.9, y: 1.3, w: 8.2, h: 3.5, fontSize: 18, valign: 'middle', lineSpacingMultiple: 1.2 });
     } else if (b.t === 'table') {
-      const s = pres.addSlide(); head(s, b.h || l.title);
+      const s = add(); head(s, b.h || l.title);
       const n = b.cols.length;
       const len = b.cols.map((h, i) => Math.max(h.length, ...b.rows.map((r) => String(r[i] || '').length)));
       const tot = len.reduce((a, x) => a + Math.min(x, 34) + 3, 0);
@@ -67,24 +95,24 @@ function deck(l) {
         ...b.rows.map((r, k) => r.map((v, i) => ({ text: String(v), options: { bold: i === 0, fill: { color: k % 2 ? 'FFFFFF' : TINT } } })))];
       s.addTable(rows, { x: 0.5, y: 1.05, w: 9, colW, fontFace: SANS, fontSize: dense ? 11 : 13, color: INK, border: { type: 'solid', pt: 0.75, color: 'D9D2CB' }, valign: 'middle', margin: 0.06, autoPage: true, autoPageRepeatHeader: true, autoPageSlideStartY: 1.05, newSlideStartY: 1.05 });
     } else if (b.t === 'verse') {
-      const s = pres.addSlide(); s.background = { color: DARK };
+      const s = add(); s.background = { color: DARK };
       T(s, '성경', { x: 1, y: 0.7, w: 8, h: 0.4, fontSize: 14, bold: true, color: 'C9B98F' });
       T(s, b.text, { x: 1, y: 1.3, w: 8, h: 2.7, fontFace: SERIF, fontSize: 26, color: 'FFFFFF', valign: 'middle', lineSpacingMultiple: 1.25 });
       T(s, `${b.ref} (${META.translation})`, { x: 1, y: 4.2, w: 8, h: 0.4, fontSize: 15, bold: true, color: 'C9B98F', align: 'right' });
     } else if (b.t === 'note') {
-      const s = pres.addSlide(); head(s, b.h ? `덧붙임 — ${b.h}` : '덧붙임');
+      const s = add(); head(s, b.h ? `덧붙임 — ${b.h}` : '덧붙임');
       card(s, 0.6, 1.1, 8.8, 3.9, 'FBF7EE', 'E8D9B5');
       T(s, b.p.join('\n\n'), { x: 0.9, y: 1.3, w: 8.2, h: 3.5, fontSize: 16, color: INK, valign: 'middle', lineSpacingMultiple: 1.2 });
     } else if (b.t === 'fig') {
       const f = path.join(ROOT, 'out', b.file);
       if (!fs.existsSync(f)) continue;
-      const s = pres.addSlide(); s.background = { color: 'FFFFFF' };
+      const s = add(); s.background = { color: 'FFFFFF' };
       s.addImage({ path: f, x: 0, y: 0, w: 10, h: 5.625, altText: b.h });
       s.addNotes(b.h);
     } else if (b.t === 'photo') {
       const cr = credits[b.key];
       const f = cr && path.join(ROOT, 'photos', cr.file);
-      const s = pres.addSlide(); s.background = { color: DARK };
+      const s = add(); s.background = { color: DARK };
       if (f && fs.existsSync(f)) {
         const { w, h } = imgSize(f);
         const maxW = 6.2, maxH = 4.6;
@@ -103,14 +131,14 @@ function deck(l) {
   }
   // 핵심 구절
   {
-    const s = pres.addSlide(); s.background = { color: DARK };
+    const s = add(); s.background = { color: DARK };
     T(s, '핵심 구절', { x: 1, y: 0.7, w: 8, h: 0.4, fontSize: 14, bold: true, color: 'C9B98F' });
     T(s, l.keyVerse.text, { x: 1, y: 1.3, w: 8, h: 2.7, fontFace: SERIF, fontSize: 26, color: 'FFFFFF', valign: 'middle', lineSpacingMultiple: 1.25 });
     T(s, `${l.keyVerse.ref} (${META.translation})`, { x: 1, y: 4.2, w: 8, h: 0.4, fontSize: 15, bold: true, color: 'C9B98F', align: 'right' });
   }
   // 확인 질문
   {
-    const s = pres.addSlide(); head(s, '확인 질문');
+    const s = add(); head(s, '확인 질문');
     const n = l.questions.length, g = 0.16, rh = (3.95 - g * (n - 1)) / n;
     l.questions.forEach((q, i) => {
       const y = 1.05 + i * (rh + g);
@@ -125,25 +153,24 @@ function deck(l) {
   {
     const next = LESSONS.find((x) => x.no === l.no + 1);
     if (next) {
-      const s = pres.addSlide(); s.background = { color: DARK };
+      const s = add(); s.background = { color: DARK };
       T(s, '다음 시간', { x: 1, y: 1.2, w: 8, h: 0.4, fontSize: 16, bold: true, color: 'B8ADA4' });
       card(s, 1, 1.9, 1.3, 1.3, COLORS[next.no - 1]);
       T(s, `${next.no}과`, { x: 1, y: 1.9, w: 1.3, h: 1.3, fontSize: 22, bold: true, color: 'FFFFFF', align: 'center', valign: 'middle', fontFace: SERIF });
       T(s, next.maek, { x: 2.6, y: 1.85, w: 7, h: 0.75, fontFace: SERIF, fontSize: 32, bold: true, color: 'FFFFFF' });
       T(s, `${next.title} — ${next.subtitle}`, { x: 2.6, y: 2.65, w: 7, h: 0.5, fontSize: 16, color: 'E9DCC0' });
     } else {
-      const s = pres.addSlide();
+      const s = add();
       s.addImage({ path: path.join(ROOT, 'out', SUMMARY.file), x: 0, y: 0, w: 10, h: 5.625, altText: SUMMARY.h });
     }
   }
-  return pres;
 }
 
 (async () => {
   const outDir = process.argv[2] || path.join(ROOT, 'out');
-  for (const l of LESSONS) {
-    const f = path.join(outDir, `성경맥잡기1-신약-${l.no}과-${l.title.replace(/\s/g, '')}.pptx`);
-    await deck(l).writeFile({ fileName: f });
-    console.log('wrote', f);
-  }
+  front();
+  LESSONS.forEach(deck);
+  const f = path.join(outDir, '성경맥잡기1-신약편.pptx');
+  await pres.writeFile({ fileName: f });
+  console.log('wrote', f);
 })();

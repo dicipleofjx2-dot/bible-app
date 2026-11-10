@@ -25,6 +25,7 @@ re-check current quota before relying on it.
 원고 `nt2.cjs` → `build-docx2.cjs` · `build-pptx2.cjs`(`build.cjs` 가 둘 다 부름). 도식은 파이썬/노드 스크립트가 SVG 를 만들고
 `render.cjs` 가 글씨체(Noto Serif/Sans KR · 나눔명조)와 그림자를 입혀 PNG 로 굽는다. 사진 20장은 위키미디어 공용(PD · CC)에서
 `fetch-photos.py` 로 받았다 — **upload.wikimedia.org 는 이 환경 IP 에 429 를 자주 내서 commons 의 thumb.php(폭 960)로 받는다.**
+PPT 는 2026-11-10 에 **한 파일**(`out/성경맥잡기1-신약편.pptx`, 표지·차례 + 과마다 구역)로 합쳤다. NotebookLM·ChatGPT 로 다시 만들 때 쓸 프롬프트는 `content/bible-flow/prompts.md`.
 이 세션에서 환경 `bible-app`(허용 호스트: commons.wikimedia.org · upload.wikimedia.org)을 새로 만들어 옮겼다. 밧모 섬 사진은 못 받았다.
 사용법은 `content/bible-flow/README.md`.
 
