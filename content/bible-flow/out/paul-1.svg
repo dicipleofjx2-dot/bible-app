@@ -27,26 +27,33 @@
 <path d="M1159.2591725020732,330.62602316999875 L1149.8107514494416,377.3561836772217 L1140.36233039681,424.0863441844446" fill="none" stroke="#B5532F" stroke-width="4.5" stroke-linecap="round"  marker-mid="url(#m1a1)"/>
 <path d="M1145.2631578947367,425.077247729481 L1141.094736842105,427.50029308911473 L1136.9263157894734,429.92333844874855" fill="none" stroke="#B5532F" stroke-width="4.5" stroke-linecap="round"  marker-mid="url(#m1a1)"/>
 <path d="M1136.9263157894734,429.92333844874855 L1288.656842105263,453.8076427079957 L1440.3873684210523,477.69194696724287" fill="none" stroke="#B5532F" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="9 7" marker-mid="url(#m1a1)"/>
-<circle cx="1440.3873684210523" cy="477.69194696724287" r="7" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="1450.4" y="481.7" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">안디옥</text>
-<circle cx="1427.6042105263157" cy="483.23033636069187" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1440.3873684210523" cy="477.69194696724287" r="14" fill="#B5532F" fill-opacity="0.52" stroke="#B5532F" stroke-width="2"/>
+<circle cx="1236.4126315789474" cy="362.07806837900296" r="14" fill="#B5532F" fill-opacity="0.52" stroke="#B5532F" stroke-width="2"/>
+<circle cx="1164.1599999999999" cy="331.6169267150351" r="9" fill="#B5532F" fill-opacity="0.35" stroke="#B5532F" stroke-width="2"/>
+<circle cx="1440.3873684210523" cy="477.69194696724287" r="6" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="1460.4" y="491.7" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">안디옥</text>
+<circle cx="1427.6042105263157" cy="483.23033636069187" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1421.6" y="503.2" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">실루기아</text>
-<circle cx="1314.7789473684206" cy="548.3064117337133" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1314.7789473684206" cy="548.3064117337133" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1324.8" y="552.3" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">살라미</text>
-<circle cx="1231.9663157894734" cy="577.3829560493186" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1231.9663157894734" cy="577.3829560493186" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1224.0" y="593.4" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">바보</text>
-<circle cx="1145.2631578947367" cy="425.077247729481" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1145.2631578947367" cy="425.077247729481" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1151.3" y="415.1" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">버가</text>
-<circle cx="1164.1599999999999" cy="331.6169267150351" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="1164.2" y="319.6" font-size="14" fill="#2A211B" font-weight="600" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">비시디아 안디옥</text>
-<circle cx="1236.4126315789474" cy="362.07806837900296" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="1246.4" y="356.1" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">이고니온</text>
-<circle cx="1229.1873684210525" cy="382.1547299302542" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1164.1599999999999" cy="331.6169267150351" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="1164.2" y="314.6" font-size="14" fill="#2A211B" font-weight="600" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">비시디아 안디옥</text>
+<circle cx="1236.4126315789474" cy="362.07806837900296" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="1256.4" y="346.1" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">이고니온</text>
+<circle cx="1229.1873684210525" cy="382.1547299302542" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1219.2" y="398.2" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">루스드라</text>
-<circle cx="1284.7663157894735" cy="397.3853007622379" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1284.7663157894735" cy="397.3853007622379" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1294.8" y="411.4" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">더베</text>
-<circle cx="1136.9263157894734" cy="429.92333844874855" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1136.9263157894734" cy="429.92333844874855" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1130.9" y="447.9" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">앗달리아</text>
+<line x1="1440.3873684210523" y1="477.69194696724287" x2="1357.4673684210522" y2="517.6919469672429" stroke="#2A211B" stroke-width="1.5"/>
+<rect x="1290.3873684210523" y="502.69194696724287" width="134.16000000000003" height="30" rx="15" fill="#2A211B"/>
+<rect x="1302.3873684210523" y="511.69194696724287" width="18" height="12" fill="#FFFFFF" rx="1.5"/><path d="M1302.3873684210523,511.69194696724287 L1311.3873684210523,518.8919469672429 L1320.3873684210523,511.69194696724287" fill="none" stroke="#2A211B" stroke-width="1.3"/>
+<text x="1326.4" y="522.7" font-size="14" fill="#FFFFFF" font-weight="700" text-anchor="start">갈라디아서 *</text>
 </g>
 <rect x="520" y="55.389755716784634" width="1056" height="789.2204885664307" rx="10" fill="none" stroke="#B9AE9F"/>
 <text x="48.0" y="78.0" font-size="32" fill="#2A211B" font-weight="700" text-anchor="start">1차 전도여행</text>
@@ -57,14 +64,26 @@
 <text x="48.0" y="216.0" font-size="14" fill="#B5532F" font-weight="700" text-anchor="start">함께한 사람</text>
 <text x="48.0" y="240.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">바나바 · 사울(바울) · 마가 요한(버가에서 돌아감)</text>
 <text x="48.0" y="280.0" font-size="14" fill="#B5532F" font-weight="700" text-anchor="start">꼭 짚을 장면</text>
-<text x="56.0" y="308.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 실루기아에서 배로 구브로(바나바의 고향)</text>
-<text x="56.0" y="338.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 바보 — 총독 서기오 바울이 믿음(13:12)</text>
-<text x="56.0" y="368.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 비시디아 안디옥 회당 설교(13:16–41)</text>
-<text x="56.0" y="398.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 루스드라 — 신으로 떠받들다 돌에 맞음(14:19)</text>
-<text x="56.0" y="428.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 더베에서 왔던 길로 돌아가며 장로를 세움(14:23)</text>
-<text x="48.0" y="472.0" font-size="13.5" fill="#6B5C52" font-weight="400" text-anchor="start">경로 — 안디옥 → 실루기아 → 살라미 → 바보 → </text>
-<text x="48.0" y="495.0" font-size="13.5" fill="#6B5C52" font-weight="400" text-anchor="start">버가 → 비시디아 안디옥 → 이고니온 → 루스드라 → </text>
-<text x="48.0" y="518.0" font-size="13.5" fill="#6B5C52" font-weight="400" text-anchor="start">더베 → 루스드라 → 이고니온 → 비시디아 안디옥 → </text>
-<text x="48.0" y="541.0" font-size="13.5" fill="#6B5C52" font-weight="400" text-anchor="start">버가 → 앗달리아 → 안디옥</text>
-<text x="48.0" y="852.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">실선 = 땅길 · 점선 = 바닷길 · 위치는 대략</text>
+<text x="56.0" y="308.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 실루기아에서 배로 구브로(바나바의 고향)</text>
+<text x="56.0" y="334.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 바보 — 총독 서기오 바울이 믿음(13:12)</text>
+<text x="56.0" y="360.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 비시디아 안디옥 회당 설교(13:16–41)</text>
+<text x="56.0" y="386.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 루스드라 — 신으로 떠받들다 돌에 맞음(14:19)</text>
+<text x="56.0" y="412.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 더베에서 왔던 길로 돌아가며 장로를 세움(14:23)</text>
+<text x="48.0" y="446.0" font-size="14" fill="#B5532F" font-weight="700" text-anchor="start">머문 기간</text>
+<text x="56.0" y="472.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 이고니온 「오래」(14:3)</text>
+<text x="56.0" y="496.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 안디옥 돌아와 「오래」(14:28)</text>
+<text x="56.0" y="520.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 비시디아 안디옥 두 안식일 넘게(13:44)</text>
+<text x="48.0" y="554.0" font-size="14" fill="#B5532F" font-weight="700" text-anchor="start">이 길에서 쓴 편지</text>
+<text x="56.0" y="580.0" font-size="14" fill="#2A211B" font-weight="700" text-anchor="start">· 안디옥에서 — 갈라디아서 *</text>
+<text x="56.0" y="606.0" font-size="12" fill="#6B5C52" font-weight="400" text-anchor="start">* 남갈라디아설을 따를 때. 북갈라디아설이면 3차 여행 중</text>
+<text x="48.0" y="800.0" font-size="13" fill="#B5532F" font-weight="700" text-anchor="start">원의 크기 = 머문 기간</text>
+<circle cx="52.25" cy="826" r="4.25" fill="#B5532F" fill-opacity="0.18" stroke="#B5532F" stroke-width="1.5"/>
+<text x="62.5" y="831" font-size="11.049999999999999" fill="#2A211B">지나감</text>
+<circle cx="121.30000000000001" cy="826" r="7.6499999999999995" fill="#B5532F" fill-opacity="0.35" stroke="#B5532F" stroke-width="1.5"/>
+<text x="134.95000000000002" y="831" font-size="11.049999999999999" fill="#2A211B">며칠–두어 주</text>
+<circle cx="242.20000000000002" cy="826" r="11.9" fill="#B5532F" fill-opacity="0.52" stroke="#B5532F" stroke-width="1.5"/>
+<text x="260.1" y="831" font-size="11.049999999999999" fill="#2A211B">몇 주–몇 달</text>
+<circle cx="373.3" cy="826" r="17.849999999999998" fill="#B5532F" fill-opacity="0.69" stroke="#B5532F" stroke-width="1.5"/>
+<text x="397.15" y="831" font-size="11.049999999999999" fill="#2A211B">1년 이상</text>
+<text x="48.0" y="866.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">실선 = 땅길 · 점선 = 바닷길 · 위치는 대략</text>
 </svg>

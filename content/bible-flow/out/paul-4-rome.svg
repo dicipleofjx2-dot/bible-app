@@ -23,24 +23,34 @@
 <path d="M736.0508833922262,446.2621759575606 L742.7674911660778,422.19993368435627 L749.4840989399294,398.13769141115193" fill="none" stroke="#952B38" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="9 7" marker-mid="url(#m4a4)"/>
 <path d="M749.4840989399294,398.13769141115193 L720.9385159010601,334.82829669233286 L692.3929328621908,271.5189019735137" fill="none" stroke="#952B38" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="9 7" marker-mid="url(#m4a4)"/>
 <path d="M692.3929328621908,271.5189019735137 L662.1681978798587,246.52220368969952 L631.9434628975265,221.52550540588533" fill="none" stroke="#952B38" stroke-width="4.5" stroke-linecap="round"  marker-mid="url(#m4a4)"/>
-<circle cx="1467.4148409893994" cy="660.2526023872222" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="1457.4" y="664.3" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">가이사랴</text>
-<circle cx="1485.3257950530035" cy="610.7264338248985" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1467.4148409893994" cy="660.2526023872222" r="21" fill="#952B38" fill-opacity="0.69" stroke="#952B38" stroke-width="2"/>
+<circle cx="631.9434628975265" cy="221.52550540588533" r="21" fill="#952B38" fill-opacity="0.69" stroke="#952B38" stroke-width="2"/>
+<circle cx="702.8409893992933" cy="501.3950805835433" r="14" fill="#952B38" fill-opacity="0.52" stroke="#952B38" stroke-width="2"/>
+<circle cx="1090.9116607773854" cy="546.7161970981222" r="9" fill="#952B38" fill-opacity="0.35" stroke="#952B38" stroke-width="2"/>
+<circle cx="736.0508833922262" cy="446.2621759575606" r="9" fill="#952B38" fill-opacity="0.35" stroke="#952B38" stroke-width="2"/>
+<circle cx="692.3929328621908" cy="271.5189019735137" r="9" fill="#952B38" fill-opacity="0.35" stroke="#952B38" stroke-width="2"/>
+<circle cx="1467.4148409893994" cy="660.2526023872222" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="1440.4" y="681.3" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">가이사랴</text>
+<circle cx="1485.3257950530035" cy="610.7264338248985" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1495.3" y="614.7" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">시돈</text>
-<circle cx="1284.5738515901062" cy="484.5748723925655" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1284.5738515901062" cy="484.5748723925655" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1288.6" y="504.6" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">무라</text>
-<circle cx="1090.9116607773854" cy="546.7161970981222" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="1090.9" y="568.7" font-size="14" fill="#2A211B" font-weight="600" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">미항</text>
-<circle cx="702.8409893992933" cy="501.3950805835433" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="702.8" y="523.4" font-size="14" fill="#2A211B" font-weight="600" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">멜리데</text>
-<circle cx="736.0508833922262" cy="446.2621759575606" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="746.1" y="450.3" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">수라구사</text>
-<circle cx="749.4840989399294" cy="398.13769141115193" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1090.9116607773854" cy="546.7161970981222" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="1090.9" y="573.7" font-size="14" fill="#2A211B" font-weight="600" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">미항</text>
+<circle cx="702.8409893992933" cy="501.3950805835433" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="702.8" y="533.4" font-size="14" fill="#2A211B" font-weight="600" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">멜리데</text>
+<circle cx="736.0508833922262" cy="446.2621759575606" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="751.1" y="455.3" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">수라구사</text>
+<circle cx="749.4840989399294" cy="398.13769141115193" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="759.5" y="402.1" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">레기온</text>
-<circle cx="692.3929328621908" cy="271.5189019735137" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="702.4" y="283.5" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">보디올</text>
-<circle cx="631.9434628975265" cy="221.52550540588533" r="7" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="631.9" y="207.5" font-size="17" fill="#2A211B" font-weight="700" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">로마</text>
+<circle cx="692.3929328621908" cy="271.5189019735137" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="707.4" y="288.5" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">보디올</text>
+<circle cx="631.9434628975265" cy="221.52550540588533" r="6" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="631.9" y="190.5" font-size="17" fill="#2A211B" font-weight="700" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">로마</text>
+<line x1="631.9434628975265" y1="221.52550540588533" x2="900.0234628975265" y2="281.5255054058853" stroke="#2A211B" stroke-width="1.5"/>
+<rect x="671.9434628975265" y="266.5255054058853" width="456.16" height="30" rx="15" fill="#2A211B"/>
+<rect x="683.9434628975265" y="275.5255054058853" width="18" height="12" fill="#FFFFFF" rx="1.5"/><path d="M683.9434628975265,275.5255054058853 L692.9434628975265,282.7255054058853 L701.9434628975265,275.5255054058853" fill="none" stroke="#2A211B" stroke-width="1.3"/>
+<text x="707.9" y="286.6" font-size="14" fill="#FFFFFF" font-weight="700" text-anchor="start">에베소서 · 빌립보서 · 골로새서 · 빌레몬서 (옥중서신)</text>
 </g>
 <rect x="520" y="141.62951649874088" width="1056" height="616.7409670025181" rx="10" fill="none" stroke="#B9AE9F"/>
 <text x="48.0" y="78.0" font-size="32" fill="#2A211B" font-weight="700" text-anchor="start">로마로 가는 길</text>
@@ -51,12 +61,28 @@
 <text x="48.0" y="216.0" font-size="14" fill="#952B38" font-weight="700" text-anchor="start">함께한 사람</text>
 <text x="48.0" y="240.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">죄수 바울 · 누가 · 아리스다고 — 백부장 율리오</text>
 <text x="48.0" y="280.0" font-size="14" fill="#952B38" font-weight="700" text-anchor="start">꼭 짚을 장면</text>
-<text x="56.0" y="308.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 가이사랴에서 2년 구금 뒤 「가이사께 호소」(25:11)</text>
-<text x="56.0" y="338.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 미항에서 겨울을 나지 않고 떠나 유라굴로 광풍(27:14)</text>
-<text x="56.0" y="368.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 14일 표류 끝에 멜리데 섬에 난파 — 276명 모두 구조(27:37, 44)</text>
-<text x="56.0" y="398.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 보디올에서 육로로 로마(28:14)</text>
-<text x="56.0" y="428.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 로마 셋집 2년 — 「담대히 … 금하는 사람이 없었더라」(28:31)</text>
-<text x="48.0" y="472.0" font-size="13.5" fill="#6B5C52" font-weight="400" text-anchor="start">경로 — 가이사랴 → 시돈 → 무라 → 미항 → 멜리데 → </text>
-<text x="48.0" y="495.0" font-size="13.5" fill="#6B5C52" font-weight="400" text-anchor="start">수라구사 → 레기온 → 보디올 → 로마</text>
-<text x="48.0" y="852.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">실선 = 땅길 · 점선 = 바닷길 · 위치는 대략</text>
+<text x="56.0" y="308.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 가이사랴에서 2년 구금 뒤 「가이사께 호소」(25:11)</text>
+<text x="56.0" y="334.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 미항에서 겨울을 나지 않고 떠나 유라굴로 광풍(27:14)</text>
+<text x="56.0" y="360.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 14일 표류 끝에 멜리데 섬에 난파 — 276명 모두 구조(27:37, 44)</text>
+<text x="56.0" y="386.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 보디올에서 육로로 로마(28:14)</text>
+<text x="56.0" y="412.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 로마 셋집 2년 — 「담대히 … 금하는 사람이 없었더라」(28:31)</text>
+<text x="48.0" y="446.0" font-size="14" fill="#952B38" font-weight="700" text-anchor="start">머문 기간</text>
+<text x="56.0" y="472.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 가이사랴 2년 구금(24:27)</text>
+<text x="56.0" y="496.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 로마 셋집 2년(28:30)</text>
+<text x="56.0" y="520.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 멜리데 석 달(28:11)</text>
+<text x="56.0" y="544.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 미항 여러 날(27:9)</text>
+<text x="56.0" y="568.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 수라구사 사흘(28:12)</text>
+<text x="56.0" y="592.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 보디올 이레(28:14)</text>
+<text x="48.0" y="626.0" font-size="14" fill="#952B38" font-weight="700" text-anchor="start">이 길에서 쓴 편지</text>
+<text x="56.0" y="652.0" font-size="14" fill="#2A211B" font-weight="700" text-anchor="start">· 로마에서 — 에베소서 · 빌립보서 · 골로새서 · 빌레몬서 (옥중서신)</text>
+<text x="48.0" y="800.0" font-size="13" fill="#952B38" font-weight="700" text-anchor="start">원의 크기 = 머문 기간</text>
+<circle cx="52.25" cy="826" r="4.25" fill="#952B38" fill-opacity="0.18" stroke="#952B38" stroke-width="1.5"/>
+<text x="62.5" y="831" font-size="11.049999999999999" fill="#2A211B">지나감</text>
+<circle cx="121.30000000000001" cy="826" r="7.6499999999999995" fill="#952B38" fill-opacity="0.35" stroke="#952B38" stroke-width="1.5"/>
+<text x="134.95000000000002" y="831" font-size="11.049999999999999" fill="#2A211B">며칠–두어 주</text>
+<circle cx="242.20000000000002" cy="826" r="11.9" fill="#952B38" fill-opacity="0.52" stroke="#952B38" stroke-width="1.5"/>
+<text x="260.1" y="831" font-size="11.049999999999999" fill="#2A211B">몇 주–몇 달</text>
+<circle cx="373.3" cy="826" r="17.849999999999998" fill="#952B38" fill-opacity="0.69" stroke="#952B38" stroke-width="1.5"/>
+<text x="397.15" y="831" font-size="11.049999999999999" fill="#2A211B">1년 이상</text>
+<text x="48.0" y="866.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">실선 = 땅길 · 점선 = 바닷길 · 위치는 대략</text>
 </svg>

@@ -31,42 +31,50 @@
 <path d="M950.1810526315788,357.2319776597354 L1159.9915789473685,545.537217036989 L1369.802105263158,733.8424564142425" fill="none" stroke="#2F7466" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="9 7" marker-mid="url(#m2a2)"/>
 <path d="M1369.802105263158,733.8424564142425 L1379.2505263157893,758.7652086847613 L1388.6989473684207,783.6879609552802" fill="none" stroke="#2F7466" stroke-width="4.5" stroke-linecap="round"  marker-mid="url(#m2a2)"/>
 <path d="M1388.6989473684207,783.6879609552802 L1414.5431578947364,630.6899539612616 L1440.3873684210523,477.69194696724287" fill="none" stroke="#2F7466" stroke-width="4.5" stroke-linecap="round"  marker-mid="url(#m2a2)"/>
-<circle cx="1440.3873684210523" cy="477.69194696724287" r="7" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="702.2989473684208" cy="359.30887368227866" r="21" fill="#2F7466" fill-opacity="0.69" stroke="#2F7466" stroke-width="2"/>
+<circle cx="780.6652631578945" cy="144.69628468614385" r="9" fill="#2F7466" fill-opacity="0.35" stroke="#2F7466" stroke-width="2"/>
+<circle cx="705.6336842105263" cy="170.31133563084364" r="9" fill="#2F7466" fill-opacity="0.35" stroke="#2F7466" stroke-width="2"/>
+<circle cx="950.1810526315788" cy="357.2319776597354" r="5" fill="#2F7466" fill-opacity="0.18" stroke="#2F7466" stroke-width="2"/>
+<circle cx="1440.3873684210523" cy="477.69194696724287" r="6" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1450.4" y="481.7" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">안디옥</text>
-<circle cx="1370.357894736842" cy="427.8464424262052" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1370.357894736842" cy="427.8464424262052" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1370.4" y="415.8" font-size="14" fill="#2A211B" font-weight="600" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">다소</text>
-<circle cx="1284.7663157894735" cy="397.3853007622379" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1284.7663157894735" cy="397.3853007622379" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1294.8" y="411.4" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">더베</text>
-<circle cx="1229.1873684210525" cy="382.1547299302542" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1229.1873684210525" cy="382.1547299302542" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1219.2" y="398.2" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">루스드라</text>
-<circle cx="1236.4126315789474" cy="362.07806837900296" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1236.4126315789474" cy="362.07806837900296" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1246.4" y="356.1" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">이고니온</text>
-<circle cx="1164.1599999999999" cy="331.6169267150351" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1164.1599999999999" cy="331.6169267150351" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1164.2" y="319.6" font-size="14" fill="#2A211B" font-weight="600" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">비시디아 안디옥</text>
-<circle cx="889.0442105263155" cy="231.92591763295977" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="889.0442105263155" cy="231.92591763295977" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="879.0" y="235.9" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">드로아</text>
-<circle cx="787.3347368421051" cy="149.54237540541143" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="787.3347368421051" cy="149.54237540541143" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="793.3" y="167.5" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">네압볼리</text>
-<circle cx="780.6652631578945" cy="144.69628468614385" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="780.7" y="132.7" font-size="14" fill="#2A211B" font-weight="600" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">빌립보</text>
-<circle cx="756.2105263157895" cy="157.84995949558422" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="780.6652631578945" cy="144.69628468614385" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="780.7" y="127.7" font-size="14" fill="#2A211B" font-weight="600" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">빌립보</text>
+<circle cx="756.2105263157895" cy="157.84995949558422" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="750.2" y="175.8" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">암비볼리</text>
-<circle cx="705.6336842105263" cy="170.31133563084364" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="695.6" y="162.3" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">데살로니가</text>
-<circle cx="664.5052631578947" cy="178.61891972101643" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="705.6336842105263" cy="170.31133563084364" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="690.6" y="157.3" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">데살로니가</text>
+<circle cx="664.5052631578947" cy="178.61891972101643" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="654.5" y="192.6" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">베뢰아</text>
-<circle cx="749.5410526315789" cy="354.4627829630111" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="749.5410526315789" cy="354.4627829630111" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="759.5" y="360.5" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">아덴</text>
-<circle cx="702.2989473684208" cy="359.30887368227866" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="692.3" y="353.3" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">고린도</text>
-<circle cx="708.4126315789472" cy="361.3857697048215" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="702.2989473684208" cy="359.30887368227866" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="675.3" y="336.3" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">고린도</text>
+<circle cx="708.4126315789472" cy="361.3857697048215" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="700.4" y="379.4" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">겐그레아</text>
-<circle cx="950.1810526315788" cy="357.2319776597354" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
-<text x="960.2" y="361.2" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">에베소</text>
-<circle cx="1369.802105263158" cy="733.8424564142425" r="5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="950.1810526315788" cy="357.2319776597354" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="961.2" y="362.2" font-size="14" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">에베소</text>
+<circle cx="1369.802105263158" cy="733.8424564142425" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1359.8" y="737.8" font-size="14" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">가이사랴</text>
-<circle cx="1388.6989473684207" cy="783.6879609552802" r="7" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<circle cx="1388.6989473684207" cy="783.6879609552802" r="6" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
 <text x="1398.7" y="801.7" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">예루살렘</text>
+<line x1="702.2989473684208" y1="359.30887368227866" x2="741.5789473684208" y2="419.30887368227866" stroke="#2A211B" stroke-width="1.5"/>
+<rect x="642.2989473684208" y="404.30887368227866" width="198.56" height="30" rx="15" fill="#2A211B"/>
+<rect x="654.2989473684208" y="413.30887368227866" width="18" height="12" fill="#FFFFFF" rx="1.5"/><path d="M654.2989473684208,413.30887368227866 L663.2989473684208,420.50887368227865 L672.2989473684208,413.30887368227866" fill="none" stroke="#2A211B" stroke-width="1.3"/>
+<text x="678.3" y="424.3" font-size="14" fill="#FFFFFF" font-weight="700" text-anchor="start">데살로니가전서 · 후서</text>
 </g>
 <rect x="520" y="55.389755716784634" width="1056" height="789.2204885664307" rx="10" fill="none" stroke="#B9AE9F"/>
 <text x="48.0" y="78.0" font-size="32" fill="#2A211B" font-weight="700" text-anchor="start">2차 전도여행</text>
@@ -77,15 +85,25 @@
 <text x="48.0" y="216.0" font-size="14" fill="#2F7466" font-weight="700" text-anchor="start">함께한 사람</text>
 <text x="48.0" y="240.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">바울 · 실라 · 디모데(루스드라에서 합류) · 누가(드로아부터, 「우리」)</text>
 <text x="48.0" y="280.0" font-size="14" fill="#2F7466" font-weight="700" text-anchor="start">꼭 짚을 장면</text>
-<text x="56.0" y="308.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 마게도냐 사람의 환상 — 「건너와서 우리를 도우라」(16:9)</text>
-<text x="56.0" y="338.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 빌립보 — 루디아, 감옥의 찬송(16장) · 유럽 첫 교회</text>
-<text x="56.0" y="368.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 데살로니가 · 베뢰아 — 말씀을 상고함(17:11)</text>
-<text x="56.0" y="398.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 아덴 — 아레오바고 설교(17:22–31)</text>
-<text x="56.0" y="428.0" font-size="14.5" fill="#2A211B" font-weight="400" text-anchor="start">· 고린도 1년 6개월 — 데살로니가전후서를 씀</text>
-<text x="48.0" y="472.0" font-size="13.5" fill="#6B5C52" font-weight="400" text-anchor="start">경로 — 안디옥 → 다소 → 더베 → 루스드라 → </text>
-<text x="48.0" y="495.0" font-size="13.5" fill="#6B5C52" font-weight="400" text-anchor="start">이고니온 → 비시디아 안디옥 → 드로아 → 네압볼리 → </text>
-<text x="48.0" y="518.0" font-size="13.5" fill="#6B5C52" font-weight="400" text-anchor="start">빌립보 → 암비볼리 → 데살로니가 → 베뢰아 → 아덴 → </text>
-<text x="48.0" y="541.0" font-size="13.5" fill="#6B5C52" font-weight="400" text-anchor="start">고린도 → 겐그레아 → 에베소 → 가이사랴 → 예루살렘 → </text>
-<text x="48.0" y="564.0" font-size="13.5" fill="#6B5C52" font-weight="400" text-anchor="start">안디옥</text>
-<text x="48.0" y="852.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">실선 = 땅길 · 점선 = 바닷길 · 위치는 대략</text>
+<text x="56.0" y="308.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 마게도냐 사람의 환상 — 「건너와서 우리를 도우라」(16:9)</text>
+<text x="56.0" y="334.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 빌립보 — 루디아, 감옥의 찬송(16장) · 유럽 첫 교회</text>
+<text x="56.0" y="360.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 데살로니가 · 베뢰아 — 말씀을 상고함(17:11)</text>
+<text x="56.0" y="386.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 아덴 — 아레오바고 설교(17:22–31)</text>
+<text x="56.0" y="412.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 고린도 1년 6개월 — 데살로니가전후서를 씀</text>
+<text x="48.0" y="446.0" font-size="14" fill="#2F7466" font-weight="700" text-anchor="start">머문 기간</text>
+<text x="56.0" y="472.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 고린도 1년 6개월(18:11)</text>
+<text x="56.0" y="496.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 빌립보 수일(16:12)</text>
+<text x="56.0" y="520.0" font-size="14" fill="#2A211B" font-weight="400" text-anchor="start">· 데살로니가 세 안식일(17:2)</text>
+<text x="48.0" y="554.0" font-size="14" fill="#2F7466" font-weight="700" text-anchor="start">이 길에서 쓴 편지</text>
+<text x="56.0" y="580.0" font-size="14" fill="#2A211B" font-weight="700" text-anchor="start">· 고린도에서 — 데살로니가전서 · 후서</text>
+<text x="48.0" y="800.0" font-size="13" fill="#2F7466" font-weight="700" text-anchor="start">원의 크기 = 머문 기간</text>
+<circle cx="52.25" cy="826" r="4.25" fill="#2F7466" fill-opacity="0.18" stroke="#2F7466" stroke-width="1.5"/>
+<text x="62.5" y="831" font-size="11.049999999999999" fill="#2A211B">지나감</text>
+<circle cx="121.30000000000001" cy="826" r="7.6499999999999995" fill="#2F7466" fill-opacity="0.35" stroke="#2F7466" stroke-width="1.5"/>
+<text x="134.95000000000002" y="831" font-size="11.049999999999999" fill="#2A211B">며칠–두어 주</text>
+<circle cx="242.20000000000002" cy="826" r="11.9" fill="#2F7466" fill-opacity="0.52" stroke="#2F7466" stroke-width="1.5"/>
+<text x="260.1" y="831" font-size="11.049999999999999" fill="#2A211B">몇 주–몇 달</text>
+<circle cx="373.3" cy="826" r="17.849999999999998" fill="#2F7466" fill-opacity="0.69" stroke="#2F7466" stroke-width="1.5"/>
+<text x="397.15" y="831" font-size="11.049999999999999" fill="#2A211B">1년 이상</text>
+<text x="48.0" y="866.0" font-size="13" fill="#6B5C52" font-weight="400" text-anchor="start">실선 = 땅길 · 점선 = 바닷길 · 위치는 대략</text>
 </svg>

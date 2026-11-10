@@ -40,18 +40,26 @@ const REGIONS = [
 const J = {
   1: { name: '1차 전도여행', ref: '행 13–14장 · 약 AD 46–48', color: '#B5532F',
     who: '바나바 · 사울(바울) · 마가 요한(버가에서 돌아감)',
+    letters: [['안디옥', '갈라디아서 *', '갈 *', -150, 40]],
+    stays: { '비시디아 안디옥': [1, '두 안식일 넘게(13:44)'], 이고니온: [2, '「오래」(14:3)'], 안디옥: [2, '돌아와 「오래」(14:28)'] },
     route: ['안디옥', '실루기아', '~살라미', '바보', '~버가', '비시디아 안디옥', '이고니온', '루스드라', '더베', '루스드라', '이고니온', '비시디아 안디옥', '버가', '앗달리아', '~안디옥'],
     notes: ['실루기아에서 배로 구브로(바나바의 고향)', '바보 — 총독 서기오 바울이 믿음(13:12)', '비시디아 안디옥 회당 설교(13:16–41)', '루스드라 — 신으로 떠받들다 돌에 맞음(14:19)', '더베에서 왔던 길로 돌아가며 장로를 세움(14:23)'] },
   2: { name: '2차 전도여행', ref: '행 15:36–18:22 · 약 AD 50–52', color: '#2F7466',
     who: '바울 · 실라 · 디모데(루스드라에서 합류) · 누가(드로아부터, 「우리」)',
+    letters: [['고린도', '데살로니가전서 · 후서', '살전 · 살후', -60, 60]],
+    stays: { 빌립보: [1, '수일(16:12)'], 데살로니가: [1, '세 안식일(17:2)'], 고린도: [3, '1년 6개월(18:11)'], 에베소: [0, '잠시(18:19–21)'] },
     route: ['안디옥', '다소', '더베', '루스드라', '이고니온', '비시디아 안디옥', '드로아', '~네압볼리', '빌립보', '암비볼리', '데살로니가', '베뢰아', '~아덴', '고린도', '겐그레아', '~에베소', '~가이사랴', '예루살렘', '안디옥'],
     notes: ['마게도냐 사람의 환상 — 「건너와서 우리를 도우라」(16:9)', '빌립보 — 루디아, 감옥의 찬송(16장) · 유럽 첫 교회', '데살로니가 · 베뢰아 — 말씀을 상고함(17:11)', '아덴 — 아레오바고 설교(17:22–31)', '고린도 1년 6개월 — 데살로니가전후서를 씀'] },
   3: { name: '3차 전도여행', ref: '행 18:23–21:16 · 약 AD 53–57', color: '#64457F',
     who: '바울 · 디모데 · 누가 등',
+    letters: [['에베소', '고린도전서', '고전', 30, 60], ['빌립보', '고린도후서', '고후', 40, -40], ['고린도', '로마서', '롬', -60, 60]],
+    stays: { 에베소: [3, '3년(20:31)'], 고린도: [2, '헬라 석 달(20:3)'], 드로아: [1, '이레(20:6)'], 두로: [1, '이레(21:4)'], 가이사랴: [1, '여러 날(21:10)'] },
     route: ['안디옥', '다소', '더베', '루스드라', '이고니온', '비시디아 안디옥', '에베소', '드로아', '~빌립보', '데살로니가', '베뢰아', '고린도', '베뢰아', '데살로니가', '빌립보', '~드로아', '앗소', '~미둘레네', '~밀레도', '~로도', '~바다라', '~두로', '~돌레마이', '가이사랴', '예루살렘'],
     notes: ['에베소 약 3년 — 두란노 서원(19:9), 고린도전서', '마게도냐에서 고린도후서 · 고린도 석 달 — 로마서', '드로아 — 유두고를 살림(20:9)', '밀레도 — 에베소 장로들과의 눈물의 작별(20:17–38)', '예루살렘 — 체포(21장)'] },
   4: { name: '로마로 가는 길', ref: '행 27–28장 · 약 AD 59–60', color: '#952B38',
     who: '죄수 바울 · 누가 · 아리스다고 — 백부장 율리오',
+    letters: [['로마', '에베소서 · 빌립보서 · 골로새서 · 빌레몬서 (옥중서신)', '엡 · 빌 · 골 · 몬', 40, 60]],
+    stays: { 가이사랴: [3, '2년 구금(24:27)'], 미항: [1, '여러 날(27:9)'], 멜리데: [2, '석 달(28:11)'], 수라구사: [1, '사흘(28:12)'], 보디올: [1, '이레(28:14)'], 로마: [3, '셋집 2년(28:30)'] },
     route: ['가이사랴', '~시돈', '~무라', '~미항', '~멜리데', '~수라구사', '~레기온', '~보디올', '로마'],
     notes: ['가이사랴에서 2년 구금 뒤 「가이사께 호소」(25:11)', '미항에서 겨울을 나지 않고 떠나 유라굴로 광풍(27:14)', '14일 표류 끝에 멜리데 섬에 난파 — 276명 모두 구조(27:37, 44)', '보디올에서 육로로 로마(28:14)', '로마 셋집 2년 — 「담대히 … 금하는 사람이 없었더라」(28:31)'] },
 };
@@ -128,22 +136,65 @@ function drawMap(s, { ext, box, journeys, labels = 'all', id = 'm' }) {
     }
   }
   const MAJOR = new Set(['예루살렘', '안디옥', '에베소', '고린도', '빌립보', '아덴', '데살로니가', '드로아', '가이사랴', '로마', '멜리데', '미항', '바보', '루스드라', '더베', '비시디아 안디옥', '이고니온', '밀레도']);
+  // 머문 기간 — 원의 크기 (0 지나감 · 1 며칠–두어 주 · 2 몇 주–몇 달 · 3 1년 이상)
+  const R = [5, 9, 14, 21];
+  const stayOf = (name) => {
+    let best = null;
+    for (const n of journeys) { const st = (J[n].stays || {})[name]; if (st && (!best || st[0] > best[0])) best = [...st, J[n].color]; }
+    return best;
+  };
+  const order = [...used].sort((a, b) => ((stayOf(b) || [0])[0]) - ((stayOf(a) || [0])[0]));
+  for (const name of order) {
+    const st = stayOf(name);
+    if (!st) continue;
+    const [x, y] = P(C[name][0], C[name][1]);
+    const r = R[st[0]] * (small ? 0.75 : 1);
+    s.push(`<circle cx="${x}" cy="${y}" r="${r}" fill="${st[2]}" fill-opacity="${0.18 + st[0] * 0.17}" stroke="${st[2]}" stroke-width="2"/>`);
+  }
   for (const name of used) {
     const [lo, la, dx, dy, an] = C[name];
     const [x, y] = P(lo, la);
     const big = name === '예루살렘' || name === '안디옥' || name === '로마';
-    const label = labels === 'all' || MAJOR.has(name);
-    s.push(`<circle cx="${x}" cy="${y}" r="${label ? (big ? 7 : 5) : 3.5}" fill="#FFFFFF" stroke="${INK}" stroke-width="${label ? 2 : 1.5}"/>`);
+    const st = stayOf(name);
+    const label = labels === 'all' || MAJOR.has(name) || st;
+    s.push(`<circle cx="${x}" cy="${y}" r="${label ? (big ? 6 : 4.5) : 3.5}" fill="#FFFFFF" stroke="${INK}" stroke-width="${label ? 2 : 1.5}"/>`);
     if (label) {
       const f = small ? 0.75 : 1;
-      t(x + dx * f, y + dy * f, name, (big ? 17 : 14) * f, INK, big ? 700 : 600, an, ' paint-order="stroke" stroke="#FFFFFF" stroke-width="4"');
+      const push = st ? R[st[0]] * f - 4 : 0; // 큰 원 밖으로 이름을 민다
+      const ex = dx === 0 ? 0 : Math.sign(dx) * push, ey = dy === 0 ? 0 : Math.sign(dy) * push;
+      t(x + dx * f + ex, y + dy * f + ey, name, (big ? 17 : 14) * f, INK, big ? 700 : 600, an, ' paint-order="stroke" stroke="#FFFFFF" stroke-width="4"');
     }
+  }
+  // 편지 표시 — 이 여행 중 이 도시에서 쓴 편지
+  for (const n of journeys) for (const [city, full, short, bx, by] of (J[n].letters || [])) {
+    const [x, y] = P(C[city][0], C[city][1]);
+    const label = small ? short : full;
+    const fs2 = small ? 11 : 14;
+    const w = label.length * fs2 * 0.92 + (small ? 34 : 44), h = small ? 22 : 30;
+    const f = small ? 0.6 : 1;
+    const X = x + bx * f, Y = y + by * f;
+    s.push(`<line x1="${x}" y1="${y}" x2="${X + w / 2}" y2="${Y}" stroke="${INK}" stroke-width="1.5"/>`);
+    s.push(`<rect x="${X}" y="${Y - h / 2}" width="${w}" height="${h}" rx="${h / 2}" fill="${INK}"/>`);
+    // 봉투 그림
+    const ex = X + (small ? 8 : 12), ey = Y - (small ? 4 : 6), ew = small ? 14 : 18, eh = small ? 9 : 12;
+    s.push(`<rect x="${ex}" y="${ey}" width="${ew}" height="${eh}" fill="#FFFFFF" rx="1.5"/><path d="M${ex},${ey} L${ex + ew / 2},${ey + eh * 0.6} L${ex + ew},${ey}" fill="none" stroke="${INK}" stroke-width="1.3"/>`);
+    t(ex + ew + 6, Y + fs2 * 0.36, label, fs2, '#FFFFFF', 700);
   }
   s.push('</g>');
   s.push(`<rect x="${mx0}" y="${my0}" width="${mx1 - mx0}" height="${my1 - my0}" rx="10" fill="none" stroke="${COAST}"/>`);
   return { t, mx0, my0, mx1, my1 };
 }
 
+function legend(s, x, y, f = 1, color = '#6B5C52') {
+  const R = [5, 9, 14, 21];
+  const L = ['지나감', '며칠–두어 주', '몇 주–몇 달', '1년 이상'];
+  let cx = x;
+  R.forEach((r, i) => {
+    s.push(`<circle cx="${cx + r * f}" cy="${y}" r="${r * f}" fill="${color}" fill-opacity="${0.18 + i * 0.17}" stroke="${color}" stroke-width="1.5"/>`);
+    s.push(`<text x="${cx + 2 * r * f + 6}" y="${y + 5}" font-size="${13 * f}" fill="${INK}">${L[i]}</text>`);
+    cx += 2 * r * f + 6 + L[i].length * 13 * f + 18;
+  });
+}
 function svgStart() {
   return [`<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="${FONT}">`, '<rect width="1600" height="900" fill="#FFFFFF"/>'];
 }
@@ -169,17 +220,19 @@ function single(n, ext, file, title, sub) {
   t(48, y, '함께한 사람', 14, j.color, 700); y += 24;
   t(48, y, j.who, 14, INK); y += 40;
   t(48, y, '꼭 짚을 장면', 14, j.color, 700); y += 28;
-  for (const note of j.notes) { t(56, y, '· ' + note, 14.5, INK); y += 30; }
-  y += 14;
-  const words = j.route.map((r) => r.replace('~', '')).filter((r, i, a) => i === 0 || r !== a[i - 1]);
-  let line = '경로 — ';
-  for (let i = 0; i < words.length; i++) {
-    const piece = words[i] + (i < words.length - 1 ? ' → ' : '');
-    if ((line + piece).length > 33) { t(48, y, line, 13.5, MUTED); y += 23; line = ''; }
-    line += piece;
+  for (const note of j.notes) { t(56, y, '· ' + note, 14, INK); y += 26; }
+  y += 8;
+  const stays = Object.entries(j.stays || {}).filter(([, v]) => v[0] > 0).sort((a, b) => b[1][0] - a[1][0]);
+  if (stays.length) { t(48, y, '머문 기간', 14, j.color, 700); y += 26; for (const [c, v] of stays) { t(56, y, `· ${c} ${v[1]}`, 14, INK); y += 24; } y += 10; }
+  if ((j.letters || []).length) {
+    t(48, y, '이 길에서 쓴 편지', 14, j.color, 700); y += 26;
+    for (const [city, full] of j.letters) { t(56, y, `· ${city}에서 — ${full}`, 14, INK, 700); y += 26; }
+    if (n === 1) { t(56, y, '* 남갈라디아설을 따를 때. 북갈라디아설이면 3차 여행 중', 12, MUTED); y += 22; }
+    y += 8;
   }
-  t(48, y, line, 13.5, MUTED);
-  t(48, 852, '실선 = 땅길 · 점선 = 바닷길 · 위치는 대략', 13, MUTED);
+  t(48, 800, '원의 크기 = 머문 기간', 13, j.color, 700);
+  legend(s, 48, 826, 0.85, j.color);
+  t(48, 866, '실선 = 땅길 · 점선 = 바닷길 · 위치는 대략', 13, MUTED);
   save(s, file);
 }
 
@@ -187,7 +240,8 @@ function single(n, ext, file, title, sub) {
 function compare(file) {
   const s = svgStart();
   s.push(`<text x="48" y="70" font-size="32" fill="${INK}" font-weight="700">바울의 세 번의 전도여행 — 나란히 보기</text>`);
-  s.push(`<text x="48" y="102" font-size="15" fill="${MUTED}">같은 지역 · 같은 크기 · 실선 = 땅길, 점선 = 바닷길</text>`);
+  s.push(`<text x="48" y="102" font-size="15" fill="${MUTED}">같은 지역 · 같은 크기 · 실선 = 땅길, 점선 = 바닷길 · 원의 크기 = 머문 기간</text>`);
+  legend(s, 860, 96, 0.85);
   const W = 500, G = 26, X = (1600 - 3 * W - 2 * G) / 2;
   [1, 2, 3].forEach((n, i) => {
     const x = X + i * (W + G);
@@ -196,12 +250,14 @@ function compare(file) {
     s.push(`<text x="${x + 18}" y="166" font-size="22" fill="#FFFFFF" font-weight="700">${esc(j.name)}</text>`);
     s.push(`<text x="${x + W - 16}" y="165" font-size="13" fill="#FFFFFF" text-anchor="end">${esc(j.ref)}</text>`);
     drawMap(s, { ext: EAST, box: { x, y: 196, w: W, h: 400 }, journeys: [n], labels: 'major', id: 'c' + n });
-    let y = 640;
-    for (const note of j.notes.slice(0, 4)) {
-      s.push(`<text x="${x + 6}" y="${y}" font-size="14" fill="${INK}">${esc('· ' + note)}</text>`);
-      y += 28;
-    }
-    s.push(`<text x="${x + 6}" y="${y + 14}" font-size="13" fill="${MUTED}">${esc('함께한 사람 — ' + j.who.replace(/\(.*?\)/g, ''))}</text>`);
+    let y = 630;
+    const stays = Object.entries(j.stays || {}).filter(([, v]) => v[0] > 0).sort((a, b) => b[1][0] - a[1][0]);
+    s.push(`<text x="${x + 6}" y="${y}" font-size="14" fill="${j.color}" font-weight="700">머문 기간</text>`); y += 24;
+    for (const [c, v] of stays.slice(0, 3)) { s.push(`<text x="${x + 14}" y="${y}" font-size="14" fill="${INK}">${esc('· ' + c + ' ' + v[1])}</text>`); y += 24; }
+    y += 10;
+    s.push(`<text x="${x + 6}" y="${y}" font-size="14" fill="${j.color}" font-weight="700">이 길에서 쓴 편지</text>`); y += 24;
+    for (const [city, full] of j.letters) { s.push(`<text x="${x + 14}" y="${y}" font-size="14" fill="${INK}" font-weight="700">${esc('· ' + city + '에서 — ' + full)}</text>`); y += 24; }
+    if (n === 1) s.push(`<text x="${x + 14}" y="${y}" font-size="12" fill="${MUTED}">* 남갈라디아설을 따를 때 (북갈라디아설이면 3차 중)</text>`);
   });
   save(s, file);
 }
