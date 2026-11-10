@@ -44,91 +44,85 @@ class Svg:
 
 
 # ---------------------------------------------------------------- 1) 행 1:8
-# (무대, 장, 제목, 설명 줄들, 핍박?, 「말씀이 흥왕」 구절)
-EVENTS = [
-    (1, '8장', '핍박 →|사마리아', ['「큰 핍박이', '나서 … 흩어지', '니라」(8:1)', '빌립이 사마리아로'], True, None),
-    (1, '9장', '사울의|회심', ['다메섹 길의 빛', '「택한', '나의 그릇」', '(9:15)'], False, None),
-    (1, '9장', '베드로의|온 유대 사역', ['룻다 · 욥바', '애니아', '다비다'], False, '9:31'),
-    (1, '10장', '고넬료의|집', ['이방 선교의', '신학이 서다', '「이방인에게도', '생명 얻는 회개」', '(11:18)'], False, None),
-    (1, '11장', '안디옥|교회', ['처음으로', '「그리스도인」', '(11:26)'], False, None),
-    (1, '12장', '야고보의|순교', ['베드로 투옥', '헤롯의 죽음'], True, '12:24'),
-    (2, '13장', '바나바와|사울 파송', ['안디옥 교회가', '금식하고', '안수하여', '보내다(13:3)'], False, None),
-    (2, '13–21장', '세 번의|전도여행', ['소아시아', '→ 유럽'], True, '16:5 · 19:20'),
-    (2, '21–28장', '체포와|로마', ['「담대히 …', '금하는 사람이', '없었더라」', '(28:31)'], True, '28:31'),
+# 무대 폭 = 그 무대의 절 수 (앱 성경 DB) — 분량을 눈으로 보이게 한다
+import sqlite3
+_db = sqlite3.connect(os.path.join(os.path.dirname(__file__), '../../assets/bible-data/bible.db'))
+_vc = dict(_db.execute("select chapter, count(*) from verses v join books b on b.id=v.book_id "
+                       "where b.name_ko='사도행전' and translation='krv' group by chapter").fetchall())
+ZONES = [('예루살렘', 1, 7), ('온 유대와 사마리아', 8, 12), ('땅 끝까지', 13, 28)]
+ZV = [sum(_vc[c] for c in range(a, b + 1)) for _, a, b in ZONES]
+
+# (장, 제목, 덧붙임, 핍박?)
+ROWS = [
+    [('1장', '승천과 맛디아', '「땅 끝까지 … 내 증인」', False),
+     ('2장', '성령 강림', '하루에 3천 명', False),
+     ('3장', '앉은뱅이 치유', '미문 앞', False),
+     ('4장', '핍박과 부흥', '5천 명 회심', True),
+     ('5장', '아나니아와 삽비라', '', False),
+     ('6장', '일곱 사람(집사) 세움', '', False),
+     ('7장', '스데반의 설교와 순교', '', True)],
+    [('8장', '핍박 → 사마리아', '빌립 · 에디오피아 내시', True),
+     ('9장', '사울의 회심', '베드로의 온 유대 사역', False),
+     ('10장', '고넬료의 집', '이방 선교의 신학', False),
+     ('11장', '안디옥 교회', '처음 「그리스도인」', False),
+     ('12장', '야고보의 순교', '베드로 투옥 · 헤롯의 죽음', True)],
+    [('13장', '안디옥 교회의 파송', '바나바와 사울', False),
+     ('13–14장', '1차 전도여행', '구브로 · 갈라디아 — 루스드라에서 돌에 맞음', True),
+     ('15장', '예루살렘 회의', '이방인은 할례 없이 믿음으로', False),
+     ('16–18장', '2차 전도여행 — 유럽으로', '빌립보 투옥 · 데살로니가 · 아덴 · 고린도', True),
+     ('19–21장', '3차 전도여행', '에베소 3년 · 예루살렘으로', False),
+     ('21–26장', '체포와 변론', '벨릭스 · 베스도 · 아그립바 앞에서', True),
+     ('27–28장', '로마로', '난파 · 셋집 2년 · 「금하는 사람이 없었더라」', False)],
 ]
-JERUSALEM = [('1장', '승천과 맛디아'), ('2장', '성령 강림 · 3천 명'), ('3장', '앉은뱅이 치유'), ('4장', '핍박과 부흥 · 5천 명'),
-             ('5장', '아나니아와 삽비라'), ('6장', '일곱 사람(집사) 세움'), ('7장', '스데반의 설교와 순교')]
-ZONES = [('예루살렘', '1–7장'), ('온 유대와 사마리아', '8–12장'), ('땅 끝까지', '13–28장')]
+GROWS = [['6:7'], ['9:31', '12:24'], ['16:5', '19:20', '28:31']]
 
 W, H = 1600, 900
 v = Svg(W, H)
 v.text(60, 68, '사도행전 1:8 — 복음이 퍼져 나간 길', 34, INK, 700)
-v.text(60, 104, '「오직 성령이 너희에게 임하시면 너희가 권능을 받고 예루살렘과 온 유대와 사마리아 땅 끝까지 이르러 내 증인이 되리라」', 17, MUTED)
+v.text(60, 104, '「예루살렘과 온 유대와 사마리아 땅 끝까지 이르러 내 증인이 되리라」 · 칸의 폭 = 분량(절 수)', 17, MUTED)
 
 X0, X1 = 60, 1540
-n = len(EVENTS)
-gap = 10
-JW = 250  # 예루살렘 칸 폭
-cw = (X1 - X0 - JW - gap * n) / n
-cx = lambda i: X0 + JW + gap + i * (cw + gap)
+gap = 14
+avail = X1 - X0 - gap * 2
+xs = []
+x = X0
+for z in range(3):
+    w = avail * ZV[z] / sum(ZV)
+    xs.append((x, x + w))
+    x += w + gap
 
-# 무대 띠
 ZY = 140
-for z, (name, chs) in enumerate(ZONES):
-    if z == 0:
-        a, b = X0, X0 + JW
-    else:
-        idx = [i for i, e in enumerate(EVENTS) if e[0] == z]
-        a, b = cx(idx[0]), cx(idx[-1]) + cw
-    v.rect(a, ZY, b - a, 64, Z[z], 10)
-    v.text((a + b) / 2, ZY + 30, name, 22, '#FFFFFF', 700, 'middle')
-    v.text((a + b) / 2, ZY + 53, chs, 14, '#FFFFFF', 400, 'middle')
-    v.rect(a, ZY + 74, b - a, 532, ZS[z], 10)
+for z, (name, a, b) in enumerate(ZONES):
+    l, r = xs[z]
+    pct = round(ZV[z] / sum(ZV) * 100)
+    v.rect(l, ZY, r - l, 74, Z[z], 10)
+    v.text((l + r) / 2, ZY + 32, name, 22, '#FFFFFF', 700, 'middle')
+    v.text((l + r) / 2, ZY + 58, f'{a}–{b}장 · {ZV[z]}절 · 전체의 {pct}%', 14, '#FFFFFF', 400, 'middle')
+    v.rect(l, ZY + 84, r - l, 610, ZS[z], 10)
+    rows = ROWS[z]
+    rh = 66
+    for k, (ch, title, sub, pers) in enumerate(rows):
+        y = ZY + 102 + k * (rh + 8)
+        v.rect(l + 10, y, r - l - 20, rh, '#FFFFFF', 10)
+        pw = 64 if len(ch) > 3 else 46
+        v.rect(l + 22, y + 19, pw, 28, DARK if pers else Z[z], 14)
+        v.text(l + 22 + pw / 2, y + 38, ch, 13, '#FFFFFF', 700, 'middle')
+        tx = l + 22 + pw + 12
+        if sub:
+            v.text(tx, y + 29, title, 16, INK, 700)
+            v.text(tx, y + 50, sub, 12.5, MUTED)
+        else:
+            v.text(tx, y + 40, title, 16, INK, 700)
+    gx = l + 10
+    gw = (r - l - 20 - 8 * (len(GROWS[z]) - 1)) / len(GROWS[z])
+    for k, ref in enumerate(GROWS[z]):
+        v.rect(gx + k * (gw + 8), ZY + 640, gw, 42, GROW, 10)
+        v.text(gx + k * (gw + 8) + gw / 2, ZY + 667, f'말씀이 흥왕 {ref}', 13, '#FFFFFF', 700, 'middle')
 
-# 흐름 화살표
-AY = ZY + 104
-v.arrow(X0 + 6, AY, X1 - 4, MUTED, 3)
-v.s.append(f'<circle cx="{X0 + JW / 2:.1f}" cy="{AY}" r="9" fill="{Z[0]}" stroke="#FFFFFF" stroke-width="3"/>')
-v.rect(X0 + 8, AY + 22, JW - 16, 404, '#FFFFFF', 10)
-for k, (ch, title) in enumerate(JERUSALEM):
-    yy = AY + 58 + k * 52
-    v.rect(X0 + 20, yy - 20, 46, 28, DARK if ch in ('4장', '7장') else Z[0], 14)  # 어두운 장 = 핍박
-    v.text(X0 + 43, yy - 1, ch, 13, '#FFFFFF', 700, 'middle')
-    v.text(X0 + 76, yy, title, 15, INK, 700)
-gy = AY + 448
-v.rect(X0 + 40, gy, JW - 80, 46, GROW, 10)
-v.text(X0 + JW / 2, gy + 20, '말씀이 흥왕', 13, '#FFFFFF', 700, 'middle')
-v.text(X0 + JW / 2, gy + 38, '6:7', 12, '#FFFFFF', 400, 'middle')
-
-for i, (z, ch, title, rows, persecution, grow) in enumerate(EVENTS):
-    x = cx(i)
-    # 장 표시 원
-    v.s.append(f'<circle cx="{x + cw / 2:.1f}" cy="{AY}" r="9" fill="{Z[z]}" stroke="#FFFFFF" stroke-width="3"/>')
-    v.text(x + cw / 2, AY + 34, ch, 14, Z[z], 700, 'middle')
-    # 카드
-    cy = AY + 48
-    v.rect(x + 4, cy, cw - 8, 220, '#FFFFFF', 10)
-    t1, t2 = title.split('|')
-    v.text(x + cw / 2, cy + 30, t1, 16, INK, 700, 'middle')
-    v.text(x + cw / 2, cy + 52, t2, 16, INK, 700, 'middle')
-    v.lines(x + cw / 2, cy + 84, rows, 12, MUTED, 400, 'middle')
-    if persecution:
-        v.rect(x + cw / 2 - 30, cy + 180, 60, 26, DARK, 13)
-        v.text(x + cw / 2, cy + 198, '핍박', 13, '#FFFFFF', 700, 'middle')
-    if grow:
-        gy = AY + 448
-        v.rect(x + 8, gy, cw - 16, 46, GROW, 10)
-        v.text(x + cw / 2, gy + 20, '말씀이 흥왕', 13, '#FFFFFF', 700, 'middle')
-        v.text(x + cw / 2, gy + 38, grow, 12, '#FFFFFF', 400, 'middle')
-
-# 아래 설명
-v.rect(X0, 760, X1 - X0, 96, '#F2F0EE', 12)
-v.rect(X0 + 24, 786, 54, 26, DARK, 13)
-v.text(X0 + 51, 804, '핍박', 13, '#FFFFFF', 700, 'middle')
-v.text(X0 + 92, 805, '(예루살렘 칸의 어두운 장도 핍박) 핍박이 올 때마다 복음은 다음 무대로 넘어갔다 — 스데반의 순교가 사마리아로, 야고보의 순교 뒤에 땅 끝으로.', 16, INK)
-v.rect(X0 + 24, 822, 54, 26, GROW, 13)
-v.text(X0 + 51, 840, '흥왕', 13, '#FFFFFF', 700, 'middle')
-v.text(X0 + 92, 841, '누가는 무대가 바뀔 때마다 「말씀이 흥왕하였다」로 매듭짓는다 — 6:7 · 9:31 · 12:24 · 16:5 · 19:20 · 28:31', 16, INK)
+v.rect(X0, 846, X1 - X0, 40, '#F2F0EE', 10)
+v.rect(X0 + 16, 853, 46, 26, DARK, 13)
+v.text(X0 + 39, 871, '장', 13, '#FFFFFF', 700, 'middle')
+v.text(X0 + 74, 872, '어두운 장 = 핍박. 핍박이 올 때마다 복음은 다음 무대로 넘어갔다 · 누가는 무대마다 「말씀이 흥왕하였다」로 매듭짓는다', 15, INK)
 v.save('acts-18.svg')
 
 # ---------------------------------------------------------------- 2) 사울의 길
@@ -142,6 +136,7 @@ STEPS = [
     ('안디옥', '바나바가 찾아옴', ['「사울을 찾으러', '다소에 가서」', '1년 동안 가르침', '흉년 구제금 전달'], '행 11:25–30', '1년 (11:26)'),
     ('안디옥', '파송', ['선지자 · 교사', '명단에 「및 사울」', '(13:1)', '금식하고 안수하여'], '행 13:1–3', 'AD 46–47'),
 ]
+X0, X1 = 60, 1540
 W2, H2 = 1600, 900
 s = Svg(W2, H2)
 s.text(60, 68, '회심에서 파송까지 — 사울의 길', 34, INK, 700)
