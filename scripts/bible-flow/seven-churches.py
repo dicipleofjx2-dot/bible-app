@@ -33,30 +33,9 @@ def wrap(txt, n):
 t(60, 60, '일곱 교회의 환상과 편지 — 요한계시록 1–3장', 32, INK, 700)
 t(60, 92, '「네 본 것은 … 일곱 별은 일곱 교회의 사자요 일곱 촛대는 일곱 교회니라」(1:20)', 16, MUTED)
 
-# ---- 환상 그림: 일곱 금 촛대 반원 + 가운데 인자 같은 이 + 일곱 별
-rect(60, 112, 640, 300, '#1F2433', 16)
-cx, R = 380, 250
-FX, FY = cx, 190
-for i in range(7):
-    a = math.pi * i / 6
-    x, y = cx - R + i * (2 * R / 6), 262 + 60 * math.sin(a)
-    s.append(f'<rect x="{x - 4}" y="{y - 6}" width="8" height="40" fill="{GOLD}"/>')
-    s.append(f'<rect x="{x - 14}" y="{y + 32}" width="28" height="6" rx="3" fill="{GOLD}"/>')
-    s.append(f'<ellipse cx="{x}" cy="{y - 15}" rx="6" ry="11" fill="#F6C453"/>')
-    t(x, y + 56, CH[i][0], 12.5, '#F2E6C9', 700, 'middle')
-s.append(f'<circle cx="{FX}" cy="{FY}" r="46" fill="#F6E7B8" opacity="0.25"/>')
-s.append(f'<circle cx="{FX}" cy="{FY}" r="26" fill="#FFF6DA"/>')
-t(FX, FY + 66, '인자 같은 이', 15, '#FFF6DA', 700, 'middle')
-for i in range(7):
-    a = 2 * math.pi * i / 7
-    x, y = FX + 74 + 14 * math.cos(a), FY - 18 + 14 * math.sin(a)
-    s.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.5" fill="#FFFFFF"/>')
-t(FX + 96, FY - 14, '오른손의 일곱 별', 12, '#FFF6DA', 400, 'start')
-t(80, 140, '1:12–16', 13, '#F6C453', 700)
-
 # ---- 환상 풀이
-X = 730
-rect(X, 112, 810, 300, '#F7F4F1', 16)
+X = 60
+rect(X, 112, 1480, 300, '#F7F4F1', 16)
 t(X + 24, 148, '환상의 뜻', 20, INK, 700)
 lines = [
     ('일곱 금 촛대', '= 일곱 교회 (1:20)'),

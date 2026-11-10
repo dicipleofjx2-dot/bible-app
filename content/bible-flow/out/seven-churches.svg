@@ -2,58 +2,17 @@
 <rect width="1600" height="900" fill="#FFFFFF"/>
 <text x="60.0" y="60.0" font-size="32" fill="#2A211B" font-weight="700" text-anchor="start">일곱 교회의 환상과 편지 — 요한계시록 1–3장</text>
 <text x="60.0" y="92.0" font-size="16" fill="#6B5C52" font-weight="400" text-anchor="start">「네 본 것은 … 일곱 별은 일곱 교회의 사자요 일곱 촛대는 일곱 교회니라」(1:20)</text>
-<rect x="60.0" y="112.0" width="640.0" height="300.0" rx="16" fill="#1F2433" stroke="none"/>
-<rect x="126.0" y="256.0" width="8" height="40" fill="#B8860B"/>
-<rect x="116.0" y="294.0" width="28" height="6" rx="3" fill="#B8860B"/>
-<ellipse cx="130.0" cy="247.0" rx="6" ry="11" fill="#F6C453"/>
-<text x="130.0" y="318.0" font-size="12.5" fill="#F2E6C9" font-weight="700" text-anchor="middle">에베소</text>
-<rect x="209.33333333333331" y="286.0" width="8" height="40" fill="#B8860B"/>
-<rect x="199.33333333333331" y="324.0" width="28" height="6" rx="3" fill="#B8860B"/>
-<ellipse cx="213.33333333333331" cy="277.0" rx="6" ry="11" fill="#F6C453"/>
-<text x="213.3" y="348.0" font-size="12.5" fill="#F2E6C9" font-weight="700" text-anchor="middle">서머나</text>
-<rect x="292.66666666666663" y="307.9615242270663" width="8" height="40" fill="#B8860B"/>
-<rect x="282.66666666666663" y="345.9615242270663" width="28" height="6" rx="3" fill="#B8860B"/>
-<ellipse cx="296.66666666666663" cy="298.9615242270663" rx="6" ry="11" fill="#F6C453"/>
-<text x="296.7" y="370.0" font-size="12.5" fill="#F2E6C9" font-weight="700" text-anchor="middle">버가모</text>
-<rect x="376.0" y="316.0" width="8" height="40" fill="#B8860B"/>
-<rect x="366.0" y="354.0" width="28" height="6" rx="3" fill="#B8860B"/>
-<ellipse cx="380.0" cy="307.0" rx="6" ry="11" fill="#F6C453"/>
-<text x="380.0" y="378.0" font-size="12.5" fill="#F2E6C9" font-weight="700" text-anchor="middle">두아디라</text>
-<rect x="459.3333333333333" y="307.9615242270663" width="8" height="40" fill="#B8860B"/>
-<rect x="449.3333333333333" y="345.9615242270663" width="28" height="6" rx="3" fill="#B8860B"/>
-<ellipse cx="463.3333333333333" cy="298.9615242270663" rx="6" ry="11" fill="#F6C453"/>
-<text x="463.3" y="370.0" font-size="12.5" fill="#F2E6C9" font-weight="700" text-anchor="middle">사데</text>
-<rect x="542.6666666666666" y="286.0" width="8" height="40" fill="#B8860B"/>
-<rect x="532.6666666666666" y="324.0" width="28" height="6" rx="3" fill="#B8860B"/>
-<ellipse cx="546.6666666666666" cy="277.0" rx="6" ry="11" fill="#F6C453"/>
-<text x="546.7" y="348.0" font-size="12.5" fill="#F2E6C9" font-weight="700" text-anchor="middle">빌라델비아</text>
-<rect x="626.0" y="256.0" width="8" height="40" fill="#B8860B"/>
-<rect x="616.0" y="294.0" width="28" height="6" rx="3" fill="#B8860B"/>
-<ellipse cx="630.0" cy="247.0" rx="6" ry="11" fill="#F6C453"/>
-<text x="630.0" y="318.0" font-size="12.5" fill="#F2E6C9" font-weight="700" text-anchor="middle">라오디게아</text>
-<circle cx="380" cy="190" r="46" fill="#F6E7B8" opacity="0.25"/>
-<circle cx="380" cy="190" r="26" fill="#FFF6DA"/>
-<text x="380.0" y="256.0" font-size="15" fill="#FFF6DA" font-weight="700" text-anchor="middle">인자 같은 이</text>
-<circle cx="468.0" cy="172.0" r="3.5" fill="#FFFFFF"/>
-<circle cx="462.7" cy="182.9" r="3.5" fill="#FFFFFF"/>
-<circle cx="450.9" cy="185.6" r="3.5" fill="#FFFFFF"/>
-<circle cx="441.4" cy="178.1" r="3.5" fill="#FFFFFF"/>
-<circle cx="441.4" cy="165.9" r="3.5" fill="#FFFFFF"/>
-<circle cx="450.9" cy="158.4" r="3.5" fill="#FFFFFF"/>
-<circle cx="462.7" cy="161.1" r="3.5" fill="#FFFFFF"/>
-<text x="476.0" y="176.0" font-size="12" fill="#FFF6DA" font-weight="400" text-anchor="start">오른손의 일곱 별</text>
-<text x="80.0" y="140.0" font-size="13" fill="#F6C453" font-weight="700" text-anchor="start">1:12–16</text>
-<rect x="730.0" y="112.0" width="810.0" height="300.0" rx="16" fill="#F7F4F1" stroke="none"/>
-<text x="754.0" y="148.0" font-size="20" fill="#2A211B" font-weight="700" text-anchor="start">환상의 뜻</text>
-<text x="754.0" y="188.0" font-size="16" fill="#B8860B" font-weight="700" text-anchor="start">일곱 금 촛대</text>
-<text x="1000.0" y="188.0" font-size="15" fill="#2A211B" font-weight="400" text-anchor="start">= 일곱 교회 (1:20)</text>
-<text x="754.0" y="222.0" font-size="16" fill="#B8860B" font-weight="700" text-anchor="start">일곱 별</text>
-<text x="1000.0" y="222.0" font-size="15" fill="#2A211B" font-weight="400" text-anchor="start">= 일곱 교회의 사자 (1:20)</text>
-<text x="754.0" y="256.0" font-size="16" fill="#B8860B" font-weight="700" text-anchor="start">촛대 사이의 인자 같은 이</text>
-<text x="1000.0" y="256.0" font-size="15" fill="#2A211B" font-weight="400" text-anchor="start">= 영광의 그리스도 — 「처음이요 나중이니 곧 산 자라」(1:17–18)</text>
-<text x="754.0" y="310.0" font-size="15" fill="#2A211B" font-weight="700" text-anchor="start">→ 영광의 그리스도께서 교회들 한가운데를 다니시며 교회를 붙들고 계신다.</text>
-<text x="754.0" y="340.0" font-size="15" fill="#2A211B" font-weight="400" text-anchor="start">→ 하늘 보좌(4장)와 두루마리(5장)를 보기 전에, 먼저 땅의 교회를 살피시는 주님을 본다.</text>
-<text x="754.0" y="370.0" font-size="15" fill="#2A211B" font-weight="400" text-anchor="start">→ 일곱 편지는 모두 1장 환상 속 그리스도의 모습 하나로 시작해, 이기는 자에게 주시는 약속으로 끝난다.</text>
+<rect x="60.0" y="112.0" width="1480.0" height="300.0" rx="16" fill="#F7F4F1" stroke="none"/>
+<text x="84.0" y="148.0" font-size="20" fill="#2A211B" font-weight="700" text-anchor="start">환상의 뜻</text>
+<text x="84.0" y="188.0" font-size="16" fill="#B8860B" font-weight="700" text-anchor="start">일곱 금 촛대</text>
+<text x="330.0" y="188.0" font-size="15" fill="#2A211B" font-weight="400" text-anchor="start">= 일곱 교회 (1:20)</text>
+<text x="84.0" y="222.0" font-size="16" fill="#B8860B" font-weight="700" text-anchor="start">일곱 별</text>
+<text x="330.0" y="222.0" font-size="15" fill="#2A211B" font-weight="400" text-anchor="start">= 일곱 교회의 사자 (1:20)</text>
+<text x="84.0" y="256.0" font-size="16" fill="#B8860B" font-weight="700" text-anchor="start">촛대 사이의 인자 같은 이</text>
+<text x="330.0" y="256.0" font-size="15" fill="#2A211B" font-weight="400" text-anchor="start">= 영광의 그리스도 — 「처음이요 나중이니 곧 산 자라」(1:17–18)</text>
+<text x="84.0" y="310.0" font-size="15" fill="#2A211B" font-weight="700" text-anchor="start">→ 영광의 그리스도께서 교회들 한가운데를 다니시며 교회를 붙들고 계신다.</text>
+<text x="84.0" y="340.0" font-size="15" fill="#2A211B" font-weight="400" text-anchor="start">→ 하늘 보좌(4장)와 두루마리(5장)를 보기 전에, 먼저 땅의 교회를 살피시는 주님을 본다.</text>
+<text x="84.0" y="370.0" font-size="15" fill="#2A211B" font-weight="400" text-anchor="start">→ 일곱 편지는 모두 1장 환상 속 그리스도의 모습 하나로 시작해, 이기는 자에게 주시는 약속으로 끝난다.</text>
 <rect x="60.0" y="432.0" width="202.9" height="446.0" rx="12" fill="#F7F4F1" stroke="#E3DDD7"/>
 <rect x="60.0" y="432.0" width="202.9" height="44.0" rx="12" fill="#2A2F3F" stroke="none"/>
 <rect x="60.0" y="462.0" width="202.9" height="14.0" rx="0" fill="#2A2F3F" stroke="none"/>

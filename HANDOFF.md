@@ -19,6 +19,15 @@ Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
 
+## 이어서 (2026-11-10) — 성경맥잡기: 맥점 순서 8과판 · 사진 · 입체 도식
+
+선생님이 불러 주신 내용을 `content/bible-flow/teaching.md` 에 받아 적고(검토 메모 포함), 맥점 여덟 개 = 8과로 교재를 다시 짰다.
+원고 `nt2.cjs` → `build-docx2.cjs` · `build-pptx2.cjs`(`build.cjs` 가 둘 다 부름). 도식은 파이썬/노드 스크립트가 SVG 를 만들고
+`render.cjs` 가 글씨체(Noto Serif/Sans KR · 나눔명조)와 그림자를 입혀 PNG 로 굽는다. 사진 20장은 위키미디어 공용(PD · CC)에서
+`fetch-photos.py` 로 받았다 — **upload.wikimedia.org 는 이 환경 IP 에 429 를 자주 내서 commons 의 thumb.php(폭 960)로 받는다.**
+이 세션에서 환경 `bible-app`(허용 호스트: commons.wikimedia.org · upload.wikimedia.org)을 새로 만들어 옮겼다. 밧모 섬 사진은 못 받았다.
+사용법은 `content/bible-flow/README.md`.
+
 ## 이어서 (2026-11-09) — 성경맥잡기 1단계 신약편 (전자책 + PPT)
 
 앱 화면이 아니라 **교재**다. 원고 하나 `content/bible-flow/nt.cjs` 에서 전자책(A5 .docx)과
