@@ -7,7 +7,7 @@
 <rect x="60.0" y="176" width="356.5" height="74" rx="12" fill="#9A6510"/>
 <text x="238.2" y="208.0" font-size="21" fill="#FFFFFF" font-weight="700" text-anchor="middle">가장 이른 편지</text>
 <text x="238.2" y="234.0" font-size="14" fill="#FFFFFF" font-weight="400" text-anchor="middle">약 AD 45–49 (견해)</text>
-<rect x="60.0" y="268" width="356.5" height="169" rx="12" fill="#F2F0EE"/>
+<rect x="60.0" y="268" width="356.5" height="177" rx="12" fill="#F2F0EE"/>
 <rect x="76.0" y="288" width="22" height="15" rx="2" fill="#9A6510"/><path d="M76.0,288 L87.0,297 L98.0,288" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
 <text x="108.0" y="302.0" font-size="19" fill="#2A211B" font-weight="700" text-anchor="start">야고보서</text>
 <text x="76.0" y="330.0" font-size="12.5" fill="#9A6510" font-weight="700" text-anchor="start">쓴 이</text>
@@ -16,14 +16,14 @@
 <text x="136.0" y="351.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">예루살렘</text>
 <text x="76.0" y="372.0" font-size="12.5" fill="#9A6510" font-weight="700" text-anchor="start">받는 이</text>
 <text x="136.0" y="372.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">「흩어져 있는 열 두 지파」(약 1:1)</text>
-<text x="76.0" y="395.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">예루살렘 교회의 기둥(갈 2:9, 행</text>
-<text x="76.0" y="414.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">15:13)</text>
+<text x="76.0" y="399.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">살아 있는 믿음은 행함으로 드러난다 — 시험을</text>
+<text x="76.0" y="419.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">이기는 믿음, 혀를 다스림, 부자에게 경고</text>
 <text x="64.0" y="846.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">바울서신보다 앞섰을 수 있다</text>
 <circle cx="612.8" cy="150" r="10" fill="#952B38" stroke="#FFFFFF" stroke-width="3"/>
 <rect x="434.5" y="176" width="356.5" height="74" rx="12" fill="#952B38"/>
 <text x="612.8" y="208.0" font-size="21" fill="#FFFFFF" font-weight="700" text-anchor="middle">네로 박해 무렵</text>
 <text x="612.8" y="234.0" font-size="14" fill="#FFFFFF" font-weight="400" text-anchor="middle">약 AD 62–68</text>
-<rect x="434.5" y="268" width="356.5" height="171" rx="12" fill="#F2F0EE"/>
+<rect x="434.5" y="268" width="356.5" height="198" rx="12" fill="#F2F0EE"/>
 <rect x="450.5" y="288" width="22" height="15" rx="2" fill="#952B38"/><path d="M450.5,288 L461.5,297 L472.5,288" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
 <text x="482.5" y="302.0" font-size="19" fill="#2A211B" font-weight="700" text-anchor="start">베드로전서</text>
 <text x="450.5" y="330.0" font-size="12.5" fill="#952B38" font-weight="700" text-anchor="start">쓴 이</text>
@@ -33,24 +33,26 @@
 <text x="450.5" y="372.0" font-size="12.5" fill="#952B38" font-weight="700" text-anchor="start">받는 이</text>
 <text x="510.5" y="372.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">본도 · 갈라디아 · 갑바도기아 ·</text>
 <text x="510.5" y="393.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">아시아 · 비두니아의 나그네(1:1)</text>
-<text x="450.5" y="416.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">고난 속의 산 소망</text>
-<rect x="434.5" y="451" width="356.5" height="171" rx="12" fill="#F2F0EE"/>
-<rect x="450.5" y="471" width="22" height="15" rx="2" fill="#952B38"/><path d="M450.5,471 L461.5,480 L472.5,471" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
-<text x="482.5" y="485.0" font-size="19" fill="#2A211B" font-weight="700" text-anchor="start">베드로후서</text>
-<text x="450.5" y="513.0" font-size="12.5" fill="#952B38" font-weight="700" text-anchor="start">쓴 이</text>
-<text x="510.5" y="513.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">사도 베드로</text>
-<text x="450.5" y="534.0" font-size="12.5" fill="#952B38" font-weight="700" text-anchor="start">쓴 곳</text>
-<text x="510.5" y="534.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">로마 (전통)</text>
-<text x="450.5" y="555.0" font-size="12.5" fill="#952B38" font-weight="700" text-anchor="start">받는 이</text>
-<text x="510.5" y="555.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">같은 교회들 — 「이 둘째</text>
-<text x="510.5" y="576.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">편지」(3:1)</text>
-<text x="450.5" y="599.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">「이 장막을 벗어날 것이 임박한 줄」(1:14)</text>
+<text x="450.5" y="420.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">흩어진 나그네에게 — 고난 속의 산 소망, 선한</text>
+<text x="450.5" y="440.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">행실로 하나님을 영화롭게 하라</text>
+<rect x="434.5" y="478" width="356.5" height="198" rx="12" fill="#F2F0EE"/>
+<rect x="450.5" y="498" width="22" height="15" rx="2" fill="#952B38"/><path d="M450.5,498 L461.5,507 L472.5,498" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
+<text x="482.5" y="512.0" font-size="19" fill="#2A211B" font-weight="700" text-anchor="start">베드로후서</text>
+<text x="450.5" y="540.0" font-size="12.5" fill="#952B38" font-weight="700" text-anchor="start">쓴 이</text>
+<text x="510.5" y="540.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">사도 베드로</text>
+<text x="450.5" y="561.0" font-size="12.5" fill="#952B38" font-weight="700" text-anchor="start">쓴 곳</text>
+<text x="510.5" y="561.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">로마 (전통)</text>
+<text x="450.5" y="582.0" font-size="12.5" fill="#952B38" font-weight="700" text-anchor="start">받는 이</text>
+<text x="510.5" y="582.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">같은 교회들 — 「이 둘째</text>
+<text x="510.5" y="603.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">편지」(3:1)</text>
+<text x="450.5" y="630.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">거짓 교사를 조심하라 — 주의 날은 반드시</text>
+<text x="450.5" y="650.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">온다, 더딤은 오래 참으심이다</text>
 <text x="438.5" y="846.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">전통에 따르면 베드로는 이 무렵 로마에서 순교</text>
 <circle cx="987.2" cy="150" r="10" fill="#4A3F38" stroke="#FFFFFF" stroke-width="3"/>
 <rect x="809.0" y="176" width="356.5" height="74" rx="12" fill="#4A3F38"/>
 <text x="987.2" y="208.0" font-size="21" fill="#FFFFFF" font-weight="700" text-anchor="middle">성전 파괴 전후</text>
 <text x="987.2" y="234.0" font-size="14" fill="#FFFFFF" font-weight="400" text-anchor="middle">약 AD 64–80</text>
-<rect x="809.0" y="268" width="356.5" height="190" rx="12" fill="#F2F0EE"/>
+<rect x="809.0" y="268" width="356.5" height="218" rx="12" fill="#F2F0EE"/>
 <rect x="825.0" y="288" width="22" height="15" rx="2" fill="#4A3F38"/><path d="M825.0,288 L836.0,297 L847.0,288" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
 <text x="857.0" y="302.0" font-size="19" fill="#2A211B" font-weight="700" text-anchor="start">히브리서</text>
 <text x="825.0" y="330.0" font-size="12.5" fill="#4A3F38" font-weight="700" text-anchor="start">쓴 이</text>
@@ -60,25 +62,27 @@
 <text x="885.0" y="372.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">자들」(13:24)</text>
 <text x="825.0" y="393.0" font-size="12.5" fill="#4A3F38" font-weight="700" text-anchor="start">받는 이</text>
 <text x="885.0" y="393.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">유대인 그리스도인들</text>
-<text x="825.0" y="416.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">디모데가 놓인 소식(13:23) — 바울 주변</text>
-<text x="825.0" y="435.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">사람</text>
-<rect x="809.0" y="470" width="356.5" height="150" rx="12" fill="#F2F0EE"/>
-<rect x="825.0" y="490" width="22" height="15" rx="2" fill="#4A3F38"/><path d="M825.0,490 L836.0,499 L847.0,490" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
-<text x="857.0" y="504.0" font-size="19" fill="#2A211B" font-weight="700" text-anchor="start">유다서</text>
-<text x="825.0" y="532.0" font-size="12.5" fill="#4A3F38" font-weight="700" text-anchor="start">쓴 이</text>
-<text x="885.0" y="532.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">주의 형제 유다</text>
-<text x="825.0" y="553.0" font-size="12.5" fill="#4A3F38" font-weight="700" text-anchor="start">쓴 곳</text>
-<text x="885.0" y="553.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">미상</text>
-<text x="825.0" y="574.0" font-size="12.5" fill="#4A3F38" font-weight="700" text-anchor="start">받는 이</text>
-<text x="885.0" y="574.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">「부르심을 입은 자」들(1:1)</text>
-<text x="825.0" y="597.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">베드로후서 2장과 닮음</text>
+<text x="825.0" y="420.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">예수는 천사 · 모세 · 제사장보다 더 나으신</text>
+<text x="825.0" y="440.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">분 — 옛 제사로 돌아가지 말고 믿음으로</text>
+<text x="825.0" y="460.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">견디라(11장)</text>
+<rect x="809.0" y="498" width="356.5" height="177" rx="12" fill="#F2F0EE"/>
+<rect x="825.0" y="518" width="22" height="15" rx="2" fill="#4A3F38"/><path d="M825.0,518 L836.0,527 L847.0,518" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
+<text x="857.0" y="532.0" font-size="19" fill="#2A211B" font-weight="700" text-anchor="start">유다서</text>
+<text x="825.0" y="560.0" font-size="12.5" fill="#4A3F38" font-weight="700" text-anchor="start">쓴 이</text>
+<text x="885.0" y="560.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">주의 형제 유다</text>
+<text x="825.0" y="581.0" font-size="12.5" fill="#4A3F38" font-weight="700" text-anchor="start">쓴 곳</text>
+<text x="885.0" y="581.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">미상</text>
+<text x="825.0" y="602.0" font-size="12.5" fill="#4A3F38" font-weight="700" text-anchor="start">받는 이</text>
+<text x="885.0" y="602.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">「부르심을 입은 자」들(1:1)</text>
+<text x="825.0" y="629.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">은밀히 들어온 거짓 교사를 경계하고 믿음의 도를</text>
+<text x="825.0" y="649.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">위하여 힘써 싸우라</text>
 <text x="813.0" y="846.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">히브리서는 성전 제사가 아직 있는 듯 말해 AD</text>
 <text x="813.0" y="865.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">70 전으로 보는 견해가 많다</text>
 <circle cx="1361.8" cy="150" r="10" fill="#2F7466" stroke="#FFFFFF" stroke-width="3"/>
 <rect x="1183.5" y="176" width="356.5" height="74" rx="12" fill="#2F7466"/>
 <text x="1361.8" y="208.0" font-size="21" fill="#FFFFFF" font-weight="700" text-anchor="middle">요한의 말년</text>
 <text x="1361.8" y="234.0" font-size="14" fill="#FFFFFF" font-weight="400" text-anchor="middle">약 AD 90–95</text>
-<rect x="1183.5" y="268" width="356.5" height="171" rx="12" fill="#F2F0EE"/>
+<rect x="1183.5" y="268" width="356.5" height="218" rx="12" fill="#F2F0EE"/>
 <rect x="1199.5" y="288" width="22" height="15" rx="2" fill="#2F7466"/><path d="M1199.5,288 L1210.5,297 L1221.5,288" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
 <text x="1231.5" y="302.0" font-size="19" fill="#2A211B" font-weight="700" text-anchor="start">요한일서 · 이서 · 삼서</text>
 <text x="1199.5" y="330.0" font-size="12.5" fill="#2F7466" font-weight="700" text-anchor="start">쓴 이</text>
@@ -88,16 +92,19 @@
 <text x="1199.5" y="372.0" font-size="12.5" fill="#2F7466" font-weight="700" text-anchor="start">받는 이</text>
 <text x="1259.5" y="372.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">아시아의 교회들 · 「택하심을 입은</text>
 <text x="1259.5" y="393.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">부녀」 · 가이오</text>
-<text x="1199.5" y="416.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">거짓 교사 앞에서 사랑과 진리</text>
-<rect x="1183.5" y="451" width="356.5" height="150" rx="12" fill="#F2F0EE"/>
-<rect x="1199.5" y="471" width="22" height="15" rx="2" fill="#2F7466"/><path d="M1199.5,471 L1210.5,480 L1221.5,471" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
-<text x="1231.5" y="485.0" font-size="19" fill="#2A211B" font-weight="700" text-anchor="start">요한계시록</text>
-<text x="1199.5" y="513.0" font-size="12.5" fill="#2F7466" font-weight="700" text-anchor="start">쓴 이</text>
-<text x="1259.5" y="513.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">요한</text>
-<text x="1199.5" y="534.0" font-size="12.5" fill="#2F7466" font-weight="700" text-anchor="start">쓴 곳</text>
-<text x="1259.5" y="534.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">밧모 섬 (계 1:9)</text>
-<text x="1199.5" y="555.0" font-size="12.5" fill="#2F7466" font-weight="700" text-anchor="start">받는 이</text>
-<text x="1259.5" y="555.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">아시아의 일곱 교회(1:11)</text>
-<text x="1199.5" y="578.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">도미티아누스 황제 때 (전통)</text>
+<text x="1199.5" y="420.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">하나님은 빛이시고 사랑이시다 — 육체로 오신</text>
+<text x="1199.5" y="440.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">예수를 고백하고 서로 사랑하라 · 진리 안의</text>
+<text x="1199.5" y="460.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">대접</text>
+<rect x="1183.5" y="498" width="356.5" height="177" rx="12" fill="#F2F0EE"/>
+<rect x="1199.5" y="518" width="22" height="15" rx="2" fill="#2F7466"/><path d="M1199.5,518 L1210.5,527 L1221.5,518" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
+<text x="1231.5" y="532.0" font-size="19" fill="#2A211B" font-weight="700" text-anchor="start">요한계시록</text>
+<text x="1199.5" y="560.0" font-size="12.5" fill="#2F7466" font-weight="700" text-anchor="start">쓴 이</text>
+<text x="1259.5" y="560.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">요한</text>
+<text x="1199.5" y="581.0" font-size="12.5" fill="#2F7466" font-weight="700" text-anchor="start">쓴 곳</text>
+<text x="1259.5" y="581.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">밧모 섬 (계 1:9)</text>
+<text x="1199.5" y="602.0" font-size="12.5" fill="#2F7466" font-weight="700" text-anchor="start">받는 이</text>
+<text x="1259.5" y="602.0" font-size="13.5" fill="#2A211B" font-weight="400" text-anchor="start">아시아의 일곱 교회(1:11)</text>
+<text x="1199.5" y="629.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">일곱 교회에 주신 말씀과 하늘 보좌의 환상 —</text>
+<text x="1199.5" y="649.0" font-size="13.5" fill="#2A211B" font-weight="700" text-anchor="start">어린양이 이기시고 새 하늘과 새 땅이 온다</text>
 <text x="1187.5" y="846.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">신약의 마지막 책들</text>
 </svg>
