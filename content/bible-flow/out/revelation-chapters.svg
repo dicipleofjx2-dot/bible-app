@@ -85,7 +85,8 @@
 <text x="749.0" y="772.0" font-size="13" fill="#FFFFFF" font-weight="700" text-anchor="middle">나팔</text>
 <rect x="810.0" y="186.0" width="8.0" height="162.0" rx="4" fill="#8C7B6E"/>
 <rect x="810.0" y="354.0" width="8.0" height="106.0" rx="4" fill="#64457F"/>
-<rect x="810.0" y="466.0" width="8.0" height="218.0" rx="4" fill="#4A3F38"/>
+<rect x="810.0" y="466.0" width="8.0" height="162.0" rx="4" fill="#4A3F38"/>
+<rect x="810.0" y="634.0" width="8.0" height="50.0" rx="4" fill="#C7A15A"/>
 <rect x="810.0" y="690.0" width="8.0" height="106.0" rx="4" fill="#5B6B7F"/>
 <rect x="826.0" y="186.0" width="714.0" height="50.0" rx="8" fill="#F2EEEA"/>
 <circle cx="854" cy="211.0" r="17" fill="#8C7B6E"/>
@@ -144,12 +145,12 @@
 <rect x="1474.0" y="587.0" width="50.0" height="24.0" rx="12" fill="#2F7466"/>
 <text x="1499.0" y="604.0" font-size="13" fill="#FFFFFF" font-weight="700" text-anchor="middle">재림</text>
 <rect x="826.0" y="634.0" width="714.0" height="50.0" rx="8" fill="#F2EEEA"/>
-<circle cx="854" cy="659.0" r="17" fill="#4A3F38"/>
+<circle cx="854" cy="659.0" r="17" fill="#C7A15A"/>
 <text x="854.0" y="665.0" font-size="16" fill="#FFFFFF" font-weight="700" text-anchor="middle">20</text>
-<text x="884.0" y="656.0" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start">사단의 심판 · 크고 흰 보좌</text>
-<text x="884.0" y="677.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">천 년 결박(20:2) → 불과 유황 못(20:10) · 생명책(20:12)</text>
-<rect x="1474.0" y="643.0" width="50.0" height="24.0" rx="12" fill="#4A3F38"/>
-<text x="1499.0" y="660.0" font-size="13" fill="#FFFFFF" font-weight="700" text-anchor="middle">심판</text>
+<text x="884.0" y="656.0" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start">천년왕국 → 사단의 최후 · 크고 흰 보좌</text>
+<text x="884.0" y="677.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">사단 결박 · 「그리스도로 더불어 천년 동안 왕노릇」(20:4–6) → 불과 유황 못(20:10) · 생명책(20:12)</text>
+<rect x="1474.0" y="643.0" width="50.0" height="24.0" rx="12" fill="#9A6510"/>
+<text x="1499.0" y="660.0" font-size="13" fill="#FFFFFF" font-weight="700" text-anchor="middle">천년</text>
 <rect x="826.0" y="690.0" width="714.0" height="50.0" rx="8" fill="#F7F4F1"/>
 <circle cx="854" cy="715.0" r="17" fill="#5B6B7F"/>
 <text x="854.0" y="721.0" font-size="16" fill="#FFFFFF" font-weight="700" text-anchor="middle">21</text>
@@ -160,34 +161,24 @@
 <text x="854.0" y="777.0" font-size="16" fill="#FFFFFF" font-weight="700" text-anchor="middle">22</text>
 <text x="884.0" y="768.0" font-size="17" fill="#2A211B" font-weight="700" text-anchor="start">생명수 강과 생명나무</text>
 <text x="884.0" y="789.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">「나는 알파와 오메가요」(22:13) · 「주 예수여 오시옵소서」(22:20)</text>
-<rect x="60.0" y="832.0" width="14.0" height="14.0" rx="4" fill="#9A6510"/>
-<text x="80.0" y="844.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">네가 본 것 (1장)</text>
-<rect x="225.3" y="832.0" width="14.0" height="14.0" rx="4" fill="#B5532F"/>
-<text x="245.3" y="844.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">일곱 교회 (2–3장)</text>
-<rect x="402.9" y="832.0" width="14.0" height="14.0" rx="4" fill="#2F7466"/>
-<text x="422.9" y="844.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">하늘 보좌와 어린양 (4–5장)</text>
-<rect x="642.0" y="832.0" width="14.0" height="14.0" rx="4" fill="#C7A15A"/>
-<text x="662.0" y="844.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">일곱 인 — 재난의 징조 (6–7장)</text>
-<rect x="918.0" y="832.0" width="14.0" height="14.0" rx="4" fill="#B5532F"/>
-<text x="938.0" y="844.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">일곱 나팔 — 후 3년 반의 시작 (8–11장)</text>
-<rect x="60.0" y="854.0" width="14.0" height="14.0" rx="4" fill="#8C7B6E"/>
-<text x="80.0" y="866.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">용과 두 짐승 (12–14장)</text>
-<rect x="286.8" y="854.0" width="14.0" height="14.0" rx="4" fill="#64457F"/>
-<text x="306.8" y="866.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">일곱 대접 — 후 3년 반 (15–16장)</text>
-<rect x="599.7" y="854.0" width="14.0" height="14.0" rx="4" fill="#4A3F38"/>
-<text x="619.7" y="866.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">심판 — 음녀 · 짐승 · 거짓 선지자 · 사단 (17–20장)</text>
-<rect x="1060.2" y="854.0" width="14.0" height="14.0" rx="4" fill="#5B6B7F"/>
-<text x="1080.2" y="866.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">새 하늘과 새 땅 (21–22장)</text>
-<text x="60.0" y="890.0" font-size="13" fill="#6B5C52" font-weight="700" text-anchor="start">세 번의 일곱 심판:</text>
-<rect x="180.0" y="875.0" width="36.0" height="20.0" rx="10" fill="#C7A15A"/>
-<text x="198.0" y="890.0" font-size="12" fill="#FFFFFF" font-weight="700" text-anchor="middle">인</text>
-<rect x="224.0" y="875.0" width="50.0" height="20.0" rx="10" fill="#B5532F"/>
-<text x="249.0" y="890.0" font-size="12" fill="#FFFFFF" font-weight="700" text-anchor="middle">나팔</text>
-<rect x="282.0" y="875.0" width="50.0" height="20.0" rx="10" fill="#64457F"/>
-<text x="307.0" y="890.0" font-size="12" fill="#FFFFFF" font-weight="700" text-anchor="middle">대접</text>
-<rect x="340.0" y="875.0" width="50.0" height="20.0" rx="10" fill="#8C7B6E"/>
-<text x="365.0" y="890.0" font-size="12" fill="#FFFFFF" font-weight="700" text-anchor="middle">막간</text>
-<rect x="398.0" y="875.0" width="50.0" height="20.0" rx="10" fill="#4A3F38"/>
-<text x="423.0" y="890.0" font-size="12" fill="#FFFFFF" font-weight="700" text-anchor="middle">심판</text>
-<text x="462.0" y="890.0" font-size="12.5" fill="#6B5C52" font-weight="400" text-anchor="start">일곱 인 = 재난의 징조 → 일곱 나팔 = 후 3년 반의 시작 신호 → 일곱 대접 = 후 3년 반 → 심판 · 「막간」(7장, 10–11:14, 12–14장)은 그 사이 하나님의 백성</text>
+<rect x="60.0" y="828.0" width="14.0" height="14.0" rx="4" fill="#9A6510"/>
+<text x="80.0" y="840.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">네가 본 것 (1장)</text>
+<rect x="225.3" y="828.0" width="14.0" height="14.0" rx="4" fill="#B5532F"/>
+<text x="245.3" y="840.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">일곱 교회 (2–3장)</text>
+<rect x="402.9" y="828.0" width="14.0" height="14.0" rx="4" fill="#2F7466"/>
+<text x="422.9" y="840.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">하늘 보좌와 어린양 (4–5장)</text>
+<rect x="642.0" y="828.0" width="14.0" height="14.0" rx="4" fill="#C7A15A"/>
+<text x="662.0" y="840.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">일곱 인 — 재난의 징조 (6–7장)</text>
+<rect x="918.0" y="828.0" width="14.0" height="14.0" rx="4" fill="#B5532F"/>
+<text x="938.0" y="840.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">일곱 나팔 — 후 3년 반의 시작 (8–11장)</text>
+<rect x="60.0" y="850.0" width="14.0" height="14.0" rx="4" fill="#8C7B6E"/>
+<text x="80.0" y="862.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">용과 두 짐승 (12–14장)</text>
+<rect x="286.8" y="850.0" width="14.0" height="14.0" rx="4" fill="#64457F"/>
+<text x="306.8" y="862.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">일곱 대접 — 후 3년 반 (15–16장)</text>
+<rect x="599.7" y="850.0" width="14.0" height="14.0" rx="4" fill="#4A3F38"/>
+<text x="619.7" y="862.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">심판 — 음녀 · 짐승 · 거짓 선지자 (17–19장)</text>
+<rect x="998.7" y="850.0" width="14.0" height="14.0" rx="4" fill="#C7A15A"/>
+<text x="1018.7" y="862.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">천년왕국과 최후 심판 — 사단 · 크고 흰 보좌 (20장)</text>
+<rect x="60.0" y="872.0" width="14.0" height="14.0" rx="4" fill="#5B6B7F"/>
+<text x="80.0" y="884.0" font-size="12.5" fill="#2A211B" font-weight="700" text-anchor="start">새 하늘과 새 땅 (21–22장)</text>
 </svg>
