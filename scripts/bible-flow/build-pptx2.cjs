@@ -1,5 +1,5 @@
 /**
- * 성경맥잡기 1단계 신약편 (맥점 순서판) — 2과씩 짝지어 PPT 4개로 (16:9, 과마다 구역)
+ * 성경맥잡기 1단계 신약편 (맥점 순서판) — PPT 한 벌(117장)을 굽고 split-pptx.py 가 13장씩 9개 파일로 자른다 (16:9)
  * 원고 content/bible-flow/nt2.cjs · 도식 out/png · 사진 photos/
  * 글씨: 제목 · 맥점 · 성경 구절 = 바탕(명조) · 본문 = 맑은 고딕 · 카드 = 그림자로 입체감
  */
@@ -34,7 +34,7 @@ function front(pair) {
     const s = add(); s.background = { color: DARK };
     T(s, META.series, { x: 0.8, y: 1.3, w: 8.4, h: 0.5, fontSize: 18, bold: true, color: 'C9B98F' });
     T(s, META.title, { x: 0.8, y: 1.9, w: 8.4, h: 1.1, fontFace: SERIF, fontSize: 48, bold: true, color: 'FFFFFF' });
-    T(s, pair.map((l) => `${l.no}과 ${l.maek}`).join('  ·  '), { x: 0.8, y: 3.1, w: 8.4, h: 0.5, fontSize: 18, color: 'E9DCC0' });
+    T(s, pair.length === LESSONS.length ? '맥점 여덟 개로 신약 27권을 잡는다' : pair.map((l) => `${l.no}과 ${l.maek}`).join('  ·  '), { x: 0.8, y: 3.1, w: 8.4, h: 0.5, fontSize: 18, color: 'E9DCC0' });
     T(s, META.byline, { x: 0.8, y: 4.8, w: 8.4, h: 0.3, fontSize: 11, color: 'B8ADA4' });
   }
   {
@@ -166,16 +166,15 @@ function deck(l) {
 
 (async () => {
   const outDir = process.argv[2] || path.join(ROOT, 'out');
-  for (let i = 0; i < LESSONS.length; i += 2) {
-    const pair = LESSONS.slice(i, i + 2);
-    pres = new pptxgen();
-    pres.layout = 'LAYOUT_16x9';
-    pres.title = `${META.series} ${META.title} ${pair.map((l) => l.no).join('·')}과`;
-    pres.theme = { headFontFace: SERIF, bodyFontFace: SANS };
-    front(pair);
-    pair.forEach(deck);
-    const f = path.join(outDir, `성경맥잡기1-신약-${pair.map((l) => l.no).join('·')}과.pptx`);
-    await pres.writeFile({ fileName: f });
-    console.log('wrote', f);
-  }
+  pres = new pptxgen();
+  pres.layout = 'LAYOUT_16x9';
+  pres.title = `${META.series} ${META.title}`;
+  pres.theme = { headFontFace: SERIF, bodyFontFace: SANS };
+  front(LESSONS);
+  LESSONS.forEach(deck);
+  const full = path.join(outDir, '.full.pptx');
+  await pres.writeFile({ fileName: full });
+  // 13장씩 자르기
+  require('child_process').execFileSync('python3', [path.join(__dirname, 'split-pptx.py'), full, outDir, '13'], { stdio: 'inherit' });
+  fs.unlinkSync(full);
 })();

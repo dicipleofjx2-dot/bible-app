@@ -1,4 +1,4 @@
-/** 성경맥잡기 1단계 신약편 (맥점 순서판) — 전자책(.docx)과 PPT 4개(2과씩 짝)를 한 번에 굽는다. 사용법은 content/bible-flow/README.md */
+/** 성경맥잡기 1단계 신약편 (맥점 순서판) — 전자책(.docx)과 PPT 9개(13장씩)를 한 번에 굽는다. 사용법은 content/bible-flow/README.md */
 const path = require('path');
 const { execFileSync } = require('child_process');
 const out = path.join(__dirname, '../../content/bible-flow/out');
