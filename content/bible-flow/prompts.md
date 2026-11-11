@@ -2,7 +2,7 @@
 
 **넣을 자료(소스)**
 1. `out/성경맥잡기1-신약편.docx` — 전자책 (NotebookLM 은 PDF 가 더 안정적이다: Word에서 「PDF로 저장」 후 올린다)
-2. `out/성경맥잡기1-신약편.pptx` — PPT 한 파일 (NotebookLM 은 PDF 로 바꿔 올린다)
+2. `out/성경맥잡기1-신약-N·N과.pptx` — PPT 4개(2과씩) (NotebookLM 은 PDF 로 바꿔 올린다)
 3. `teaching.md` — 선생님 강의 받아 적은 것 + 검토 메모 (원본 의도 확인용)
 
 아래 「공통 규칙」은 두 프롬프트에 다 들어 있다. 고칠 때는 두 곳을 같이 고친다.

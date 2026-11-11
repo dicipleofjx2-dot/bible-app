@@ -1,5 +1,5 @@
 /**
- * 성경맥잡기 1단계 신약편 (맥점 순서판) — 8과를 PPT 한 파일로 (16:9, 과마다 구역)
+ * 성경맥잡기 1단계 신약편 (맥점 순서판) — 2과씩 짝지어 PPT 4개로 (16:9, 과마다 구역)
  * 원고 content/bible-flow/nt2.cjs · 도식 out/png · 사진 photos/
  * 글씨: 제목 · 맥점 · 성경 구절 = 바탕(명조) · 본문 = 맑은 고딕 · 카드 = 그림자로 입체감
  */
@@ -23,13 +23,10 @@ function imgSize(file) {
   return { w: 4, h: 3 };
 }
 
-const pres = new pptxgen();
-pres.layout = 'LAYOUT_16x9';
-pres.title = `${META.series} ${META.title}`;
-pres.theme = { headFontFace: SERIF, bodyFontFace: SANS };
+let pres;
 
 // 책 표지 + 차례(맥점 여덟)
-function front() {
+function front(pair) {
   pres.addSection({ title: '표지 · 차례' });
   const add = () => pres.addSlide({ sectionTitle: '표지 · 차례' });
   const T = (s, txt, o) => s.addText(txt, { isTextBox: true, fontFace: SANS, color: INK, margin: 0, ...o });
@@ -37,17 +34,18 @@ function front() {
     const s = add(); s.background = { color: DARK };
     T(s, META.series, { x: 0.8, y: 1.3, w: 8.4, h: 0.5, fontSize: 18, bold: true, color: 'C9B98F' });
     T(s, META.title, { x: 0.8, y: 1.9, w: 8.4, h: 1.1, fontFace: SERIF, fontSize: 48, bold: true, color: 'FFFFFF' });
-    T(s, '맥점 여덟 개로 신약 27권을 잡는다', { x: 0.8, y: 3.1, w: 8.4, h: 0.5, fontSize: 18, color: 'E9DCC0' });
+    T(s, pair.map((l) => `${l.no}과 ${l.maek}`).join('  ·  '), { x: 0.8, y: 3.1, w: 8.4, h: 0.5, fontSize: 18, color: 'E9DCC0' });
     T(s, META.byline, { x: 0.8, y: 4.8, w: 8.4, h: 0.3, fontSize: 11, color: 'B8ADA4' });
   }
   {
     const s = add(); s.background = { color: 'FFFFFF' };
-    T(s, '차례 — 맥점 여덟', { x: 0.5, y: 0.28, w: 9, h: 0.6, fontFace: SERIF, fontSize: 24, bold: true });
+    T(s, '차례', { x: 0.5, y: 0.28, w: 9, h: 0.6, fontFace: SERIF, fontSize: 24, bold: true });
     LESSONS.forEach((l, i) => {
       const col = i < 4 ? 0 : 1, row = i % 4, x = 0.5 + col * 4.6, y = 1.1 + row * 1.0;
-      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: 0.75, h: 0.75, rectRadius: 0.1, fill: { color: COLORS[i] }, line: { type: 'none' }, shadow: shadow() });
+      const on = pair.includes(l);
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: 0.75, h: 0.75, rectRadius: 0.1, fill: { color: on ? COLORS[i] : 'D9D2CB' }, line: { type: 'none' }, shadow: shadow() });
       T(s, `${l.no}과`, { x, y, w: 0.75, h: 0.75, fontSize: 15, bold: true, color: 'FFFFFF', align: 'center', valign: 'middle', fontFace: SERIF });
-      T(s, [{ text: l.maek, options: { fontFace: SERIF, fontSize: 16, bold: true, breakLine: true } }, { text: l.title, options: { fontSize: 11, color: MUTED } }], { x: x + 0.9, y, w: 3.6, h: 0.75, valign: 'middle' });
+      T(s, [{ text: l.maek, options: { fontFace: SERIF, fontSize: 16, bold: true, breakLine: true } }, { text: l.title, options: { fontSize: 11, color: MUTED } }], { x: x + 0.9, y, w: 3.6, h: 0.75, valign: 'middle', color: on ? INK : 'B0A69C' });
     });
   }
 }
@@ -168,9 +166,16 @@ function deck(l) {
 
 (async () => {
   const outDir = process.argv[2] || path.join(ROOT, 'out');
-  front();
-  LESSONS.forEach(deck);
-  const f = path.join(outDir, '성경맥잡기1-신약편.pptx');
-  await pres.writeFile({ fileName: f });
-  console.log('wrote', f);
+  for (let i = 0; i < LESSONS.length; i += 2) {
+    const pair = LESSONS.slice(i, i + 2);
+    pres = new pptxgen();
+    pres.layout = 'LAYOUT_16x9';
+    pres.title = `${META.series} ${META.title} ${pair.map((l) => l.no).join('·')}과`;
+    pres.theme = { headFontFace: SERIF, bodyFontFace: SANS };
+    front(pair);
+    pair.forEach(deck);
+    const f = path.join(outDir, `성경맥잡기1-신약-${pair.map((l) => l.no).join('·')}과.pptx`);
+    await pres.writeFile({ fileName: f });
+    console.log('wrote', f);
+  }
 })();
