@@ -308,4 +308,15 @@ L.push({
 
 const SUMMARY = { file: 'png/maekjeom-nt.png', h: '신약의 맥점 — 한 장 정리' };
 
+// 강의 영상 (새부대교회 유튜브) — 올라오는 대로 채운다
+const VIDEOS = {
+  1: 'https://youtu.be/tpyyMxrL1GI',
+  2: 'https://youtu.be/FBdhFaZRMgY',
+  3: 'https://youtu.be/Gjg8E3DRgEw',
+  4: 'https://youtu.be/pocnnaqGvbA',
+  5: 'https://youtu.be/G9fGnjtSOzI',
+  6: 'https://youtu.be/F__ct9k7yVk',
+};
+L.forEach((l) => { l.video = VIDEOS[l.no] || null; });
+
 module.exports = { META, LESSONS: L, SUMMARY };

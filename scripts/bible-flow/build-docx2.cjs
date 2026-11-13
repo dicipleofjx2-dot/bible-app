@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle,
-  AlignmentType, HeadingLevel, Footer, PageNumber, ImageRun, PageOrientation, VerticalAlign,
+  AlignmentType, HeadingLevel, Footer, PageNumber, ImageRun, PageOrientation, VerticalAlign, ExternalHyperlink,
 } = require('docx');
 const { META, LESSONS, SUMMARY } = require('../../content/bible-flow/nt2.cjs');
 
@@ -50,6 +50,27 @@ function box(children, fill, border) {
     borders: { top: b, bottom: b, left: b, right: b, insideHorizontal: NONE, insideVertical: NONE },
     rows: [new TableRow({ children: [new TableCell({ width: { size: PW, type: WidthType.DXA }, shading: shade(fill), margins: { top: 160, bottom: 160, left: 220, right: 220 }, children })] })],
   });
+}
+
+// 강의 영상 칸 — QR(out/qr/N.png, make-qr.cjs 가 만든다) + 주소
+function videoBox(l, c) {
+  const qr = path.join(ROOT, 'out/qr', `${l.no}.png`);
+  const QW = 1700, b = { style: BorderStyle.SINGLE, size: 8, color: c };
+  const text = l.video
+    ? [P([run('▶ 강의 영상', { bold: true, size: 18, color: c })], { spacing: { after: 60 } }),
+      P([run(`신약맥잡기 ${l.no}강 — ${l.title}`, { serif: true, bold: true, size: 24 })], { spacing: { after: 80 } }),
+      P([run('휴대폰 카메라로 QR 코드를 비추면 영상이 열립니다.', { size: 17, color: MUTED })], { spacing: { after: 60 } }),
+      P([new ExternalHyperlink({ link: l.video, children: [run(l.video, { size: 18, color: '1F5FA8', underline: {} })] })])]
+    : [P([run('▶ 강의 영상', { bold: true, size: 18, color: c })], { spacing: { after: 60 } }),
+      P([run(`신약맥잡기 ${l.no}강 — ${l.title}`, { serif: true, bold: true, size: 24 })], { spacing: { after: 80 } }),
+      P([run('영상은 준비 중입니다. 새부대교회 유튜브에 올라옵니다.', { size: 18, color: MUTED })])];
+  const cells = [];
+  if (l.video && fs.existsSync(qr)) cells.push(new TableCell({ width: { size: QW, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER, margins: { top: 100, bottom: 100, left: 120, right: 60 }, children: [P([image(qr, 100)], { alignment: AlignmentType.CENTER })] }));
+  const tw = cells.length ? PW - QW : PW;
+  cells.push(new TableCell({ width: { size: tw, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER, margins: { top: 140, bottom: 140, left: 200, right: 200 }, children: text }));
+  return new Table({ width: { size: PW, type: WidthType.DXA }, columnWidths: cells.length > 1 ? [QW, tw] : [PW],
+    borders: { top: b, bottom: b, left: b, right: b, insideHorizontal: NONE, insideVertical: NONE },
+    rows: [new TableRow({ children: cells })] });
 }
 
 function table(cols, rows, c) {
@@ -107,9 +128,10 @@ flush();
 cur.push(P([run('차례 — 여덟 개의 맥점', { serif: true, bold: true, size: 36 })], { spacing: { after: 300 } }));
 for (const l of LESSONS) {
   const c = COLORS[l.no - 1];
-  cur.push(P([run(`${l.no}과  `, { bold: true, size: 24, color: c }), run(l.maek, { serif: true, bold: true, size: 26, color: c }), run(`   ${l.title}`, { bold: true, size: 22 })], { spacing: { after: 40 } }),
+  cur.push(P([run(`${l.no}과  `, { bold: true, size: 24, color: c }), run(l.maek, { serif: true, bold: true, size: 26, color: c }), run(`   ${l.title}`, { bold: true, size: 22 }), run(l.video ? '   ▶ 영상' : '', { size: 17, bold: true, color: c })], { spacing: { after: 40 } }),
     P([run(l.subtitle, { size: 18, color: MUTED })], { spacing: { after: 180 }, indent: { left: 600 } }));
 }
+cur.push(P([run('▶ 영상 — 과마다 QR 코드로 강의 영상을 볼 수 있습니다.', { size: 18, color: MUTED })], { spacing: { before: 200 } }));
 cur.push(P([run('맥점 한 장 정리 · 확인 질문 답 · 사진 출처', { size: 20, color: MUTED })], { spacing: { before: 200 } }));
 flush();
 
@@ -122,6 +144,8 @@ for (const l of LESSONS) {
     P([run(l.title, { serif: true, bold: true, size: 44 })], { heading: HeadingLevel.HEADING_1, spacing: { after: 80 } }),
     P([run(l.subtitle, { size: 22, color: MUTED })], { spacing: { after: 240 } }),
     box([P([run('맥점', { bold: true, size: 18, color: 'FFFFFF' })], { spacing: { after: 40 } }), P([run(l.maek, { serif: true, bold: true, size: 48, color: 'FFFFFF' })], { spacing: { after: 0 } })], c),
+    gap(140),
+    videoBox(l, c),
     gap(200),
   );
   for (const b of l.blocks) {
