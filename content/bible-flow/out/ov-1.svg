@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="555" viewBox="0 0 600 555" font-family="'Malgun Gothic','맑은 고딕','Noto Sans KR','WenQuanYi Zen Hei',sans-serif">
+<rect width="600" height="555" fill="#DCE8EE"/>
+<defs><marker id="o1a1" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#B5532F"/></marker><clipPath id="o1clip"><rect x="0" y="2.8421709430404007e-13" width="600" height="554.9999999999995" rx="10"/></clipPath></defs>
+<g clip-path="url(#o1clip)">
+<rect x="0" y="2.8421709430404007e-13" width="600" height="554.9999999999995" fill="#DCE8EE"/>
+<path d="M394.5,379.1L352.1,409.6L349.2,418.7L351.3,424.9L357.1,432.6L358.6,434.5L360.9,440.3L351.5,442.1L342.5,442.6L337.2,441.9L332.3,442.1L317.4,458.7L309.2,464.3L299.6,467.7L290.0,469.6L285.0,469.8L280.6,471.9L277.7,475.7L277.7,479.6L276.2,482.6L271.0,481.9L268.6,475.9L264.9,473.3L255.5,474.7L250.8,474.5L235.7,468.7L231.0,466.4L228.1,461.5L220.2,443.8L219.0,430.7L226.3,434.0L233.0,430.0L239.8,423.3L247.6,420.7L252.3,421.9L257.3,422.9L266.0,420.8L269.8,411.0L271.0,399.6L285.6,403.0L300.8,404.5L313.0,405.2L325.0,403.3L361.8,391.2L372.3,384.0L379.0,381.6L390.1,375.6L401.8,372.3L394.5,379.1ZM600.0,0.0L600.0,555.0L478.3,555.0L479.4,552.2L487.6,536.9L490.5,515.0L503.0,495.9L512.7,490.3L517.1,484.8L517.1,476.6L510.6,454.0L509.8,444.3L510.0,432.9L514.4,416.5L512.4,408.9L512.1,403.7L510.9,396.6L499.8,381.4L506.0,353.3L510.3,346.5L515.3,338.3L509.8,322.0L503.6,306.9L509.5,297.1L521.4,285.3L534.3,271.5L534.3,263.0L533.4,256.6L529.9,252.2L522.9,246.2L511.2,252.5L502.7,259.5L497.5,260.9L491.4,265.0L488.4,272.2L481.4,277.8L469.8,280.1L452.3,273.9L433.3,264.8L422.5,257.4L413.7,255.7L405.5,258.8L381.0,277.1L358.6,303.7L353.0,308.3L332.0,319.7L318.0,323.5L311.6,322.7L283.8,327.7L269.8,328.4L259.0,334.4L238.0,327.9L225.2,319.5L217.6,311.1L205.3,292.7L196.3,284.1L176.7,276.2L142.0,257.3L132.9,255.2L109.6,252.3L84.8,250.6L79.5,257.6L77.7,285.0L73.4,292.5L71.6,306.7L68.7,310.9L63.7,313.5L56.4,309.0L51.2,307.1L39.2,312.8L15.3,321.1L7.1,322.3L0.0,319.6L0.0,0.0Z" fill="#F1EBE2" stroke="#B9AE9F" stroke-width="1" fill-rule="evenodd"/>
+<text x="267.6" y="30.1" font-size="12" fill="#A89C8F" font-weight="700" text-anchor="middle" letter-spacing="2">갈라디아(로마 속주)</text>
+<text x="373.0" y="196.7" font-size="12" fill="#A89C8F" font-weight="700" text-anchor="middle" letter-spacing="2">길리기아</text>
+<text x="600.0" y="449.2" font-size="12" fill="#A89C8F" font-weight="700" text-anchor="middle" letter-spacing="2">수리아</text>
+<text x="291.9" y="388.6" font-size="12" fill="#A89C8F" font-weight="700" text-anchor="middle" letter-spacing="2">구브로</text>
+<path d="M531.8918918918915,317.8982641567579 L522.5675675675674,321.93809057243396 L513.2432432432432,325.97791698811005" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round"  marker-mid="url(#o1a1)"/>
+<path d="M513.2432432432432,325.97791698811005 L430.9459459459458,373.44587737230097 L348.6486486486485,420.91383775649194" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 5" marker-mid="url(#o1a1)"/>
+<path d="M348.6486486486485,420.91383775649194 L288.243243243243,442.12292643879016 L227.8378378378375,463.3320151210884" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round"  marker-mid="url(#o1a1)"/>
+<path d="M227.8378378378375,463.3320151210884 L164.5945945945944,352.23678869000275 L101.35135135135135,241.1415622589172" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 5" marker-mid="url(#o1a1)"/>
+<path d="M101.35135135135135,241.1415622589172 L115.13513513513514,172.9694914943874 L128.91891891891893,104.79742072985763" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round"  marker-mid="url(#o1a1)"/>
+<path d="M128.91891891891893,104.79742072985763 L181.62162162162167,127.01646601607497 L234.32432432432444,149.2355113022923" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round"  marker-mid="url(#o1a1)"/>
+<path d="M234.32432432432444,149.2355113022923 L229.05405405405403,163.87988205911716 L223.78378378378363,178.52425281594202" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round"  marker-mid="url(#o1a1)"/>
+<path d="M223.78378378378363,178.52425281594202 L264.32432432432415,189.63377545905053 L304.8648648648647,200.743298102159" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round"  marker-mid="url(#o1a1)"/>
+<path d="M305.6577379444903,197.84996917519527 L265.1171974039497,186.7404465320868 L224.57665686340923,175.6309238889783" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round"  marker-mid="url(#o1a1)"/>
+<path d="M226.60655063252182,179.540120581778 L231.87682090279222,164.89574982495316 L237.14709117306262,150.2513790681283" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round"  marker-mid="url(#o1a1)"/>
+<path d="M235.48976202000495,146.47113886401868 L182.78705931730218,124.25209357780135 L130.08435661459944,102.03304829158401" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round"  marker-mid="url(#o1a1)"/>
+<path d="M125.97842242016293,104.20287860283581 L112.19463863637914,172.37494936736556 L98.41085485259535,240.54702013189535" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round"  marker-mid="url(#o1a1)"/>
+<path d="M101.35135135135135,241.1415622589172 L95.2702702702702,244.67641037263357 L89.18918918918904,248.21125848634995" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round"  marker-mid="url(#o1a1)"/>
+<path d="M89.18918918918904,248.21125848634995 L310.5405405405403,283.0547613215539 L531.8918918918915,317.8982641567579" fill="none" stroke="#B5532F" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 5" marker-mid="url(#o1a1)"/>
+<circle cx="531.8918918918915" cy="317.8982641567579" r="10.5" fill="#B5532F" fill-opacity="0.52" stroke="#B5532F" stroke-width="2"/>
+<circle cx="234.32432432432444" cy="149.2355113022923" r="10.5" fill="#B5532F" fill-opacity="0.52" stroke="#B5532F" stroke-width="2"/>
+<circle cx="128.91891891891893" cy="104.79742072985763" r="6.75" fill="#B5532F" fill-opacity="0.35" stroke="#B5532F" stroke-width="2"/>
+<circle cx="531.8918918918915" cy="317.8982641567579" r="6" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="545.9" y="327.4" font-size="12.75" fill="#2A211B" font-weight="700" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">안디옥</text>
+<circle cx="513.2432432432432" cy="325.97791698811005" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="508.7" y="341.0" font-size="10.5" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">실루기아</text>
+<circle cx="348.6486486486485" cy="420.91383775649194" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="356.1" y="423.9" font-size="10.5" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">살라미</text>
+<circle cx="227.8378378378375" cy="463.3320151210884" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="221.8" y="475.3" font-size="10.5" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">바보</text>
+<circle cx="101.35135135135135" cy="241.1415622589172" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="105.9" y="233.6" font-size="10.5" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">버가</text>
+<circle cx="128.91891891891893" cy="104.79742072985763" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="128.9" y="93.0" font-size="10.5" fill="#2A211B" font-weight="600" text-anchor="middle" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">비시디아 안디옥</text>
+<circle cx="234.32432432432444" cy="149.2355113022923" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="248.3" y="138.2" font-size="10.5" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">이고니온</text>
+<circle cx="223.78378378378363" cy="178.52425281594202" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="216.3" y="190.5" font-size="10.5" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">루스드라</text>
+<circle cx="304.8648648648647" cy="200.743298102159" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="312.4" y="211.2" font-size="10.5" fill="#2A211B" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">더베</text>
+<circle cx="89.18918918918904" cy="248.21125848634995" r="4.5" fill="#FFFFFF" stroke="#2A211B" stroke-width="2"/>
+<text x="84.7" y="261.7" font-size="10.5" fill="#2A211B" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FFFFFF" stroke-width="4">앗달리아</text>
+<line x1="531.8918918918915" y1="317.8982641567579" x2="439.95189189189153" y2="341.8982641567579" stroke="#2A211B" stroke-width="1.5"/>
+<rect x="417.89189189189153" y="330.8982641567579" width="44.120000000000005" height="22" rx="11" fill="#2A211B"/>
+<rect x="425.89189189189153" y="337.8982641567579" width="14" height="9" fill="#FFFFFF" rx="1.5"/><path d="M425.89189189189153,337.8982641567579 L432.89189189189153,343.29826415675785 L439.89189189189153,337.8982641567579" fill="none" stroke="#2A211B" stroke-width="1.3"/>
+<text x="445.9" y="345.9" font-size="11" fill="#FFFFFF" font-weight="700" text-anchor="start">갈</text>
+</g>
+<rect x="0" y="2.8421709430404007e-13" width="600" height="554.9999999999995" rx="10" fill="none" stroke="#B9AE9F"/>
+</svg>

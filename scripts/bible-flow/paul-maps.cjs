@@ -351,3 +351,25 @@ function generalMap(file) {
   save(s, file);
 }
 generalMap('general-map.svg');
+
+// 지도만 (설명판 없이) — 다른 PPT 의 틀린 지도 자리에 덮어 쓰는 용도. 크기 = 그 자리의 가로·세로
+function fitExt(e, w, h) {
+  const k = Math.cos(((e.lat0 + e.lat1) / 2) * Math.PI / 180);
+  const sx = (e.lon1 - e.lon0) * k, sy = e.lat1 - e.lat0, a = w / h;
+  if (sx / sy < a) { const d = (sy * a / k - (e.lon1 - e.lon0)) / 2; return { ...e, lon0: e.lon0 - d, lon1: e.lon1 + d }; }
+  const d = (sx / a - sy) / 2; return { ...e, lat0: e.lat0 - d, lat1: e.lat1 + d };
+}
+function mapOnly(n, ext, w, h, file, labels = 'all') {
+  const s = [`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" font-family="${FONT}">`, `<rect width="${w}" height="${h}" fill="${SEA}"/>`];
+  drawMap(s, { ext: fitExt(ext, w, h), box: { x: 0, y: 0, w, h }, journeys: [n], labels, id: 'o' + n });
+  save(s, file);
+}
+const J1 = { lon0: 29.6, lon1: 37.0, lat0: 33.9, lat1: 39.3 };
+if (process.env.OVERLAY) {
+  mapOnly(1, J1, 600, 555, 'ov-1.svg');
+  mapOnly(2, EAST, 714, 570, 'ov-2.svg');
+  mapOnly(3, EAST, 792, 589, 'ov-3.svg');
+  mapOnly(4, ROME, 720, 567, 'ov-4.svg');
+  mapOnly(1, J1, 590, 377, 'ov-intro.svg');
+  for (const n of [1, 2, 3]) mapOnly(n, EAST, 413, 355, `ov-c${n}.svg`, 'major');
+}
