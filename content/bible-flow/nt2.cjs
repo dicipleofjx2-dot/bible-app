@@ -316,6 +316,7 @@ const VIDEOS = {
   4: 'https://youtu.be/pocnnaqGvbA',
   5: 'https://youtu.be/G9fGnjtSOzI',
   6: 'https://youtu.be/F__ct9k7yVk',
+  7: 'https://youtu.be/bgaqO0rEEWA',
 };
 L.forEach((l) => { l.video = VIDEOS[l.no] || null; });
 
