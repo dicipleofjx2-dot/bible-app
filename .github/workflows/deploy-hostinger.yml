@@ -1,0 +1,52 @@
+# 웹 버전을 호스팅어로 올린다 (Vercel 대신).
+#
+# - 처음에는 수동 실행만 한다(Actions 탭 → Run workflow). main 푸시마다 올리고 싶으면
+#   저장소 변수 DEPLOY_HOSTINGER 를 'true' 로 둔다 — 그때까지 푸시는 아무것도 올리지 않는다.
+# - 열쇠는 전부 저장소 Secrets 에 둔다. 이 파일에는 값이 없다. docs/HOSTINGER-DEPLOY.md 참고.
+name: Deploy to Hostinger
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: hostinger-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # 수동 실행이거나, 변수 DEPLOY_HOSTINGER 가 'true' 일 때만
+    if: github.event_name == 'workflow_dispatch' || vars.DEPLOY_HOSTINGER == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Build web
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+          EXPO_PUBLIC_KAKAO_JS_KEY: ${{ secrets.EXPO_PUBLIC_KAKAO_JS_KEY }}
+          EXPO_PUBLIC_VAPID_PUBLIC_KEY: ${{ secrets.EXPO_PUBLIC_VAPID_PUBLIC_KEY }}
+        run: |
+          npx expo export -p web
+          node scripts/fix-web-head.mjs
+          node scripts/gen-htaccess.mjs dist
+
+      - name: Upload to Hostinger (FTPS)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_HOST }}
+          username: ${{ secrets.HOSTINGER_FTP_USER }}
+          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./dist/
+          server-dir: ${{ secrets.HOSTINGER_FTP_DIR }}
