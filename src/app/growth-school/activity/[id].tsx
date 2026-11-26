@@ -19,7 +19,7 @@ import {
   type GrowthStudent,
 } from '@/db/growth';
 import { Field, GrowthCard, MultiChipRow, PrimaryButton, SectionTitle } from '@/features/growth/ui';
-import { MarkdownPreview } from '@/features/mission/ui';
+import { MarkdownPreview } from '@/components/markdown-preview';
 import { useSchool } from '@/features/growth/useSchool';
 import { useTheme } from '@/hooks/use-theme';
 import { buildActivityStory, formatKoreanDate } from '@/lib/growth';
