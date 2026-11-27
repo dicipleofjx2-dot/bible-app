@@ -9,13 +9,17 @@
 # 필요한 Secrets (Settings → Secrets and variables → Actions). 값은 채팅에 적지 말고
 # 거기에 직접 넣는다:
 #   EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY   (없으면 빌드가 실패한다)
-#   EXPO_PUBLIC_KAKAO_JS_KEY                                   (웹 카카오 공유)
 #   HOSTINGER_FTP_HOST, HOSTINGER_FTP_USER, HOSTINGER_FTP_PASSWORD
 #   HOSTINGER_FTP_DIR   (예: /public_html/ — 호스팅어 사이트의 FTP 시작 폴더 기준)
 name: Deploy web to Hostinger
 
 on:
   workflow_dispatch:
+  # ⚠️ 임시: 테스트 주소(davidbible.dgaiworks.com)에서 확인하는 동안만 이 브랜치의
+  # 푸시로도 돌린다. main 에 합치기 전에 이 push 블록은 지운다.
+  push:
+    branches:
+      - ccr-b2ef0abf-vc8ezs
 
 concurrency:
   group: deploy-hostinger
@@ -39,7 +43,6 @@ jobs:
         env:
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
-          EXPO_PUBLIC_KAKAO_JS_KEY: ${{ secrets.EXPO_PUBLIC_KAKAO_JS_KEY }}
 
       - name: Add .htaccess
         run: cp deploy/hostinger.htaccess dist/.htaccess
