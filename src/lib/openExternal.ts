@@ -8,7 +8,7 @@ import { withHandoff } from '@/lib/appHandoff';
  */
 const HANDOFF_ORIGINS = new Set([
   'https://prayer.dgaiworks.com',
-  'https://dg-qt.vercel.app',
+  'https://qt.dgaiworks.com',
   'https://record.homeschool5.com',
 ]);
 
