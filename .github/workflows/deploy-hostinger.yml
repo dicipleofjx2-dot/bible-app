@@ -79,11 +79,16 @@ jobs:
             *) echo "HOSTINGER_SSH_DIR 이 davidbible.dgaiworks.com/public_html/ 로 끝나야 한다."; exit 1 ;;
           esac
 
+          # Windows 에서 복사해 넣은 값에는 줄 끝 \r(CRLF)이 붙어 오는 일이 흔하다. 서버 지문은
+          # 한 글자만 달라도 「이 서버의 키를 모른다」가 되고, 개인키는 형식 오류가 된다.
+          # 그래서 \r 을 지운다.
           install -m 700 -d "$HOME/.ssh"
-          printf '%s\n' "$SSH_KEY" > "$HOME/.ssh/deploy_key"
+          printf '%s\n' "$SSH_KEY" | tr -d '\r' > "$HOME/.ssh/deploy_key"
           chmod 600 "$HOME/.ssh/deploy_key"
           # 서버 지문을 미리 정해 둔다(매번 새로 받으면 가로채기를 막지 못한다).
-          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" | tr -d '\r' > "$HOME/.ssh/known_hosts"
+          # 지문(공개 정보)을 로그에 남긴다 — 호스팅어 화면의 ED25519 지문과 같아야 한다.
+          ssh-keygen -lf "$HOME/.ssh/known_hosts"
 
           rsync -rltz --delete --chmod=D755,F644 \
             -e "ssh -i $HOME/.ssh/deploy_key -p $SSH_PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts" \
