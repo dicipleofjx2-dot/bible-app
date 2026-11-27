@@ -58,6 +58,7 @@ export const STRINGS = {
   'home.prayerHouse': { ko: '중보기도\n센터', en: 'Intercessory\nPrayer Center' },
   'home.edu': { ko: '새부대에듀\n센터', en: 'New Wineskin\nEdu Center' },
   'home.newWine': { ko: '새부대매거진', en: 'New Wine\nMagazine' },
+  'home.churchHome': { ko: '교회\n홈페이지', en: 'Church\nWebsite' },
   'home.koinonia': { ko: '코이노니아', en: 'Koinonia' },
   'home.arcade': { ko: '성경 아케이드', en: 'Bible Arcade' },
   'home.webtoon': { ko: '말씀웹툰', en: 'Sermon\nWebtoon' },
