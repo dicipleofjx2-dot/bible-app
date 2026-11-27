@@ -74,13 +74,6 @@ export default function EduHubScreen() {
           href: '/',
           external: { url: 'https://gospelroad.dgaiworks.com/', window: APP_WINDOW.gospelRoad },
         },
-        {
-          emoji: '🎓',
-          label: '디지털캠퍼스',
-          description: '훈련을 영상으로 듣는 곳 · 카카오 로그인 그대로',
-          href: '/',
-          external: { url: 'https://davidstone-campus.vercel.app/davidstone', window: APP_WINDOW.campus },
-        },
       ],
     },
   ];

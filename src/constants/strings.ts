@@ -49,7 +49,6 @@ export const STRINGS = {
   // 교회마다 다르게 부르지만(구역·셀·목장), 성도는 자기 교회 말로만 찾는다.
   'home.village': { ko: '신바람목장', en: 'Cell Village' },
   'home.evangelism': { ko: '복음전도', en: 'Evangelism' },
-  'home.campus': { ko: '디지털\n캠퍼스', en: 'Digital\nCampus' },
   'home.arena': { ko: '성경게임대전', en: 'Bible Arena' },
   // 줄바꿈을 손으로 넣는다. 바둑판 한 칸은 화면의 31.5% 라 뒤에 붙는 바깥 링크
   // 표시 ↗ 까지 한 줄에 넣으면 끝이 잘린다.
