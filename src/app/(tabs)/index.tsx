@@ -21,7 +21,6 @@ import { getMeditationNote } from '@/db/userData';
 import { hasQtRecordFor } from '@/db/qtApp';
 import { getLatestLetter, type ShepherdLetter } from '@/db/shepherdLetters';
 import { ATTENDANCE_POINTS, getAttendedDates, getStepsByDate, setAttended, STEP_GOAL } from '@/lib/readingHelper/db';
-import { getMinistryLive, type MinistryLive } from '@/db/ministryLive';
 import { getLatestNotice, type Notice } from '@/db/notices';
 import { getCommunityUnread } from '@/db/community';
 import { hasUnseenLetter } from '@/lib/shepherdLetterBadge';
@@ -164,8 +163,6 @@ export default function HomeScreen() {
   const [enrollment, setEnrollment] = useState<ActiveEnrollment | null>(null);
   const [checklistCount, setChecklistCount] = useState(0);
   const [letter, setLetter] = useState<ShepherdLetter | null>(null);
-  // 목사님이 「성도와 함께 보기」를 켜 두신 동안에만 값이 들어온다. 평소에는 null.
-  const [live, setLive] = useState<MinistryLive | null>(null);
   const [letterUnseen, setLetterUnseen] = useState(false);
   const [communityUnread, setCommunityUnread] = useState(0);
   // 아케이드에서 오늘 받은 포인트. 로그인 안 했으면 0으로 둔다.
@@ -238,14 +235,6 @@ export default function HomeScreen() {
         .then(setCommunityUnread)
         .catch(() => setCommunityUnread(0));
     }, [session]),
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      getMinistryLive()
-        .then(setLive)
-        .catch(() => setLive(null));
-    }, []),
   );
 
   // 게임을 하고 돌아오면 그 자리에서 오늘 점수가 올라 있어야 한다.
@@ -440,24 +429,6 @@ export default function HomeScreen() {
               </View>
             ))}
           </View>
-
-          {/* 2.5 목회동행 — 목사님이 사역 중이신 동안에만 뜬다. 끝나면 사라진다. */}
-          {live && (
-            <Pressable
-              onPress={() => openAppWindow(live.url, APP_WINDOW.ministryLive)}
-              style={({ pressed }) => [
-                styles.noticeStrip,
-                { backgroundColor: theme.accentSoft, borderColor: theme.accent },
-                pressed && styles.pressed,
-              ]}>
-              <ThemedText type="small" numberOfLines={1} style={styles.noticeStripText}>
-                🚶 지금 목회동행 중 — {live.title}
-              </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                함께 보기
-              </ThemedText>
-            </Pressable>
-          )}
 
           {/* 2.6 목자의 편지 — 새 편지가 오면 제목이 홈에 뜬다.
               예전에는 💌 타일에 작은 「NEW」 딱지만 붙어서, 편지가 와도
