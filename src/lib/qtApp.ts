@@ -18,7 +18,7 @@ import { Platform } from 'react-native';
  */
 
 /** 데이빗 큐티 주소. 바뀌면 여기만 고친다. */
-export const QT_APP_ORIGIN = 'https://dg-qt.vercel.app';
+export const QT_APP_ORIGIN = 'https://qt.dgaiworks.com';
 
 /**
  * 큐티를 마치고 돌아올 곳. 큐티 앱이 허용 목록으로 검사한다.
