@@ -1,0 +1,68 @@
+# 데이빗바이블 웹 → 호스팅어 배포.
+#
+# 빌드는 여기(GitHub)에서 하고, 호스팅어에는 완성된 파일만 올린다. 호스팅어 서버의
+# CPU·메모리(여러 사이트가 함께 쓴다)를 빌드에 쓰지 않으려는 것이다.
+#
+# ⚠️ 지금은 **손으로만** 돌린다(workflow_dispatch). 테스트 주소에서 로그인·새로고침·
+#    직접 주소 진입이 되는 것을 확인한 뒤에야 push 자동 배포로 바꾼다.
+#
+# 필요한 Secrets (Settings → Secrets and variables → Actions). 값은 채팅에 적지 말고
+# 거기에 직접 넣는다:
+#   EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY   (없으면 빌드가 실패한다)
+#   EXPO_PUBLIC_KAKAO_JS_KEY                                   (웹 카카오 공유)
+#   HOSTINGER_FTP_HOST, HOSTINGER_FTP_USER, HOSTINGER_FTP_PASSWORD
+#   HOSTINGER_FTP_DIR   (예: /public_html/ — 호스팅어 사이트의 FTP 시작 폴더 기준)
+name: Deploy web to Hostinger
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-hostinger
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build (expo export)
+        run: npx expo export -p web && node scripts/fix-web-head.mjs
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+          EXPO_PUBLIC_KAKAO_JS_KEY: ${{ secrets.EXPO_PUBLIC_KAKAO_JS_KEY }}
+
+      - name: Add .htaccess
+        run: cp deploy/hostinger.htaccess dist/.htaccess
+
+      - name: Sanity check dist
+        run: |
+          test -f dist/index.html
+          test -f dist/+not-found.html
+          find dist -name '*.wasm' | grep -q .   # SQLite WASM 이 빠지면 앱이 안 열린다
+          echo "files: $(find dist -type f | wc -l)"
+
+      - name: Upload to Hostinger (FTPS)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_HOST }}
+          username: ${{ secrets.HOSTINGER_FTP_USER }}
+          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: dist/
+          server-dir: ${{ secrets.HOSTINGER_FTP_DIR }}
+          # ⚠️ 기본 제외 목록에는 **/node_modules/** 가 있다. 그런데 빌드 결과의
+          # assets/node_modules/… 아래에 SQLite WASM 이 들어 있어서, 기본값 그대로면
+          # 그 파일이 빠져 웹이 조용히 고장 난다. 그래서 목록을 직접 정한다.
+          exclude: |
+            **/.git*
+            **/.git*/**
