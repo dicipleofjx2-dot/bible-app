@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ChurchHomeMark } from '@/components/ChurchHomeMark';
 import { RevivalAngelsMark } from '@/components/RevivalAngelsMark';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -20,7 +21,7 @@ import { getMyActiveEnrollment, getTodayChecklistCount, type ActiveEnrollment } 
 import { getMeditationNote } from '@/db/userData';
 import { hasQtRecordFor } from '@/db/qtApp';
 import { getLatestLetter, type ShepherdLetter } from '@/db/shepherdLetters';
-import { ATTENDANCE_POINTS, getAttendedDates, getStepsByDate, setAttended, STEP_GOAL } from '@/lib/readingHelper/db';
+import { ATTENDANCE_POINTS, getAttendedDates, setAttended } from '@/lib/readingHelper/db';
 import { getLatestNotice, type Notice } from '@/db/notices';
 import { getCommunityUnread } from '@/db/community';
 import { hasUnseenLetter } from '@/lib/shepherdLetterBadge';
@@ -137,6 +138,16 @@ const HOME_TILES: HomeTile[] = [
   // 새부대매거진(New Wine) — 매거진과 새부대 방송, 교회 홈페이지가 그 안에 있다.
   // 소식은 읽는 것과 듣는 것으로 오므로 한 칸에 욱여넣지 않는다.
   { key: 'newWine', emoji: '🍇', label: 'home.newWine', href: '/newwine' as Href },
+  // 새부대교회 홈페이지 — 매거진 안에 한 줄이 있었지만 두 걸음이 필요했다(2026-11-27).
+  // 바로 열리도록 바둑판에 칸을 둔다. 같은 창 이름(churchHome)을 써서 탭이 늘지 않는다.
+  {
+    key: 'churchHome',
+    emoji: '🏠',
+    Mark: ChurchHomeMark,
+    label: 'home.churchHome',
+    href: '/',
+    external: { url: 'https://newwineskin.co.kr/', window: APP_WINDOW.churchHome },
+  },
 ];
 
 export default function HomeScreen() {
@@ -178,8 +189,6 @@ export default function HomeScreen() {
    */
   const [attendedDays, setAttendedDays] = useState<Set<string>>(new Set());
   const [attendanceSaving, setAttendanceSaving] = useState(false);
-  /** 오늘 걸음 수(만보기). 0 이면 띠를 그리되 「걸어 보세요」로 둔다. */
-  const [stepsToday, setStepsToday] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -200,16 +209,10 @@ export default function HomeScreen() {
         setQtDoneToday(!!note || doneInQtApp);
 
         if (session) {
-          // 못 읽어도 화면은 그대로 떠야 한다 — 출석과 걸음은 홈의 곁가지다.
+          // 못 읽어도 화면은 그대로 떠야 한다 — 출석은 홈의 곁가지다.
           setAttendedDays(await getAttendedDates(session.user.id).catch(() => new Set<string>()));
-          // 걸음은 기기 자정 기준이라 통독의 「오늘」(새벽 4시)과 다를 수 있다.
-          const d = new Date();
-          const stepKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-          const walked = await getStepsByDate(session.user.id, stepKey, stepKey).catch(() => new Map<string, number>());
-          setStepsToday(walked.get(stepKey) ?? 0);
         } else {
           setAttendedDays(new Set());
-          setStepsToday(0);
         }
       })();
     }, [db, session]),
@@ -353,29 +356,6 @@ export default function HomeScreen() {
               </ThemedText>
               <ThemedText type="small" themeColor="textSecondary" style={styles.attendanceScore}>
                 {attendanceDays}일 · {(attendanceDays * ATTENDANCE_POINTS).toLocaleString()}점
-              </ThemedText>
-            </Pressable>
-          ) : null}
-
-          {/* 만보기 — 출석 바로 아래. 눌러서 들어가면 고리와 일주일 그래프가 있다.
-              홈에서는 수만 보인다. 걸음은 「오늘 얼마나 움직였나」를 흘긋 보는 것이라
-              숫자 하나면 충분하고, 더 넣으면 말씀 카드가 아래로 밀린다. */}
-          {session ? (
-            <Pressable
-              onPress={() => router.push('/pedometer' as Href)}
-              style={({ pressed }) => [
-                styles.attendanceBar,
-                {
-                  backgroundColor: theme.backgroundElement,
-                  borderColor: stepsToday >= STEP_GOAL ? theme.done : theme.border,
-                },
-                pressed && styles.pressed,
-              ]}>
-              <ThemedText type="smallBold">
-                {stepsToday >= STEP_GOAL ? '🎉 오늘 만 걸음' : '👟 만보기'}
-              </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary" style={styles.attendanceScore}>
-                {stepsToday.toLocaleString()} / {STEP_GOAL.toLocaleString()} 걸음
               </ThemedText>
             </Pressable>
           ) : null}
