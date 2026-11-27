@@ -19,6 +19,51 @@ Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
 
+## 2026-11-27 — 웹 배포를 Vercel 에서 **호스팅어**로 옮겼다
+
+**지금 구조**: `main` 에 합치면 GitHub Actions(`.github/workflows/deploy-hostinger.yml`)가 빌드
+(`expo export -p web` + `scripts/fix-web-head.mjs`)한 뒤 **SSH(rsync)** 로 호스팅어
+`davidbible.dgaiworks.com` 에 올린다. 주소 규칙은 `deploy/hostinger.htaccess`(vercel.json 의
+cleanUrls·rewrites 를 옮김 — vercel.json 에 없던 동적 경로 5개도 넣었다). 확인: 응답 헤더에
+`platform: hostinger`·`server: hcdn`, `x-vercel-id` 없음. **Vercel 의 bible-app 프로젝트는 지웠다.**
+
+- 필요한 값(이름만; 값은 GitHub Settings → Secrets and variables → Actions 에 직접 넣는다):
+  Secrets `EXPO_PUBLIC_SUPABASE_URL`·`EXPO_PUBLIC_SUPABASE_ANON_KEY`(**없으면 빌드가 실패한다**),
+  `HOSTINGER_SSH_HOST`·`_PORT`·`_USER`·`_KEY`(배포 전용 개인키)·`_DIR`(…/davidbible.dgaiworks.com/public_html/),
+  그리고 **Variable**(Secret 아님) `HOSTINGER_SSH_FINGERPRINT`(호스팅어 SSH 화면의 ED25519 지문).
+- 서버 키는 붙여 넣은 값이 아니라 **워크플로가 `ssh-keyscan` 으로 받아 위 지문과 대조**한다.
+  틀리면 로그에 두 지문이 나란히 찍힌다.
+- 호스팅어 사양: Business Web Hosting, 디스크 50GB, inode 60만(전체 사이트가 합쳐 약 25만 사용).
+  SSH 는 hPanel → 사이트 → Advanced → SSH Access.
+
+**겪은 일 — 다음에 같은 길을 가지 않으려고**
+- **FTPS 는 쓰지 못했다**: 로그인 뒤 데이터 소켓에서 `ECONNRESET`. SSH 로 바꿨다. 또 FTP 배포 액션은
+  기본이 `**/node_modules/**` 를 빼서 `assets/node_modules/…` 아래 **SQLite WASM 이 빠진다** — 직접 rsync 를 쓴 까닭.
+- **Windows 에서 복사한 `known_hosts`·개인키 Secret 이 깨졌다**(「not a public key file」, 「error in libcrypto」).
+  한 번은 **명령어 글자 자체를 Secret 칸에 붙여 넣었다**. 개인키는 PowerShell 에서
+  `(Get-Content <키> -Raw) -replace "`r`n","`n" | Set-Clipboard` 한 줄을 **실행한 뒤** `Ctrl+V` 로 넣는다.
+- **개인키 입력칸을 스크린샷에 찍으면 안 된다**(찍혀서 키를 새로 만들어 교체했다). 이 SSH 사용자는 **호스팅어
+  계정 전체**의 것이라 새면 다른 사이트도 위험하다. 교체 순서: 새 키 → 호스팅어에 공개키 추가 → GitHub Secret
+  덮어쓰기 → 배포 성공 확인 → 옛 키를 호스팅어에서 삭제.
+- Secret 을 정리하다 **`HOSTINGER_SSH_PORT`·`_USER` 를 잘못 지웠다**(다시 만들었다). 삭제 전 이름을 다시 읽는다.
+- 이 환경의 `ssh-keyscan`(구버전)은 서버의 KEX 와 맞지 않는다 — 지문 확인은 `ssh` 로 직접 접속해서 했다.
+
+**Vercel 팀이 일시중지됐다**(2026-11-27, Hobby 공정 사용 한도 초과: Fluid Active CPU 4h38m / 4h). **12월 27일에
+풀린다.** 아직 Vercel 에 있는 앱은 그동안 멈춘다 — 데이빗큐티(`dg-qt.vercel.app`)·스마트주보·
+교회 홈페이지(`newwineskin.co.kr`) 등. 데이빗바이블 웹은 호스팅어라 **영향이 없다.**
+
+**걷어 낸 기능(코드)**: 데이빗북스, 사명기록관, 디지털캠퍼스(데이빗에듀 항목), 목회라이브(홈 띠).
+**Supabase 의 표·버킷은 그대로 있다**(`books`·`purchases`·`subscriptions`·`mission_*`, 빈 버킷 몇 개) — 건수를
+확인한 뒤 정리한다.
+
+**로그인 이어받기는 이미 있다**: `src/lib/appHandoff.ts` 가 큐티·중보기도센터를 열 때 일회용 열쇠를 받아
+로그인 화면 없이 연다(실패하면 조용히 일반 주소로 열린다). `qtApp.ts` 의 「토큰을 싣지 않는다 … 큐티가 카카오를
+직접 받는다」는 주석은 **오래된 설명**이다. 큐티가 로그인을 다시 요구하면 그 앱의 `/api/auth/handoff`
+(환경변수 `SUPABASE_SERVICE_ROLE_KEY` 필요) 상태부터 본다.
+
+**남은 일**: 앱(APK)은 다음 빌드부터 새 주소(`arcade.ts`·`supportLinks.ts` 의 `ARCADE_SITE` 등)를 쓴다.
+`vercel.json` 은 이제 쓰이지 않는다(지워도 된다). Usage 알림을 켠다.
+
 ## ⚠️ 2026-11-26 — 로그인 불능 사고 (Supabase 용량 제한, 코드 문제 아님)
 
 **증상**: 카카오·이메일 로그인 모두 불가. 앱 코드는 10월 말 이후 바뀐 곳이 없었다.
