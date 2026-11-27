@@ -1,0 +1,61 @@
+# 데이빗바이블 웹(expo 정적 내보내기) — 호스팅어(Apache)용 .htaccess
+#
+# vercel.json 의 cleanUrls · rewrites 를 옮겼다. 배포할 때 dist/.htaccess 로 복사된다
+# (.github/workflows/deploy-hostinger.yml). public/ 에 두지 않은 까닭: 점 파일이
+# 내보내기에서 빠질 수 있고, Vercel 쪽에는 필요 없는 파일이어서다.
+#
+# ⚠️ 규칙을 고치면 테스트 주소에서 새로고침·직접 주소 진입을 꼭 확인한다.
+
+Options -MultiViews -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /+not-found.html
+
+# 번들 SQLite(WASM). 형식이 틀리면 브라우저가 로드를 거부한다.
+AddType application/wasm .wasm
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # https 강제 (호스팅어 SSL)
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # 실제 파일·폴더가 있으면 그대로 내보낸다(Vercel 도 파일 시스템이 먼저).
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # 동적 경로 → 템플릿 html (vercel.json 의 rewrites)
+  RewriteRule ^arena/escape/[^/]+/?$        /arena/escape/[roomId].html [L]
+  RewriteRule ^arena/duel/[^/]+/?$          /arena/duel/[duelId].html [L]
+  RewriteRule ^arena/tournament/[^/]+/?$    /arena/tournament/[tournamentId].html [L]
+  RewriteRule ^arcade/joshua/[^/]+/?$       /arcade/joshua/[roomId].html [L]
+  RewriteRule ^notice-board/[^/]+/?$        /notice-board/[id].html [L]
+  RewriteRule ^plans/[^/]+/?$               /plans/[slug].html [L]
+  RewriteRule ^post/[^/]+/?$                /post/[id].html [L]
+  RewriteRule ^r2m/courses/[^/]+/?$         /r2m/courses/[id].html [L]
+  RewriteRule ^shepherd-letters/[^/]+/?$    /shepherd-letters/[id].html [L]
+  RewriteRule ^word-notes/[^/]+/?$          /word-notes/[id].html [L]
+  # 아래 다섯은 vercel.json 에 규칙이 없던 경로다(실제 빌드 결과에서 찾았다).
+  # 직접 주소로 들어오거나 새로고침하면 열리지 않던 것을 함께 막는다.
+  RewriteRule ^growth-school/activity/[^/]+/?$ /growth-school/activity/[id].html [L]
+  RewriteRule ^growth-school/report/[^/]+/?$   /growth-school/report/[id].html [L]
+  RewriteRule ^growth-school/student/[^/]+/?$  /growth-school/student/[id].html [L]
+  RewriteRule ^revival/[^/]+/?$                /revival/[kind].html [L]
+  RewriteRule ^worship/[^/]+/?$                /worship/[id].html [L]
+
+  # cleanUrls: /profile → /profile.html
+  RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+  RewriteRule ^(.+?)/?$ /$1.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  # 해시가 붙은 정적 자원은 오래 캐시한다.
+  <FilesMatch "\.(js|css|woff2?|ttf|png|jpe?g|webp|svg|wasm)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  # 문서는 항상 새로 확인한다 — 새 배포가 바로 보이도록.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

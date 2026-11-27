@@ -86,7 +86,7 @@ export async function getArcadeState(): Promise<ArcadeState> {
  * 한 번 넘겨보내지므로(리다이렉트) 어느 쪽이든 열리기는 한다. 그래서 웹에서는
  * 지금 열려 있는 곳을 기준으로 붙이고, 앱(네이티브)에서는 배포 주소를 쓴다.
  */
-export const ARCADE_SITE = 'https://dicipleofjx-bible.vercel.app';
+export const ARCADE_SITE = 'https://davidbible.dgaiworks.com';
 
 export function arcadeUrl(): string {
   if (typeof window !== 'undefined' && window.location?.origin) {

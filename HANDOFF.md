@@ -19,6 +19,39 @@ Native (Android APK via EAS) is a separate story — see "⚠️ EAS build
 quota" below before offering to build one. The quota note is from July;
 re-check current quota before relying on it.
 
+## ⚠️ 2026-11-26 — 로그인 불능 사고 (Supabase 용량 제한, 코드 문제 아님)
+
+**증상**: 카카오·이메일 로그인 모두 불가. 앱 코드는 10월 말 이후 바뀐 곳이 없었다.
+**원인**: 조직이 **Free 로 내려오면서** Storage 한도가 100GB → **1GB** 가 됐는데 실제로는
+**약 4.1GB**(11/20~25 일평균)가 들어 있었다. 응답은
+`exceed_storage_size_quota ... Service for this project is restricted` (HTTP 402).
+이 조직의 **모든 프로젝트**가 막힌다 — 앱·로그인·Storage 목록 화면까지.
+**큰 몫은 말씀광산 자료**(영상·음원 등)였고, 사용자가 그것을 Supabase 에서 뺐다
+(이 앱은 `wordmine`·`wp-videos` 버킷을 코드에서 쓰지 않는다 — grep 확인).
+**복구**: 파일을 지워 약 572MB 로 줄었으나 **주기 평균이 아직 1GB 위**라 제한이 안 풀려서
+**Pro 로 다시 올렸다**(2026-11-26, 로그인 복구 확인).
+
+**교훈 — 순서**: **먼저 줄이고, 그다음 Free 로 내린다.** 반대로 하면 즉시 전체 제한이다.
+용량은 **시간 평균(GB-Hrs)** 이라 지운 뒤에도 하루 이틀은 제한이 남는다.
+Free 로 다시 내리기 전 확인: Storage < 1GB(지금 약 572MB), DB < 500MB(지금 174MB),
+**Egress < 5GB**(이전 주기 4.4GB, 캐시 5.3GB — 여유가 적다).
+
+**진단에 쓴 것**(제한 중에도 **SQL Editor 는 열렸다**, Storage 화면은 안 열렸다):
+```sql
+select bucket_id, count(*) files,
+  round(sum((metadata->>'size')::bigint)/1024/1024.0,1) mb
+from storage.objects group by 1 order by sum((metadata->>'size')::bigint) desc;
+```
+Usage 화면 `…/org/<id>/usage` → 「Previous billing cycle」·「Storage Size」 그래프가
+날짜별 기록의 전부다(시간 단위는 없다).
+이 프로젝트의 큰 버킷(11/26 기준): `bulletin-media` 362MB(버킷 이름으로 본 스마트주보 추정 — 확인 안 됨), `wordmine` 68MB,
+`book-files` 49MB. 같은 Supabase 프로젝트를 **스마트주보·말씀광산도 쓴다**.
+
+**하지 않은 것**: 버킷 파일 크기 상한 마이그레이션 — 이번 사고는 파일 하나가 아니라
+총량이었고, 프로젝트 전체 기본 상한(50MB)이 이미 있으며, 다른 앱의 업로드를 막을 위험이 있다.
+**권장**: 영상·음악은 유튜브·워드프레스에 두고 Supabase 에 올리지 않는다.
+Usage 알림 메일을 켜 둔다.
+
 ## 이어서 (2026-09-30) — 데이빗스톤 성장ON (대안학교 성장기록)
 
 기획서(「데이빗스톤 성장기록 앱 통합 기획서」)의 **1단계 MVP**를 이 앱 안에

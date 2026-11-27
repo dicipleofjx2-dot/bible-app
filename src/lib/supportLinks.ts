@@ -20,5 +20,5 @@ export function getCoupangShortcutUrl(): string {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     return `${window.location.origin}/coupang`;
   }
-  return 'https://dicipleofjx-bible.vercel.app/coupang';
+  return 'https://davidbible.dgaiworks.com/coupang';
 }
