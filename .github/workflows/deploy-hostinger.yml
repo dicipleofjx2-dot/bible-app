@@ -3,8 +3,8 @@
 # 빌드는 여기(GitHub)에서 하고, 호스팅어에는 완성된 파일만 올린다. 호스팅어 서버의
 # CPU·메모리(여러 사이트가 함께 쓴다)를 빌드에 쓰지 않으려는 것이다.
 #
-# ⚠️ 지금은 **손으로만** 돌린다(workflow_dispatch). 테스트 주소에서 로그인·새로고침·
-#    직접 주소 진입이 되는 것을 확인한 뒤에야 push 자동 배포로 바꾼다.
+# `main` 에 푸시(= PR 합치기)되면 자동으로 배포한다. 손으로도 돌릴 수 있다(workflow_dispatch).
+# 같은 코드를 Vercel 도 `main` 에서 배포한다 — Vercel 을 끌 때까지 두 곳이 함께 갱신된다.
 #
 # 필요한 Secrets (Settings → Secrets and variables → Actions). 값은 채팅에 적지 말고
 # 거기에 직접 넣는다:
@@ -19,11 +19,9 @@ name: Deploy web to Hostinger
 
 on:
   workflow_dispatch:
-  # ⚠️ 임시: 테스트 주소(davidbible.dgaiworks.com)에서 확인하는 동안만 이 브랜치의
-  # 푸시로도 돌린다. main 에 합치기 전에 이 push 블록은 지운다.
   push:
     branches:
-      - ccr-b2ef0abf-vc8ezs
+      - main
 
 concurrency:
   group: deploy-hostinger
